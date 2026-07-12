@@ -23,6 +23,7 @@
   .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 70px}
   header{border-bottom:2px solid var(--ink);padding-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
   h1{font-family:var(--serif);font-size:clamp(28px,6vw,44px);font-weight:400;letter-spacing:-0.01em;line-height:1.1;color:var(--indigo);margin-top:2px}
+  h1 .flag { height: 0.7em; width: auto; border: 1px solid var(--rule); border-radius: 2px; margin-right: 14px; vertical-align: -0.05em; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
   .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);margin-bottom:7px}
   .editbtn{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--ink);background:none;color:var(--ink);padding:8px 14px;border-radius:2px;cursor:pointer}
   .editbtn.on{background:var(--clay);border-color:var(--clay);color:#fff}
@@ -125,7 +126,12 @@
   <header>
     <div>
       <div class="kicker">Anniversary trip · 17–27 Nov 2026</div>
-      <h1>Japan, November 2026</h1>
+      <h1>
+        <svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+          <rect width="900" height="600" fill="#ffffff"/>
+          <circle cx="450" cy="300" r="180" fill="#bc002d"/>
+        </svg>Japan, November 2026
+      </h1>
     </div>
     <button class="editbtn" id="editToggle" type="button">✎ Edit mode</button>
   </header>

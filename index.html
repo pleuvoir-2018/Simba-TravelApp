@@ -125,7 +125,7 @@
 <div class="wrap">
   <header>
     <div>
-      <div class="kicker">Anniversary trip · 17–27 Nov 2026</div>
+      <div class="kicker">Anniversary trip · 17–27 Nov 2026 · <span id="countdown"></span></div>
       <h1>
         <svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
           <rect width="900" height="600" fill="#ffffff"/>
@@ -938,6 +938,23 @@ function render(){
   renderSide(c);
 }
 loadOverrides().then(render);
+
+/* ---------------- COUNTDOWN ---------------- */
+(function(){
+  const el=document.getElementById('countdown');
+  if(!el) return;
+  const MS=86400000;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const dep=new Date(2026,10,16);   // Nov 16 — YVR departure
+  const arr=new Date(2026,10,17);   // Nov 17 — Day 1 in Japan
+  const end=new Date(2026,10,27);   // Nov 27 — fly home
+  const d=Math.round((dep-today)/MS);
+  if(d>1)            el.textContent=`${d} days to go ✈`;
+  else if(d===1)     el.textContent=`Tomorrow ✈`;
+  else if(d===0)     el.textContent=`Departure day ✈`;
+  else if(today<=end)el.textContent=`Day ${Math.round((today-arr)/MS)+1} of 11 🇯🇵`;
+  else               el.textContent=`Okaeri — trip complete`;
+})();
   
 /* ---------------- LIVE EXCHANGE RATE ---------------- */
 let liveJpyRate = 150.00; // Fallback offline rate

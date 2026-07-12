@@ -316,7 +316,9 @@ const TRAINS=[
  {d:"Nov 26",t:"14:06",route:"Nagoya → Tokyo",train:"Nozomi 254 ✓",note:"Arr 15:46, Roppongi ~16:30. SHUHARI ends 13:35 latest."}
 ];
 
-/* ---------------- STORAGE (window.storage → localStorage → memory) ---------------- */
+/* ---------------- STORAGE ---------------- */
+const KEY='japan_trip_v2';
+let overrides={},mem=null;
 async function sGet(){
   // 1. Try to fetch from Edge Config Cloud
   try {

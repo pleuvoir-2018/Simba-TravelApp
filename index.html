@@ -106,7 +106,12 @@
   .train:last-child{border-bottom:0}
   .train .route{font-family:var(--serif);font-size:15px;font-weight:700}
   .train .tmeta{font-family:var(--mono);font-size:10px;color:var(--grey);margin-top:2px}
-  footer{margin-top:20px;font-family:var(--mono);font-size:10px;color:var(--grey);border-top:1px solid var(--rule);padding-top:10px;line-height:1.8}
+  /* Footer & Watermark Styles */
+  footer { margin-top:20px; border-top:1px solid var(--rule); padding-top:10px; }
+  .f-text { font-family:var(--mono); font-size:10px; color:var(--grey); line-height:1.8; margin-bottom: 12px;}
+  .f-bottom { display: flex; justify-content: flex-end; align-items: center; border-top: 1px dotted var(--rule); padding-top: 12px; padding-bottom: 12px;}
+  .f-logos { display: flex; gap: 12px; align-items: center; color: var(--grey); }
+  .f-logos svg { height: 18px; width: auto; fill: currentColor; }
 </style>
 </head>
 <body>
@@ -124,7 +129,22 @@
   </div>
   <div class="tabs" id="tabs"></div>
   <div id="panel"></div>
-  <footer>Plum square = hotel · numbered pins = meals · green diamonds = POI (toggle + category chips) · dotted plum = day loops (hotel → lunch → dinner → hotel) · dashed indigo = rail/flight legs. Edits save to your browser and persist.</footer>
+  <footer>
+    <div class="f-text">Plum square = hotel · numbered pins = meals · green diamonds = POI (toggle + category chips) · dotted plum = day loops (hotel → lunch → dinner → hotel) · dashed indigo = rail/flight legs. Edits save to your browser and persist.</div>
+    
+    <div class="f-bottom">
+      <div class="f-logos">
+        <!-- Gemini Sparkle Logo -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z"/>
+        </svg>
+        <!-- Claude Asterisk Logo -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.87 2.22l-1.87 5.76L10.13 2.22H7.2l3.42 8.4-7.53-3.69v3.1l6.98 3.42-6.98 3.42v3.1l7.53-3.69-3.42 8.4h2.93l1.87-5.76 1.87 5.76h2.93l-3.42-8.4 7.53 3.69v-3.1l-6.98-3.42 6.98-3.42v-3.1l-7.53 3.69 3.42-8.4h-2.93z"/>
+        </svg>
+      </div>
+    </div>
+  </footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>

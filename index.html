@@ -568,8 +568,8 @@ function renderSide(c){
 function renderExpenses() {
   const exps = overrides.expenses || [];
   const total = exps.reduce((sum, e) => sum + Number(e.usd), 0);
-
-  const cats = ["Food", "POI & Cafe", "Shinkansen", "Hotel", "Flight"];
+  
+  const cats = ["Food", "POI & Cafe", "Shinkansen", "Hotel", "Flight", "Omiyage"];
   const cards = ["AMEX Platinum", "AMEX Gold", "AMEX Bonvoy Brilliant", "United Quest"];
 
   // Calculate summaries
@@ -590,7 +590,7 @@ function renderExpenses() {
 
   panel.innerHTML = `<div class="card" style="max-width:850px; margin: 0 auto;">
     <div class="chead"><span>Expense Tracker</span><span>Total: $${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
-
+    
     <div style="display:flex; gap:24px; padding:16px; border-bottom:1px solid var(--rule); background:var(--washi2); flex-wrap:wrap;">
       <div style="flex:1; min-width:200px;">
         <div style="font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase; margin-bottom:8px;">By Category</div>
@@ -603,7 +603,7 @@ function renderExpenses() {
         <div style="font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase; margin-bottom:8px;">By Card</div>
         ${cards.filter(c => cardTotals[c].total > 0).map(c => `
           <div style="display:flex; justify-content:space-between; font-size:12px; border-bottom:1px dotted var(--rule); padding:5px 0; align-items:flex-start;">
-            <span>${c}</span>
+            <span>${c}</span> 
             <span style="text-align:right;">
               <b>$${cardTotals[c].total.toLocaleString('en-US', {minimumFractionDigits: 2})}</b><br>
               <span style="font-size:9.5px; font-family:var(--mono); color:var(--moss);">${cardTotals[c].paid > 0 ? 'PAID: $' + cardTotals[c].paid.toLocaleString('en-US', {minimumFractionDigits: 2}) : ''}</span>
@@ -615,33 +615,38 @@ function renderExpenses() {
     </div>
 
     <div style="padding:16px;">
-      <form id="expForm" style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:24px; align-items:flex-end; background:rgba(34,64,107,.04); padding:12px; border:1px solid var(--rule); border-radius:2px;">
-
+      <form id="expForm" data-edit-idx="" style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:24px; align-items:flex-end; background:rgba(34,64,107,.04); padding:12px; border:1px solid var(--rule); border-radius:2px;">
+        
         <label style="flex:1; min-width:110px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Date<br>
           <input type="date" id="exDate" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
         </label>
 
-        <label style="flex:1; min-width:90px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Amount ($)<br>
-          <input type="number" step="0.01" id="exUsd" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="0.00">
-        </label>
-
-        <label style="flex:1.5; min-width:120px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Category<br>
+        <div style="flex:1.5; min-width:160px; display:flex; gap:6px;">
+          <label style="flex:1; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">¥ JPY<br>
+            <input type="number" id="exJpy" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="0">
+          </label>
+          <label style="flex:1; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">$ USD<br>
+            <input type="number" step="0.01" id="exUsd" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="0.00">
+          </label>
+        </div>
+        
+        <label style="flex:1; min-width:110px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Category<br>
           <select id="exCat" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
             ${cats.map(c=>`<option>${c}</option>`).join('')}
           </select>
         </label>
-
-        <label style="flex:1.5; min-width:140px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Card Used<br>
+        
+        <label style="flex:1.5; min-width:130px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Card Used<br>
           <select id="exCard" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
             ${cards.map(c=>`<option>${c}</option>`).join('')}
           </select>
         </label>
-
+        
         <label style="flex:2; min-width:150px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Description<br>
-          <input type="text" id="exDesc" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="e.g., Ishibe Koji Mamecha">
+          <input type="text" id="exDesc" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="e.g., Cat collars for Simba & Ahri">
         </label>
-
-        <button type="submit" style="font:600 11px var(--mono); text-transform:uppercase; letter-spacing:0.08em; background:var(--clay); color:#fff; border:none; padding:7px 14px; border-radius:2px; cursor:pointer; height:30px;">+ Add</button>
+        
+        <button id="expSubmitBtn" type="submit" style="font:600 11px var(--mono); text-transform:uppercase; letter-spacing:0.08em; background:var(--clay); color:#fff; border:none; padding:7px 14px; border-radius:2px; cursor:pointer; height:30px; transition: background 0.2s;">+ Add</button>
       </form>
 
       <div>
@@ -659,7 +664,10 @@ function renderExpenses() {
             </div>
             <div style="display:flex; align-items:center; gap:16px;">
               <div style="font-family:var(--mono); font-weight:700; color:var(--indigo); font-size:14px;">$${Number(e.usd).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-              <button onclick="deleteExp(${i})" title="Delete" style="background:none; border:none; color:var(--clay); cursor:pointer; font-size:18px; line-height:1; padding:0 4px;">×</button>
+              <div style="display:flex; gap:6px;">
+                <button onclick="editExp(${i})" title="Edit" style="background:none; border:none; color:var(--indigo); cursor:pointer; font-size:14px; padding:0 4px;">✎</button>
+                <button onclick="deleteExp(${i})" title="Delete" style="background:none; border:none; color:var(--clay); cursor:pointer; font-size:18px; line-height:1; padding:0 4px;">×</button>
+              </div>
             </div>
           </div>
         `}).join('')}
@@ -667,22 +675,42 @@ function renderExpenses() {
     </div>
   </div>`;
 
-  // Pre-fill date to today for convenience
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('exDate').value = today;
+  // Pre-fill date
+  document.getElementById('exDate').value = new Date().toISOString().split('T')[0];
 
-  // Handle form submission
+  // Auto-calculate JPY to USD (Using 150 exchange rate - you can adjust this!)
+  document.getElementById('exJpy').addEventListener('input', (e) => {
+    if(e.target.value) {
+      document.getElementById('exUsd').value = (Number(e.target.value) / 150).toFixed(2);
+    } else {
+      document.getElementById('exUsd').value = '';
+    }
+  });
+
+  // Handle Add/Update submission
   document.getElementById('expForm').onsubmit = (ev) => {
     ev.preventDefault();
     overrides.expenses = overrides.expenses || [];
-    overrides.expenses.push({
+    const form = document.getElementById('expForm');
+    const idx = form.dataset.editIdx;
+
+    const newExp = {
       date: document.getElementById('exDate').value,
       usd: document.getElementById('exUsd').value,
       cat: document.getElementById('exCat').value,
       card: document.getElementById('exCard').value,
       desc: document.getElementById('exDesc').value,
-      paid: false // Defaults to unpaid
-    });
+      paid: false
+    };
+
+    if (idx !== "") { // We are UPDATING an existing expense
+      newExp.paid = overrides.expenses[idx].paid; // Keep checkmark status
+      overrides.expenses[idx] = newExp;
+      form.dataset.editIdx = ""; // Reset edit mode
+    } else { // We are ADDING a new expense
+      overrides.expenses.push(newExp);
+    }
+
     saveOverrides();
     renderExpenses();
   };
@@ -700,6 +728,26 @@ window.togglePaid = function(idx, isChecked) {
   overrides.expenses[idx].paid = isChecked;
   saveOverrides();
   renderExpenses();
+};
+
+window.editExp = function(idx) {
+  const e = overrides.expenses[idx];
+  document.getElementById('exDate').value = e.date;
+  document.getElementById('exUsd').value = e.usd;
+  document.getElementById('exJpy').value = ''; // clear JPY since we saved in USD
+  document.getElementById('exCat').value = e.cat;
+  document.getElementById('exCard').value = e.card;
+  document.getElementById('exDesc').value = e.desc;
+
+  // Change UI to "Update" mode
+  const form = document.getElementById('expForm');
+  const btn = document.getElementById('expSubmitBtn');
+  form.dataset.editIdx = idx;
+  btn.textContent = "✓ Update";
+  btn.style.background = "var(--moss)";
+  
+  // Smooth scroll back up to the form
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
 function render(){

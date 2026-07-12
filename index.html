@@ -415,11 +415,11 @@ async function loadOverrides(){
 }
 
 async function saveOverrides(){
-  const mode = await sSet(JSON.stringify(overrides));
-  // Updates the top UI bar to confirm cloud sync
-  if(mode === 'cloud') flash('Saved to Cloud ☁️');
-  else if(mode === 'browser') flash('Saved locally (Offline)');
-  else flash('Saved for this session only');
+  try{ const r=await fetch('/api/sync'); const d=await r.json();
+    if(d.value) overrides={...d.value,...overrides};   // remote first, my edits win conflicts
+  }catch(e){}
+  const mode=await sSet(JSON.stringify(overrides));
+  ...
 }
 
 async function resetAll(){
@@ -428,6 +428,14 @@ async function resetAll(){
   await sDel();
   render();
   flash('Reset ✓');
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(overrides,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`japan-trip-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
 }
 
 function flash(m){

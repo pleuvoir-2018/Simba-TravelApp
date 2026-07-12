@@ -51,17 +51,17 @@
   .maphead{padding:9px 13px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;background:var(--washi)}
   .maphead h2{font-family:var(--serif);font-size:16px;font-weight:700}
   .maphead span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey)}
-  
+
   /* Map Specific Styles */
   #map { width: 100%; height: 420px; background: #e5e3df; z-index: 1; }
   .leaflet-div-icon { background: none; border: none; }
-  
+
   /* Custom HTML Markers */
   .pin-marker { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; color: white; font-family: var(--mono); font-size: 9px; font-weight: 700; border: 2px solid var(--washi); cursor: pointer; transition: all .12s; position: relative;}
   .pin-marker.bg-indigo { background: var(--indigo); }
   .pin-marker.bg-clay { background: var(--clay); width: 26px; height: 26px; margin-left:-3px; margin-top:-3px; font-size: 11px; z-index: 1000 !important; }
   .hotel-marker { background: var(--plum); color: white; width: 16px; height: 16px; border-radius: 2px; border: 2px solid var(--washi); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 8px; position: relative;}
-  
+
   .marker-label { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 8px; white-space: nowrap; font-family: var(--sans); font-size: 9.5px; color: var(--ink); pointer-events: none; text-shadow: 1px 1px 0 var(--washi), -1px -1px 0 var(--washi), 1px -1px 0 var(--washi), -1px 1px 0 var(--washi); font-weight: normal; line-height: 1.2;}
   .marker-label .dim { color: var(--grey); font-size: 8px; }
   .hotel-marker .marker-label { color: var(--plum); font-weight: bold; }
@@ -105,7 +105,7 @@
 <div class="wrap">
   <header>
     <div class="kicker">Anniversary trip</div>
-    <h1>Japan, November 2026</h1>
+    <h1>Japan, Nov 2026</h1>
     <div class="route">17–27 NOV · YOKOHAMA → NARA → OSAKA → KYOTO → NAGOYA → TOKYO</div>
   </header>
 
@@ -219,7 +219,7 @@ CITIES.forEach((c,i)=>{
 function draw(){
   [...tabs.children].forEach((b,i)=>b.setAttribute('aria-selected',i===ci));
   const c=CITIES[ci];
-  
+
   document.getElementById('mtitle').textContent=c.city;
   document.getElementById('msub').textContent=c.sub;
 
@@ -230,7 +230,7 @@ function draw(){
 
   const pts=c.stops.map(s=>({...s,type:'m'}));
   if(c.hotel) pts.push({...c.hotel,name:c.hotel.n,type:'h'});
-  
+
   const latlngs = [];
   const walkPoints = [];
 
@@ -259,7 +259,7 @@ function draw(){
     });
 
     const marker = L.marker([p.lat, p.lng], {icon: customIcon, zIndexOffset: on ? 1000 : 0}).addTo(map);
-    
+
     if(p.type === 'm') {
         marker.on('click', () => {
             sel = p.n; draw();
@@ -304,7 +304,7 @@ function draw(){
           </div>
         </div>`).join('')}
     </div>`).join('');
-    
+
   days.querySelectorAll('.meal').forEach(el=>el.onclick=()=>{sel=+el.dataset.n;draw();});
 }
 

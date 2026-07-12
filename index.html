@@ -349,6 +349,7 @@ const CITIES=[
 
 {id:"flights",city:"✈ Flights",sub:"Zip Air",flights:true},
 {id:"rail",city:"🚄 Rail",sub:"Shinkansen legs",rail_only:true},
+{id:"vault",city:"🗂 Vault",sub:"Confirmations",vault:true},
 {id:"expenses",city:"💳 Expenses",sub:"USD Tracker",expenses:true},
 {id:"calc",city:"💱 Calc",sub:"Live Converter",calc:true}
 ];
@@ -687,6 +688,47 @@ function renderSide(c){
   loadWeather(c.id);
 }
 
+function vaultRow(key,label,sub){
+  const v=((overrides.vault||{})[key]||'').replace(/"/g,'&quot;');
+  return `<div style="display:flex;gap:10px;align-items:center;border-bottom:1px dotted var(--rule);padding:8px 0;flex-wrap:wrap;">
+    <div style="flex:1;min-width:180px;">
+      <div style="font-family:var(--serif);font-size:13.5px;font-weight:700;">${label}</div>
+      <div style="font:9.5px var(--mono);color:var(--grey);">${sub}</div>
+    </div>
+    <input data-vault="${key}" value="${v}" placeholder="conf # / seats / notes"
+      style="flex:1;min-width:160px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:6px 8px;background:#fff;">
+  </div>`;
+}
+
+function renderVault(){
+  const meals=CITIES.filter(c=>c.stops).flatMap(c=>c.stops.map(s=>({...s,cityName:c.city})));
+  const sec=t=>`<div style="font:600 10px var(--mono);color:var(--indigo);text-transform:uppercase;margin:14px 0 4px;">${t}</div>`;
+  panel.innerHTML=`<div class="card" style="max-width:850px;margin:0 auto;">
+    <div class="chead"><span>Reservation Vault</span><span>saves on blur · syncs to cloud</span></div>
+    <div style="padding:8px 16px 16px;">
+      ${sec('Flights')}
+      ${vaultRow('f_zg021','Zip Air ZG021 · YVR→NRT','Nov 16 · booking ref / seats')}
+      ${vaultRow('f_zg022','Zip Air ZG022 · NRT→YVR','Nov 27 · booking ref / seats')}
+      ${sec('Trains')}
+      ${vaultRow('t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats')}
+      ${vaultRow('t_n261','Nozomi 261 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · car / seats')}
+      ${vaultRow('t_n14','Nozomi 14 · Shin-Ōsaka→Nagoya','Nov 24 · 11:06 · car / seats')}
+      ${vaultRow('t_n254','Nozomi 254 · Nagoya→Tokyo','Nov 26 · 14:06 · car / seats')}
+      ${vaultRow('t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats')}
+      ${sec('Hotels')}
+      ${Object.entries(HOTELS).map(([k,h])=>vaultRow('h_'+k,h.n,'confirmation # · Bonvoy/Hyatt member #')).join('')}
+      ${sec('Restaurants')}
+      ${meals.map(s=>vaultRow('m_'+s.id,`${s.id}. ${s.name}`,`${s.d} · ${s.m} · ${s.cityName}`)).join('')}
+    </div></div>`;
+  panel.querySelectorAll('[data-vault]').forEach(inp=>{
+    inp.onchange=()=>{
+      overrides.vault=overrides.vault||{};
+      overrides.vault[inp.dataset.vault]=inp.value;
+      saveOverrides();
+    };
+  });
+}
+
 function renderExpenses() {
   const exps = overrides.expenses || [];
   const total = exps.reduce((sum, e) => sum + Number(e.usd), 0);
@@ -943,6 +985,8 @@ function render(){
     renderExpenses();
     return;
   }
+
+  if(c.vault){ if(map){map.remove();map=null;} renderVault(); return; }
 
   if(c.flights||c.rail_only){
     if(map){map.remove();map=null;}

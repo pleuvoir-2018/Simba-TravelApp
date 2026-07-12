@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Japan · 17–27 November</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<style>
+  :root{
+    --ink:#14161B; --indigo:#22406B; --indigo2:#4A6E9E; --moss:#5E7F4C;
+    --plum:#8E4B62; --clay:#B8552A; --washi:#F1ECE2; --washi2:#E4DCCA;
+    --grey:#8B9098; --rule:rgba(20,22,27,.13);
+    --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+    --sans:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--washi);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:1140px;margin:0 auto;padding:20px 18px 60px}
+
+  header{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:6px}
+  h1{font-family:var(--serif);font-size:clamp(26px,6vw,40px);font-weight:700;letter-spacing:-.025em;line-height:1.05}
+  .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);margin-bottom:9px}
+  .route{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--indigo);margin-top:9px}
+
+  .stats{display:flex;gap:0;flex-wrap:wrap;border-bottom:1px solid var(--rule);margin-bottom:20px}
+  .stat{padding:11px 22px 11px 0;margin-right:22px;border-right:1px solid var(--rule)}
+  .stat:last-child{border-right:0}
+  .stat b{display:block;font-family:var(--serif);font-size:20px;font-weight:700;line-height:1}
+  .stat span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--grey)}
+  .stat.alert b{color:var(--clay)}
+
+  .tabs{display:flex;overflow-x:auto;border:1px solid var(--rule);border-radius:2px;background:var(--washi2);margin-bottom:18px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:1 0 auto;padding:10px 15px;border:0;border-right:1px solid var(--rule);background:none;cursor:pointer;font:inherit;color:var(--ink);text-align:left;transition:background .12s}
+  .tab:last-child{border-right:0}
+  .tab .t1{font-family:var(--mono);font-size:12px;font-weight:600;white-space:nowrap}
+  .tab .t2{font-size:10px;color:var(--grey);white-space:nowrap;margin-top:2px}
+  .tab[aria-selected=true]{background:var(--indigo)}
+  .tab[aria-selected=true] .t1{color:#fff}
+  .tab[aria-selected=true] .t2{color:rgba(255,255,255,.7)}
+  .tab:hover:not([aria-selected=true]){background:rgba(34,64,107,.08)}
+
+  .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:20px;align-items:start}
+  @media(max-width:800px){.grid{grid-template-columns:1fr}}
+
+  .mapcard{border:1px solid var(--rule);border-radius:2px;background:var(--washi2);overflow:hidden;position:sticky;top:14px; z-index: 10;}
+  @media(max-width:800px){.mapcard{position:static}}
+  .maphead{padding:9px 13px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;background:var(--washi)}
+  .maphead h2{font-family:var(--serif);font-size:16px;font-weight:700}
+  .maphead span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey)}
+  
+  /* Map Specific Styles */
+  #map { width: 100%; height: 420px; background: #e5e3df; z-index: 1; }
+  .leaflet-div-icon { background: none; border: none; }
+  
+  /* Custom HTML Markers */
+  .pin-marker { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; color: white; font-family: var(--mono); font-size: 9px; font-weight: 700; border: 2px solid var(--washi); cursor: pointer; transition: all .12s; position: relative;}
+  .pin-marker.bg-indigo { background: var(--indigo); }
+  .pin-marker.bg-clay { background: var(--clay); width: 26px; height: 26px; margin-left:-3px; margin-top:-3px; font-size: 11px; z-index: 1000 !important; }
+  .hotel-marker { background: var(--plum); color: white; width: 16px; height: 16px; border-radius: 2px; border: 2px solid var(--washi); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 8px; position: relative;}
+  
+  .marker-label { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 8px; white-space: nowrap; font-family: var(--sans); font-size: 9.5px; color: var(--ink); pointer-events: none; text-shadow: 1px 1px 0 var(--washi), -1px -1px 0 var(--washi), 1px -1px 0 var(--washi), -1px 1px 0 var(--washi); font-weight: normal; line-height: 1.2;}
+  .marker-label .dim { color: var(--grey); font-size: 8px; }
+  .hotel-marker .marker-label { color: var(--plum); font-weight: bold; }
+
+  .days{display:flex;flex-direction:column;gap:9px}
+  .day{border:1px solid var(--rule);border-radius:2px;background:#fffc}
+  .dhead{padding:8px 12px;background:var(--washi2);border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .dhead .dd{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em}
+  .dhead .dc{font-size:11px;color:var(--indigo)}
+  .dhead .dh{font-family:var(--mono);font-size:9px;color:var(--plum);letter-spacing:.05em}
+  .meal{display:flex;gap:10px;padding:9px 12px;border-bottom:1px dotted var(--rule);cursor:pointer;transition:background .12s}
+  .meal:last-child{border-bottom:0}
+  .meal:hover,.meal.on{background:#fff}
+  .meal.on{box-shadow:inset 3px 0 0 var(--clay)}
+  .num{flex:0 0 18px;height:18px;border-radius:50%;background:var(--indigo);color:#fff;font-family:var(--mono);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .meal.on .num{background:var(--clay)}
+  .meal .body{flex:1;min-width:0}
+  .meal .m1{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey)}
+  .meal .m2{font-family:var(--serif);font-size:14.5px;font-weight:700;margin:1px 0}
+  .meal .m3{font-size:11.5px;color:var(--indigo2)}
+  .meal .m4{font-family:var(--mono);font-size:9.5px;color:var(--grey);margin-top:4px}
+  .meal .note{font-size:11px;line-height:1.45;margin-top:6px;padding:6px 8px;background:rgba(34,64,107,.07);border-left:2px solid var(--indigo);color:#2C4A73}
+  .meal .note.warn{background:rgba(184,85,42,.09);border-left-color:var(--clay);color:#8A3313}
+  .meal .note.star{background:rgba(142,75,98,.09);border-left-color:var(--plum);color:#7A3E53}
+  .tag{display:inline-block;font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:1.5px 5px;border-radius:2px;margin-left:5px;vertical-align:1px}
+  .tag.book{background:var(--clay);color:#fff}
+  .tag.ok{background:var(--moss);color:#fff}
+  .tag.walk{background:var(--washi2);color:var(--grey)}
+
+  .todo{margin-top:26px;border:1px solid var(--ink);border-radius:2px;background:#fff9}
+  .todo h2{font-family:var(--serif);font-size:17px;padding:11px 14px;border-bottom:1px solid var(--rule)}
+  .todo ul{list-style:none;padding:4px 0}
+  .todo li{padding:8px 14px;border-bottom:1px dotted var(--rule);display:flex;gap:10px;font-size:13px;align-items:flex-start}
+  .todo li:last-child{border-bottom:0}
+  .todo li b{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--clay);padding:2px 6px;border-radius:2px;flex:0 0 auto;margin-top:1px}
+  .todo li b.soft{background:var(--indigo)}
+  footer{margin-top:22px;font-family:var(--mono);font-size:10px;color:var(--grey);line-height:1.8;border-top:1px solid var(--rule);padding-top:11px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Anniversary trip</div>
+    <h1>Japan, one meal at a time</h1>
+    <div class="route">17–27 NOV · YOKOHAMA → NARA → OSAKA → KYOTO → NAGOYA → TOKYO</div>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><b>19</b><span>Meals</span></div>
+    <div class="stat"><b>¥269,240</b><span>Food total</span></div>
+    <div class="stat"><b>~$1,532</b><span>After FHR credit</span></div>
+    <div class="stat"><b>0</b><span>Closure conflicts</span></div>
+    <div class="stat alert"><b>4</b><span>Still to book</span></div>
+  </div>
+
+  <div class="tabs" id="tabs" role="tablist"></div>
+
+  <div class="grid">
+    <div class="mapcard">
+      <div class="maphead"><h2 id="mtitle"></h2><span id="msub"></span></div>
+      <div id="map"></div>
+    </div>
+    <div class="days" id="days"></div>
+  </div>
+
+  <div class="todo">
+    <h2>Still open</h2>
+    <ul>
+      <li><b>Book</b><span><strong>Ishibe Koji Mamecha</strong> — 11/23, Anniversary Plan ¥12,000pp. Ask for a private room; there are only two.</span></li>
+      <li><b>Book</b><span><strong>Kikukawa</strong> — 11/25 dinner, 18:30 or 19:00. Change the Tabelog date filter off 7/29.</span></li>
+      <li><b>Call</b><span><strong>Poku-Poku</strong> — 11/19. Walk-in only, closes 20:00, and you're arriving from Yokohama. Riskiest meal of the trip.</span></li>
+      <li><b>Move</b><span><strong>Kitsune</strong> — Tablecheck booking still sits on 11/19. Move it to 11/20.</span></li>
+      <li><b class="soft">Email</b><span><strong>Shisui</strong> ~Oct 20–25 · <strong>Osaka Miyako, TIAD, Grand Hyatt</strong> ~Nov 1–3</span></li>
+      <li><b class="soft">Confirm</b><span><strong>SHUHARI</strong> at 12:00 latest on 11/26 — kaiseki runs 2 hrs and Roku Roku's last seating is 21:00.</span></li>
+    </ul>
+  </div>
+
+  <footer>
+    Blue pins = meals · Plum squares = hotels · Real geographical paths drawn.<br>
+    Tap any pin or card to link the two.
+  </footer>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+const CITIES=[
+{city:"Yokohama",sub:"11/17 – 11/19",hotel:{n:"The Westin Yokohama",lat:35.4643,lng:139.6236},stops:[
+ {n:1,d:"11/17 Tue",m:"Dinner",name:"Din Tai Fung",dish:"Dim sum",hrs:"11:00–22:30 daily",res:"Booked",jpy:"¥15,000",tag:"ok",lat:35.4653729,lng:139.6204003,area:"Takashimaya, Yokohama Stn"},
+ {n:2,d:"11/18 Wed",m:"Lunch",name:"Hana Yori Hanbagu",dish:"Hamburg steak",hrs:"11:30–22:00 daily",res:"Booked",jpy:"¥5,000",tag:"ok",lat:35.468155,lng:139.622915,area:"Tsuruyachō"},
+ {n:3,d:"11/18 Wed",m:"Dinner",name:"Del Mar Comedor y Terraza",dish:"Spanish",hrs:"11:00–22:00 daily",res:"Booked",jpy:"¥15,000",tag:"ok",lat:35.4565785,lng:139.6420827,area:"Minato Mirai, bayfront"},
+ {n:4,d:"11/19 Thu",m:"Lunch",name:"Kadohei",dish:"Tsuketen — soba + prawn tempura",hrs:"11:00–19:50 · closed Tue",res:"Walk-in",jpy:"¥5,000",tag:"walk",lat:35.4606036,lng:139.620098,area:"Hiranuma",
+  note:"Your only tempura of the trip. 10 min from Yokohama Stn — eat, then straight to the Shinkansen."}]},
+
+{city:"Nara",sub:"11/19 – 11/21",hotel:{n:"Shisui, a Luxury Collection",lat:34.6857,lng:135.8340},stops:[
+ {n:5,d:"11/19 Thu",m:"Dinner",name:"Poku-Poku",dish:"Tonkatsu",hrs:"17:30–20:00 · closed Tue & Fri",res:"Call ahead",jpy:"¥7,500",tag:"book",lat:34.67875,lng:135.830404,area:"Shōnamichō",
+  warn:"Tightest meal of the trip. Closes 20:00, walk-in only, and you're coming from Yokohama. Leave by 13:30."},
+ {n:6,d:"11/20 Fri",m:"Lunch",name:"Suiyō",dish:"Kaiseki",hrs:"12:00–14:30 daily",res:"Booked",jpy:"¥15,180",tag:"ok",lat:34.6854251,lng:135.8353524,area:"Inside Shisui"},
+ {n:7,d:"11/20 Fri",m:"Dinner",name:"Kitsune",dish:"Sukiyaki",hrs:"17:00–21:00 · closed Wed",res:"Move to 11/20",jpy:"¥31,900",tag:"book",lat:34.6810642,lng:135.8298742,area:"Ganriinchō",
+  warn:"Your Tablecheck booking is still on 11/19. Move it a day."}]},
+
+{city:"Osaka",sub:"11/21 – 11/24",hotel:{n:"Osaka Marriott Miyako",lat:34.6462,lng:135.5136},stops:[
+ {n:8,d:"11/21 Sat",m:"Lunch",name:"Sushi Matsui",dish:"Sushi",hrs:"Sat 12:00–15:00",res:"Booked",jpy:"¥12,500",tag:"ok",lat:34.7018269,lng:135.500517,area:"Umeda / Sonezaki",
+  note:"Umeda is well north of Namba. Drop bags at the Miyako first."},
+ {n:9,d:"11/21 Sat",m:"Dinner",name:"Ondoriya",dish:"Yakitori",hrs:"18:00–03:00 daily",res:"Booked",jpy:"¥7,500",tag:"ok",lat:34.6732036,lng:135.5034481,area:"Shinsaibashi"},
+ {n:11,d:"11/22 Sun",m:"Dinner",name:"Okonomiyaki Houzenji Sanpei",dish:"Okonomiyaki",hrs:"Sun 17:00–23:00 · closed Tue",res:"Booked",jpy:"¥7,500",tag:"ok",lat:34.6682329,lng:135.5027035,area:"Dōtonbori alley",
+  note:"Back from Kyoto for this. Your sheet still lists the locale as Kyoto — it's Osaka."}]},
+
+{city:"Kyoto",sub:"11/22 & 11/23 — day trips",hotel:null,stops:[
+ {n:10,d:"11/22 Sun",m:"Lunch",name:"Junsei",dish:"Yudofu",hrs:"11:00–14:30 daily",res:"Walk-in",jpy:"¥10,000",tag:"walk",lat:35.011444,lng:135.790108,area:"Nanzen-ji gate",
+  note:"Nanzen-ji → Philosopher's Path → Ginkaku-ji. Far calmer than Arashiyama. Eikan-dō's night illumination is 5 min away."},
+ {n:12,d:"11/23 Mon",m:"Lunch",name:"Seisyuan Kiyomizu",dish:"Soba",hrs:"10:00–16:00 daily",res:"Via hotel",jpy:"¥5,000",tag:"walk",lat:34.99632,lng:135.7803523,area:"Kiyomizu",
+  warn:"Kiyomizu-dera opens at 06:00. Be there by 07:00 — peak foliage crowds arrive by 10:00."},
+ {n:13,d:"11/23 Mon",m:"Dinner",name:"Ishibe Koji Mamecha",dish:"Kyo-kuzushi kaiseki · Kyoto duck",hrs:"17:00–22:30 · 150 min limit",res:"BOOK",jpy:"¥24,000",tag:"book",lat:34.99878,lng:135.77988,area:"Ishibei-kōji, Gion",
+  star:"THE ANNIVERSARY DINNER. Sparkling toast + anniversary dessert. Book 17:00, eat until 19:30, then walk up to Kiyomizu illuminated. Ask for a private room — there are only two."}]},
+
+{city:"Nagoya",sub:"11/24 – 11/26",hotel:{n:"TIAD, Autograph Collection",lat:35.1638,lng:136.9098},stops:[
+ {n:14,d:"11/24 Tue",m:"Lunch",name:"Keitei",dish:"Miso katsu",hrs:"11:00–23:00 daily",res:"Walk-in",jpy:"¥5,000",tag:"walk",lat:35.1710072,lng:136.8825551,area:"Nagoya Stn"},
+ {n:15,d:"11/24 Tue",m:"Dinner",name:"Moumoutei Hirokoji",dish:"Beef hitsumabushi",hrs:"18:00–22:30 · closed Sun",res:"Booked",jpy:"¥20,000",tag:"ok",lat:35.1679393,lng:136.8954147,area:"Sakae",
+  note:"The signature hitsumabushi set is reservation-only, separate from the table. Confirm the course, not just the seat."},
+ {n:16,d:"11/25 Wed",m:"Lunch",name:"Takara",dish:"Miso nikomi udon",hrs:"11:30–14:45 · closed Thu",res:"Walk-in",jpy:"¥5,000",tag:"walk",lat:35.1595073,lng:136.9015811,area:"Ōsu"},
+ {n:17,d:"11/25 Wed",m:"Dinner",name:"Unagi Yondaime Kikukawa",dish:"Unagi hitsumabushi",hrs:"17:00–22:00 daily",res:"BOOK",jpy:"¥15,000",tag:"book",lat:35.1697449,lng:136.8853239,area:"Midland Square 4F",
+  warn:"Tabelog 3.59, est. 1932. Book 18:30 or 19:00 — and change the date filter off 7/29."},
+ {n:18,d:"11/26 Thu",m:"Lunch",name:"SHUHARI",dish:"Kaiseki",hrs:"11:30–14:30 · closed Wed",res:"Via hotel",jpy:"¥24,000",tag:"book",lat:35.1638885,lng:136.9097759,area:"TIAD 5F",
+  warn:"Book 12:00 at the latest. Kaiseki runs 2 hrs, Nagoya→Tokyo is 1h40, and Roku Roku's last seating is 21:00."}]},
+
+{city:"Tokyo",sub:"11/26 – 11/27",hotel:{n:"Grand Hyatt Tokyo",lat:35.6601,lng:139.7283},stops:[
+ {n:19,d:"11/26 Thu",m:"Dinner",name:"Roku Roku",dish:"Omakase sushi",hrs:"18:00–21:00 daily",res:"Booked",jpy:"¥39,160",tag:"ok",lat:35.6600777,lng:139.7283208,area:"Grand Hyatt, Roppongi Hills",
+  note:"Leave Nagoya by 16:00. $125 FHR dining credit applies here."}]},
+];
+
+const tabs=document.getElementById('tabs'),days=document.getElementById('days');
+let ci=0,sel=null;
+let mapMarkers = [];
+let routeLine = null;
+
+// Initialize Leaflet Map
+const map = L.map('map', {zoomControl: true, attributionControl: false}).setView([35.68, 139.76], 12);
+L.control.attribution({position: 'bottomright', prefix: false}).addAttribution('&copy; <a href="https://carto.com/">CartoDB</a>').addTo(map);
+L.control.scale({position: 'bottomleft', imperial: false}).addTo(map);
+
+// Add light/clean map tiles that match your theme perfectly
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  maxZoom: 19
+}).addTo(map);
+
+CITIES.forEach((c,i)=>{
+  const b=document.createElement('button');
+  b.className='tab';b.type='button';b.setAttribute('aria-selected',i===0);
+  b.innerHTML=`<div class="t1">${c.city}</div><div class="t2">${c.sub}</div>`;
+  b.onclick=()=>{ci=i;sel=null;draw();};
+  tabs.appendChild(b);
+});
+
+function draw(){
+  [...tabs.children].forEach((b,i)=>b.setAttribute('aria-selected',i===ci));
+  const c=CITIES[ci];
+  
+  document.getElementById('mtitle').textContent=c.city;
+  document.getElementById('msub').textContent=c.sub;
+
+  // Clear existing map layers
+  mapMarkers.forEach(m => map.removeLayer(m));
+  mapMarkers = [];
+  if(routeLine) map.removeLayer(routeLine);
+
+  const pts=c.stops.map(s=>({...s,type:'m'}));
+  if(c.hotel) pts.push({...c.hotel,name:c.hotel.n,type:'h'});
+  
+  const latlngs = [];
+  const walkPoints = [];
+
+  // Plot new markers
+  pts.forEach(p => {
+    latlngs.push([p.lat, p.lng]);
+    if(p.type === 'm') walkPoints.push([p.lat, p.lng]);
+
+    const on = sel === p.n;
+    let htmlStr = '';
+
+    if (p.type === 'h') {
+        htmlStr = `<div class="hotel-marker">H<div class="marker-label">${p.name}</div></div>`;
+    } else {
+        const bgClass = on ? 'bg-clay' : 'bg-indigo';
+        htmlStr = `<div class="pin-marker ${bgClass}">${p.n}
+            <div class="marker-label">${p.name}<br><span class="dim">${p.area}</span></div>
+        </div>`;
+    }
+
+    const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: htmlStr,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+
+    const marker = L.marker([p.lat, p.lng], {icon: customIcon, zIndexOffset: on ? 1000 : 0}).addTo(map);
+    
+    if(p.type === 'm') {
+        marker.on('click', () => {
+            sel = p.n; draw();
+            document.querySelector(`.meal[data-n="${sel}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+        });
+    }
+    mapMarkers.push(marker);
+  });
+
+  // Draw walking route line
+  if(walkPoints.length > 1) {
+      routeLine = L.polyline(walkPoints, {color: 'var(--indigo)', dashArray: '4, 6', weight: 2, opacity: 0.4}).addTo(map);
+  }
+
+  // Auto-frame the map to fit all points of the current city
+  if(latlngs.length > 0) {
+      // Add padding so pins near edge aren't cut off
+      map.fitBounds(L.latLngBounds(latlngs), {padding: [60, 60], maxZoom: 15});
+  }
+
+  // Re-render itinerary cards
+  const byDay={};
+  c.stops.forEach(st=>{(byDay[st.d]=byDay[st.d]||[]).push(st);});
+  days.innerHTML=Object.entries(byDay).map(([d,ms])=>`
+    <div class="day">
+      <div class="dhead">
+        <span class="dd">${d}</span>
+        <span class="dc">${c.city}</span>
+        ${c.hotel?`<span class="dh">${c.hotel.n}</span>`:'<span class="dh">day trip</span>'}
+      </div>
+      ${ms.map(p=>`
+        <div class="meal ${sel===p.n?'on':''}" data-n="${p.n}">
+          <div class="num">${p.n}</div>
+          <div class="body">
+            <div class="m1">${p.m}</div>
+            <div class="m2">${p.name}<span class="tag ${p.tag}">${p.tag==='book'?'To book':p.tag==='ok'?'Booked':'Walk-in'}</span></div>
+            <div class="m3">${p.dish}</div>
+            <div class="m4">${p.hrs} · ${p.jpy}</div>
+            ${p.star?`<div class="note star">${p.star}</div>`:''}
+            ${p.warn?`<div class="note warn">${p.warn}</div>`:''}
+            ${p.note?`<div class="note">${p.note}</div>`:''}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+    
+  days.querySelectorAll('.meal').forEach(el=>el.onclick=()=>{sel=+el.dataset.n;draw();});
+}
+
+// Initial render
+draw();
+</script>
+</body>
+</html>

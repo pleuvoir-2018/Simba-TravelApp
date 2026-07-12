@@ -587,6 +587,62 @@ function mealCard(p){
     </div></div>`;
 }
 
+/* ---------------- WEATHER (Open-Meteo, no key) ---------------- */
+const WX_CFG = {
+  yokohama:{lat:35.4620,lng:139.6300,from:"2026-11-17",to:"2026-11-19"},
+  nara:    {lat:34.6857,lng:135.8340,from:"2026-11-19",to:"2026-11-21"},
+  osaka:   {lat:34.6462,lng:135.5136,from:"2026-11-21",to:"2026-11-24"},
+  kyoto:   {lat:35.0116,lng:135.7681,from:"2026-11-22",to:"2026-11-23"}, // Kyoto city, not the Osaka hotel
+  nagoya:  {lat:35.1638,lng:136.9098,from:"2026-11-24",to:"2026-11-26"},
+  tokyo:   {lat:35.6601,lng:139.7290,from:"2026-11-26",to:"2026-11-27"},
+};
+const WX_ICON = c =>
+  c===0?"☀️":c<=2?"🌤️":c===3?"☁️":c<=48?"🌫️":c<=57?"🌦️":c<=67?"🌧️":
+  c<=77?"🌨️":c<=82?"🌧️":c<=86?"🌨️":"⛈️";
+const wxCache = {};
+
+async function loadWeather(cityId){
+  const el = document.getElementById('wxbody');
+  if(!el) return;
+  const cfg = WX_CFG[cityId];
+  if(!cfg) return;
+  try{
+    if(!wxCache[cityId]){
+      const u = `https://api.open-meteo.com/v1/forecast?latitude=${cfg.lat}&longitude=${cfg.lng}`
+        + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max`
+        + `&timezone=Asia%2FTokyo&forecast_days=16`;
+      const r = await fetch(u);
+      if(!r.ok) throw new Error('wx http '+r.status);
+      wxCache[cityId] = await r.json();
+    }
+    const d = wxCache[cityId].daily;
+
+    // Prefer your actual trip dates if they're inside the 16-day window; else show the next 5 days
+    let idxs = d.time.map((t,i)=>({t,i})).filter(x=>x.t>=cfg.from && x.t<=cfg.to).map(x=>x.i);
+    const onTrip = idxs.length>0;
+    if(!onTrip) idxs = d.time.slice(0,5).map((_,i)=>i);
+
+    el.innerHTML = `
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;">
+        ${idxs.map(i=>{
+          const dt=new Date(d.time[i]+'T12:00:00');
+          const wd=dt.toLocaleDateString('en-US',{weekday:'short'});
+          const md=(dt.getMonth()+1)+'/'+dt.getDate();
+          return `<div style="flex:1;min-width:64px;text-align:center;border:1px solid var(--rule);border-radius:2px;padding:7px 4px;background:#fff8;">
+            <div style="font:600 9px var(--mono);color:var(--grey);text-transform:uppercase;">${wd} ${md}</div>
+            <div style="font-size:20px;line-height:1.4;">${WX_ICON(d.weather_code[i])}</div>
+            <div style="font:600 11px var(--mono);">${Math.round(d.temperature_2m_max[i])}°<span style="color:var(--grey);font-weight:400;">/${Math.round(d.temperature_2m_min[i])}°</span></div>
+            <div style="font:9px var(--mono);color:${d.precipitation_probability_max[i]>=50?'var(--clay)':'var(--indigo2)'};">💧${d.precipitation_probability_max[i]??0}%</div>
+          </div>`;}).join('')}
+      </div>
+      <div style="font:9px var(--mono);color:var(--grey);margin-top:6px;">
+        ${onTrip?'Your dates in this city · °C · Asia/Tokyo':'Trip dates not yet in forecast range — showing next 5 days · °C'}
+      </div>`;
+  }catch(e){
+    el.innerHTML = `<div class="note">Weather unavailable right now — check again when online.</div>`;
+  }
+}
+
 function renderSide(c){
   const hotel=HOTELS[c.hotel];
   const total=c.stops.reduce((a,s)=>a+Number(eff(s).jpy),0);
@@ -595,6 +651,8 @@ function renderSide(c){
     <div class="card"><div class="chead"><span>Meals</span><span>¥${total.toLocaleString()}</span></div>${c.stops.map(mealCard).join('')}</div>
     <div class="card"><div class="chead"><span>Getting there & away</span></div>
       ${c.legs.map(l=>`<div class="leg"><div class="lr">${l.r}</div><div class="lm">${l.m}</div><div class="note">${l.n}</div></div>`).join('')}</div>
+    <div class="card"><div class="chead"><span>Weather · ${c.city}</span></div>
+      <div id="wxbody" style="padding:10px 12px;"><div class="note">Loading forecast…</div></div></div>
     <div class="card hotel-card"><div class="chead"><span>Hotel</span></div><dl>
       <dt>Name</dt><dd><b>${hotel.n}</b></dd>
       <dt>Address</dt><dd>${hotel.addr}</dd>
@@ -625,6 +683,8 @@ function renderSide(c){
   document.querySelectorAll('[data-f]').forEach(inp=>{inp.onchange=()=>{
     const id=inp.dataset.id;overrides[id]=overrides[id]||{};
     overrides[id][inp.dataset.f]=inp.dataset.f==='jpy'?Number(inp.value):inp.value;};});
+
+  loadWeather(c.id);
 }
 
 function renderExpenses() {

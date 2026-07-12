@@ -16,17 +16,15 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--washi);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1140px;margin:0 auto;padding:18px 16px 70px}
-
   header{border-bottom:2px solid var(--ink);padding-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
   h1{font-family:var(--serif);font-size:clamp(24px,5.5vw,36px);font-weight:700;letter-spacing:-.02em;line-height:1.05}
   .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);margin-bottom:7px}
   .editbtn{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--ink);background:none;color:var(--ink);padding:8px 14px;border-radius:2px;cursor:pointer}
   .editbtn.on{background:var(--clay);border-color:var(--clay);color:#fff}
-  .savebar{display:none;position:sticky;top:0;z-index:50;background:var(--clay);color:#fff;padding:9px 14px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;border-radius:2px;margin-top:10px;justify-content:space-between;align-items:center}
+  .savebar{display:none;position:sticky;top:0;z-index:50;background:var(--clay);color:#fff;padding:9px 14px;font-family:var(--mono);font-size:11px;border-radius:2px;margin-top:10px;justify-content:space-between;align-items:center}
   .savebar.show{display:flex}
   .savebar button{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:2px;border:1.5px solid #fff;background:#fff;color:var(--clay);cursor:pointer;margin-left:8px}
   .savebar button.ghost{background:transparent;color:#fff}
-
   .tabs{display:flex;overflow-x:auto;border:1px solid var(--rule);border-radius:2px;background:var(--washi2);margin:16px 0}
   .tabs::-webkit-scrollbar{display:none}
   .tab{flex:1 0 auto;padding:10px 14px;border:0;border-right:1px solid var(--rule);background:none;cursor:pointer;font:inherit;text-align:left}
@@ -36,25 +34,25 @@
   .tab[aria-selected=true]{background:var(--indigo)}
   .tab[aria-selected=true] .t1{color:#fff}
   .tab[aria-selected=true] .t2{color:rgba(255,255,255,.7)}
-
   .grid{display:grid;grid-template-columns:1.12fr 1fr;gap:18px;align-items:start}
   @media(max-width:820px){.grid{grid-template-columns:1fr}}
   .mapcard{border:1px solid var(--rule);border-radius:2px;background:var(--washi2);overflow:hidden;position:sticky;top:52px}
   @media(max-width:820px){.mapcard{position:static}}
-  .maphead{padding:8px 12px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;background:var(--washi)}
+  .maphead{padding:8px 12px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;background:var(--washi)}
   .maphead h2{font-family:var(--serif);font-size:16px}
-  .maphead span{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);align-self:center}
+  .poitoggle{font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--moss);color:var(--moss);background:none;padding:5px 10px;border-radius:2px;cursor:pointer}
+  .poitoggle.on{background:var(--moss);color:#fff}
   svg{display:block;width:100%;height:auto}
   .pin text{font-family:var(--mono);font-size:9px;font-weight:700;fill:#fff;text-anchor:middle;pointer-events:none}
   .pin circle{cursor:pointer}
   .plabel{font-size:9.5px;fill:var(--ink);pointer-events:none}
   .plabel.dim{fill:var(--grey);font-size:8px}
+  .plabel.poi{fill:#465F38;font-size:8.5px}
   .hpin rect{fill:var(--plum)}
   .hpin text{font-family:var(--mono);font-size:8px;fill:#fff;text-anchor:middle}
-  .spoke{stroke:var(--plum);stroke-width:1;stroke-dasharray:1 3;opacity:.45;fill:none}
+  .loop{stroke:var(--plum);stroke-width:1.1;stroke-dasharray:1 3;opacity:.5;fill:none}
   .rail-line{stroke:var(--indigo);stroke-width:1.6;stroke-dasharray:6 3;opacity:.5;fill:none}
   .sb line{stroke:var(--ink);stroke-width:1}.sb text{font-family:var(--mono);font-size:8px;fill:var(--grey)}
-
   .stack{display:flex;flex-direction:column;gap:10px}
   .card{border:1px solid var(--rule);border-radius:2px;background:#fffc}
   .chead{padding:8px 12px;background:var(--washi2);border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);display:flex;justify-content:space-between}
@@ -74,7 +72,6 @@
   .meal input,.meal select,.meal textarea{font:inherit;font-size:11px;border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:#fff;width:100%;margin-top:4px}
   .meal .erow{display:flex;gap:6px}.meal .erow>*{flex:1}
   .efields{display:none}.editing .efields{display:block}.editing .m4{display:none}
-
   .hotel-card dl{padding:9px 12px;font-size:12px}
   .hotel-card dt{font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-top:7px}
   .hotel-card dt:first-child{margin-top:0}
@@ -84,13 +81,12 @@
   .metro b{font-family:var(--mono);font-size:10px;color:var(--indigo)}
   .metro .row{padding:5px 0;border-bottom:1px dotted var(--rule)}
   .metro .row:last-child{border-bottom:0}
-  .poi{padding:4px 12px 10px}
-  .poi .prow{display:flex;gap:8px;padding:7px 0;border-bottom:1px dotted var(--rule);font-size:12px}
-  .poi .prow:last-child{border-bottom:0}
-  .poi .icon{flex:0 0 20px;text-align:center}
-  .poi b{font-weight:600}
-  .poi .anchor{font:600 9px var(--mono);color:var(--plum)}
-
+  .poi-list{padding:4px 12px 10px}
+  .prow{display:flex;gap:8px;padding:7px 0;border-bottom:1px dotted var(--rule);font-size:12px;cursor:pointer}
+  .prow:last-child{border-bottom:0}
+  .prow.on{background:#fff;box-shadow:inset 3px 0 0 var(--moss)}
+  .prow .icon{flex:0 0 20px;text-align:center}
+  .prow .anchor{font:600 9px var(--mono);color:var(--plum)}
   .train{padding:10px 12px;border-bottom:1px dotted var(--rule)}
   .train:last-child{border-bottom:0}
   .train .route{font-family:var(--serif);font-size:15px;font-weight:700}
@@ -111,155 +107,190 @@
     <span>Edit mode — change costs, status, or notes, then save.</span>
     <span><button id="saveBtn">Save</button><button class="ghost" id="resetBtn">Reset all</button></span>
   </div>
-
   <div class="tabs" id="tabs"></div>
   <div id="panel"></div>
-
-  <footer id="foot">Plum square = your hotel · numbered pins = meals · dotted plum spokes = from hotel · dashed indigo = intercity rail.<br>
-  Edits save to this device via the artifact's storage and survive reloads.</footer>
+  <footer>Plum square = hotel · numbered pins = meals · green diamonds = points of interest · dotted plum loops = each day's route (hotel → lunch → dinner → hotel) · dashed indigo = intercity rail. Edits persist on this device.</footer>
 </div>
 
 <script>
 /* ---------------- DATA ---------------- */
 const HOTELS = {
- westin:{n:"The Westin Yokohama",lat:35.4620,lng:139.6300,addr:"4-2-8 Minatomirai, Nishi-ku, Yokohama 220-0012",tel:"+81 45-577-0888",mail:"ays.yokohama@westin.com",note:"Check-in 23F. Reservations: reservations.yokohama@westin.com"},
- shisui:{n:"Shisui, a Luxury Collection Hotel",lat:34.6857,lng:135.8340,addr:"62 Noborioji-chō, Nara 630-8213 (west edge of Nara Park)",tel:"+81 75-744-0951",mail:"— use Marriott app chat or SUI Engagement Center",note:"Phone = SUI Customer Engagement Center (handles Shisui). Garden Delight champagne hour at dusk, free."},
- miyako:{n:"Osaka Marriott Miyako",lat:34.6462,lng:135.5136,addr:"1-1-43 Abenosuji, Abeno-ku, Osaka 545-0052 (Abeno Harukas 38–57F)",tel:"+81 6-6628-6111",mail:"— via Marriott app chat / hotel web form",note:"Direct elevator from Tennōji Stn / Ōsaka-Abenobashi Stn. Harukas 300 observatory is upstairs."},
- tiad:{n:"TIAD, Autograph Collection",lat:35.1638,lng:136.9098,addr:"5-15-19 Sakae, Naka-ku, Nagoya 460-0008 (Hisaya Ōdōri Park)",tel:"+81 52-252-2288",mail:"— contact form at hotel-tiad.com/en/contact",note:"Toll-free (JP): 0120-390-011. SHUHARI is on 5F."},
- hyatt:{n:"Grand Hyatt Tokyo",lat:35.6601,lng:139.7290,addr:"6-10-3 Roppongi, Minato-ku, Tokyo 106-0032 (Roppongi Hills)",tel:"+81 3-4333-1234",mail:"tokyo.grand@hyatt.com",note:"FHR booking: upgrade + breakfast + $125 credit (used at Roku Roku)."},
+ westin:{n:"The Westin Yokohama",lat:35.4620,lng:139.6300,addr:"4-2-8 Minatomirai, Nishi-ku, Yokohama 220-0012",tel:"+81 45-577-0888",mail:"ays.yokohama@westin.com",stn:"Shin-Takashima (Minatomirai line) · 5 min walk — Yokohama Stn · 10 min walk",note:"Check-in 23F. Reservations: reservations.yokohama@westin.com"},
+ shisui:{n:"Shisui, a Luxury Collection Hotel",lat:34.6857,lng:135.8340,addr:"62 Noborioji-chō, Nara 630-8213 (west edge of Nara Park)",tel:"+81 75-744-0951",mail:"— Marriott app chat / SUI Engagement Center",stn:"Kintetsu-Nara (Kintetsu line) · 12 min walk — Kenchō-Higashi bus stop · 3 min",note:"Phone = SUI Customer Engagement Center. Garden Delight champagne hour at dusk, free."},
+ miyako:{n:"Osaka Marriott Miyako",lat:34.6462,lng:135.5136,addr:"1-1-43 Abenosuji, Abeno-ku, Osaka 545-0052 (Abeno Harukas 38–57F)",tel:"+81 6-6628-6111",mail:"— Marriott app chat / hotel web form",stn:"Tennōji (JR · Midōsuji line) & Ōsaka-Abenobashi (Kintetsu) · direct elevator, 0 min",note:"Harukas 300 observatory is upstairs in the same tower."},
+ tiad:{n:"TIAD, Autograph Collection",lat:35.1638,lng:136.9098,addr:"5-15-19 Sakae, Naka-ku, Nagoya 460-0008 (Hisaya Ōdōri Park)",tel:"+81 52-252-2288",mail:"— form at hotel-tiad.com/en/contact",stn:"Yabachō (Meijō line) · 4 min walk — Sakae (Higashiyama line) · 9 min walk",note:"Toll-free (JP): 0120-390-011. SHUHARI is on 5F."},
+ hyatt:{n:"Grand Hyatt Tokyo",lat:35.6601,lng:139.7290,addr:"6-10-3 Roppongi, Minato-ku, Tokyo 106-0032 (Roppongi Hills)",tel:"+81 3-4333-1234",mail:"tokyo.grand@hyatt.com",stn:"Roppongi (Hibiya · Ōedo lines) · 3 min, connected via Roppongi Hills",note:"FHR booking: upgrade + breakfast + $125 credit (used at Roku Roku)."},
 };
 
 const CITIES=[
 {id:"yokohama",city:"Yokohama",sub:"11/17–11/19",hotel:"westin",
- metro:[["Minatomirai Line","Shin-Takashima / Minatomirai Stn (5 min walk) → Yokohama Stn ~2 min · → Motomachi-Chūkagai (Chinatown) ~8 min"],["JR / walking","Din Tai Fung, Hana Yori & Kadohei all cluster at Yokohama Stn — one stop or a 15-min walk along the water"]],
- pois:[["⛩","Minato Mirai & Red Brick Warehouse","waterfront stroll, 10 min from Del Mar","Del Mar"],["☕","Zou-no-hana Terrace","harbor-view café on the old pier","Del Mar"],["🏮","Yokohama Chinatown + Yamashita Park","biggest Chinatown in Japan","Din Tai Fung"],["🛍","MARK IS / Landmark Plaza","dept-store floors of zakka & stationery","hotel"]],
+ metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn ~2 min · → Motomachi-Chūkagai (Chinatown) ~8 min"],["JR / walking","Din Tai Fung, Hana Yori & Kadohei all cluster at Yokohama Stn — one stop or a 15-min walk"]],
+ pois:[
+  {ic:"⛩",n:"Red Brick Warehouse",d:"waterfront stroll",a:"Del Mar",lat:35.4527,lng:139.6425},
+  {ic:"☕",n:"Zou-no-hana Terrace",d:"harbor-view café on the old pier",a:"Del Mar",lat:35.4494,lng:139.6437},
+  {ic:"🏮",n:"Chinatown + Yamashita Park",d:"Japan's biggest Chinatown",a:"Din Tai Fung",lat:35.4437,lng:139.6470},
+  {ic:"🛍",n:"MARK IS / Landmark Plaza",d:"zakka & stationery floors",a:"hotel",lat:35.4573,lng:139.6304}],
  stops:[
   {id:1,d:"11/17 Tue",m:"Dinner",name:"Din Tai Fung",dish:"Dim sum",hrs:"11:00–22:30 daily",res:"ok",jpy:15000,lat:35.4654,lng:139.6204,area:"Takashimaya, Yokohama Stn"},
   {id:2,d:"11/18 Wed",m:"Lunch",name:"Hana Yori Hanbagu",dish:"Hamburg steak",hrs:"11:30–22:00 daily",res:"ok",jpy:5000,lat:35.4682,lng:139.6229,area:"Tsuruyachō"},
-  {id:3,d:"11/18 Wed",m:"Dinner",name:"Del Mar Comedor y Terraza",dish:"Spanish",hrs:"11:00–22:00 daily",res:"ok",jpy:15000,lat:34.4566+1,lng:139.6421,area:"Minato Mirai bayfront"},
-  {id:4,d:"11/19 Thu",m:"Lunch",name:"Kadohei",dish:"Soba + prawn tempura",hrs:"11:00–19:50 · closed Tue",res:"walk",jpy:5000,lat:35.4606,lng:139.6201,area:"Hiranuma",note:"Your only tempura. Eat, then straight to Shin-Yokohama."}]},
+  {id:3,d:"11/18 Wed",m:"Dinner",name:"Del Mar Comedor y Terraza",dish:"Spanish",hrs:"11:00–22:00 daily",res:"ok",jpy:15000,lat:35.4566,lng:139.6421,area:"Minato Mirai bayfront"},
+  {id:4,d:"11/19 Thu",m:"Lunch",name:"Kadohei",dish:"Soba + prawn tempura",hrs:"11:00–19:50 · closed Tue",res:"walk",jpy:5000,lat:35.4606,lng:139.6201,area:"Hiranuma",note:"Your only tempura. Done by 13:15 → Shin-Yokohama for the 14:07 Nozomi."}]},
 
 {id:"nara",city:"Nara",sub:"11/19–11/21",hotel:"shisui",
- metro:[["On foot","Shisui sits inside Nara Park — Tōdai-ji 12 min, Kōfuku-ji 10 min, Kintetsu-Nara Stn 12 min walk"],["Kintetsu line","Kintetsu-Nara → Ōsaka-Namba limited express ~40 min (your 11/21 move — no Shinkansen needed)"]],
- pois:[["⛩","Tōdai-ji Great Buddha","12 min walk from hotel; go at 8:00 open","hotel"],["🦌","Nara Park deer + Kasuga Taisha","lantern-lined approach","hotel"],["🌿","Yoshiki-en Garden","next door to Shisui, usually near-empty","hotel"],["☕","Mizuya Chaya","thatched teahouse between Tōdai-ji and Kasuga","hotel"],["🛍","Nakagawa Masashichi Shōten (Naramachi)","300-yr-old Nara textiles & zakka","Poku-Poku"],["🍡","Nakatanidou","the flying-mochi-pounding shop","Kintetsu Stn"]],
+ metro:[["On foot","Shisui sits inside Nara Park — Tōdai-ji 12 min, Kōfuku-ji 10 min, Kintetsu-Nara 12 min"],["Kintetsu line","Kintetsu-Nara → Ōsaka-Namba limited express ~40 min (your 11/21 move)"]],
+ pois:[
+  {ic:"⛩",n:"Tōdai-ji Great Buddha",d:"go at 8:00 open",a:"hotel",lat:34.6890,lng:135.8398},
+  {ic:"🦌",n:"Nara Park + Kasuga Taisha",d:"lantern-lined approach",a:"hotel",lat:34.6815,lng:135.8480},
+  {ic:"🌿",n:"Yoshiki-en Garden",d:"next door, usually near-empty",a:"hotel",lat:34.6849,lng:135.8378},
+  {ic:"☕",n:"Mizuya Chaya",d:"thatched teahouse",a:"hotel",lat:34.6858,lng:135.8443},
+  {ic:"🛍",n:"Nakagawa Masashichi (Naramachi)",d:"300-yr-old textiles & zakka",a:"Poku-Poku",lat:34.6779,lng:135.8293},
+  {ic:"🍡",n:"Nakatanidou",d:"the flying-mochi-pounding shop",a:"Kintetsu Stn",lat:34.6822,lng:135.8272}],
  stops:[
-  {id:5,d:"11/19 Thu",m:"Dinner",name:"Poku-Poku",dish:"Tonkatsu",hrs:"17:30–20:00 · closed Tue & Fri",res:"book",jpy:7500,lat:34.6788,lng:135.8304,area:"Shōnamichō",warn:"CALL AHEAD. Closes 20:00; you arrive from Yokohama. Leave by 13:30."},
+  {id:5,d:"11/19 Thu",m:"Dinner",name:"Poku-Poku",dish:"Tonkatsu",hrs:"17:30–20:00 · closed Tue & Fri",res:"book",jpy:7500,lat:34.6788,lng:135.8304,area:"Shōnamichō",warn:"CALL AHEAD. Closes 20:00; you arrive ~17:00 from Yokohama."},
   {id:6,d:"11/20 Fri",m:"Lunch",name:"Suiyō",dish:"Kaiseki",hrs:"12:00–14:30 daily",res:"ok",jpy:15180,lat:34.6854,lng:135.8354,area:"Inside Shisui"},
   {id:7,d:"11/20 Fri",m:"Dinner",name:"Kitsune",dish:"Sukiyaki",hrs:"17:00–21:00 · closed Wed",res:"book",jpy:31900,lat:34.6811,lng:135.8299,area:"Ganriinchō",warn:"Tablecheck booking still on 11/19 — move it to 11/20."}]},
 
 {id:"osaka",city:"Osaka",sub:"11/21–11/24",hotel:"miyako",
- metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min. Runs every 2–4 min; this is your artery"],["JR Osaka Loop","backup ring line from Tennōji; Imperial Palace side, Osaka-jō 12 min"]],
- pois:[["🌃","Hōzenji Yokochō + moss-covered Fudō statue","lantern alley 30 sec from Sanpei","Sanpei"],["🏙","Harukas 300 Observatory","300 m up — it's your hotel building; go at sunset","hotel"],["🐙","Kuromon Ichiba Market","morning grazing, 8 min from Namba","Imai"],["☕","Lilo Coffee Roasters","Amerikamura, 6 min from Ondoriya","Ondoriya"],["🛍","Shinsaibashi-suji arcade","end-to-end covered shopping","Ondoriya"]],
+ metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min · every 2–4 min"],["JR Osaka Loop","backup ring from Tennōji; Osaka-jō 12 min"]],
+ pois:[
+  {ic:"🌃",n:"Hōzenji Yokochō",d:"lantern alley + moss-covered Fudō, 30 sec away",a:"Sanpei",lat:34.6678,lng:135.5031},
+  {ic:"🏙",n:"Harukas 300 Observatory",d:"300 m up in your own building — go at sunset",a:"hotel",lat:34.6461,lng:135.5136},
+  {ic:"🐙",n:"Kuromon Ichiba Market",d:"morning grazing",a:"Namba",lat:34.6656,lng:135.5065},
+  {ic:"☕",n:"Lilo Coffee Roasters",d:"Amerikamura",a:"Ondoriya",lat:34.6729,lng:135.4986},
+  {ic:"🛍",n:"Shinsaibashi-suji arcade",d:"end-to-end covered shopping",a:"Ondoriya",lat:34.6717,lng:135.5012}],
  stops:[
-  {id:8,d:"11/21 Sat",m:"Lunch",name:"Sushi Matsui",dish:"Sushi",hrs:"Sat 12:00–15:00",res:"ok",jpy:12500,lat:34.7018,lng:135.5005,area:"Umeda",note:"Drop bags at the Miyako first — Umeda is 15 min north by Midōsuji."},
+  {id:8,d:"11/21 Sat",m:"Lunch",name:"Sushi Matsui",dish:"Sushi",hrs:"Sat 12:00–15:00",res:"ok",jpy:12500,lat:34.7018,lng:135.5005,area:"Umeda",note:"Drop bags at the Miyako first — Umeda is 15 min north."},
   {id:9,d:"11/21 Sat",m:"Dinner",name:"Ondoriya",dish:"Yakitori",hrs:"18:00–03:00 daily",res:"ok",jpy:7500,lat:34.6732,lng:135.5034,area:"Shinsaibashi"},
-  {id:10,d:"11/22 Sun",m:"Dinner",name:"Okonomiyaki Houzenji Sanpei",dish:"Okonomiyaki",hrs:"Sun 17:00–23:00 · closed Tue",res:"ok",jpy:7500,lat:34.6682,lng:135.5027,area:"Dōtonbori alley",note:"Back from Kyoto for this — sheet locale should say Osaka."}]},
+  {id:10,d:"11/22 Sun",m:"Dinner",name:"Okonomiyaki Houzenji Sanpei",dish:"Okonomiyaki",hrs:"Sun 17:00–23:00 · closed Tue",res:"ok",jpy:7500,lat:34.6682,lng:135.5027,area:"Dōtonbori alley",note:"Back from Kyoto for this."}]},
 
-{id:"kyoto",city:"Kyoto",sub:"11/22–11/23 · from Osaka",hotel:"miyako",rail:true,
- metro:[["Fastest to Kyoto","JR Haruka Ltd. Express, Tennōji → Kyoto ~45 min direct, no transfer (reserved seat recommended)"],["Cheaper","JR Tennōji → Osaka Stn (Loop, 15 min) → Special Rapid → Kyoto 29 min · ~50 min total"],["To Kiyomizu / Gion","Keihan line: Tōfukuji transfer → Kiyomizu-Gojō or Gion-Shijō · from Kyoto Stn: bus 86/206"],["Nanzen-ji (11/22)","Kyoto Stn → Karasuma line → Karasuma-Oike → Tōzai line → Keage · 20 min, then 8-min walk"]],
- pois:[["🍁","Eikan-dō night illumination","5 min from Nanzen-ji; Kyoto's best autumn light-up — check 2026 dates","Junsei"],["🚶","Philosopher's Path → Ginkaku-ji","the 11/22 walking spine","Junsei"],["☕","Blue Bottle Kyoto","100-yr machiya by Nanzen-ji gate","Junsei"],["🛍","Ichizawa Shinzaburō Hanpu","cult Kyoto canvas bags, one shop worldwide","Junsei"],["⛩","Kiyomizu-dera at 07:00","beat the foliage crowds; night illumination too","Seisyuan"],["🏮","Ishibei-kōji + Ninenzaka/Sannenzaka","the lantern alley Mamecha lives in","Mamecha"],["☕","% Arabica Higashiyama","under Yasaka Pagoda — go before 9:00","Mamecha"],["🛍","Kazurasei (Gion)","camellia-oil hair & skin, beautiful gifts","Mamecha"]],
+{id:"kyoto",city:"Kyoto",sub:"11/22–11/23 · from Osaka",hotel:"miyako",
+ metro:[["Fastest to Kyoto","JR Haruka Ltd. Express, Tennōji → Kyoto ~45 min direct"],["Cheaper","Tennōji → Osaka Stn (Loop 15 min) → Special Rapid → Kyoto 29 min"],["To Kiyomizu / Gion","Keihan line via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Nanzen-ji (11/22)","Karasuma line → Karasuma-Oike → Tōzai line → Keage · 20 min + 8-min walk"]],
+ pois:[
+  {ic:"🍁",n:"Eikan-dō night illumination",d:"Kyoto's best autumn light-up — check 2026 dates",a:"Junsei",lat:35.0146,lng:135.7937},
+  {ic:"🚶",n:"Philosopher's Path → Ginkaku-ji",d:"the 11/22 walking spine",a:"Junsei",lat:35.0270,lng:135.7982},
+  {ic:"☕",n:"Blue Bottle Kyoto",d:"100-yr machiya by Nanzen-ji",a:"Junsei",lat:35.0110,lng:135.7877},
+  {ic:"🛍",n:"Ichizawa Shinzaburō Hanpu",d:"cult canvas bags, one shop worldwide",a:"Junsei",lat:35.0059,lng:135.7830},
+  {ic:"⛩",n:"Kiyomizu-dera",d:"be there 07:00; night illumination too",a:"Seisyuan",lat:34.9949,lng:135.7850},
+  {ic:"🏮",n:"Ninenzaka / Sannenzaka",d:"the preserved lanes up to the temple",a:"Mamecha",lat:34.9986,lng:135.7807},
+  {ic:"☕",n:"% Arabica Higashiyama",d:"under Yasaka Pagoda — before 9:00",a:"Mamecha",lat:34.9987,lng:135.7795},
+  {ic:"🛍",n:"Kazurasei (Gion)",d:"camellia-oil hair & skin gifts",a:"Mamecha",lat:35.0037,lng:135.7752}],
  stops:[
   {id:11,d:"11/22 Sun",m:"Lunch",name:"Junsei",dish:"Yudofu",hrs:"11:00–14:30 daily",res:"walk",jpy:10000,lat:35.0114,lng:135.7901,area:"Nanzen-ji gate"},
   {id:12,d:"11/23 Mon",m:"Lunch",name:"Seisyuan Kiyomizu",dish:"Soba",hrs:"10:00–16:00 daily",res:"walk",jpy:5000,lat:34.9963,lng:135.7804,area:"Kiyomizu"},
-  {id:13,d:"11/23 Mon",m:"Dinner",name:"Ishibe Koji Mamecha",dish:"Kyo-kuzushi kaiseki · duck",hrs:"17:00–22:30 · 150-min limit",res:"book",jpy:24000,lat:35.0008,lng:135.7792,area:"Ishibei-kōji",warn:"THE ANNIVERSARY DINNER — book the ¥12,000 Anniversary Plan, 17:00 seating, private room (only two). Then walk up to Kiyomizu illuminated."}]},
+  {id:13,d:"11/23 Mon",m:"Dinner",name:"Ishibe Koji Mamecha",dish:"Kyo-kuzushi kaiseki · duck",hrs:"17:00–22:30 · 150-min limit",res:"book",jpy:24000,lat:35.0008,lng:135.7792,area:"Ishibei-kōji",warn:"THE ANNIVERSARY DINNER — Anniversary Plan ¥12,000pp, 17:00 seating, private room (only two). Then Kiyomizu illuminated."}]},
 
 {id:"nagoya",city:"Nagoya",sub:"11/24–11/26",hotel:"tiad",
- metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Keitei, Kikukawa)"],["Meijō Line (purple)","Yabachō — 4-min walk from TIAD; one stop to Kamimaezu for Ōsu"],["On foot","Takara (Ōsu) ~15 min walk from TIAD; Moumoutei ~12 min"]],
- pois:[["🛍","Ōsu Shōtengai arcades","vintage, retro-game & thrift heaven around Takara","Takara"],["🌳","Hisaya Ōdōri Park + Mirai Tower","TIAD's front yard; tower is lit at night","hotel"],["☕","Café Gentiane","home of the pyorin chick pudding, Nagoya Stn","Keitei"],["🏯","Nagoya Castle","gold shachihoko; 20 min from Sakae","hotel"]],
+ metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Keitei, Kikukawa)"],["Meijō Line (purple)","Yabachō 4-min walk; one stop to Kamimaezu for Ōsu"],["On foot","Takara ~15 min; Moumoutei ~12 min from TIAD"]],
+ pois:[
+  {ic:"🛍",n:"Ōsu Shōtengai arcades",d:"vintage & retro-game heaven",a:"Takara",lat:35.1598,lng:136.9052},
+  {ic:"🌳",n:"Hisaya Ōdōri Park + Mirai Tower",d:"TIAD's front yard, lit at night",a:"hotel",lat:35.1720,lng:136.9083},
+  {ic:"☕",n:"Café Gentiane",d:"home of the pyorin chick pudding",a:"Keitei",lat:35.1707,lng:136.8823},
+  {ic:"🏯",n:"Nagoya Castle",d:"gold shachihoko",a:"hotel",lat:35.1856,lng:136.8997}],
  stops:[
   {id:14,d:"11/24 Tue",m:"Lunch",name:"Keitei",dish:"Miso katsu",hrs:"11:00–23:00 daily",res:"walk",jpy:5000,lat:35.1710,lng:136.8826,area:"Nagoya Stn"},
-  {id:15,d:"11/24 Tue",m:"Dinner",name:"Moumoutei Hirokoji",dish:"Beef hitsumabushi",hrs:"18:00–22:30 · closed Sun",res:"ok",jpy:20000,lat:35.1679,lng:136.8954,area:"Sakae",note:"Signature set is reservation-only, separate from the table — confirm the course."},
+  {id:15,d:"11/24 Tue",m:"Dinner",name:"Moumoutei Hirokoji",dish:"Beef hitsumabushi",hrs:"18:00–22:30 · closed Sun",res:"ok",jpy:20000,lat:35.1679,lng:136.8954,area:"Sakae",note:"Signature set is reservation-only — confirm the course."},
   {id:16,d:"11/25 Wed",m:"Lunch",name:"Takara",dish:"Miso nikomi udon",hrs:"11:30–14:45 · closed Thu",res:"walk",jpy:5000,lat:35.1595,lng:136.9016,area:"Ōsu"},
-  {id:17,d:"11/25 Wed",m:"Dinner",name:"Unagi Yondaime Kikukawa",dish:"Unagi hitsumabushi",hrs:"17:00–22:00 daily",res:"book",jpy:15000,lat:35.1697,lng:136.8853,area:"Midland Square 4F",warn:"Book 18:30/19:00 on Tabelog — change the date filter off 7/29."},
-  {id:18,d:"11/26 Thu",m:"Lunch",name:"SHUHARI",dish:"Kaiseki",hrs:"11:30–14:30 · closed Wed",res:"book",jpy:24000,lat:35.1639,lng:136.9098,area:"TIAD 5F",warn:"Book 12:00 at the latest — Nozomi 254 leaves Nagoya 14:06."}]},
+  {id:17,d:"11/25 Wed",m:"Dinner",name:"Unagi Yondaime Kikukawa",dish:"Unagi hitsumabushi",hrs:"17:00–22:00 daily",res:"book",jpy:15000,lat:35.1697,lng:136.8853,area:"Midland Square 4F",warn:"Book 18:30/19:00 on Tabelog — fix the 7/29 date filter."},
+  {id:18,d:"11/26 Thu",m:"Lunch",name:"SHUHARI",dish:"Kaiseki",hrs:"11:30–14:30 · closed Wed",res:"book",jpy:24000,lat:35.1639,lng:136.9098,area:"TIAD 5F",warn:"Book 12:00 latest — Nozomi 254 leaves 14:06."}]},
 
 {id:"tokyo",city:"Tokyo",sub:"11/26–11/27",hotel:"hyatt",
- metro:[["Hibiya Line","Roppongi Stn is under Roppongi Hills; Ginza 10 min, Tsukiji 14 min"],["Ōedo Line","Roppongi → Shinjuku 9 min"],["From Tokyo Stn (arrival)","Marunouchi line → Kasumigaseki → Hibiya line → Roppongi ~25 min door to door"]],
- pois:[["✨","Keyakizaka winter illumination","Roppongi Hills' blue LED avenue — live in late Nov, right outside the hotel","hotel"],["🎨","Mori Art Museum + Tokyo City View","52F, open late","hotel"],["🖼","teamLab Borderless (Azabudai Hills)","10-min walk; book timed entry ahead","hotel"],["🥐","Bricolage Bread & Co.","superb bakery-café on Keyakizaka for the 11/27 morning","hotel"]],
+ metro:[["Hibiya Line","Roppongi is under the Hills; Ginza 10 min, Tsukiji 14 min"],["Ōedo Line","Roppongi → Shinjuku 9 min"],["Arrival from Tokyo Stn","Marunouchi → Kasumigaseki → Hibiya line → Roppongi ~25 min"]],
+ pois:[
+  {ic:"✨",n:"Keyakizaka winter illumination",d:"blue LED avenue, live late Nov, outside the hotel",a:"hotel",lat:35.6591,lng:139.7291},
+  {ic:"🎨",n:"Mori Art Museum + City View",d:"52F, open late",a:"hotel",lat:35.6605,lng:139.7292},
+  {ic:"🖼",n:"teamLab Borderless (Azabudai)",d:"10-min walk; book timed entry",a:"hotel",lat:35.6620,lng:139.7413},
+  {ic:"🥐",n:"Bricolage Bread & Co.",d:"your 11/27 send-off bite, ~10:30",a:"hotel",lat:35.6588,lng:139.7300}],
  stops:[
   {id:19,d:"11/26 Thu",m:"Dinner",name:"Roku Roku",dish:"Omakase sushi",hrs:"18:00–21:00 daily",res:"ok",jpy:39160,lat:35.6601,lng:139.7283,area:"Grand Hyatt",note:"$125 FHR dining credit applies here."}]},
 
-{id:"rail",city:"🚄 Rail",sub:"Shinkansen + gaps",rail_only:true}
+{id:"rail",city:"🚄 Rail",sub:"Flights + Shinkansen",rail_only:true}
 ];
 
 const TRAINS=[
- {d:"Nov 16→17",t:"10:30",route:"✈ Vancouver YVR → Tokyo Narita",train:"Zip Air ZG021",note:"Lands NRT 12:45 on the 17th. Immigration + bags ≈ 1.5–2 h; realistically landside by ~14:15."},
- {d:"Nov 17",t:"~14:45",route:"Narita → Westin Yokohama",train:"N'EX (Narita Express), direct",note:"N'EX runs direct to Yokohama Stn ~90 min, roughly twice hourly — no transfer with luggage. From Yokohama Stn: 5-min taxi or one Minatomirai-line stop to the hotel. Door-to-door by ~16:45 → shower → Din Tai Fung. Backup: Airport Limousine Bus to YCAT."},
- {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 261 ✓",note:"Arrives Kyoto ~15:58. Sequence: Kadohei lunch 11:30 → Yokohama Stn → JR Yokohama line to Shin-Yokohama (12 min) with 90 min of slack. At Kyoto: Kintetsu limited express to Kintetsu-Nara ~35 min (e.g. 16:20 → 16:55), 10 min to Shisui, check in, Poku-Poku by ~18:00. Buffer before their 19:30 last order: ~90 min. Tight but sound — don't linger at lunch."},
- {d:"Nov 21",t:"morning",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Kintetsu Ltd. Express (~40 min)",note:"No Shinkansen for this leg. Then Midōsuji to Tennōji, drop bags at the Miyako, back up to Umeda for Sushi Matsui 12:00."},
- {d:"Nov 24",t:"11:06",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 14 ✓",note:"Arrives Nagoya ~11:56 — Keitei is inside the station complex. Tennōji → Shin-Ōsaka is ~25 min on Midōsuji; leave the hotel by 10:15."},
- {d:"Nov 26",t:"14:06",route:"Nagoya → Tokyo",train:"Nozomi 254 ✓",note:"Arrives Tokyo ~15:46, Roppongi by ~16:30. SHUHARI must end by 13:35 — book the 11:30/12:00 seating and tell them you have a train."},
- {d:"Nov 27",t:"16:00",route:"✈ Tokyo Narita → Vancouver YVR",train:"Zip Air ZG022",note:"International check-in: be at NRT by ~13:30. N'EX from Tokyo Stn ~60 min (or Shinagawa). Leave Grand Hyatt by ~11:45. That kills a sit-down Tokyo lunch — do Bricolage Bread & Co. on Keyakizaka at ~10:30 instead, or eat at Narita after security. Lands YVR 08:30 same day (you gain the date line back).",warn:true}
+ {d:"Nov 16→17",t:"10:30",route:"✈ Vancouver YVR → Tokyo Narita",train:"Zip Air ZG021",note:"Lands NRT 12:45 on the 17th. Immigration + bags ≈ 1.5–2 h; landside by ~14:15."},
+ {d:"Nov 17",t:"~14:45",route:"Narita → Westin Yokohama",train:"N'EX (Narita Express), direct",note:"Direct to Yokohama Stn ~90 min, no transfer with luggage. Then 5-min taxi or one Minatomirai stop. Door-to-door ~16:45 → Din Tai Fung. Backup: Airport Limousine Bus to YCAT."},
+ {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 261 ✓",note:"Arrives ~15:58. Kadohei done by 13:15 → JR Yokohama line to Shin-Yokohama (12 min). At Kyoto: Kintetsu ltd. express to Nara ~35 min (16:20→16:55), Shisui check-in, Poku-Poku by 18:00. ~90-min buffer."},
+ {d:"Nov 21",t:"morning",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Kintetsu Ltd. Express (~40 min)",note:"No Shinkansen for this leg. Midōsuji to Tennōji, drop bags, up to Umeda for Sushi Matsui 12:00."},
+ {d:"Nov 24",t:"11:06",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 14 ✓",note:"Arrives ~11:56 — Keitei is inside the station. Tennōji → Shin-Ōsaka ~25 min on Midōsuji; leave hotel by 10:15."},
+ {d:"Nov 26",t:"14:06",route:"Nagoya → Tokyo",train:"Nozomi 254 ✓",note:"Arrives Tokyo ~15:46, Roppongi ~16:30. SHUHARI must end 13:35 — book 11:30/12:00 and mention the train."},
+ {d:"Nov 27",t:"16:00",route:"✈ Tokyo Narita → Vancouver YVR",train:"Zip Air ZG022",note:"At NRT by ~13:30 → N'EX from Tokyo Stn ~60 min → leave Grand Hyatt by ~11:45. No sit-down Tokyo lunch; do Bricolage ~10:30 or eat at Narita. Lands YVR 08:30 the same calendar day.",warn:true}
 ];
 
 /* ---------------- STORAGE ---------------- */
 const KEY='japan_trip_v2';
 let overrides={};
-async function loadOverrides(){
-  try{const r=await window.storage.get(KEY);if(r&&r.value)overrides=JSON.parse(r.value);}catch(e){/* first run */}
-}
-async function saveOverrides(){
-  try{await window.storage.set(KEY,JSON.stringify(overrides));flash('Saved ✓');}
-  catch(e){flash('Save failed — storage unavailable');}
-}
-async function resetAll(){
-  if(!confirm('Discard all edits and restore defaults?'))return;
-  overrides={};try{await window.storage.delete(KEY);}catch(e){}
-  render();flash('Reset ✓');
-}
-function flash(msg){const s=document.getElementById('savebar');const t=s.firstElementChild.textContent;s.firstElementChild.textContent=msg;setTimeout(()=>s.firstElementChild.textContent=t,1400);}
-function eff(stop){const o=overrides[stop.id]||{};return{...stop,...o};}
+async function loadOverrides(){try{const r=await window.storage.get(KEY);if(r&&r.value)overrides=JSON.parse(r.value);}catch(e){}}
+async function saveOverrides(){try{await window.storage.set(KEY,JSON.stringify(overrides));flash('Saved ✓');}catch(e){flash('Save failed — storage unavailable');}}
+async function resetAll(){if(!confirm('Discard all edits?'))return;overrides={};try{await window.storage.delete(KEY);}catch(e){}render();flash('Reset ✓');}
+function flash(m){const s=document.getElementById('savebar');const t=s.firstElementChild.textContent;s.firstElementChild.textContent=m;setTimeout(()=>s.firstElementChild.textContent=t,1400);}
+function eff(s){return{...s,...(overrides[s.id]||{})};}
 
 /* ---------------- UI ---------------- */
 const tabs=document.getElementById('tabs'),panel=document.getElementById('panel');
-let ci=0,sel=null,editMode=false;
+let ci=0,sel=null,selPoi=null,editMode=false,showPoi=true;
 const RES_LABEL={ok:'Booked',book:'To book',walk:'Walk-in'};
 
-CITIES.forEach((c,i)=>{
-  const b=document.createElement('button');b.className='tab';b.setAttribute('aria-selected',i===0);
-  b.innerHTML=`<div class="t1">${c.city}</div><div class="t2">${c.sub}</div>`;
-  b.onclick=()=>{ci=i;sel=null;render();};tabs.appendChild(b);
-});
-document.getElementById('editToggle').onclick=()=>{
-  editMode=!editMode;
-  document.getElementById('editToggle').classList.toggle('on',editMode);
-  document.getElementById('savebar').classList.toggle('show',editMode);
-  document.body.classList.toggle('editing',editMode);
-  render();
-};
+CITIES.forEach((c,i)=>{const b=document.createElement('button');b.className='tab';b.setAttribute('aria-selected',i===0);
+ b.innerHTML=`<div class="t1">${c.city}</div><div class="t2">${c.sub}</div>`;
+ b.onclick=()=>{ci=i;sel=null;selPoi=null;render();};tabs.appendChild(b);});
+document.getElementById('editToggle').onclick=()=>{editMode=!editMode;
+ document.getElementById('editToggle').classList.toggle('on',editMode);
+ document.getElementById('savebar').classList.toggle('show',editMode);
+ document.body.classList.toggle('editing',editMode);render();};
 document.getElementById('saveBtn').onclick=saveOverrides;
 document.getElementById('resetBtn').onclick=resetAll;
 
 function svgMap(c){
   const hotel=HOTELS[c.hotel];
   const stops=c.stops.map(eff);
-  const pts=[...stops.map(s=>({...s,type:'m'})),{...hotel,type:'h'}];
-  const W=560,H=430,PAD=64;
-  const la=pts.map(p=>p.lat),ln=pts.map(p=>p.lng);
+  const pois=showPoi?c.pois:[];
+  const all=[...stops,...pois.map(p=>({lat:p.lat,lng:p.lng})),{lat:hotel.lat,lng:hotel.lng}];
+  const W=560,H=440,PAD=66;
+  const la=all.map(p=>p.lat),ln=all.map(p=>p.lng);
   const k=Math.cos(((Math.min(...la)+Math.max(...la))/2)*Math.PI/180);
-  const xs=pts.map(p=>p.lng*k),ys=pts.map(p=>-p.lat);
+  const px=p=>({x:p.lng*k*sc+ox,y:-p.lat*sc+oy});
+  const xs=all.map(p=>p.lng*k),ys=all.map(p=>-p.lat);
   const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
   const dx=(x1-x0)||.004,dy=(y1-y0)||.004;
   const sc=Math.min((W-2*PAD)/dx,(H-2*PAD)/dy);
   const ox=(W-dx*sc)/2-x0*sc,oy=(H-dy*sc)/2-y0*sc;
-  pts.forEach((p,i)=>{p.x=xs[i]*sc+ox;p.y=ys[i]*sc+oy;});
   const kmPerPx=111.32/sc;
   const nice=[0.1,0.2,0.5,1,2,5,10,20,50].reduce((a,b)=>Math.abs(b-110*kmPerPx)<Math.abs(a-110*kmPerPx)?b:a);
-  const h=pts[pts.length-1];
+  const h=px(hotel);
   let s='';
-  // spokes hotel -> each meal (fixes your #1 & #2)
-  pts.slice(0,-1).forEach(p=>{
-    const far=Math.hypot(p.x-h.x,p.y-h.y)*kmPerPx>15;
-    s+=`<line class="${far?'rail-line':'spoke'}" x1="${h.x}" y1="${h.y}" x2="${p.x}" y2="${p.y}"/>`;
+
+  // day loops: hotel → each meal that day in order → hotel
+  const byDay={};stops.forEach(st=>{(byDay[st.d]=byDay[st.d]||[]).push(st);});
+  Object.values(byDay).forEach(ms=>{
+    const chain=[h,...ms.map(px),h];
+    for(let i=0;i<chain.length-1;i++){
+      const a=chain[i],b=chain[i+1];
+      const far=Math.hypot(a.x-b.x,a.y-b.y)*kmPerPx>15;
+      s+=`<line class="${far?'rail-line':'loop'}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"/>`;
+    }
   });
-  pts.slice(0,-1).forEach(p=>{
-    const right=p.x<W/2,ax=right?p.x+15:p.x-15,an=right?'start':'end',on=sel===p.id;
+
+  // POIs — moss diamonds
+  pois.forEach((p,i)=>{
+    const q=px(p),on=selPoi===i;
+    const right=q.x<W/2,ax=right?q.x+12:q.x-12,an=right?'start':'end';
+    s+=`<g class="pin poi-pin" data-poi="${i}">
+      <rect x="${q.x-(on?7:5.5)}" y="${q.y-(on?7:5.5)}" width="${on?14:11}" height="${on?14:11}" rx="2"
+        transform="rotate(45 ${q.x} ${q.y})" fill="${on?'var(--clay)':'var(--moss)'}" stroke="var(--washi)" stroke-width="1.5" cursor="pointer"/>
+      <text class="plabel poi" x="${ax}" y="${q.y+3}" text-anchor="${an}">${p.n}</text></g>`;
+  });
+
+  // meals
+  stops.forEach(p=>{
+    const q=px(p),on=sel===p.id;
+    const right=q.x<W/2,ax=right?q.x+15:q.x-15,an=right?'start':'end';
     s+=`<g class="pin" data-n="${p.id}">
-      <circle cx="${p.x}" cy="${p.y}" r="${on?13:10}" fill="${on?'var(--clay)':'var(--indigo)'}" stroke="var(--washi)" stroke-width="2"/>
-      <text x="${p.x}" y="${p.y+3.3}">${p.id}</text>
-      <text class="plabel" x="${ax}" y="${p.y-1}" text-anchor="${an}">${p.name}</text>
-      <text class="plabel dim" x="${ax}" y="${p.y+9.5}" text-anchor="${an}">${p.area}</text></g>`;
+      <circle cx="${q.x}" cy="${q.y}" r="${on?13:10}" fill="${on?'var(--clay)':'var(--indigo)'}" stroke="var(--washi)" stroke-width="2"/>
+      <text x="${q.x}" y="${q.y+3.3}">${p.id}</text>
+      <text class="plabel" x="${ax}" y="${q.y-1}" text-anchor="${an}">${p.name}</text>
+      <text class="plabel dim" x="${ax}" y="${q.y+9.5}" text-anchor="${an}">${p.area}</text></g>`;
   });
+
   s+=`<g class="hpin"><rect x="${h.x-8}" y="${h.y-8}" width="16" height="16" rx="2" stroke="var(--washi)" stroke-width="2"/><text x="${h.x}" y="${h.y+3.5}">H</text>
       <text class="plabel" x="${h.x<W/2?h.x+15:h.x-15}" y="${h.y+3}" text-anchor="${h.x<W/2?'start':'end'}" fill="var(--plum)">${hotel.n}</text></g>`;
   s+=`<g class="sb" transform="translate(20,${H-18})"><line x1="0" y1="0" x2="${nice/kmPerPx}" y2="0"/><line x1="0" y1="-4" x2="0" y2="4"/><line x1="${nice/kmPerPx}" y1="-4" x2="${nice/kmPerPx}" y2="4"/><text x="${nice/kmPerPx/2}" y="-7" text-anchor="middle">${nice<1?nice*1000+' m':nice+' km'}</text></g>`;
@@ -278,9 +309,7 @@ function mealCard(p){
       <div class="efields">
         <div class="erow">
           <label>¥ <input type="number" data-f="jpy" data-id="${p.id}" value="${e.jpy}"></label>
-          <select data-f="res" data-id="${p.id}">
-            ${Object.entries(RES_LABEL).map(([v,l])=>`<option value="${v}" ${e.res===v?'selected':''}>${l}</option>`).join('')}
-          </select>
+          <select data-f="res" data-id="${p.id}">${Object.entries(RES_LABEL).map(([v,l])=>`<option value="${v}" ${e.res===v?'selected':''}>${l}</option>`).join('')}</select>
         </div>
         <textarea rows="2" data-f="unote" data-id="${p.id}" placeholder="Your note…">${e.unote||''}</textarea>
       </div>
@@ -294,9 +323,8 @@ function render(){
   [...tabs.children].forEach((b,i)=>b.setAttribute('aria-selected',i===ci));
   const c=CITIES[ci];
   if(c.rail_only){
-    panel.innerHTML=`<div class="card"><div class="chead"><span>Shinkansen & intercity legs</span></div>
-      ${TRAINS.map(t=>`<div class="train">
-        <div class="route">${t.route}</div>
+    panel.innerHTML=`<div class="card"><div class="chead"><span>Flights · Shinkansen · transfers</span></div>
+      ${TRAINS.map(t=>`<div class="train"><div class="route">${t.route}</div>
         <div class="tmeta">${t.d} · dep ${t.t} · ${t.train}</div>
         <div class="note ${t.warn?'warn':''}">${t.note}</div></div>`).join('')}</div>`;
     return;
@@ -304,35 +332,34 @@ function render(){
   const hotel=HOTELS[c.hotel];
   const total=c.stops.reduce((a,s)=>a+Number(eff(s).jpy),0);
   panel.innerHTML=`<div class="grid">
-    <div class="mapcard"><div class="maphead"><h2>${c.city}</h2><span>${c.sub}</span></div>${svgMap(c)}</div>
+    <div class="mapcard"><div class="maphead"><h2>${c.city}</h2>
+      <button class="poitoggle ${showPoi?'on':''}" id="poiT" type="button">◆ POI ${showPoi?'on':'off'}</button></div>${svgMap(c)}</div>
     <div class="stack">
-      <div class="card"><div class="chead"><span>Meals</span><span>¥${total.toLocaleString()}</span></div>
-        ${c.stops.map(mealCard).join('')}</div>
-      <div class="card hotel-card"><div class="chead"><span>Hotel</span></div>
-        <dl>
-          <dt>Name</dt><dd><b>${hotel.n}</b></dd>
-          <dt>Address</dt><dd>${hotel.addr}</dd>
-          <dt>Phone</dt><dd><a href="tel:${hotel.tel.replace(/[^+\d]/g,'')}">${hotel.tel}</a></dd>
-          <dt>Email</dt><dd>${hotel.mail.includes('@')?`<a href="mailto:${hotel.mail}">${hotel.mail}</a>`:hotel.mail}</dd>
-          <dt>Note</dt><dd>${hotel.note}</dd>
-        </dl></div>
+      <div class="card"><div class="chead"><span>Meals</span><span>¥${total.toLocaleString()}</span></div>${c.stops.map(mealCard).join('')}</div>
+      <div class="card hotel-card"><div class="chead"><span>Hotel</span></div><dl>
+        <dt>Name</dt><dd><b>${hotel.n}</b></dd>
+        <dt>Address</dt><dd>${hotel.addr}</dd>
+        <dt>Nearest station</dt><dd>${hotel.stn}</dd>
+        <dt>Phone</dt><dd><a href="tel:${hotel.tel.replace(/[^+\d]/g,'')}">${hotel.tel}</a></dd>
+        <dt>Email</dt><dd>${hotel.mail.includes('@')?`<a href="mailto:${hotel.mail}">${hotel.mail}</a>`:hotel.mail}</dd>
+        <dt>Note</dt><dd>${hotel.note}</dd></dl></div>
       <div class="card"><div class="chead"><span>Getting around</span></div>
         <div class="metro">${c.metro.map(m=>`<div class="row"><b>${m[0]}</b><br>${m[1]}</div>`).join('')}</div></div>
-      <div class="card"><div class="chead"><span>While you're there</span></div>
-        <div class="poi">${c.pois.map(p=>`<div class="prow"><span class="icon">${p[0]}</span><span><b>${p[1]}</b> — ${p[2]} <span class="anchor">· near ${p[3]}</span></span></div>`).join('')}</div></div>
+      <div class="card"><div class="chead"><span>While you're there</span><span>◆ on map</span></div>
+        <div class="poi-list">${c.pois.map((p,i)=>`<div class="prow ${selPoi===i?'on':''}" data-poi="${i}">
+          <span class="icon">${p.ic}</span><span><b>${p.n}</b> — ${p.d} <span class="anchor">· near ${p.a}</span></span></div>`).join('')}</div></div>
     </div></div>`;
 
-  panel.querySelectorAll('.pin').forEach(g=>g.onclick=()=>{sel=+g.dataset.n;render();});
+  document.getElementById('poiT').onclick=()=>{showPoi=!showPoi;selPoi=null;render();};
+  panel.querySelectorAll('.pin[data-n]').forEach(g=>g.onclick=()=>{sel=+g.dataset.n;selPoi=null;render();});
+  panel.querySelectorAll('.poi-pin').forEach(g=>g.onclick=()=>{selPoi=+g.dataset.poi;sel=null;render();});
+  panel.querySelectorAll('.prow').forEach(el=>el.onclick=()=>{selPoi=+el.dataset.poi;sel=null;if(!showPoi){showPoi=true;}render();});
   panel.querySelectorAll('.meal').forEach(el=>el.onclick=e=>{
     if(e.target.matches('input,select,textarea,option'))return;
-    sel=+el.dataset.n;render();
-  });
-  panel.querySelectorAll('[data-f]').forEach(inp=>{
-    inp.onchange=()=>{
-      const id=inp.dataset.id;overrides[id]=overrides[id]||{};
-      overrides[id][inp.dataset.f]=inp.dataset.f==='jpy'?Number(inp.value):inp.value;
-    };
-  });
+    sel=+el.dataset.n;selPoi=null;render();});
+  panel.querySelectorAll('[data-f]').forEach(inp=>{inp.onchange=()=>{
+    const id=inp.dataset.id;overrides[id]=overrides[id]||{};
+    overrides[id][inp.dataset.f]=inp.dataset.f==='jpy'?Number(inp.value):inp.value;};});
 }
 loadOverrides().then(render);
 </script>

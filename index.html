@@ -378,7 +378,15 @@ function buildMap(c){
   c.stops.forEach(s=>{
     const e=eff(s);
     const m=L.marker([s.lat,s.lng],{icon:icon(s.id,sel===s.id?28:22,sel===s.id?'on':'')}).addTo(map);
-    m.bindPopup(`<b>${s.name}</b><br>${s.d} · ${s.m} — ${s.dish}<br>${s.hrs}<br>${RES_LABEL[e.res]} · ¥${Number(e.jpy).toLocaleString()}`);
+    
+    // Dynamically appends booking time and platform if they exist
+    let popupContent = `<b>${s.name}</b><br>${s.d} · ${s.m} — ${s.dish}<br>${s.hrs}<br>${RES_LABEL[e.res]}`;
+    if (e.res === 'ok' && (e.btime || e.bplat)) {
+      popupContent += ` (${e.btime || ''}${e.btime && e.bplat ? ' via ' : ''}${e.bplat || ''})`;
+    }
+    popupContent += ` · ¥${Number(e.jpy).toLocaleString()}`;
+    
+    m.bindPopup(popupContent);
     m.on('click',()=>{sel=s.id;selPoi=null;renderSide(c);refreshIcons(c);});
     markers['m'+s.id]=m;
     bounds.push([s.lat,s.lng]);
@@ -411,6 +419,9 @@ function mealCard(p){
     <div style="flex:1;min-width:0">
       <div class="m1">${p.d} · ${p.m}</div>
       <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span></div>
+      
+      ${!editMode && e.res==='ok' && (e.btime || e.bplat) ? `<div style="display:inline-block; margin-top:4px; margin-bottom:2px; padding:3px 6px; background:rgba(94,127,76,.1); color:var(--moss); font:600 10px var(--mono); text-transform:uppercase; letter-spacing:0.05em; border-radius:2px;">✓ Reserved ${e.btime ? 'at ' + e.btime : ''} ${e.bplat ? 'via ' + e.bplat : ''}</div>` : ''}
+      
       <div class="m3">${p.dish}</div>
       <div class="m4">${p.hrs} · ¥${Number(e.jpy).toLocaleString()}</div>
       <div class="efields">
@@ -418,6 +429,12 @@ function mealCard(p){
           <label>¥ <input type="number" data-f="jpy" data-id="${p.id}" value="${e.jpy}"></label>
           <select data-f="res" data-id="${p.id}">${Object.entries(RES_LABEL).map(([v,l])=>`<option value="${v}" ${e.res===v?'selected':''}>${l}</option>`).join('')}</select>
         </div>
+        
+        <div class="erow" style="margin-top:4px;">
+          <label>Time <input type="text" placeholder="e.g., 18:30" data-f="btime" data-id="${p.id}" value="${e.btime||''}"></label>
+          <label>Platform <input type="text" placeholder="e.g., Tablecheck" data-f="bplat" data-id="${p.id}" value="${e.bplat||''}"></label>
+        </div>
+        
         <textarea rows="2" data-f="unote" data-id="${p.id}" placeholder="Your note…">${e.unote||''}</textarea>
       </div>
       ${e.warn?`<div class="note warn">${e.warn}</div>`:''}

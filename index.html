@@ -143,7 +143,7 @@
   <div id="panel"></div>
   <footer>
     <div class="f-text">All edits (costs, reservations, notes) save automatically to your local browser and persist.</div>
-    
+
     <div class="f-bottom">
       <div class="f-logos">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -301,7 +301,8 @@ const CITIES=[
   {id:19,d:"11/26 Thu",m:"Dinner",name:"Roku Roku",dish:"Omakase sushi",hrs:"18:00–21:00 daily",res:"ok",jpy:39160,lat:35.6601,lng:139.7283,area:"Grand Hyatt",note:"$125 FHR dining credit applies here."}]},
 
 {id:"flights",city:"✈ Flights",sub:"Zip Air",flights:true},
-{id:"rail",city:"🚄 Rail",sub:"Shinkansen legs",rail_only:true}
+{id:"rail",city:"🚄 Rail",sub:"Shinkansen legs",rail_only:true},
+{id:"expenses",city:"💳 Expenses",sub:"USD Tracker",expenses:true}
 ];
 
 const FLIGHTS=[
@@ -394,14 +395,14 @@ function buildMap(c){
   c.stops.forEach(s=>{
     const e=eff(s);
     const m=L.marker([s.lat,s.lng],{icon:icon(s.id,sel===s.id?28:22,sel===s.id?'on':'')}).addTo(map);
-    
+
     // Dynamically appends booking time and platform if they exist
     let popupContent = `<b>${s.name}</b><br>${s.d} · ${s.m} — ${s.dish}<br>${s.hrs}<br>${RES_LABEL[e.res]}`;
     if (e.res === 'ok' && (e.btime || e.bplat)) {
       popupContent += ` (${e.btime || ''}${e.btime && e.bplat ? ' via ' : ''}${e.bplat || ''})`;
     }
     popupContent += ` · ¥${Number(e.jpy).toLocaleString()}`;
-    
+
     m.bindPopup(popupContent);
     m.on('click',()=>{sel=s.id;selPoi=null;renderSide(c);refreshIcons(c);});
     markers['m'+s.id]=m;
@@ -451,9 +452,9 @@ function mealCard(p){
     <div style="flex:1;min-width:0">
       <div class="m1">${p.d} · ${p.m}</div>
       <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span></div>
-      
+
       ${!editMode && e.res==='ok' && (e.btime || e.bplat) ? `<div style="display:inline-block; margin-top:4px; margin-bottom:2px; padding:3px 6px; background:rgba(94,127,76,.1); color:var(--moss); font:600 10px var(--mono); text-transform:uppercase; letter-spacing:0.05em; border-radius:2px;">✓ Reserved ${e.btime ? 'at ' + e.btime : ''} ${e.bplat ? 'via ' + e.bplat : ''}</div>` : ''}
-      
+
       <div class="m3">${p.dish}</div>
       <div class="m4">${p.hrs} · ¥${Number(e.jpy).toLocaleString()}</div>
       <div class="efields">
@@ -461,12 +462,12 @@ function mealCard(p){
           <label>¥ <input type="number" data-f="jpy" data-id="${p.id}" value="${e.jpy}"></label>
           <select data-f="res" data-id="${p.id}">${Object.entries(RES_LABEL).map(([v,l])=>`<option value="${v}" ${e.res===v?'selected':''}>${l}</option>`).join('')}</select>
         </div>
-        
+
         <div class="erow" style="margin-top:4px;">
           <label>Time <input type="text" placeholder="e.g., 18:30" data-f="btime" data-id="${p.id}" value="${e.btime||''}"></label>
           <label>Platform <input type="text" placeholder="e.g., Tablecheck" data-f="bplat" data-id="${p.id}" value="${e.bplat||''}"></label>
         </div>
-        
+
         <textarea rows="2" data-f="unote" data-id="${p.id}" placeholder="Your note…">${e.unote||''}</textarea>
       </div>
       ${e.warn?`<div class="note warn">${e.warn}</div>`:''}
@@ -515,9 +516,153 @@ function renderSide(c){
     overrides[id][inp.dataset.f]=inp.dataset.f==='jpy'?Number(inp.value):inp.value;};});
 }
 
+function renderExpenses() {
+  const exps = overrides.expenses || [];
+  const total = exps.reduce((sum, e) => sum + Number(e.usd), 0);
+
+  const cats = ["Food", "POI & Cafe", "Shinkansen", "Hotel", "Flight"];
+  const cards = ["AMEX Platinum", "AMEX Gold", "AMEX Bonvoy Brilliant", "United Quest"];
+
+  // Calculate summaries
+  const catTotals = {};
+  cats.forEach(c => catTotals[c] = 0);
+  const cardTotals = {};
+  cards.forEach(c => cardTotals[c] = { paid: 0, unpaid: 0, total: 0 });
+
+  exps.forEach(e => {
+    const amt = Number(e.usd);
+    if(catTotals[e.cat] !== undefined) catTotals[e.cat] += amt;
+    if(cardTotals[e.card] !== undefined) {
+      cardTotals[e.card].total += amt;
+      if(e.paid) cardTotals[e.card].paid += amt;
+      else cardTotals[e.card].unpaid += amt;
+    }
+  });
+
+  panel.innerHTML = `<div class="card" style="max-width:850px; margin: 0 auto;">
+    <div class="chead"><span>Expense Tracker</span><span>Total: $${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
+
+    <div style="display:flex; gap:24px; padding:16px; border-bottom:1px solid var(--rule); background:var(--washi2); flex-wrap:wrap;">
+      <div style="flex:1; min-width:200px;">
+        <div style="font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase; margin-bottom:8px;">By Category</div>
+        ${cats.filter(c => catTotals[c] > 0).map(c => `
+          <div style="display:flex; justify-content:space-between; font-size:12px; border-bottom:1px dotted var(--rule); padding:5px 0;">
+            <span>${c}</span> <b>$${catTotals[c].toLocaleString('en-US', {minimumFractionDigits: 2})}</b>
+          </div>`).join('') || '<div style="font-size:11px; color:var(--grey);">No data yet.</div>'}
+      </div>
+      <div style="flex:1.5; min-width:250px;">
+        <div style="font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase; margin-bottom:8px;">By Card</div>
+        ${cards.filter(c => cardTotals[c].total > 0).map(c => `
+          <div style="display:flex; justify-content:space-between; font-size:12px; border-bottom:1px dotted var(--rule); padding:5px 0; align-items:flex-start;">
+            <span>${c}</span>
+            <span style="text-align:right;">
+              <b>$${cardTotals[c].total.toLocaleString('en-US', {minimumFractionDigits: 2})}</b><br>
+              <span style="font-size:9.5px; font-family:var(--mono); color:var(--moss);">${cardTotals[c].paid > 0 ? 'PAID: $' + cardTotals[c].paid.toLocaleString('en-US', {minimumFractionDigits: 2}) : ''}</span>
+              ${cardTotals[c].paid > 0 && cardTotals[c].unpaid > 0 ? ' <span style="color:var(--grey)">|</span> ' : ''}
+              <span style="font-size:9.5px; font-family:var(--mono); color:var(--clay);">${cardTotals[c].unpaid > 0 ? 'UNPAID: $' + cardTotals[c].unpaid.toLocaleString('en-US', {minimumFractionDigits: 2}) : ''}</span>
+            </span>
+          </div>`).join('') || '<div style="font-size:11px; color:var(--grey);">No data yet.</div>'}
+      </div>
+    </div>
+
+    <div style="padding:16px;">
+      <form id="expForm" style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:24px; align-items:flex-end; background:rgba(34,64,107,.04); padding:12px; border:1px solid var(--rule); border-radius:2px;">
+
+        <label style="flex:1; min-width:110px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Date<br>
+          <input type="date" id="exDate" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
+        </label>
+
+        <label style="flex:1; min-width:90px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Amount ($)<br>
+          <input type="number" step="0.01" id="exUsd" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="0.00">
+        </label>
+
+        <label style="flex:1.5; min-width:120px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Category<br>
+          <select id="exCat" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
+            ${cats.map(c=>`<option>${c}</option>`).join('')}
+          </select>
+        </label>
+
+        <label style="flex:1.5; min-width:140px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Card Used<br>
+          <select id="exCard" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
+            ${cards.map(c=>`<option>${c}</option>`).join('')}
+          </select>
+        </label>
+
+        <label style="flex:2; min-width:150px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Description<br>
+          <input type="text" id="exDesc" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="e.g., Ishibe Koji Mamecha">
+        </label>
+
+        <button type="submit" style="font:600 11px var(--mono); text-transform:uppercase; letter-spacing:0.08em; background:var(--clay); color:#fff; border:none; padding:7px 14px; border-radius:2px; cursor:pointer; height:30px;">+ Add</button>
+      </form>
+
+      <div>
+        ${exps.length === 0 ? '<div class="note">No expenses logged yet.</div>' : ''}
+        ${exps.slice().reverse().map((e, revIdx) => {
+          const i = exps.length - 1 - revIdx; // Real array index
+          return `
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dotted var(--rule); padding:10px 0; ${e.paid ? 'opacity:0.6;' : ''}">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <input type="checkbox" ${e.paid ? 'checked' : ''} onchange="togglePaid(${i}, this.checked)" title="Mark as Paid" style="width:16px; height:16px; accent-color:var(--moss); cursor:pointer;">
+              <div>
+                <div style="font-family:var(--serif); font-size:15px; font-weight:700; color:var(--ink); ${e.paid ? 'text-decoration:line-through;' : ''}">${e.desc}</div>
+                <div style="font-family:var(--mono); font-size:9.5px; color:var(--grey); margin-top:2px; text-transform:uppercase;">${e.date} · ${e.cat} · ${e.card}</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div style="font-family:var(--mono); font-weight:700; color:var(--indigo); font-size:14px;">$${Number(e.usd).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+              <button onclick="deleteExp(${i})" title="Delete" style="background:none; border:none; color:var(--clay); cursor:pointer; font-size:18px; line-height:1; padding:0 4px;">×</button>
+            </div>
+          </div>
+        `}).join('')}
+      </div>
+    </div>
+  </div>`;
+
+  // Pre-fill date to today for convenience
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('exDate').value = today;
+
+  // Handle form submission
+  document.getElementById('expForm').onsubmit = (ev) => {
+    ev.preventDefault();
+    overrides.expenses = overrides.expenses || [];
+    overrides.expenses.push({
+      date: document.getElementById('exDate').value,
+      usd: document.getElementById('exUsd').value,
+      cat: document.getElementById('exCat').value,
+      card: document.getElementById('exCard').value,
+      desc: document.getElementById('exDesc').value,
+      paid: false // Defaults to unpaid
+    });
+    saveOverrides();
+    renderExpenses();
+  };
+}
+
+// Global Handlers
+window.deleteExp = function(idx) {
+  if(!confirm("Delete this expense?")) return;
+  overrides.expenses.splice(idx, 1);
+  saveOverrides();
+  renderExpenses();
+};
+
+window.togglePaid = function(idx, isChecked) {
+  overrides.expenses[idx].paid = isChecked;
+  saveOverrides();
+  renderExpenses();
+};
+
 function render(){
   [...tabs.children].forEach((b,i)=>b.setAttribute('aria-selected',i===ci));
   const c=CITIES[ci];
+
+  if(c.expenses){
+    if(map){map.remove();map=null;}
+    renderExpenses();
+    return;
+  }
+
   if(c.flights||c.rail_only){
     if(map){map.remove();map=null;}
     const rows=c.flights?FLIGHTS:TRAINS;

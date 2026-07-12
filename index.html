@@ -701,7 +701,7 @@ function renderExpenses() {
   const foodOver = foodSpentUsd > mealBudgetUsd;
   
   const cats = ["Food", "POI & Cafe", "Shinkansen", "Hotel", "Flight", "Omiyage"];
-  const cards = ["AMEX Platinum", "AMEX Gold", "AMEX Bonvoy Brilliant", "United Quest"];
+  const cards = ["AMEX Platinum", "AMEX Gold", "AMEX Bonvoy Brilliant", "United Quest", "Cash"];
 
   // Calculate summaries
   const catTotals = {};
@@ -847,11 +847,11 @@ function renderExpenses() {
       cat: document.getElementById('exCat').value,
       card: document.getElementById('exCard').value,
       desc: document.getElementById('exDesc').value,
-      paid: false
+      paid: document.getElementById('exCard').value === 'Cash'   // cash = settled instantly
     };
 
     if (idx !== "") { // We are UPDATING an existing expense
-      newExp.paid = overrides.expenses[idx].paid; // Keep checkmark status
+      newExp.paid = newExp.card === 'Cash' ? true : overrides.expenses[idx].paid;
       overrides.expenses[idx] = newExp;
       form.dataset.editIdx = ""; // Reset edit mode
     } else { // We are ADDING a new expense

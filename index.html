@@ -510,7 +510,14 @@ function buildMap(c){
   if(showPoi)c.pois.forEach((p,i)=>{
     if(cat!=='all'&&p.c!==cat)return;
     const m=L.marker([p.lat,p.lng],{icon:icon(`<span>${p.ic}</span>`,selPoi===i?26:20,'mk-poi'+(selPoi===i?' on':''))}).addTo(map);
-    m.bindPopup(`<b>${p.n}</b><br>${p.d}<br><i>near ${p.a}</i>`);
+    const gMapUrl = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+    m.bindPopup(`<b>${p.n}</b><br>${p.d}<br><i>near ${p.a}</i>
+      <div style="margin-top:8px; border-top:1px dotted var(--rule); padding-top:6px;">
+        <a href="${gMapUrl}" target="_blank" style="font-family:var(--mono); font-size:10px; color:var(--indigo); text-decoration:none; font-weight:600; text-transform:uppercase; letter-spacing:0.02em;">
+          📍 Open in Google Maps ↗
+        </a>
+      </div>
+    `);
     m.on('click',()=>{selPoi=i;sel=null;renderSide(c);refreshIcons(c);});
     markers['p'+i]=m;
     bounds.push([p.lat,p.lng]);

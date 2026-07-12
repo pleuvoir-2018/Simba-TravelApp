@@ -302,7 +302,8 @@ const CITIES=[
 
 {id:"flights",city:"✈ Flights",sub:"Zip Air",flights:true},
 {id:"rail",city:"🚄 Rail",sub:"Shinkansen legs",rail_only:true},
-{id:"expenses",city:"💳 Expenses",sub:"USD Tracker",expenses:true}
+{id:"expenses",city:"💳 Expenses",sub:"USD Tracker",expenses:true},
+{id:"calc",city:"💱 Calc",sub:"Live Converter",calc:true}
 ];
 
 const FLIGHTS=[
@@ -750,10 +751,47 @@ window.editExp = function(idx) {
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
+function renderCalc() {
+  panel.innerHTML = `
+  <div class="card" style="max-width:500px; margin: 40px auto; padding:32px 24px; text-align:center;">
+    <div style="font-family:var(--serif); font-size:24px; color:var(--indigo); margin-bottom:8px;">Quick Converter</div>
+    <div style="font-family:var(--mono); font-size:11px; color:var(--moss); margin-bottom:32px; letter-spacing:0.05em; text-transform:uppercase;">
+      Live Rate: ¥${liveJpyRate.toFixed(2)} = $1.00
+    </div>
+    
+    <div style="margin-bottom:24px; position:relative;">
+      <div style="font:600 12px var(--mono); color:var(--grey); text-transform:uppercase; margin-bottom:8px; text-align:left;">Price in Yen (¥)</div>
+      <input type="number" id="quickJpy" placeholder="0" style="width:100%; font-family:var(--serif); font-size:48px; font-weight:700; color:var(--ink); border:none; border-bottom:2px solid var(--clay); background:transparent; padding:8px 0; text-align:center; outline:none;">
+    </div>
+
+    <div style="margin-bottom:24px;">
+      <div style="font:600 12px var(--mono); color:var(--grey); text-transform:uppercase; margin-bottom:8px; text-align:left;">Cost in USD ($)</div>
+      <div id="quickUsd" style="font-family:var(--serif); font-size:48px; font-weight:700; color:var(--moss); padding:8px 0;">$0.00</div>
+    </div>
+  </div>`;
+
+  // Instant math as you type
+  document.getElementById('quickJpy').addEventListener('input', (e) => {
+    const jpy = Number(e.target.value);
+    const usdDisplay = document.getElementById('quickUsd');
+    if (jpy > 0) {
+      usdDisplay.textContent = '$' + (jpy / liveJpyRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    } else {
+      usdDisplay.textContent = '$0.00';
+    }
+  });
+}
+
 function render(){
   [...tabs.children].forEach((b,i)=>b.setAttribute('aria-selected',i===ci));
   const c=CITIES[ci];
 
+  if(c.calc){
+    if(map){map.remove();map=null;}
+    renderCalc();
+    return;
+  }
+  
   if(c.expenses){
     if(map){map.remove();map=null;}
     renderExpenses();
@@ -779,6 +817,26 @@ function render(){
   renderSide(c);
 }
 loadOverrides().then(render);
+  
+/* ---------------- LIVE EXCHANGE RATE ---------------- */
+let liveJpyRate = 150.00; // Fallback offline rate
+
+async function fetchExchangeRate() {
+  try {
+    const res = await fetch('https://latest.currency-api.pages.dev/v1/currencies/usd.json');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.usd && data.usd.jpy) {
+        liveJpyRate = data.usd.jpy;
+        // If the user is already looking at the Calc or Expense tab, refresh it to show the live rate
+        if (CITIES[ci].calc || CITIES[ci].expenses) render();
+      }
+    }
+  } catch(e) { console.error('Could not fetch live rate, using offline fallback.'); }
+}
+
+// Kick off the fetch immediately
+fetchExchangeRate();
 </script>
 </body>
 </html>

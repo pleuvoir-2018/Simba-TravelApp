@@ -740,10 +740,10 @@ function renderExpenses() {
   // Pre-fill date
   document.getElementById('exDate').value = new Date().toISOString().split('T')[0];
 
-  // Auto-calculate JPY to USD (Using 150 exchange rate - you can adjust this!)
+  // Auto-calculate JPY to USD at the live rate
   document.getElementById('exJpy').addEventListener('input', (e) => {
     if(e.target.value) {
-      document.getElementById('exUsd').value = (Number(e.target.value) / 150).toFixed(2);
+      document.getElementById('exUsd').value = (Number(e.target.value) / liveJpyRate).toFixed(2);
     } else {
       document.getElementById('exUsd').value = '';
     }

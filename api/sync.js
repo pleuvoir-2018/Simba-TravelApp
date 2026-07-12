@@ -1,32 +1,38 @@
-export default async function handler(req, res) {
-  const { VERCEL_API_TOKEN, EDGE_CONFIG_ID } = process.env;
+import { put, list } from '@vercel/blob';
 
-  // READ DATA
+const KEY = 'japan_trip_v2.json';
+
+export default async function handler(req, res) {
+  // Optional but recommended: shared-secret auth
+  const secret = process.env.TRIP_KEY;
+  if (secret && req.headers['x-trip-key'] !== secret) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  // READ
   if (req.method === 'GET') {
     try {
-      const fetchRes = await fetch(`https://api.vercel.com/v1/edge-config/${EDGE_CONFIG_ID}/item/japan_trip_v2`, {
-        headers: { Authorization: `Bearer ${VERCEL_API_TOKEN}` }
-      });
-      if (fetchRes.status === 404) return res.status(200).json({ value: null });
-      const data = await fetchRes.json();
+      const { blobs } = await list({ prefix: KEY, limit: 1 });
+      if (!blobs.length) return res.status(200).json({ value: null });
+
+      // Cache-bust the CDN so you never read a stale save
+      const r = await fetch(`${blobs[0].url}?t=${Date.now()}`, { cache: 'no-store' });
+      const data = await r.json();
       return res.status(200).json({ value: data });
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
   }
 
-  // WRITE DATA
+  // WRITE
   if (req.method === 'POST') {
     try {
-      await fetch(`https://api.vercel.com/v1/edge-config/${EDGE_CONFIG_ID}/items`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${VERCEL_API_TOKEN}`
-        },
-        body: JSON.stringify({
-          items: [{ operation: 'upsert', key: 'japan_trip_v2', value: req.body }]
-        })
+      await put(KEY, JSON.stringify(req.body), {
+        access: 'public',
+        addRandomSuffix: false,   // keep one stable file, overwrite in place
+        allowOverwrite: true,
+        contentType: 'application/json',
+        cacheControlMaxAge: 0,    // minimize CDN staleness on the blob URL
       });
       return res.status(200).json({ success: true });
     } catch (e) {

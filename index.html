@@ -362,6 +362,36 @@ async function sDel(){
   mem=null;
 }
 
+async function loadOverrides(){
+  try{const v=await sGet();if(v)overrides=JSON.parse(v);}catch(e){}
+}
+
+async function saveOverrides(){
+  const mode = await sSet(JSON.stringify(overrides));
+  // Updates the top UI bar to confirm cloud sync
+  if(mode === 'cloud') flash('Saved to Cloud ☁️');
+  else if(mode === 'browser') flash('Saved locally (Offline)');
+  else flash('Saved for this session only');
+}
+
+async function resetAll(){
+  if(!confirm('Discard all edits and expenses?'))return;
+  overrides={};
+  await sDel();
+  render();
+  flash('Reset ✓');
+}
+
+function flash(m){
+  const s=document.getElementById('savemsg');
+  if(!s) return;
+  const t=s.textContent;
+  s.textContent=m;
+  setTimeout(()=>s.textContent=t,1800);
+}
+
+function eff(s){return{...s,...(overrides[s.id]||{})};}
+
 /* ---------------- UI ---------------- */
 const tabs=document.getElementById('tabs'),panel=document.getElementById('panel');
 let ci=0,sel=null,selPoi=null,editMode=false,showPoi=true,cat='all',map=null,markers={};

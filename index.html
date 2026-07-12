@@ -317,31 +317,48 @@ const TRAINS=[
 ];
 
 /* ---------------- STORAGE (window.storage → localStorage → memory) ---------------- */
-const KEY='japan_trip_v2';
-let overrides={},mem=null;
 async function sGet(){
-  if(window.storage&&window.storage.get){try{const r=await window.storage.get(KEY);return r?r.value:null;}catch(e){}}
+  // 1. Try to fetch from Edge Config Cloud
+  try {
+    const res = await fetch('/api/sync');
+    if (res.ok) {
+      const data = await res.json();
+      return data.value ? JSON.stringify(data.value) : null;
+    }
+  } catch(e) { console.error('Cloud load failed, falling back to local'); }
+  
+  // 2. Fallback to local storage if offline
   try{return localStorage.getItem(KEY);}catch(e){}
   return mem;
 }
+
 async function sSet(v){
-  if(window.storage&&window.storage.set){try{const r=await window.storage.set(KEY,v);if(r)return'artifact';}catch(e){}}
+  // 1. Try to save to Edge Config Cloud
+  try {
+    const res = await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: v
+    });
+    if (res.ok) return 'cloud';
+  } catch(e) { console.error('Cloud save failed, falling back to local'); }
+  
+  // 2. Fallback to local storage if offline
   try{localStorage.setItem(KEY,v);return'browser';}catch(e){}
   mem=v;return'memory';
 }
+
 async function sDel(){
-  if(window.storage&&window.storage.delete){try{await window.storage.delete(KEY);}catch(e){}}
+  try {
+    await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}) // Overwrites with empty object
+    });
+  } catch(e){}
   try{localStorage.removeItem(KEY);}catch(e){}
   mem=null;
 }
-async function loadOverrides(){try{const v=await sGet();if(v)overrides=JSON.parse(v);}catch(e){}}
-async function saveOverrides(){
-  const mode=await sSet(JSON.stringify(overrides));
-  flash(mode==='memory'?'Saved for this session only (no storage available)':'Saved ✓');
-}
-async function resetAll(){if(!confirm('Discard all edits?'))return;overrides={};await sDel();render();flash('Reset ✓');}
-function flash(m){const s=document.getElementById('savemsg');const t=s.textContent;s.textContent=m;setTimeout(()=>s.textContent=t,1800);}
-function eff(s){return{...s,...(overrides[s.id]||{})};}
 
 /* ---------------- UI ---------------- */
 const tabs=document.getElementById('tabs'),panel=document.getElementById('panel');

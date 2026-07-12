@@ -419,7 +419,6 @@ async function saveOverrides(){
     if(d.value) overrides={...d.value,...overrides};   // remote first, my edits win conflicts
   }catch(e){}
   const mode=await sSet(JSON.stringify(overrides));
-  ...
 }
 
 async function resetAll(){

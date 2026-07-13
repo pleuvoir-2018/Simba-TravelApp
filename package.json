@@ -1,6 +1,6 @@
 {
   "name": "jap-nov26",
   "dependencies": {
-    "@vercel/blob": "^0.27.0"
+    "@vercel/blob": "latest"
   }
 }

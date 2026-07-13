@@ -7,10 +7,8 @@ export default async function handler(req, res) {
     try {
       const { blobs } = await list({ prefix: KEY, limit: 1 });
       if (!blobs.length) return res.status(200).json({ value: null });
-      const r = await fetch(`${blobs[0].url}?t=${Date.now()}`, {
-        cache: 'no-store',
-        headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
-      });
+      const url = blobs[0].downloadUrl || blobs[0].url;
+      const r = await fetch(url, { cache: 'no-store' });
       if (!r.ok) return res.status(500).json({ error: 'read-back failed: ' + r.status });
       return res.status(200).json({ value: await r.json() });
     } catch (e) {
@@ -21,11 +19,10 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       await put(KEY, JSON.stringify(req.body ?? {}), {
-        access: 'public',            // ← matches your store
+        access: 'private',
         addRandomSuffix: false,
         allowOverwrite: true,
         contentType: 'application/json',
-        cacheControlMaxAge: 0,
       });
       return res.status(200).json({ success: true });
     } catch (e) {

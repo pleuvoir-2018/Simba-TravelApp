@@ -21,7 +21,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       await put(KEY, JSON.stringify(req.body ?? {}), {
-        access: 'private',            // ← matches your store
+        access: 'public',            // ← matches your store
         addRandomSuffix: false,
         allowOverwrite: true,
         contentType: 'application/json',

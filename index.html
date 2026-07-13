@@ -566,6 +566,7 @@ function mealCard(p){
       <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span></div>
 
       ${!editMode && e.res==='ok' && (e.btime || e.bplat) ? `<div style="display:inline-block; margin-top:4px; margin-bottom:2px; padding:3px 6px; background:rgba(94,127,76,.1); color:var(--moss); font:600 10px var(--mono); text-transform:uppercase; letter-spacing:0.05em; border-radius:2px;">✓ Reserved ${e.btime ? 'at ' + e.btime : ''} ${e.bplat ? 'via ' + e.bplat : ''}</div>` : ''}
+      ${!editMode && e.actualJpy ? (()=>{const aU=Number(e.actualJpy)/liveJpyRate;const diff=Number(e.actualJpy)-Number(e.jpy);return `<div style="display:inline-block;margin:4px 0 2px 4px;padding:3px 6px;background:${diff>0?'rgba(184,85,42,.1)':'rgba(94,127,76,.1)'};color:${diff>0?'var(--clay)':'var(--moss)'};font:600 10px var(--mono);border-radius:2px;">¥${Number(e.actualJpy).toLocaleString()} · $${aU.toFixed(2)}${diff!==0?` ${diff>0?'▲':'▼'}¥${Math.abs(diff).toLocaleString()}`:''}</div>`})():''}
 
       <div class="m3">${p.dish}</div>
       <div class="m4">${p.hrs} · ¥${Number(e.jpy).toLocaleString()}</div>
@@ -578,6 +579,13 @@ function mealCard(p){
         <div class="erow" style="margin-top:4px;">
           <label>Time <input type="text" placeholder="e.g., 18:30" data-f="btime" data-id="${p.id}" value="${e.btime||''}"></label>
           <label>Platform <input type="text" placeholder="e.g., Tablecheck" data-f="bplat" data-id="${p.id}" value="${e.bplat||''}"></label>
+        </div>
+
+        <div class="erow" style="margin-top:4px;">
+          <label>Actual ¥ spent <input type="number" placeholder="from the receipt" data-f="actualJpy" data-id="${p.id}" value="${e.actualJpy||''}"></label>
+          <label>Paid with <select data-f="actualCard" data-id="${p.id}">
+            ${['AMEX Platinum','AMEX Gold','AMEX Bonvoy Brilliant','United Quest','Cash'].map(cd=>`<option ${e.actualCard===cd?'selected':''}>${cd}</option>`).join('')}
+          </select></label>
         </div>
 
         <textarea rows="2" data-f="unote" data-id="${p.id}" placeholder="Your note…">${e.unote||''}</textarea>
@@ -647,9 +655,10 @@ async function loadWeather(cityId){
 function renderSide(c){
   const hotel=HOTELS[c.hotel];
   const total=c.stops.reduce((a,s)=>a+Number(eff(s).jpy),0);
+  const spent=c.stops.reduce((a,s)=>a+(Number(eff(s).actualJpy)||0),0);
   const visPois=c.pois.map((p,i)=>({...p,i})).filter(p=>cat==='all'||p.c===cat);
   document.getElementById('side').innerHTML=`
-    <div class="card"><div class="chead"><span>Meals</span><span>¥${total.toLocaleString()}</span></div>${c.stops.map(mealCard).join('')}</div>
+    <div class="card"><div class="chead"><span>Meals</span><span>Plan ¥${total.toLocaleString()}${spent?` · Spent ¥${spent.toLocaleString()}`:''}</span></div>${c.stops.map(mealCard).join('')}</div>
     <div class="card"><div class="chead"><span>Getting there & away</span></div>
       ${c.legs.map(l=>`<div class="leg"><div class="lr">${l.r}</div><div class="lm">${l.m}</div><div class="note">${l.n}</div></div>`).join('')}</div>
     <div class="card"><div class="chead"><span>Weather · ${c.city}</span></div>
@@ -682,10 +691,37 @@ function renderSide(c){
     sel=+el.dataset.n;selPoi=null;renderSide(c);refreshIcons(c);
     const mk=markers['m'+sel];if(mk){map.panTo(mk.getLatLng());mk.openPopup();}});
   document.querySelectorAll('[data-f]').forEach(inp=>{inp.onchange=()=>{
-    const id=inp.dataset.id;overrides[id]=overrides[id]||{};
-    overrides[id][inp.dataset.f]=inp.dataset.f==='jpy'?Number(inp.value):inp.value;};});
+    const id=+inp.dataset.id, f=inp.dataset.f;
+    overrides[id]=overrides[id]||{};
+    overrides[id][f]=(f==='jpy'||f==='actualJpy')?Number(inp.value):inp.value;
+    if(f==='actualJpy'||f==='actualCard') syncMealExpense(id);
+  };});
 
   loadWeather(c.id);
+}
+
+function syncMealExpense(id){
+  const stop = CITIES.filter(c=>c.stops).flatMap(c=>c.stops).find(s=>s.id===id);
+  if(!stop) return;
+  const o = overrides[id]||{};
+  overrides.expenses = overrides.expenses||[];
+  const i = overrides.expenses.findIndex(e=>e.mid===id);
+
+  // Cleared the field → remove the linked expense
+  if(!o.actualJpy){ if(i>-1) overrides.expenses.splice(i,1); saveOverrides(); return; }
+
+  const card = o.actualCard || 'AMEX Platinum';
+  const exp = {
+    mid: id,
+    date: '2026-' + stop.d.split(' ')[0].replace('/','-'),   // "11/23 Mon" → 2026-11-23
+    usd: (Number(o.actualJpy)/liveJpyRate).toFixed(2),
+    cat: 'Food',
+    card,
+    desc: stop.name,
+    paid: card==='Cash' ? true : (i>-1 ? overrides.expenses[i].paid : false)
+  };
+  if(i>-1) overrides.expenses[i]=exp; else overrides.expenses.push(exp);
+  saveOverrides();
 }
 
 function vaultRow(key,label,sub){

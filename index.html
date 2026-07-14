@@ -585,7 +585,7 @@ function mealCard(p){
         <div class="erow" style="margin-top:4px;">
           <label>Actual ¥ spent <input type="number" placeholder="from the receipt" data-f="actualJpy" data-id="${p.id}" value="${e.actualJpy||''}"></label>
           <label>Paid with <select data-f="actualCard" data-id="${p.id}">
-            ${['AMEX Platinum','AMEX Gold','AMEX Bonvoy Brilliant','United Quest','Cash'].map(cd=>`<option ${e.actualCard===cd?'selected':''}>${cd}</option>`).join('')}
+            ${['AMEX Platinum','AMEX Gold','AMEX Bonvoy Brilliant','Capital One Venture X','United Quest','Cash'].map(cd=>`<option ${e.actualCard===cd?'selected':''}>${cd}</option>`).join('')}
           </select></label>
         </div>
 
@@ -782,7 +782,7 @@ function renderExpenses() {
   const foodOver = foodSpentUsd > mealBudgetUsd;
   
   const cats = ["Food", "POI & Cafe", "Shinkansen", "Hotel", "Flight", "Omiyage"];
-  const cards = ["AMEX Platinum", "AMEX Gold", "AMEX Bonvoy Brilliant", "United Quest", "Cash"];
+  const cards = ["AMEX Platinum", "AMEX Gold", "AMEX Bonvoy Brilliant", "Capital One Venture X", "United Quest", "Cash"];
 
   // Calculate summaries
   const catTotals = {};

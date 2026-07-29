@@ -753,14 +753,19 @@ function syncMealExpense(id){
   if(!o.actualJpy){ if(i>-1) overrides.expenses.splice(i,1); saveOverrides(); return; }
 
   const card = o.actualCard || 'AMEX Platinum';
+  const usdVal = Number((Number(o.actualJpy)/liveJpyRate).toFixed(2));
+  const prev = i>-1 ? overrides.expenses[i] : null;
+  const prevPaid = prev ? (prev.paidUsd!==undefined ? Number(prev.paidUsd) : (prev.paid ? Number(prev.usd) : 0)) : 0;
+  const paidUsd = card==='Cash' ? usdVal : Math.min(prevPaid, usdVal);
   const exp = {
     mid: id,
     date: '2026-' + stop.d.split(' ')[0].replace('/','-'),   // "11/23 Mon" → 2026-11-23
-    usd: (Number(o.actualJpy)/liveJpyRate).toFixed(2),
+    usd: usdVal.toFixed(2),
     cat: 'Food',
     card,
     desc: stop.name,
-    paid: card==='Cash' ? true : (i>-1 ? overrides.expenses[i].paid : false)
+    paidUsd,
+    paid: paidUsd >= usdVal - 0.005
   };
   if(i>-1) overrides.expenses[i]=exp; else overrides.expenses.push(exp);
   saveOverrides();
@@ -811,6 +816,14 @@ function renderVault(){
 
 function renderExpenses() {
   const exps = overrides.expenses || [];
+
+  // Partial-payment helpers: paidUsd (number) is the source of truth; legacy boolean `paid` still honored
+  const paidAmt = e => {
+    if (e.paidUsd !== undefined && e.paidUsd !== '') return Math.min(Number(e.paidUsd), Number(e.usd));
+    return e.paid ? Number(e.usd) : 0;          // legacy boolean fallback
+  };
+  const isFullyPaid = e => paidAmt(e) >= Number(e.usd) - 0.005;
+
   const total = exps.reduce((sum, e) => sum + Number(e.usd), 0);
 
   // Budget vs. actual — meal plan (live, respects your edits) vs. logged Food + POI & Cafe spend
@@ -835,9 +848,10 @@ function renderExpenses() {
     const amt = Number(e.usd);
     if(catTotals[e.cat] !== undefined) catTotals[e.cat] += amt;
     if(cardTotals[e.card] !== undefined) {
-      cardTotals[e.card].total += amt;
-      if(e.paid) cardTotals[e.card].paid += amt;
-      else cardTotals[e.card].unpaid += amt;
+      const p = paidAmt(e);
+      cardTotals[e.card].total  += amt;
+      cardTotals[e.card].paid   += p;
+      cardTotals[e.card].unpaid += (amt - p);
     }
   });
 
@@ -875,9 +889,9 @@ function renderExpenses() {
             <span>${c}</span> 
             <span style="text-align:right;">
               <b>$${cardTotals[c].total.toLocaleString('en-US', {minimumFractionDigits: 2})}</b><br>
-              <span style="font-size:9.5px; font-family:var(--mono); color:var(--moss);">${cardTotals[c].paid > 0 ? 'PAID: $' + cardTotals[c].paid.toLocaleString('en-US', {minimumFractionDigits: 2}) : ''}</span>
-              ${cardTotals[c].paid > 0 && cardTotals[c].unpaid > 0 ? ' <span style="color:var(--grey)">|</span> ' : ''}
-              <span style="font-size:9.5px; font-family:var(--mono); color:var(--clay);">${cardTotals[c].unpaid > 0 ? 'UNPAID: $' + cardTotals[c].unpaid.toLocaleString('en-US', {minimumFractionDigits: 2}) : ''}</span>
+              <span style="font-size:9.5px; font-family:var(--mono); color:var(--moss);">${cardTotals[c].paid > 0.005 ? 'PAID: $' + cardTotals[c].paid.toLocaleString('en-US', {minimumFractionDigits: 2}) : ''}</span>
+              ${cardTotals[c].paid > 0.005 && cardTotals[c].unpaid > 0.005 ? ' <span style="color:var(--grey)">|</span> ' : ''}
+              <span style="font-size:9.5px; font-family:var(--mono); color:var(--clay);">${cardTotals[c].unpaid > 0.005 ? 'UNPAID: $' + cardTotals[c].unpaid.toLocaleString('en-US', {minimumFractionDigits: 2}) : ''}</span>
             </span>
           </div>`).join('') || '<div style="font-size:11px; color:var(--grey);">No data yet.</div>'}
       </div>
@@ -922,17 +936,25 @@ function renderExpenses() {
         ${exps.length === 0 ? '<div class="note">No expenses logged yet.</div>' : ''}
         ${exps.slice().reverse().map((e, revIdx) => {
           const i = exps.length - 1 - revIdx; // Real array index
+          const amt = Number(e.usd), p = paidAmt(e);
+          const full = isFullyPaid(e), partial = p > 0.005 && !full;
           return `
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dotted var(--rule); padding:10px 0; ${e.paid ? 'opacity:0.6;' : ''}">
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dotted var(--rule); padding:10px 0; ${full ? 'opacity:0.6;' : ''}">
             <div style="display:flex; align-items:center; gap:12px;">
-              <input type="checkbox" ${e.paid ? 'checked' : ''} onchange="togglePaid(${i}, this.checked)" title="Mark as Paid" style="width:16px; height:16px; accent-color:var(--moss); cursor:pointer;">
+              <input type="checkbox" ${full ? 'checked' : ''} onchange="togglePaid(${i}, this.checked)" title="Mark fully paid" style="width:16px; height:16px; accent-color:var(--moss); cursor:pointer;">
               <div>
-                <div style="font-family:var(--serif); font-size:15px; font-weight:700; color:var(--ink); ${e.paid ? 'text-decoration:line-through;' : ''}">${e.desc}</div>
+                <div style="font-family:var(--serif); font-size:15px; font-weight:700; color:var(--ink); ${full ? 'text-decoration:line-through;' : ''}">${e.desc}</div>
                 <div style="font-family:var(--mono); font-size:9.5px; color:var(--grey); margin-top:2px; text-transform:uppercase;">${e.date} · ${e.cat} · ${e.card}</div>
+                ${partial ? `<div style="font:600 9.5px var(--mono); color:var(--clay); margin-top:2px;">PARTIAL · $${p.toFixed(2)} PAID · $${(amt - p).toFixed(2)} LEFT</div>` : ''}
               </div>
             </div>
-            <div style="display:flex; align-items:center; gap:16px;">
-              <div style="font-family:var(--mono); font-weight:700; color:var(--indigo); font-size:14px;">$${Number(e.usd).toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <label style="font:600 8.5px var(--mono); color:var(--grey); text-transform:uppercase; text-align:right;">Paid $<br>
+                <input type="number" step="0.01" min="0" max="${amt}" value="${p > 0.005 ? p.toFixed(2) : ''}" placeholder="0"
+                  onchange="setPaidAmt(${i}, this.value)"
+                  style="width:72px; font:12px var(--mono); border:1px solid var(--rule); border-radius:2px; padding:3px 5px; text-align:right; background:#fff; margin-top:2px;">
+              </label>
+              <div style="font-family:var(--mono); font-weight:700; color:var(--indigo); font-size:14px;">$${amt.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
               <div style="display:flex; gap:6px;">
                 <button onclick="editExp(${i})" title="Edit" style="background:none; border:none; color:var(--indigo); cursor:pointer; font-size:14px; padding:0 4px;">✎</button>
                 <button onclick="deleteExp(${i})" title="Delete" style="background:none; border:none; color:var(--clay); cursor:pointer; font-size:18px; line-height:1; padding:0 4px;">×</button>
@@ -968,17 +990,21 @@ function renderExpenses() {
       usd: document.getElementById('exUsd').value,
       cat: document.getElementById('exCat').value,
       card: document.getElementById('exCard').value,
-      desc: document.getElementById('exDesc').value,
-      paid: document.getElementById('exCard').value === 'Cash'   // cash = settled instantly
+      desc: document.getElementById('exDesc').value
     };
 
     if (idx !== "") { // We are UPDATING an existing expense
-      newExp.paid = newExp.card === 'Cash' ? true : overrides.expenses[idx].paid;
+      const prev = overrides.expenses[idx];
+      if (prev.mid !== undefined) newExp.mid = prev.mid;                    // keep meal link
+      const prevPaid = prev.paidUsd !== undefined ? Number(prev.paidUsd) : (prev.paid ? Number(prev.usd) : 0);
+      newExp.paidUsd = newExp.card === 'Cash' ? Number(newExp.usd) : Math.min(prevPaid, Number(newExp.usd));
       overrides.expenses[idx] = newExp;
       form.dataset.editIdx = ""; // Reset edit mode
     } else { // We are ADDING a new expense
+      newExp.paidUsd = newExp.card === 'Cash' ? Number(newExp.usd) : 0;   // cash = settled instantly
       overrides.expenses.push(newExp);
     }
+    newExp.paid = newExp.paidUsd >= Number(newExp.usd) - 0.005;
 
     saveOverrides();
     renderExpenses();
@@ -994,7 +1020,19 @@ window.deleteExp = function(idx) {
 };
 
 window.togglePaid = function(idx, isChecked) {
-  overrides.expenses[idx].paid = isChecked;
+  const e = overrides.expenses[idx];
+  e.paidUsd = isChecked ? Number(e.usd) : 0;
+  e.paid = isChecked;
+  saveOverrides();
+  renderExpenses();
+};
+
+window.setPaidAmt = function(idx, val) {
+  const e = overrides.expenses[idx];
+  const amt = Number(e.usd);
+  const p = Math.max(0, Math.min(Number(val) || 0, amt));   // clamp 0..total
+  e.paidUsd = p;
+  e.paid = p >= amt - 0.005;
   saveOverrides();
   renderExpenses();
 };

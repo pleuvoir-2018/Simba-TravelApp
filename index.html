@@ -110,7 +110,7 @@
   .note{font-size:11px;line-height:1.45;margin-top:6px;padding:6px 8px;background:rgba(34,64,107,.07);border-left:2px solid var(--indigo);color:#2C4A73}
   .note.warn{background:rgba(184,85,42,.09);border-left-color:var(--clay);color:#8A3313}
   .tag{display:inline-block;font:600 8px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:1.5px 5px;border-radius:2px;margin-left:5px;vertical-align:1px;color:#fff}
-  .tag.ok{background:var(--moss)}.tag.book{background:var(--clay)}.tag.walk{background:var(--grey)}
+  .tag.ok{background:var(--moss)}.tag.book{background:var(--clay)}.tag.walk{background:var(--grey)}.tag.cash{background:#B08A1F}
   .meal input,.meal select,.meal textarea{font:inherit;font-size:11px;border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:#fff;width:100%;margin-top:4px}
   .meal .erow{display:flex;gap:6px}.meal .erow>*{flex:1}
   .efields{display:none}.editing .efields{display:block}.editing .m4{display:none}.editing .meal .note{display:none}
@@ -234,6 +234,7 @@
 /* ---------------- DATA ---------------- */
 const NRT={n:"Narita Airport (NRT)",lat:35.7719,lng:140.3929};
 const HOTELS = {
+ parq:{n:"JW Marriott Parq Vancouver",lat:49.2756,lng:-123.1148,addr:"39 Smithe St, Vancouver, BC V6B 0R3, Canada",tel:"+1 604-676-0888",mail:"— Marriott app chat",stn:"Yaletown–Roundhouse (Canada Line) · 7 min walk — direct train to YVR ~25 min (board a YVR-bound train, not Richmond)",note:"Night of Nov 15 only. ZG021 departs 10:30 — leave the hotel by ~7:45 for a 2-hour international cushion."},
  westin:{n:"The Westin Yokohama",lat:35.4620,lng:139.6300,addr:"4-2-8 Minatomirai, Nishi-ku, Yokohama 220-0012",tel:"+81 45-577-0888",mail:"ays.yokohama@westin.com",stn:"Shin-Takashima (Minatomirai line) · 5 min walk — Yokohama Stn · 10 min walk",note:"Check-in 23F. Reservations: reservations.yokohama@westin.com"},
  shisui:{n:"Shisui, a Luxury Collection Hotel",lat:34.6857,lng:135.8340,addr:"62 Noborioji-chō, Nara 630-8213 (west edge of Nara Park)",tel:"+81 75-744-0951",mail:"reservation-sh@suihotels.com",stn:"Kintetsu-Nara (Kintetsu line) · 12 min walk — Kenchō-Higashi bus stop · 3 min",note:"Phone = SUI Customer Engagement Center. Garden Delight champagne hour at dusk, free."},
  miyako:{n:"Osaka Marriott Miyako",lat:34.6462,lng:135.5136,addr:"1-1-43 Abenosuji, Abeno-ku, Osaka 545-0052 (Abeno Harukas 38–57F)",tel:"+81 6-6628-6111",mail:"— Marriott app chat / hotel web form",stn:"Tennōji (JR · Midōsuji) & Ōsaka-Abenobashi (Kintetsu) · direct elevator, 0 min",note:"Harukas 300 observatory is upstairs in the same tower."},
@@ -414,7 +415,7 @@ const CITIES=[
  stops:[
   {id:11,d:"11/22 Sun",m:"Lunch",name:"Junsei",dish:"Yudofu",hrs:"11:00–14:30 daily",res:"walk",jpy:10000,lat:35.0114,lng:135.7901,area:"Nanzen-ji gate"},
   {id:12,d:"11/23 Mon·hol",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
- hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",
+ hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",pay:"cash",
  jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck — slots open 00:00 JST on 11/20 (3 days out). CC to hold, pay cash on the day.",note:"Backup: Okakita next door, walk-in."},
   {id:13,d:"11/23 Mon",m:"Dinner",name:"Ishibe Koji Mamecha",dish:"Kyo-kuzushi kaiseki · duck",hrs:"17:00–22:30 · 150-min limit",res:"book",jpy:24000,lat:35.0008,lng:135.7792,area:"Ishibei-kōji",warn:"THE ANNIVERSARY DINNER — Anniversary Plan ¥12,000pp, 17:00 seating, private room. Then Kiyomizu illuminated."}]},
 
@@ -488,7 +489,7 @@ const CITIES=[
 ];
 
 const FLIGHTS=[
- {d:"Sun Nov 15",t:"07:00 → 10:05 · 13:30 → 15:45",route:"Washington IAD → Seattle → Vancouver YVR",train:"Delta 1015 + 3748 · Delta First Classic (Z)",note:"Positioning day. 3h25 connection in SEA. DL3748* is a codeshare — confirm the operating carrier at check-in. Overnight in Vancouver; ZG021 departs 10:30 the next morning."},
+ {d:"Sun Nov 15",t:"07:00 → 10:05 · 13:30 → 15:45",route:"Washington IAD → Seattle → Vancouver YVR",train:"Delta 1015 + 3748 · Delta First Classic (Z)",note:"Positioning day. 3h25 connection in SEA. DL3748* is a codeshare — confirm the operating carrier at check-in. Overnight at JW Marriott Parq Vancouver; ZG021 departs 10:30 the next morning."},
  {d:"Mon Nov 16 → Tue Nov 17",t:"10:30 → 12:45 (+1)",route:"Vancouver YVR → Tokyo Narita",train:"Zip Air ZG021 · US$1,221.33",note:"Lands 12:45 on the 17th. Immigration + bags ≈ 1.5–2 h → landside ~14:15 → N'EX direct to Yokohama (see Yokohama tab)."},
  {d:"Fri Nov 27",t:"16:00 → 08:30 same day",route:"Tokyo Narita → Vancouver YVR",train:"Zip Air ZG022 · US$1,007.89",note:"At NRT by ~13:30 → leave Grand Hyatt by ~11:45. You land YVR the morning of the same calendar date — plan pickups for Nov 27, not 28.",warn:true},
  {d:"Fri Nov 27",t:"13:16 → 23:05 same day",route:"Vancouver YVR → Virginia IAD",train:"United UA2470 & UA2408 · US$1,104.90",note:"Access to Premium Plaza Lounge in Transborder Terminal (YVR). Access to AMEX Centurion Lounge near Gate 46 in Concourse C (DEN)."}
@@ -663,7 +664,7 @@ function buildMap(c){
     const m=L.marker([s.lat,s.lng],{icon:icon(s.id,sel===s.id?28:22,sel===s.id?'on':'')}).addTo(map);
 
     // Dynamically appends booking time and platform if they exist
-    let popupContent = `<b>${s.name}</b><br>${s.d} · ${s.m} — ${s.dish}<br>${s.hrs}<br>${RES_LABEL[e.res]}`;
+    let popupContent = `<b>${s.name}</b><br>${s.d} · ${s.m} — ${s.dish}<br>${s.hrs}<br>${RES_LABEL[e.res]}${e.pay==='cash'?' · 💴 cash only':''}`;
     if (e.res === 'ok' && (e.btime || e.bplat)) {
       popupContent += ` (${e.btime || ''}${e.btime && e.bplat ? ' via ' : ''}${e.bplat || ''})`;
     }
@@ -726,7 +727,7 @@ function mealCard(p){
     <div class="num">${p.id}</div>
     <div style="flex:1;min-width:0">
       <div class="m1">${p.d} · ${p.m}</div>
-      <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span></div>
+      <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span>${e.pay==='cash'?'<span class="tag cash">💴 cash only</span>':''}</div>
 
       ${!editMode && e.res==='ok' && (e.btime || e.bplat) ? `<div style="display:inline-block; margin-top:4px; margin-bottom:2px; padding:3px 6px; background:rgba(94,127,76,.1); color:var(--moss); font:600 10px var(--mono); text-transform:uppercase; letter-spacing:0.05em; border-radius:2px;">✓ Reserved ${e.btime ? 'at ' + e.btime : ''} ${e.bplat ? 'via ' + e.bplat : ''}</div>` : ''}
       ${!editMode && e.actualJpy ? (()=>{const aU=Number(e.actualJpy)/liveJpyRate;const diff=Number(e.actualJpy)-Number(e.jpy);return `<div style="display:inline-block;margin:4px 0 2px 4px;padding:3px 6px;background:${diff>0?'rgba(184,85,42,.1)':'rgba(94,127,76,.1)'};color:${diff>0?'var(--clay)':'var(--moss)'};font:600 10px var(--mono);border-radius:2px;">¥${Number(e.actualJpy).toLocaleString()} · $${aU.toFixed(2)}${diff!==0?` ${diff>0?'▲':'▼'}¥${Math.abs(diff).toLocaleString()}`:''}</div>`})():''}
@@ -737,6 +738,7 @@ function mealCard(p){
         <div class="erow">
           <label>¥ <input type="number" data-f="jpy" data-id="${p.id}" value="${e.jpy}"></label>
           <select data-f="res" data-id="${p.id}">${Object.entries(RES_LABEL).map(([v,l])=>`<option value="${v}" ${e.res===v?'selected':''}>${l}</option>`).join('')}</select>
+          <select data-f="pay" data-id="${p.id}"><option value="" ${!e.pay?'selected':''}>Payment?</option><option value="cash" ${e.pay==='cash'?'selected':''}>💴 Cash only</option><option value="card" ${e.pay==='card'?'selected':''}>Cards OK</option></select>
         </div>
 
         <div class="erow" style="margin-top:4px;">
@@ -929,7 +931,6 @@ function renderVault(){
       ${vaultRow('t_n254','Nozomi 254 · Nagoya→Tokyo','Nov 26 · 14:06 · car / seats')}
       ${vaultRow('t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats')}
       ${sec('Hotels')}
-      ${vaultRow('h_yvr','Vancouver overnight (night of Nov 15)','pre-Zip Air hotel · confirmation #')}
       ${Object.entries(HOTELS).map(([k,h])=>vaultRow('h_'+k,h.n,'confirmation # · Bonvoy/Hyatt member #')).join('')}
       ${sec('Restaurants')}
       ${meals.map(s=>vaultRow('m_'+s.id,`${s.id}. ${s.name}`,`${s.d} · ${s.m} · ${s.cityName}`)).join('')}
@@ -1188,7 +1189,7 @@ window.editExp = function(idx) {
 
 /* ---------------- TODAY VIEW ---------------- */
 const TODAY_CITY={17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'osaka',22:'kyoto',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
-const TONIGHT={15:['Vancouver overnight','Pre-Zip Air hotel — confirmation lives in the Vault'],16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
+const TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function tokyoToday(){
   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',weekday:'long'}).formatToParts(new Date());
@@ -1222,7 +1223,7 @@ function renderToday(){
     const order={Breakfast:0,Lunch:1,Dinner:2};
     meals.sort((a,b)=>(order[a.m]??9)-(order[b.m]??9));
     html+=`<div class="card"><div class="chead"><span>Today's meals</span></div>`+
-      (meals.map(x=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${x.id}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span> <span class="tag ${x.res}">${RES_LABEL[x.res]||x.res}</span><span class="td-meta">${x.m} · ${x.dish} · ${x.hrs} · ${x.area}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}${x.note?`<span class="td-note">${esc(x.note)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">No planned meals today — graze free.</div>')+`</div>`;
+      (meals.map(x=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${x.id}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span> <span class="tag ${x.res}">${RES_LABEL[x.res]||x.res}</span>${x.pay==='cash'?'<span class="tag cash">💴 cash</span>':''}<span class="td-meta">${x.m} · ${x.dish} · ${x.hrs} · ${x.area}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}${x.note?`<span class="td-note">${esc(x.note)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">No planned meals today — graze free.</div>')+`</div>`;
     const fl=FLIGHTS.filter(f=>f.d.includes('Nov '+day));
     const tr=TRAINS.filter(x=>x.d==='Nov '+day);
     if(fl.length||tr.length){

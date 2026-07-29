@@ -955,6 +955,9 @@ function renderExpenses() {
   const isFullyPaid = e => paidAmt(e) >= Number(e.usd) - 0.005;
 
   const total = exps.reduce((sum, e) => sum + Number(e.usd), 0);
+  const totalPaid = exps.reduce((sum, e) => sum + paidAmt(e), 0);
+  const totalUnpaid = Math.max(0, total - totalPaid);
+  const paidPct = total > 0 ? Math.min(100, (totalPaid / total) * 100) : 0;
 
   // Budget vs. actual — meal plan (live, respects your edits) vs. logged Food + POI & Cafe spend
   const mealBudgetJpy = CITIES.filter(c=>c.stops).flatMap(c=>c.stops)
@@ -987,6 +990,19 @@ function renderExpenses() {
 
   panel.innerHTML = `<div class="card" style="max-width:850px; margin: 0 auto;">
     <div class="chead"><span>Expense Tracker</span><span>Total: $${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
+
+    <div style="padding:12px 16px; border-bottom:1px solid var(--rule);">
+      <div style="display:flex; justify-content:space-between; font:600 10px var(--mono); text-transform:uppercase; margin-bottom:6px;">
+        <span style="color:var(--moss);">Paid $${totalPaid.toLocaleString('en-US',{minimumFractionDigits:2})}</span>
+        <span style="color:${totalUnpaid>0.005?'var(--clay)':'var(--moss)'};">${totalUnpaid>0.005?'Unpaid $'+totalUnpaid.toLocaleString('en-US',{minimumFractionDigits:2}):'All settled ✓'}</span>
+      </div>
+      <div style="height:6px; background:var(--washi2); border-radius:3px; overflow:hidden;">
+        <div style="height:100%; width:${paidPct}%; background:var(--moss); transition:width .3s;"></div>
+      </div>
+      <div style="font:9px var(--mono); color:var(--grey); margin-top:5px;">
+        Settled ${paidPct.toFixed(0)}% of $${total.toLocaleString('en-US',{minimumFractionDigits:2})} · partials counted at their paid amount
+      </div>
+    </div>
 
     <div style="padding:12px 16px; border-bottom:1px solid var(--rule);">
       <div style="display:flex; justify-content:space-between; font:600 10px var(--mono); text-transform:uppercase; margin-bottom:6px;">

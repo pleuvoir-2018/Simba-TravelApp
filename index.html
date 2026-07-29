@@ -131,7 +131,7 @@
   .chip{font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--rule);background:none;color:var(--grey);padding:4px 9px;border-radius:12px;cursor:pointer}
   .chip.on{border-color:var(--moss);background:var(--moss);color:#fff}
   .poi-list{padding:4px 12px 10px}
-  .prow{display:flex;gap:8px;padding:7px 0;border-bottom:1px dotted var(--rule);font-size:12px;cursor:pointer}
+  .prow{display:flex;gap:8px;padding:7px 12px;margin:0 -12px;border-bottom:1px dotted var(--rule);font-size:12px;cursor:pointer}
   .prow:last-child{border-bottom:0}
   .prow.on{background:#fff;box-shadow:inset 3px 0 0 var(--moss)}
   .prow .icon{flex:0 0 20px;text-align:center}
@@ -260,8 +260,8 @@ const CITIES=[
  {c:"sight",ic:"🍥",n:"Shin-Yokohama Ramen Museum",d:"1958 streetscape underground — AT your 11/19 departure station",a:"Shin-Yokohama",lat:35.5100,lng:139.6152},
  {c:"sight",ic:"🚡",n:"Yokohama Air Cabin",d:"urban ropeway Sakuragicho → Unga Park (¥1,000) — lands at Cup Noodles",a:"Afuri",lat:35.4511,lng:139.6320},   // NEW
  {c:"sight",ic:"🐋",n:"Osanbashi Pier rooftop",d:"free 360° wood-deck 'whale's back' — best night skyline shot in the city",a:"Chinatown",lat:35.4489,lng:139.6480},   // NEW
- {c:"sight",ic:"🌃",n:"OMO5 Bashamichi 46F lobby",d:"free 150m observation floor, opened Jan 2026 — Bashamichi Stn direct",a:"Afuri",lat:35.4507,lng:139.6352},   // NEW
- {c:"sight",ic:"⛵",n:"Nippon Maru + Port Museum",d:"1930 tall ship in dry dock, 2-min from Landmark Tower",a:"Afuri",lat:35.4538,lng:139.6292},   // NEW
+ {c:"sight",ic:"🌃",n:"OMO5 Bashamichi 46F lobby",q:"OMO5横浜馬車道",d:"free 150m observation floor, opened Jan 2026 — Bashamichi Stn direct",a:"Afuri",lat:35.4507,lng:139.6352},   // NEW
+ {c:"sight",ic:"⛵",n:"Nippon Maru + Port Museum",q:"日本丸メモリアルパーク",d:"1930 tall ship in dry dock, 2-min from Landmark Tower",a:"Afuri",lat:35.4538,lng:139.6292},   // NEW
  // ── cafés ──
  {c:"cafe",ic:"☕",n:"Zou-no-hana Terrace",d:"harbor-view café — DAYTIME ONLY 10:00–18:00, food LO 17:00",a:"Chinatown",lat:35.4494,lng:139.6437},
  {c:"cafe",ic:"🥐",n:"Pompadour Motomachi (1969)",d:"Yokohama's classic bakery, main store",a:"Chinatown",lat:35.4407,lng:139.6473},
@@ -273,8 +273,8 @@ const CITIES=[
  {c:"shop",ic:"⚓",n:"Yokohama Hammerhead",d:"pier mall — chocolate & craft-beer makers",a:"Afuri",lat:35.4562,lng:139.6448},
  {c:"shop",ic:"🌊",n:"Marine & Walk Yokohama",d:"open-air seaside mall between Red Brick & Hammerhead — angel-wings mural",a:"Afuri",lat:35.4545,lng:139.6427},   // NEW
  // ── gifts ──
- {c:"gift",ic:"🍰",n:"Francais (Takashimaya B1F)",d:"mille-feuille — ex-Yokohama Francais, rebranded 2018 · same building as Din Tai Fung",a:"Din Tai Fung",lat:35.4661,lng:139.6218},
- {c:"gift",ic:"⛵",n:"Ariake Harbour (Motomachi honkan)",d:"boat-shaped harbour cakes — the Yokohama omiyage",a:"Chinatown",lat:35.4415,lng:139.6470},
+ {c:"gift",ic:"🍰",n:"Francais (Takashimaya B1F)",q:"フランセ 横浜高島屋",d:"mille-feuille — ex-Yokohama Francais, rebranded 2018 · same building as Din Tai Fung; Sogo (east side) has a counter too",a:"Din Tai Fung",lat:35.4661,lng:139.6218},
+ {c:"gift",ic:"⛵",n:"Ariake Harbour (Motomachi honkan)",q:"ありあけ本館",d:"boat-shaped harbour cakes — the Yokohama omiyage",a:"Chinatown",lat:35.4415,lng:139.6470},
  // ── konbini ──
  {c:"conv",ic:"🏪",n:"FamilyMart Minatomirai",d:"closest to the Westin, 24h — breakfast run",a:"hotel",lat:35.4615,lng:139.6295},
  {c:"conv",ic:"🏪",n:"7-Eleven Shin-Takashima",d:"by your metro station, 24h · best konbini ATM for foreign cards",a:"hotel",lat:35.4630,lng:139.6270},
@@ -473,7 +473,7 @@ const CITIES=[
   {c:"gift",ic:"🎮",n:"Nintendo Tokyo & Capcom",d:"Exclusive gaming merch",a:"Shibuya PARCO",lat:35.6620,lng:139.6986},
   {c:"gift",ic:"🍌",n:"Tokyo Banana (Gransta, Tokyo Stn)",d:"grab before boarding the N'EX on 11/27",a:"Tokyo Stn",lat:35.6812,lng:139.7671},
   {c:"gift",ic:"🧈",n:"Press Butter Sand (Tokyo Stn)",d:"the other station omiyage — often a queue, moves fast",a:"Tokyo Stn",lat:35.6809,lng:139.7668},
-  {c:"gift",ic:"🍡",n:"Toraya (Akasaka flagship)",d:"1586 wagashi house — yōkan as omiyage royalty, café upstairs",a:"hotel",lat:35.6742,lng:139.7350},
+  {c:"gift",ic:"🍡",n:"Toraya (Akasaka flagship)",q:"とらや 赤坂店",d:"1586 wagashi house — yōkan as omiyage royalty, café upstairs",a:"hotel",lat:35.6742,lng:139.7350},
   {c:"conv",ic:"🏪",n:"FamilyMart Roppongi Hills",d:"inside the complex, directly below your hotel — 24h",a:"hotel",lat:35.6603,lng:139.7297},
   {c:"conv",ic:"🏪",n:"7-Eleven Roppongi 6-chōme",d:"across Roppongi-dōri, 24h · reliable foreign-card ATM",a:"hotel",lat:35.6608,lng:139.7318},
   {c:"conv",ic:"🏪",n:"Lawson Nishi-Azabu",d:"quiet side, on the Keyakizaka end",a:"hotel",lat:35.6588,lng:139.7260}],
@@ -668,7 +668,7 @@ function buildMap(c){
       popupContent += ` (${e.btime || ''}${e.btime && e.bplat ? ' via ' : ''}${e.bplat || ''})`;
     }
     popupContent += ` · ¥${Number(e.jpy).toLocaleString()}`;
-    popupContent += `<div style="margin-top:8px;border-top:1px dotted var(--rule);padding-top:6px;"><a href="https://www.google.com/maps/search/${encodeURIComponent(s.name)}/@${s.lat},${s.lng},17z" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--indigo);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;">📍 Open in Google Maps ↗</a></div>`;
+    popupContent += `<div style="margin-top:8px;border-top:1px dotted var(--rule);padding-top:6px;"><a href="https://www.google.com/maps/search/${encodeURIComponent((s.q||s.name)+' '+c.city)}/@${s.lat},${s.lng},17z" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--indigo);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;">📍 Open in Google Maps ↗</a></div>`;
 
     m.bindPopup(popupContent);
     m.on('click',()=>{sel=s.id;selPoi=null;renderSide(c);refreshIcons(c);});
@@ -680,7 +680,8 @@ function buildMap(c){
   if(showPoi)c.pois.forEach((p,i)=>{
     if(cat!=='all'&&p.c!==cat)return;
     const m=L.marker([p.lat,p.lng],{icon:icon(`<span>${p.ic}</span>`,selPoi===i?26:20,'mk-poi'+(selPoi===i?' on':''))}).addTo(map);
-    const gMapUrl = `https://www.google.com/maps/search/${encodeURIComponent(p.n)}/@${p.lat},${p.lng},17z`;
+    const gq=(p.q||p.n.replace(/\(.*?\)/g,' ').replace(/[+·]/g,' ').replace(/\s+/g,' ').trim())+' '+c.city;
+    const gMapUrl = `https://www.google.com/maps/search/${encodeURIComponent(gq)}/@${p.lat},${p.lng},17z`;
     m.bindPopup(`<b>${p.n}</b><br>${p.d}<br><i>near ${p.a}</i>
       <div style="margin-top:8px; border-top:1px dotted var(--rule); padding-top:6px;">
         <a href="${gMapUrl}" target="_blank" style="font-family:var(--mono); font-size:10px; color:var(--indigo); text-decoration:none; font-weight:600; text-transform:uppercase; letter-spacing:0.02em;">
@@ -854,6 +855,9 @@ function renderSide(c){
     if(e.target.matches('input,select,textarea,option,label'))return;
     sel=+el.dataset.n;selPoi=null;renderSide(c);refreshIcons(c);
     const mk=markers['m'+sel];if(mk){map.panTo(mk.getLatLng());mk.openPopup();}});
+  const onRow=document.querySelector('.prow.on');
+  if(onRow)onRow.scrollIntoView({block:'nearest'});
+
   document.querySelectorAll('[data-f]').forEach(inp=>{inp.onchange=()=>{
     const id=+inp.dataset.id, f=inp.dataset.f;
     overrides[id]=overrides[id]||{};

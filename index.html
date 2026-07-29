@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="theme-color" content="#F1ECE2"/>
 <title>Japan · 17–27 November</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
 <style>
@@ -31,18 +32,50 @@
   .savebar.show{display:flex}
   .savebar button{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:2px;border:1.5px solid #fff;background:#fff;color:var(--clay);cursor:pointer;margin-left:8px}
   .savebar button.ghost{background:transparent;color:#fff}
-  .tabs{display:flex;overflow-x:auto;border:1px solid var(--rule);border-radius:2px;background:var(--washi2);margin:16px 0}
-  .tabs::-webkit-scrollbar{display:none}
-  .tab{flex:1 0 auto;padding:10px 14px;border:0;border-right:1px solid var(--rule);background:none;cursor:pointer;font:inherit;text-align:left}
-  .tab:last-child{border-right:0}
-  .tab .t1{font-family:var(--mono);font-size:12px;font-weight:600;white-space:nowrap}
-  .tab .t2{font-size:10px;color:var(--grey);white-space:nowrap;margin-top:2px}
-  .tab[aria-selected=true]{background:var(--indigo)}
-  .tab[aria-selected=true] .t1{color:#fff}
-  .tab[aria-selected=true] .t2{color:rgba(255,255,255,.7)}
+  /* ---- App shell & collapsible left nav ---- */
+  .shell{display:flex;align-items:stretch;min-height:100vh}
+  .shell>.wrap{flex:1;min-width:0}
+  .sidenav{flex:0 0 236px;width:236px;position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;background:var(--washi2);border-right:1px solid var(--rule);display:flex;flex-direction:column;transition:width .22s ease,flex-basis .22s ease;z-index:1400;scrollbar-width:thin}
+  .nav-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 12px;border-bottom:2px solid var(--ink)}
+  .nav-brand{display:flex;align-items:center;gap:8px;min-width:0}
+  .nav-brand .nb-sun{width:20px;height:20px;border-radius:50%;background:#bc002d;flex:0 0 20px;box-shadow:inset 0 0 0 1.5px var(--washi)}
+  .nav-brand .nb-t{font-family:var(--serif);font-size:15px;color:var(--indigo);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav-collapse{border:1.5px solid var(--rule);background:none;color:var(--grey);border-radius:2px;width:24px;height:24px;cursor:pointer;font:700 11px var(--mono);line-height:1;flex:0 0 24px}
+  .nav-collapse:hover{border-color:var(--indigo);color:var(--indigo)}
+  .nvsec{font:600 9px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--grey);padding:14px 14px 5px;white-space:nowrap}
+  .nvi{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border:0;background:none;cursor:pointer;font:inherit;text-align:left;border-left:3px solid transparent}
+  .nvi:hover{background:rgba(34,64,107,.07)}
+  .nvi:focus-visible{outline:2px solid var(--clay);outline-offset:-2px}
+  .nvi.on{background:var(--indigo);border-left-color:var(--clay)}
+  .nvi.on .nv1{color:#fff}
+  .nvi.on .nv2{color:rgba(255,255,255,.7)}
+  .nvic{flex:0 0 22px;text-align:center;font-size:15px;line-height:1}
+  .nvtx{min-width:0}
+  .nv1{display:block;font-family:var(--mono);font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nv2{display:block;font-size:10px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+  .nav-foot{margin-top:auto;padding:10px 14px;border-top:1px dotted var(--rule);font:9px var(--mono);color:var(--grey);white-space:nowrap;overflow:hidden}
+  /* collapsed rail (desktop) */
+  .shell.mini .sidenav{flex-basis:64px;width:64px}
+  .shell.mini .nvtx,.shell.mini .nav-brand,.shell.mini .nav-foot,.shell.mini .nvsec{display:none}
+  .shell.mini .nvi{justify-content:center;padding:11px 0}
+  .shell.mini .nav-head{justify-content:center}
+  .navburger{display:none;border:1.5px solid var(--ink);background:none;color:var(--ink);border-radius:2px;padding:7px 10px;cursor:pointer;font:700 13px var(--mono);line-height:1}
+  .backdrop{display:none;position:fixed;inset:0;background:rgba(20,22,27,.45);z-index:1390}
+  @media(max-width:840px){
+    .sidenav{position:fixed;left:0;top:0;transform:translateX(-105%);transition:transform .22s ease;box-shadow:4px 0 18px rgba(0,0,0,.18)}
+    .shell.mini .sidenav{flex-basis:236px;width:236px}
+    .shell.mini .nvtx,.shell.mini .nav-brand,.shell.mini .nav-foot,.shell.mini .nvsec{display:flex}
+    .shell.mini .nvsec,.shell.mini .nvtx,.shell.mini .nav-foot{display:block}
+    .shell.mini .nvi{justify-content:flex-start;padding:9px 12px}
+    .shell.mini .nav-head{justify-content:space-between}
+    .shell.drawer .sidenav{transform:translateX(0)}
+    .shell.drawer .backdrop{display:block}
+    .nav-collapse{display:none}
+    .navburger{display:inline-block}
+  }
   .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;align-items:start}
   @media(max-width:840px){.grid{grid-template-columns:1fr}}
-  .mapcard{border:1px solid var(--rule);border-radius:2px;background:var(--washi2);overflow:hidden;position:sticky;top:52px;z-index:1}
+  .mapcard{border:1px solid var(--rule);border-radius:2px;background:var(--washi2);overflow:hidden;position:sticky;top:12px;z-index:1}
   @media(max-width:840px){.mapcard{position:static}}
   .maphead{padding:8px 12px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;background:var(--washi)}
   .maphead h2{font-family:var(--serif);font-size:16px}
@@ -122,6 +155,16 @@
 </style>
 </head>
 <body>
+<div class="shell" id="shell">
+<aside class="sidenav" id="sidenav" aria-label="Trip navigation">
+  <div class="nav-head">
+    <span class="nav-brand"><span class="nb-sun"></span><span class="nb-t">Japan · Nov '26</span></span>
+    <button class="nav-collapse" id="navCollapse" type="button" title="Collapse menu" aria-label="Collapse menu">«</button>
+  </div>
+  <nav id="navlist"></nav>
+  <div class="nav-foot">17–27 Nov · 5 cities · 19 meals</div>
+</aside>
+<div class="backdrop" id="backdrop"></div>
 <div class="wrap">
   <header>
     <div>
@@ -133,13 +176,15 @@
         </svg>Japan, November 2026
       </h1>
     </div>
-    <button class="editbtn" id="editToggle" type="button">✎ Edit mode</button>
+    <span style="display:flex;gap:8px;align-items:center">
+      <button class="navburger" id="navBurger" type="button" aria-label="Open menu">☰</button>
+      <button class="editbtn" id="editToggle" type="button">✎ Edit mode</button>
+    </span>
   </header>
   <div class="savebar" id="savebar">
     <span id="savemsg">Edit mode — change costs, status, or notes, then save.</span>
-    <span><button id="saveBtn">Save</button><button class="ghost" id="resetBtn">Reset all</button></span>
+    <span><button id="saveBtn">Save</button><button class="ghost" id="exportBtn">Export</button><button class="ghost" id="resetBtn">Reset all</button></span>
   </div>
-  <div class="tabs" id="tabs"></div>
   <div id="panel"></div>
   <footer>
     <div class="f-text">Edits sync to the cloud (Vercel Blob) when you hit Save — both of you see the same data on any device. If you're offline, they fall back to this browser and sync next time you save.</div>
@@ -155,6 +200,7 @@
       </div>
     </div>
   </footer>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -388,11 +434,11 @@ const CITIES=[
  stops:[
   {id:19,d:"11/26 Thu",m:"Dinner",name:"Roku Roku",dish:"Omakase sushi",hrs:"18:00–21:00 daily",res:"ok",jpy:39160,lat:35.6601,lng:139.7283,area:"Grand Hyatt",note:"$125 FHR dining credit applies here."}]},
 
-{id:"flights",city:"✈ Flights",sub:"Zip Air",flights:true},
-{id:"rail",city:"🚄 Rail",sub:"Shinkansen legs",rail_only:true},
-{id:"vault",city:"🗂 Vault",sub:"Confirmations",vault:true},
-{id:"expenses",city:"💳 Expenses",sub:"USD Tracker",expenses:true},
-{id:"calc",city:"💱 Calc",sub:"Live Converter",calc:true}
+{id:"flights",city:"Flights",sub:"Zip Air",flights:true},
+{id:"rail",city:"Rail",sub:"Shinkansen legs",rail_only:true},
+{id:"vault",city:"Vault",sub:"Confirmations",vault:true},
+{id:"expenses",city:"Expenses",sub:"USD Tracker",expenses:true},
+{id:"calc",city:"Calc",sub:"Live Converter",calc:true}
 ];
 
 const FLIGHTS=[
@@ -459,9 +505,13 @@ async function loadOverrides(){
 
 async function saveOverrides(){
   try{ const r=await fetch('/api/sync'); const d=await r.json();
-    if(d.value) overrides={...d.value,...overrides};   // remote first, my edits win conflicts
+    if(d.value){
+      const remote=d.value;   // remote first, my edits win conflicts; vault merged per-key
+      overrides={...remote,...overrides,vault:{...(remote.vault||{}),...(overrides.vault||{})}};
+    }
   }catch(e){}
   const mode=await sSet(JSON.stringify(overrides));
+  flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist');
 }
 
 async function resetAll(){
@@ -489,21 +539,42 @@ function flash(m){
 }
 
 function eff(s){return{...s,...(overrides[s.id]||{})};}
+function esc(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 /* ---------------- UI ---------------- */
-const tabs=document.getElementById('tabs'),panel=document.getElementById('panel');
+const panel=document.getElementById('panel');
 let ci=0,sel=null,selPoi=null,editMode=false,showPoi=true,cat='all',map=null,markers={};
 const RES_LABEL={ok:'Booked',book:'To book',walk:'Walk-in'};
 
-CITIES.forEach((c,i)=>{const b=document.createElement('button');b.className='tab';b.setAttribute('aria-selected',i===0);
- b.innerHTML=`<div class="t1">${c.city}</div><div class="t2">${c.sub}</div>`;
- b.onclick=()=>{ci=i;sel=null;selPoi=null;cat='all';render();};tabs.appendChild(b);});
+/* ---- Left nav (collapsible sidebar) ---- */
+const shell=document.getElementById('shell'),navlist=document.getElementById('navlist');
+const NAV_ICO={yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'};
+navlist.innerHTML=CITIES.map((c,i)=>
+  (i===0?'<div class="nvsec">Itinerary</div>':'')+
+  (c.id==='flights'?'<div class="nvsec">Tools</div>':'')+
+  `<button class="nvi" data-i="${i}" title="${c.city}"><span class="nvic">${NAV_ICO[c.id]||'•'}</span><span class="nvtx"><span class="nv1">${c.city}</span><span class="nv2">${c.sub}</span></span></button>`
+).join('');
+navlist.querySelectorAll('.nvi').forEach(b=>b.onclick=()=>{ci=+b.dataset.i;sel=null;selPoi=null;cat='all';shell.classList.remove('drawer');render();});
+function refreshNav(){navlist.querySelectorAll('.nvi').forEach(b=>{const on=+b.dataset.i===ci;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}
+// collapsed state is a device preference — kept in this browser, not synced
+try{if(localStorage.getItem('jt_nav_mini')==='1')shell.classList.add('mini');}catch(e){}
+const navCollapse=document.getElementById('navCollapse');
+navCollapse.textContent=shell.classList.contains('mini')?'»':'«';
+navCollapse.onclick=()=>{
+  const mini=shell.classList.toggle('mini');
+  navCollapse.textContent=mini?'»':'«';
+  navCollapse.title=mini?'Expand menu':'Collapse menu';
+  try{localStorage.setItem('jt_nav_mini',mini?'1':'0');}catch(e){}
+};
+document.getElementById('navBurger').onclick=()=>shell.classList.add('drawer');
+document.getElementById('backdrop').onclick=()=>shell.classList.remove('drawer');
 document.getElementById('editToggle').onclick=()=>{editMode=!editMode;
  document.getElementById('editToggle').classList.toggle('on',editMode);
  document.getElementById('savebar').classList.toggle('show',editMode);
  document.body.classList.toggle('editing',editMode);render();};
 document.getElementById('saveBtn').onclick=saveOverrides;
 document.getElementById('resetBtn').onclick=resetAll;
+document.getElementById('exportBtn').onclick=exportData;
 
 function icon(html,size,cls){return L.divIcon({className:'',html:`<div class="mk ${cls||''}" style="width:${size}px;height:${size}px">${html}</div>`,iconSize:[size,size],iconAnchor:[size/2,size/2]});}
 
@@ -630,11 +701,11 @@ function mealCard(p){
           </select></label>
         </div>
 
-        <textarea rows="2" data-f="unote" data-id="${p.id}" placeholder="Your note…">${e.unote||''}</textarea>
+        <textarea rows="2" data-f="unote" data-id="${p.id}" placeholder="Your note…">${esc(e.unote||'')}</textarea>
       </div>
       ${e.warn?`<div class="note warn">${e.warn}</div>`:''}
       ${e.note?`<div class="note">${e.note}</div>`:''}
-      ${e.unote&&!editMode?`<div class="note" style="border-left-color:var(--moss);background:rgba(94,127,76,.08);color:#465F38">✎ ${e.unote}</div>`:''}
+      ${e.unote&&!editMode?`<div class="note" style="border-left-color:var(--moss);background:rgba(94,127,76,.08);color:#465F38">✎ ${esc(e.unote)}</div>`:''}
     </div></div>`;
 }
 
@@ -729,7 +800,7 @@ function renderSide(c){
     renderSide(c);refreshIcons(c);
     const mk=markers['p'+selPoi];if(mk){map.panTo(mk.getLatLng());mk.openPopup();}});
   document.querySelectorAll('.meal').forEach(el=>el.onclick=e=>{
-    if(e.target.matches('input,select,textarea,option'))return;
+    if(e.target.matches('input,select,textarea,option,label'))return;
     sel=+el.dataset.n;selPoi=null;renderSide(c);refreshIcons(c);
     const mk=markers['m'+sel];if(mk){map.panTo(mk.getLatLng());mk.openPopup();}});
   document.querySelectorAll('[data-f]').forEach(inp=>{inp.onchange=()=>{
@@ -772,7 +843,7 @@ function syncMealExpense(id){
 }
 
 function vaultRow(key,label,sub){
-  const v=((overrides.vault||{})[key]||'').replace(/"/g,'&quot;');
+  const v=esc((overrides.vault||{})[key]||'');
   return `<div style="display:flex;gap:10px;align-items:center;border-bottom:1px dotted var(--rule);padding:8px 0;flex-wrap:wrap;">
     <div style="flex:1;min-width:180px;">
       <div style="font-family:var(--serif);font-size:13.5px;font-weight:700;">${label}</div>
@@ -870,7 +941,7 @@ function renderExpenses() {
         <div style="height:100%; width:${foodPct}%; background:${foodOver?'var(--clay)':foodPct>80?'#C9A227':'var(--moss)'}; transition:width .3s;"></div>
       </div>
       <div style="font:9px var(--mono); color:var(--grey); margin-top:5px;">
-        Budget = your 19 planned meals (¥${mealBudgetJpy.toLocaleString()}) at today's rate · counts Food + POI & Cafe expenses
+        Budget = your ${CITIES.filter(c=>c.stops).flatMap(c=>c.stops).length} planned meals (¥${mealBudgetJpy.toLocaleString()}) at today's rate · counts Food + POI & Cafe expenses
       </div>
     </div>
     
@@ -943,7 +1014,7 @@ function renderExpenses() {
             <div style="display:flex; align-items:center; gap:12px;">
               <input type="checkbox" ${full ? 'checked' : ''} onchange="togglePaid(${i}, this.checked)" title="Mark fully paid" style="width:16px; height:16px; accent-color:var(--moss); cursor:pointer;">
               <div>
-                <div style="font-family:var(--serif); font-size:15px; font-weight:700; color:var(--ink); ${full ? 'text-decoration:line-through;' : ''}">${e.desc}</div>
+                <div style="font-family:var(--serif); font-size:15px; font-weight:700; color:var(--ink); ${full ? 'text-decoration:line-through;' : ''}">${esc(e.desc)}</div>
                 <div style="font-family:var(--mono); font-size:9.5px; color:var(--grey); margin-top:2px; text-transform:uppercase;">${e.date} · ${e.cat} · ${e.card}</div>
                 ${partial ? `<div style="font:600 9.5px var(--mono); color:var(--clay); margin-top:2px;">PARTIAL · $${p.toFixed(2)} PAID · $${(amt - p).toFixed(2)} LEFT</div>` : ''}
               </div>
@@ -1089,7 +1160,7 @@ function renderCalc() {
 }
 
 function render(){
-  [...tabs.children].forEach((b,i)=>b.setAttribute('aria-selected',i===ci));
+  refreshNav();
   const c=CITIES[ci];
 
   if(c.calc){

@@ -113,7 +113,7 @@
   .tag.ok{background:var(--moss)}.tag.book{background:var(--clay)}.tag.walk{background:var(--grey)}
   .meal input,.meal select,.meal textarea{font:inherit;font-size:11px;border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:#fff;width:100%;margin-top:4px}
   .meal .erow{display:flex;gap:6px}.meal .erow>*{flex:1}
-  .efields{display:none}.editing .efields{display:block}.editing .m4{display:none}
+  .efields{display:none}.editing .efields{display:block}.editing .m4{display:none}.editing .meal .note{display:none}
   .hotel-card dl{padding:9px 12px;font-size:12px}
   .hotel-card dt{font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-top:7px}
   .hotel-card dt:first-child{margin-top:0}
@@ -701,10 +701,12 @@ function mealCard(p){
           </select></label>
         </div>
 
+        <textarea rows="2" data-f="note" data-id="${p.id}" placeholder="Info note (blue box) — clear to remove">${esc(e.note||'')}</textarea>
+        <textarea rows="2" data-f="warn" data-id="${p.id}" placeholder="Warning note (red box) — clear to remove">${esc(e.warn||'')}</textarea>
         <textarea rows="2" data-f="unote" data-id="${p.id}" placeholder="Your note…">${esc(e.unote||'')}</textarea>
       </div>
-      ${e.warn?`<div class="note warn">${e.warn}</div>`:''}
-      ${e.note?`<div class="note">${e.note}</div>`:''}
+      ${e.warn?`<div class="note warn">${esc(e.warn)}</div>`:''}
+      ${e.note?`<div class="note">${esc(e.note)}</div>`:''}
       ${e.unote&&!editMode?`<div class="note" style="border-left-color:var(--moss);background:rgba(94,127,76,.08);color:#465F38">✎ ${esc(e.unote)}</div>`:''}
     </div></div>`;
 }

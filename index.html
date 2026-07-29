@@ -442,6 +442,7 @@ const CITIES=[
 ];
 
 const FLIGHTS=[
+ {d:"Sun Nov 15",t:"07:00 → 10:05 · 13:30 → 15:45",route:"Washington IAD → Seattle → Vancouver YVR",train:"Delta 1015 + 3748 · Delta First Classic (Z)",note:"Positioning day. 3h25 connection in SEA. DL3748* is a codeshare — confirm the operating carrier at check-in. Overnight in Vancouver; ZG021 departs 10:30 the next morning."},
  {d:"Mon Nov 16 → Tue Nov 17",t:"10:30 → 12:45 (+1)",route:"Vancouver YVR → Tokyo Narita",train:"Zip Air ZG021 · US$1,221.33",note:"Lands 12:45 on the 17th. Immigration + bags ≈ 1.5–2 h → landside ~14:15 → N'EX direct to Yokohama (see Yokohama tab)."},
  {d:"Fri Nov 27",t:"16:00 → 08:30 same day",route:"Tokyo Narita → Vancouver YVR",train:"Zip Air ZG022 · US$1,007.89",note:"At NRT by ~13:30 → leave Grand Hyatt by ~11:45. You land YVR the morning of the same calendar date — plan pickups for Nov 27, not 28.",warn:true},
  {d:"Fri Nov 27",t:"13:16 → 23:05 same day",route:"Vancouver YVR → Virginia IAD",train:"United UA2470 & UA2408 · US$1,104.90",note:"Access to Premium Plaza Lounge in Transborder Terminal (YVR). Access to AMEX Centurion Lounge near Gate 46 in Concourse C (DEN)."}
@@ -863,6 +864,8 @@ function renderVault(){
     <div class="chead"><span>Reservation Vault</span><span>saves on blur · syncs to cloud</span></div>
     <div style="padding:8px 16px 16px;">
       ${sec('Flights')}
+      ${vaultRow('f_dl1015','Delta 1015 · IAD→SEA','Nov 15 · 07:00 · conf / seats')}
+      ${vaultRow('f_dl3748','Delta 3748 · SEA→YVR','Nov 15 · 13:30 · conf / seats · codeshare')}
       ${vaultRow('f_zg021','Zip Air ZG021 · YVR→NRT','Nov 16 · booking ref / seats')}
       ${vaultRow('f_zg022','Zip Air ZG022 · NRT→YVR','Nov 27 · booking ref / seats')}
       ${vaultRow('f_ua2470','United UA2470 · YVR→DEN','Nov 27 · booking ref / seats')}
@@ -874,6 +877,7 @@ function renderVault(){
       ${vaultRow('t_n254','Nozomi 254 · Nagoya→Tokyo','Nov 26 · 14:06 · car / seats')}
       ${vaultRow('t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats')}
       ${sec('Hotels')}
+      ${vaultRow('h_yvr','Vancouver overnight (night of Nov 15)','pre-Zip Air hotel · confirmation #')}
       ${Object.entries(HOTELS).map(([k,h])=>vaultRow('h_'+k,h.n,'confirmation # · Bonvoy/Hyatt member #')).join('')}
       ${sec('Restaurants')}
       ${meals.map(s=>vaultRow('m_'+s.id,`${s.id}. ${s.name}`,`${s.d} · ${s.m} · ${s.cityName}`)).join('')}
@@ -1205,7 +1209,7 @@ loadOverrides().then(render);
   if(!el) return;
   const MS=86400000;
   const today=new Date(); today.setHours(0,0,0,0);
-  const dep=new Date(2026,10,16);   // Nov 16 — YVR departure
+  const dep=new Date(2026,10,15);   // Nov 15 — IAD departure (Delta positioning day)
   const arr=new Date(2026,10,17);   // Nov 17 — Day 1 in Japan
   const end=new Date(2026,10,27);   // Nov 27 — fly home
   const d=Math.round((dep-today)/MS);

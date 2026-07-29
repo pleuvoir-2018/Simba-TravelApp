@@ -29,13 +29,19 @@ Navigation lives in a **collapsible left sidebar** — collapse it to an
 icon rail with the `«` button (remembered per device), or on mobile open it
 as a drawer with the `☰` button.
 
+**Today** — a live day view pinned to Asia/Tokyo. Before the trip it shows
+the countdown and a "Still to book" list aggregated across all cities (tap
+any row to jump to that meal). During the trip it shows the day number,
+today's city, today's meals, today's flights and trains, tonight's hotel,
+and the local weather. After the trip, a welcome-home card with total spend.
+
 **City tabs (Yokohama · Nara · Osaka · Kyoto · Nagoya · Tokyo)**
 - Interactive Leaflet map: hotel, numbered meal stops, POI pins (⛩ sights,
   ☕ cafés, 🛍 shopping, 🎁 omiyage, 🏪 konbini), day-loop polylines, the NRT
   arrival route on Yokohama, GPS "you are here" dot, and per-pin
-  "Open in Google Maps" links.
+  "Open in Google Maps" links on every POI and meal pin (resolved by place name, not raw coordinates).
 - Meal cards with hours, price plan, booking status (`Booked / To book /
-  Walk-in`), booking time/platform, actual-spend capture, and free-text notes.
+  Walk-in`), booking time/platform, actual-spend capture, and free-text notes — including the blue info and red warning boxes, all editable in edit mode.
 - Getting there & away (intercity legs), Getting around (local transit),
   hotel card, and a live weather strip (Open-Meteo) that shows your actual
   trip dates once they enter the 16-day forecast window.

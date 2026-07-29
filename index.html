@@ -377,8 +377,8 @@ const CITIES=[
  stops:[
   {id:11,d:"11/22 Sun",m:"Lunch",name:"Junsei",dish:"Yudofu",hrs:"11:00–14:30 daily",res:"walk",jpy:10000,lat:35.0114,lng:135.7901,area:"Nanzen-ji gate"},
   {id:12,d:"11/23 Mon·hol",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
- hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"TableCheck 00:00 JST 11/20 · CC required, pay cash",
- jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",note:"Backup: Okakita next door, walk-in."},
+ hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",
+ jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck — slots open 00:00 JST on 11/20 (3 days out). CC to hold, pay cash on the day.",note:"Backup: Okakita next door, walk-in."},
   {id:13,d:"11/23 Mon",m:"Dinner",name:"Ishibe Koji Mamecha",dish:"Kyo-kuzushi kaiseki · duck",hrs:"17:00–22:30 · 150-min limit",res:"book",jpy:24000,lat:35.0008,lng:135.7792,area:"Ishibei-kōji",warn:"THE ANNIVERSARY DINNER — Anniversary Plan ¥12,000pp, 17:00 seating, private room. Then Kiyomizu illuminated."}]},
 
 {id:"nagoya",city:"Nagoya",sub:"11/24–11/26",hotel:"tiad",
@@ -621,6 +621,7 @@ function buildMap(c){
       popupContent += ` (${e.btime || ''}${e.btime && e.bplat ? ' via ' : ''}${e.bplat || ''})`;
     }
     popupContent += ` · ¥${Number(e.jpy).toLocaleString()}`;
+    popupContent += `<div style="margin-top:8px;border-top:1px dotted var(--rule);padding-top:6px;"><a href="https://www.google.com/maps/search/${encodeURIComponent(s.name)}/@${s.lat},${s.lng},17z" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--indigo);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;">📍 Open in Google Maps ↗</a></div>`;
 
     m.bindPopup(popupContent);
     m.on('click',()=>{sel=s.id;selPoi=null;renderSide(c);refreshIcons(c);});
@@ -632,7 +633,7 @@ function buildMap(c){
   if(showPoi)c.pois.forEach((p,i)=>{
     if(cat!=='all'&&p.c!==cat)return;
     const m=L.marker([p.lat,p.lng],{icon:icon(`<span>${p.ic}</span>`,selPoi===i?26:20,'mk-poi'+(selPoi===i?' on':''))}).addTo(map);
-    const gMapUrl = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
+    const gMapUrl = `https://www.google.com/maps/search/${encodeURIComponent(p.n)}/@${p.lat},${p.lng},17z`;
     m.bindPopup(`<b>${p.n}</b><br>${p.d}<br><i>near ${p.a}</i>
       <div style="margin-top:8px; border-top:1px dotted var(--rule); padding-top:6px;">
         <a href="${gMapUrl}" target="_blank" style="font-family:var(--mono); font-size:10px; color:var(--indigo); text-decoration:none; font-weight:600; text-transform:uppercase; letter-spacing:0.02em;">

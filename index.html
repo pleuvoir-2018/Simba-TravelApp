@@ -146,6 +146,32 @@
   .map-legend .l-box { width: 9px; height: 9px; display: inline-block; border-radius: 1px; }
   .map-legend .l-circ { width: 9px; height: 9px; display: inline-block; border-radius: 50%; }
   .map-legend .l-dia { width: 7px; height: 7px; display: inline-block; transform: rotate(45deg); }
+  /* Today view */
+  .td-stack{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .td-hero{padding:26px 20px 22px;text-align:center}
+  .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:10px}
+  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:1.05}
+  .td-sub{font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:9px}
+  .td-row{display:flex;gap:10px;padding:10px 12px;border-bottom:1px dotted var(--rule);cursor:pointer;align-items:flex-start}
+  .td-row:hover{background:#fff}
+  .td-row:last-child{border-bottom:0}
+  .td-name{font-family:var(--serif);font-size:14.5px;font-weight:700}
+  .td-meta{font:9.5px var(--mono);color:var(--grey);display:block;margin-top:2px;text-transform:uppercase}
+  .td-warn{display:block;font-size:11px;color:#8A3313;margin-top:4px}
+  .td-note{display:block;font-size:11px;color:#2C4A73;margin-top:3px}
+  .td-empty{padding:12px;font-size:12px;color:var(--grey)}
+  .td-go{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--indigo);background:none;color:var(--indigo);padding:7px 12px;border-radius:2px;cursor:pointer;margin-top:14px}
+  .td-go:hover{background:var(--indigo);color:#fff}
+  /* Gentle polish */
+  .card{box-shadow:0 1px 3px rgba(20,22,27,.05);transition:box-shadow .18s ease}
+  .card:hover{box-shadow:0 2px 9px rgba(20,22,27,.09)}
+  ::selection{background:var(--indigo);color:#fff}
+  html{scroll-behavior:smooth}
+  .editbtn:hover{background:var(--ink);color:var(--washi)}
+  .poitoggle:not(.on):hover{background:var(--moss);color:#fff}
+  .chip:not(.on):hover{border-color:var(--moss);color:var(--moss)}
+  button{-webkit-tap-highlight-color:transparent}
+
   /* Footer & Watermark Styles */
   footer { margin-top:20px; border-top:1px solid var(--rule); padding-top:10px; }
   .f-text { font-family:var(--mono); font-size:10px; color:var(--grey); line-height:1.8; margin-bottom: 12px;}
@@ -217,6 +243,7 @@ const HOTELS = {
 const CAT={sight:"⛩ Sights",cafe:"☕ Cafés",shop:"🛍 Shopping", gift:"🎁 Omiyage", conv:"🏪 Konbini"};
 
 const CITIES=[
+{id:"today",city:"Today",sub:"live day view",today:true},
 {id:"yokohama",city:"Yokohama",sub:"11/17–11/19",hotel:"westin",showNRT:true,
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX (Narita Express) direct ~90 min",n:"Land 12:45 → landside ~14:15 → N'EX to Yokohama Stn → 5-min taxi. Door-to-door ~16:45."},
@@ -549,9 +576,10 @@ const RES_LABEL={ok:'Booked',book:'To book',walk:'Walk-in'};
 
 /* ---- Left nav (collapsible sidebar) ---- */
 const shell=document.getElementById('shell'),navlist=document.getElementById('navlist');
-const NAV_ICO={yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'};
+const NAV_ICO={today:'🗓️',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'};
 navlist.innerHTML=CITIES.map((c,i)=>
-  (i===0?'<div class="nvsec">Itinerary</div>':'')+
+  (i===0?'<div class="nvsec">Now</div>':'')+
+  (c.id==='yokohama'?'<div class="nvsec">Itinerary</div>':'')+
   (c.id==='flights'?'<div class="nvsec">Tools</div>':'')+
   `<button class="nvi" data-i="${i}" title="${c.city}"><span class="nvic">${NAV_ICO[c.id]||'•'}</span><span class="nvtx"><span class="nv1">${c.city}</span><span class="nv2">${c.sub}</span></span></button>`
 ).join('');
@@ -1135,6 +1163,72 @@ window.editExp = function(idx) {
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
+/* ---------------- TODAY VIEW ---------------- */
+const TODAY_CITY={17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'osaka',22:'kyoto',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
+const TONIGHT={15:['Vancouver overnight','Pre-Zip Air hotel — confirmation lives in the Vault'],16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
+const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function tokyoToday(){
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',weekday:'long'}).formatToParts(new Date());
+  const o={};parts.forEach(x=>o[x.type]=x.value);
+  return{y:+o.year,m:+o.month,d:+o.day,w:o.weekday};
+}
+window.gotoCity=function(i){ci=i;sel=null;selPoi=null;cat='all';render();};
+window.gotoMeal=function(i,id){ci=i;sel=id;selPoi=null;cat='all';render();};
+function renderToday(){
+  const t=tokyoToday();
+  const key=t.y*10000+t.m*100+t.d;
+  const pre=key<20261115, post=key>20261127, inTrip=!pre&&!post;
+  const dateLine=`${t.w} · ${MONTH_NAMES[t.m-1]} ${t.d} · Asia/Tokyo`;
+  const allStops=CITIES.map((c,i)=>c.stops?c.stops.map(x=>({...eff(x),cityName:c.city,ci:i})):[]).flat();
+  let html=`<div class="td-stack"><div class="card td-hero"><div class="td-date">${dateLine}</div>`;
+  if(pre){
+    const days=Math.round((Date.UTC(2026,10,15)-Date.UTC(t.y,t.m-1,t.d))/86400000);
+    html+=`<div class="td-big">${days}</div><div class="td-sub">days until wheels-up · Delta 1015 · IAD 07:00 · Nov 15</div></div>`;
+    const toBook=allStops.filter(x=>x.res==='book');
+    html+=`<div class="card"><div class="chead"><span>Still to book</span><span>${toBook.length} open</span></div>`+
+      (toBook.map(x=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${x.id}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span><span class="td-meta">${x.cityName} · ${x.d} · ${x.m}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">Everything is booked ✓</div>')+`</div>`;
+    const walkIns=allStops.filter(x=>x.res==='walk');
+    html+=`<div class="card"><div class="chead"><span>Walk-ins — no action needed</span></div><div style="padding:9px 12px;font-size:12px;color:var(--grey)">${walkIns.map(x=>x.name).join(' · ')||'—'}</div></div>`;
+  } else if(inTrip){
+    const day=t.d, cid=TODAY_CITY[day], cityIdx=cid?CITIES.findIndex(c=>c.id===cid):-1;
+    const headline=day<17?(day===15?'Positioning day':'Flight day'):(`Day ${day-16} of 11`);
+    const where=cityIdx>-1?CITIES[cityIdx].city:(day===15?'IAD → SEA → YVR':'YVR → NRT');
+    html+=`<div class="td-big">${headline}</div><div class="td-sub">${where}</div>`+
+      (cityIdx>-1?`<button class="td-go" onclick="gotoCity(${cityIdx})">Open the ${CITIES[cityIdx].city} tab →</button>`:'')+`</div>`;
+    const meals=allStops.filter(x=>x.d.startsWith('11/'+day));
+    const order={Breakfast:0,Lunch:1,Dinner:2};
+    meals.sort((a,b)=>(order[a.m]??9)-(order[b.m]??9));
+    html+=`<div class="card"><div class="chead"><span>Today's meals</span></div>`+
+      (meals.map(x=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${x.id}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span> <span class="tag ${x.res}">${RES_LABEL[x.res]||x.res}</span><span class="td-meta">${x.m} · ${x.dish} · ${x.hrs} · ${x.area}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}${x.note?`<span class="td-note">${esc(x.note)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">No planned meals today — graze free.</div>')+`</div>`;
+    const fl=FLIGHTS.filter(f=>f.d.includes('Nov '+day));
+    const tr=TRAINS.filter(x=>x.d==='Nov '+day);
+    if(fl.length||tr.length){
+      html+=`<div class="card"><div class="chead"><span>Today's transit</span></div>`+
+        fl.map(f=>`<div class="train"><div class="route">${f.route}</div><div class="tmeta">${f.d} · ${f.t} · ${f.train}</div><div class="note ${f.warn?'warn':''}">${f.note}</div></div>`).join('')+
+        tr.map(x=>`<div class="train"><div class="route">${x.route}</div><div class="tmeta">${x.d} · ${x.t} · ${x.train}</div><div class="note">${x.note}</div></div>`).join('')+`</div>`;
+    }
+    const tn=TONIGHT[day];
+    if(tn){
+      if(Array.isArray(tn)){
+        html+=`<div class="card"><div class="chead"><span>Tonight</span></div><div style="padding:10px 12px"><div class="td-name">${tn[0]}</div><div style="font-size:12px;color:var(--grey);margin-top:3px">${tn[1]}</div></div></div>`;
+      }else{
+        const h=HOTELS[tn];
+        html+=`<div class="card hotel-card"><div class="chead"><span>Tonight's hotel</span></div><dl><dt>Name</dt><dd><b>${h.n}</b></dd><dt>Address</dt><dd>${h.addr}</dd><dt>Nearest station</dt><dd>${h.stn}</dd><dt>Phone</dt><dd><a href="tel:${h.tel.replace(/[^+\d]/g,'')}">${h.tel}</a></dd></dl></div>`;
+      }
+    }
+    if(cid&&WX_CFG[cid]){
+      html+=`<div class="card"><div class="chead"><span>Weather · ${CITIES[cityIdx].city}</span></div><div id="wxbody" style="padding:10px 12px;"><div class="note">Loading forecast…</div></div></div>`;
+    }
+  } else {
+    const spentUsd=(overrides.expenses||[]).reduce((a,e)=>a+Number(e.usd),0);
+    html+=`<div class="td-big">Okaeri 🏠</div><div class="td-sub">Trip complete${spentUsd?` · $${spentUsd.toLocaleString('en-US',{minimumFractionDigits:2})} logged`:''}</div></div>`;
+  }
+  html+=`</div>`;
+  panel.innerHTML=html;
+  const cidNow=inTrip?TODAY_CITY[t.d]:null;
+  if(cidNow&&document.getElementById('wxbody'))loadWeather(cidNow);
+}
+
 function renderCalc() {
   panel.innerHTML = `
   <div class="card" style="max-width:500px; margin: 40px auto; padding:32px 24px; text-align:center;">
@@ -1169,6 +1263,12 @@ function renderCalc() {
 function render(){
   refreshNav();
   const c=CITIES[ci];
+
+  if(c.today){
+    if(map){map.remove();map=null;}
+    renderToday();
+    return;
+  }
 
   if(c.calc){
     if(map){map.remove();map=null;}

@@ -1269,6 +1269,56 @@ function renderToday(){
   if(cidNow&&document.getElementById('wxbody'))loadWeather(cidNow);
 }
 
+/* ---------------- FX TREND (Frankfurter/ECB, no key) ---------------- */
+let fxRange='1m';
+const fxCache={};
+async function loadFx(range){
+  const el=document.getElementById('fxchart');
+  if(!el)return;
+  el.innerHTML='<div class="note">Loading rate history…</div>';
+  try{
+    if(!fxCache[range]){
+      const end=new Date();
+      const start=new Date(end.getTime()-(range==='1w'?7:30)*86400000);
+      const fmt=d=>d.toISOString().slice(0,10);
+      const r=await fetch(`https://api.frankfurter.app/${fmt(start)}..${fmt(end)}?from=USD&to=JPY`);
+      if(!r.ok)throw new Error('fx http '+r.status);
+      const d=await r.json();
+      const pts=Object.keys(d.rates).sort().map(k=>({d:k,v:d.rates[k].JPY}));
+      if(pts.length<2)throw new Error('fx empty');
+      fxCache[range]=pts;
+    }
+    const pts=fxCache[range];
+    const vs=pts.map(x=>x.v), min=Math.min(...vs), max=Math.max(...vs), span=(max-min)||1;
+    const W=320,H=110,T=8,B=18,L=6,R=6;
+    const X=i=>L+(W-L-R)*i/(pts.length-1);
+    const Y=v=>T+(H-T-B)*(1-(v-min)/span);
+    const line=pts.map((x,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(x.v).toFixed(1)}`).join(' ');
+    const area=line+` L${X(pts.length-1).toFixed(1)},${H-B} L${X(0).toFixed(1)},${H-B} Z`;
+    const first=pts[0].v, last=pts[pts.length-1].v, chg=(last-first)/first*100;
+    const md=k=>k.slice(5).replace('-','/');
+    el.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+        <span style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--indigo);">¥${last.toFixed(2)}</span>
+        <span style="font:600 10px var(--mono);color:${chg>=0?'var(--moss)':'var(--clay)'};">${chg>=0?'▲':'▼'} ${Math.abs(chg).toFixed(2)}% over ${range==='1w'?'1 week':'1 month'}</span>
+      </div>
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block;" role="img" aria-label="USD to JPY trend">
+        <line x1="${L}" y1="${Y(max)}" x2="${W-R}" y2="${Y(max)}" stroke="rgba(20,22,27,.1)" stroke-dasharray="2 4"/>
+        <line x1="${L}" y1="${Y(min)}" x2="${W-R}" y2="${Y(min)}" stroke="rgba(20,22,27,.1)" stroke-dasharray="2 4"/>
+        <path d="${area}" fill="rgba(34,64,107,.08)"/>
+        <path d="${line}" fill="none" stroke="#22406B" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${X(pts.length-1).toFixed(1)}" cy="${Y(last).toFixed(1)}" r="3" fill="#B8552A"/>
+      </svg>
+      <div style="display:flex;justify-content:space-between;font:9px var(--mono);color:var(--grey);margin-top:4px;">
+        <span>${md(pts[0].d)}</span>
+        <span>L ¥${min.toFixed(2)} · H ¥${max.toFixed(2)} · ECB daily</span>
+        <span>${md(pts[pts.length-1].d)}</span>
+      </div>`;
+  }catch(e){
+    el.innerHTML='<div class="note">Rate history unavailable right now — check again when online.</div>';
+  }
+}
+
 function renderCalc() {
   panel.innerHTML = `
   <div class="card" style="max-width:500px; margin: 40px auto; padding:32px 24px; text-align:center;">
@@ -1286,6 +1336,16 @@ function renderCalc() {
       <div style="font:600 12px var(--mono); color:var(--grey); text-transform:uppercase; margin-bottom:8px; text-align:left;">Cost in USD ($)</div>
       <div id="quickUsd" style="font-family:var(--serif); font-size:48px; font-weight:700; color:var(--moss); padding:8px 0;">$0.00</div>
     </div>
+  </div>
+
+  <div class="card" style="max-width:500px; margin:14px auto 0;">
+    <div class="chead"><span>USD → JPY trend</span>
+      <span style="display:flex;gap:5px;">
+        <button class="chip fx-r ${fxRange==='1w'?'on':''}" data-r="1w" type="button">1W</button>
+        <button class="chip fx-r ${fxRange==='1m'?'on':''}" data-r="1m" type="button">1M</button>
+      </span>
+    </div>
+    <div id="fxchart" style="padding:12px 16px;"></div>
   </div>`;
 
   // Instant math as you type
@@ -1298,6 +1358,13 @@ function renderCalc() {
       usdDisplay.textContent = '$0.00';
     }
   });
+
+  document.querySelectorAll('.fx-r').forEach(b=>b.onclick=()=>{
+    fxRange=b.dataset.r;
+    document.querySelectorAll('.fx-r').forEach(x=>x.classList.toggle('on',x.dataset.r===fxRange));
+    loadFx(fxRange);
+  });
+  loadFx(fxRange);
 }
 
 function render(){

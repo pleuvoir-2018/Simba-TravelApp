@@ -248,7 +248,7 @@ const CITIES=[
 {id:"yokohama",city:"Yokohama",sub:"11/17–11/19",hotel:"westin",showNRT:true,
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX (Narita Express) direct ~90 min",n:"Land 12:45 → landside ~14:15 → N'EX to Yokohama Stn → 5-min taxi. Door-to-door ~16:45."},
-  {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 261 · dep 14:07 → arr 15:58",n:"Kadohei done by 13:15 → JR Yokohama line to Shin-Yokohama, 12 min."}],
+  {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 73 · dep 14:07 → arr 16:00",n:"Kadohei done by 13:15 → JR Yokohama line to Shin-Yokohama, 12 min."}],
  metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["JR / walking","Din Tai Fung, Hana Yori & Kadohei all cluster at Yokohama Stn"]],
  pois:[
  // ── sights ──
@@ -300,7 +300,7 @@ const CITIES=[
 
 {id:"nara",city:"Nara",sub:"11/19–11/21",hotel:"shisui",
  legs:[
-  {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express ~35 min (16:20 → 16:55)",n:"Off the Nozomi at 15:58, Kintetsu platform is beneath Kyoto Stn. Shisui is a 12-min walk or short taxi."},
+  {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express ~35 min (16:20 → 16:55)",n:"Off the Nozomi at 16:00, Kintetsu platform is beneath Kyoto Stn. Shisui is a 12-min walk or short taxi."},
   {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 · Kintetsu Ltd. Express ~40 min, morning",n:"No Shinkansen for this leg. At Namba: Midōsuji to Tennōji, drop bags, back up to Umeda for Sushi Matsui 12:00."}],
  metro:[["On foot","Shisui sits inside Nara Park — Tōdai-ji 12 min, Kōfuku-ji 10 min, Kintetsu-Nara 12 min"],["Loop bus","Nara City Loop stops at Kenchō-Higashi, 3 min from the hotel"]],
  pois:[
@@ -333,7 +333,7 @@ const CITIES=[
 {id:"osaka",city:"Osaka",sub:"11/21–11/24",hotel:"miyako",
  legs:[
   {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 · Midōsuji line 6 min",n:"The Miyako has a direct elevator from Tennōji / Ōsaka-Abenobashi."},
-  {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Midōsuji ~25 min, then Nozomi 14 dep 11:06",n:"Leave the hotel by 10:15. Arrives Nagoya 11:56 — Keitei is inside the station."}],
+  {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Midōsuji ~25 min, then Nozomi 90 dep 11:30",n:"Leave the hotel by 10:40. Arrives Nagoya 12:19 — Keitei is inside the station."}],
  metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min · every 2–4 min"],["JR Osaka Loop","backup ring from Tennōji; Osaka-jō 12 min"]],
  pois:[
   {c:"sight",ic:"🌃",n:"Hōzenji Yokochō",d:"lantern alley + moss-covered Fudō",a:"Sanpei",lat:34.6678,lng:135.5031},
@@ -421,8 +421,8 @@ const CITIES=[
 
 {id:"nagoya",city:"Nagoya",sub:"11/24–11/26",hotel:"tiad",
  legs:[
-  {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 14 · dep 11:06 → arr 11:56",n:"Keitei lunch is inside the station complex, then Higashiyama line to Sakae."},
-  {r:"Depart: Nagoya → Tokyo",m:"11/26 · Nozomi 254 · dep 14:06 → arr 15:46",n:"SHUHARI must end by 13:35 — book 11:30/12:00 and mention the train."}],
+  {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 90 · dep 11:30 → arr 12:19",n:"Keitei lunch is inside the station complex, then Higashiyama line to Sakae."},
+  {r:"Depart: Nagoya → Tokyo",m:"11/26 · Nozomi 24 · dep 14:36 → arr 16:15",n:"SHUHARI must end by 14:05 — book 11:30/12:00 and mention the train."}],
  metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Keitei, Kikukawa)"],["Meijō Line (purple)","Yabachō 4-min walk; one stop to Kamimaezu for Ōsu"],["On foot","Takara ~15 min; Moumoutei ~12 min from TIAD"]],
  pois:[
   {c:"sight",ic:"🌳",n:"Hisaya Ōdōri Park + Mirai Tower",d:"TIAD's front yard, lit at night",a:"hotel",lat:35.1720,lng:136.9083},
@@ -450,11 +450,11 @@ const CITIES=[
   {id:15,d:"11/24 Tue",m:"Dinner",name:"Moumoutei Hirokoji",dish:"Beef hitsumabushi",hrs:"18:00–22:30 · closed Sun",res:"ok",jpy:20000,lat:35.1679,lng:136.8954,area:"Sakae",note:"Signature set is reservation-only — confirm the course."},
   {id:16,d:"11/25 Wed",m:"Lunch",name:"Takara",dish:"Miso nikomi udon",hrs:"11:30–14:45 · closed Thu",res:"walk",jpy:5000,lat:35.1595,lng:136.9016,area:"Ōsu"},
   {id:17,d:"11/25 Wed",m:"Dinner",name:"Unagi Yondaime Kikukawa",dish:"Unagi hitsumabushi",hrs:"17:00–22:00 daily",res:"book",jpy:15000,lat:35.1697,lng:136.8853,area:"Midland Square 4F",warn:"Book 18:30/19:00 on Tabelog — fix the 7/29 date filter."},
-  {id:18,d:"11/26 Thu",m:"Lunch",name:"SHUHARI",dish:"Kaiseki",hrs:"11:30–14:30 · closed Wed",res:"book",jpy:24000,lat:35.1639,lng:136.9098,area:"TIAD 5F",warn:"Book 12:00 latest — Nozomi 254 leaves 14:06."}]},
+  {id:18,d:"11/26 Thu",m:"Lunch",name:"SHUHARI",dish:"Kaiseki",hrs:"11:30–14:30 · closed Wed",res:"book",jpy:24000,lat:35.1639,lng:136.9098,area:"TIAD 5F",warn:"Book 12:00 latest — Nozomi 24 leaves 14:36; be done by 14:05."}]},
 
 {id:"tokyo",city:"Tokyo",sub:"11/26–11/27",hotel:"hyatt",
  legs:[
-  {r:"Arrive: Tokyo Stn → Roppongi",m:"11/26 · Marunouchi → Kasumigaseki → Hibiya line ~25 min",n:"Off the Nozomi 15:46, at the hotel ~16:30. Roku Roku 18:00–19:00."},
+  {r:"Arrive: Tokyo Stn → Roppongi",m:"11/26 · Marunouchi → Kasumigaseki → Hibiya line ~25 min",n:"Off the Nozomi 16:15, at the hotel ~17:00. Roku Roku 18:00–19:00."},
   {r:"Depart: Grand Hyatt → NRT",m:"11/27 · leave 11:45 · N'EX from Tokyo Stn ~60 min",n:"ZG022 departs 16:00 — at NRT by 13:30. Bricolage at 10:30 is your send-off bite."}],
  metro:[["Hibiya Line","Roppongi is under the Hills; Ginza 10 min, Tsukiji 14 min"],["Ōedo Line","Roppongi → Shinjuku 9 min"]],
  pois:[
@@ -495,10 +495,10 @@ const FLIGHTS=[
  {d:"Fri Nov 27",t:"13:16 → 23:05 same day",route:"Vancouver YVR → Virginia IAD",train:"United UA2470 & UA2408 · US$1,104.90",note:"Access to Premium Plaza Lounge in Transborder Terminal (YVR). Access to AMEX Centurion Lounge near Gate 46 in Concourse C (DEN)."}
 ];
 const TRAINS=[
- {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 261 ✓",note:"Arr 15:58 → Kintetsu ltd. exp to Nara ~16:55 → Shisui → Poku-Poku by 18:00. ~90-min buffer."},
+ {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 73 ✓ Smart EX",note:"Arr 16:00 → Kintetsu ltd. exp 16:20 → Nara 16:55 → Shisui → Poku-Poku by 18:00. Seats not finalized — pick them on Smart EX (E side for Fuji)."},
  {d:"Nov 21",t:"morning",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Kintetsu Ltd. Express ~40 min",note:"Midōsuji to Tennōji, drop bags, up to Umeda for Sushi Matsui 12:00."},
- {d:"Nov 24",t:"11:06",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 14 ✓",note:"Arr 11:56 — Keitei inside the station. Leave hotel 10:15."},
- {d:"Nov 26",t:"14:06",route:"Nagoya → Tokyo",train:"Nozomi 254 ✓",note:"Arr 15:46, Roppongi ~16:30. SHUHARI ends 13:35 latest."}
+ {d:"Nov 24",t:"11:30",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 90 ✓ Smart EX",note:"Arr 12:19 — Keitei inside the station. Leave hotel 10:40. Seats not finalized."},
+ {d:"Nov 26",t:"14:36",route:"Nagoya → Tokyo",train:"Nozomi 24 ✓ Smart EX",note:"Arr 16:15, Roppongi ~17:00. SHUHARI ends 14:05 latest. Seats not finalized."}
 ];
 
 /* ---------------- STORAGE ---------------- */
@@ -926,9 +926,9 @@ function renderVault(){
       ${vaultRow('f_ua2408','United UA2408 · DEN→IAD','Nov 27 · booking ref / seats')}
       ${sec('Trains')}
       ${vaultRow('t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats')}
-      ${vaultRow('t_n261','Nozomi 261 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · car / seats')}
-      ${vaultRow('t_n14','Nozomi 14 · Shin-Ōsaka→Nagoya','Nov 24 · 11:06 · car / seats')}
-      ${vaultRow('t_n254','Nozomi 254 · Nagoya→Tokyo','Nov 26 · 14:06 · car / seats')}
+      ${vaultRow('t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats')}
+      ${vaultRow('t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats')}
+      ${vaultRow('t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats')}
       ${vaultRow('t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats')}
       ${sec('Hotels')}
       ${Object.entries(HOTELS).map(([k,h])=>vaultRow('h_'+k,h.n,'confirmation # · Bonvoy/Hyatt member #')).join('')}

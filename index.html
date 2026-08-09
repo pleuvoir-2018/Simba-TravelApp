@@ -99,7 +99,9 @@
   .leaflet-popup-content{margin:10px 12px;font-size:12px}
   .leaflet-popup-content b{font-family:var(--serif);font-size:14px}
 
-  .stack{display:flex;flex-direction:column;gap:10px}
+  .stack{display:flex;flex-direction:column;gap:10px;min-width:0}
+  .grid>*{min-width:0}
+  .card{min-width:0;overflow-wrap:anywhere}
   .card{border:1px solid var(--rule);border-radius:2px;background:#fffc}
   .chead{padding:8px 12px;background:var(--washi2);border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);display:flex;justify-content:space-between}
   .meal{display:flex;gap:10px;padding:9px 12px;border-bottom:1px dotted var(--rule);cursor:pointer}
@@ -178,9 +180,13 @@
 
   /* Day plans */
   .plform{padding:10px 12px;border-bottom:1px solid var(--rule);background:rgba(34,64,107,.04);display:flex;flex-direction:column;gap:6px}
-  .plform input,.plform select{font:12px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:5px 7px;background:#fff;min-width:0}
-  .plrow1{display:flex;gap:6px}
-  .plrow1>*{flex:1;min-width:0}
+  .plform input,.plform select{font:12px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:5px 7px;background:#fff;min-width:0;width:100%;max-width:100%}
+  .plrow1{display:flex;gap:6px;flex-wrap:wrap}
+  .plrow1>*{flex:1 1 0;min-width:0}
+  @media(max-width:560px){
+    .plrow1>*{flex:1 1 calc(50% - 3px)}
+    .plrow1>select[id="pl_cat"],.plrow1>.pladd{flex:1 1 100%}
+  }
   .pladd{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--clay);color:#fff;border:none;border-radius:2px;cursor:pointer;padding:6px 10px}
   .plhint{font:9px var(--mono);color:var(--grey)}
   .pl-day{font:600 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--indigo);padding:8px 12px 3px;background:var(--washi2)}

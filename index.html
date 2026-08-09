@@ -249,11 +249,11 @@ const CITIES=[
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX (Narita Express) direct ~90 min",n:"Land 12:45 → landside ~14:15 → N'EX to Yokohama Stn → 5-min taxi. Door-to-door ~16:45."},
   {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 73 · dep 14:07 → arr 16:00",n:"Kadohei done by 13:15 → JR Yokohama line to Shin-Yokohama, 12 min."}],
- metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["JR / walking","Din Tai Fung, Hana Yori & Kadohei all cluster at Yokohama Stn"]],
+ metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["On foot","Shirahara is 3 min from the hotel · Hana Yori & Kadohei cluster at Yokohama Stn"]],
  pois:[
  // ── sights ──
  {c:"sight",ic:"🧱",n:"Red Brick Warehouse",d:"waterfront landmark + shops",a:"Afuri",lat:35.4527,lng:139.6425},
- {c:"sight",ic:"🏮",n:"Chinatown + Yamashita Park",d:"Japan's biggest Chinatown",a:"Din Tai Fung",lat:35.4427,lng:139.6459},
+ {c:"sight",ic:"🏮",n:"Chinatown + Yamashita Park",d:"Japan's biggest Chinatown",a:"Motomachi",lat:35.4427,lng:139.6459},
  {c:"sight",ic:"🗼",n:"Landmark Tower Sky Garden",d:"69F observatory — same building as Afuri, stack with dinner 11/18",a:"Afuri",lat:35.4546,lng:139.6317},
  {c:"sight",ic:"🍜",n:"Cup Noodles Museum",d:"make your own cup — book timed slot online ~mid-Aug for Nov",a:"Afuri",lat:35.4553,lng:139.6389},
  {c:"sight",ic:"🎡",n:"Cosmo Clock 21",d:"harbor ferris wheel — best after dark",a:"Afuri",lat:35.4553,lng:139.6365},
@@ -272,16 +272,17 @@ const CITIES=[
  {c:"shop",ic:"🎮",n:"Pokémon Center Yokohama",d:"Yokohama Sky Building 8F (ex-Marui City), station east exit · 10:30–20:30",a:"hotel",lat:35.4649,lng:139.6246},
  {c:"shop",ic:"🛍",n:"MARK IS Minatomirai",d:"zakka & stationery floors",a:"hotel",lat:35.4573,lng:139.6304},
  {c:"shop",ic:"⚓",n:"Yokohama Hammerhead",d:"pier mall — chocolate & craft-beer makers",a:"Afuri",lat:35.4562,lng:139.6448},
+ {c:"shop",ic:"👕",n:"Colette Mare (Uniqlo + GU)",q:"コレットマーレ 桜木町",d:"Uniqlo AND GU both on 3F · 11:00–20:00 · 5 min from Afuri — shop BEFORE dinner",a:"Afuri",lat:35.4522,lng:139.6307},
  {c:"shop",ic:"🌊",n:"Marine & Walk Yokohama",d:"open-air seaside mall between Red Brick & Hammerhead — angel-wings mural",a:"Afuri",lat:35.4545,lng:139.6427},   // NEW
  // ── gifts ──
- {c:"gift",ic:"🍰",n:"Francais (Takashimaya B1F)",q:"フランセ 横浜高島屋",d:"mille-feuille — ex-Yokohama Francais, rebranded 2018 · same building as Din Tai Fung; Sogo (east side) has a counter too",a:"Din Tai Fung",lat:35.4661,lng:139.6218},
+ {c:"gift",ic:"🍰",n:"Francais (Takashimaya B1F)",q:"フランセ 横浜高島屋",d:"mille-feuille — ex-Yokohama Francais, rebranded 2018 · Takashimaya B1F; Sogo (east side) has a counter too",a:"Yokohama Stn",lat:35.4661,lng:139.6218},
  {c:"gift",ic:"⛵",n:"Ariake Harbour (Motomachi honkan)",q:"ありあけ本館",d:"boat-shaped harbour cakes — the Yokohama omiyage",a:"Chinatown",lat:35.4415,lng:139.6470},
  // ── konbini ──
  {c:"conv",ic:"🏪",n:"FamilyMart Minatomirai",d:"closest to the Westin, 24h — breakfast run",a:"hotel",lat:35.4615,lng:139.6295},
  {c:"conv",ic:"🏪",n:"7-Eleven Shin-Takashima",d:"by your metro station, 24h · best konbini ATM for foreign cards",a:"hotel",lat:35.4630,lng:139.6270},
  {c:"conv",ic:"🏪",n:"Lawson Minatomirai",d:"toward MARK IS — famous karaage-kun",a:"hotel",lat:35.4585,lng:139.6315}],
  stops:[
-  {id:1,d:"11/17 Tue",m:"Dinner",name:"Din Tai Fung",dish:"Dim sum",hrs:"11:00–22:30 daily",res:"ok",jpy:15000,lat:35.4654,lng:139.6204,area:"Takashimaya, Yokohama Stn"},
+  {id:1,d:"11/17 Tue",m:"Dinner",name:"Shirahara (しらはら)",q:"貝・刺身専門店 しらはら みなとみらい一番街",dish:"Shellfish & sashimi",hrs:"Tue 17:00–23:00 (lunch to 14:00)",res:"book",jpy:12000,lat:35.4615,lng:139.6281,area:"Yokohama Shinfoster East Tower, 3-min walk",note:"Arrival-night pick — 3 min from the Westin. English menu via QR code. Counter seats face the chef.",warn:"Ask the Westin to book 17:30–18:00 for two."},
   {id:2,d:"11/18 Wed",m:"Lunch",name:"Hana Yori Hanbagu",dish:"Hamburg steak",hrs:"11:30–22:00 daily",res:"ok",jpy:5000,lat:35.4682,lng:139.6229,area:"Tsuruyachō"},
   {
     "id": 3,
@@ -455,7 +456,7 @@ const CITIES=[
 {id:"tokyo",city:"Tokyo",sub:"11/26–11/27",hotel:"hyatt",
  legs:[
   {r:"Arrive: Tokyo Stn → Roppongi",m:"11/26 · Marunouchi → Kasumigaseki → Hibiya line ~25 min",n:"Off the Nozomi 16:15, at the hotel ~17:00. Roku Roku 18:00–19:00."},
-  {r:"Depart: Grand Hyatt → NRT",m:"11/27 · leave 11:45 · N'EX from Tokyo Stn ~60 min",n:"ZG022 departs 16:00 — at NRT by 13:30. Bricolage at 10:30 is your send-off bite."}],
+  {r:"Depart: Grand Hyatt → NRT",m:"11/27 · leave 11:45 · N'EX from Tokyo Stn ~60 min",n:"ZG022 departs 16:00 — at NRT by 13:30. Bricolage at 10:30 is your send-off bite. TAX REFUND: from 11/1/26 Japan refunds at the airport, not the register — keep every receipt, allow 45–60 min extra at NRT, consider leaving the Hyatt before 11:45."}],
  metro:[["Hibiya Line","Roppongi is under the Hills; Ginza 10 min, Tsukiji 14 min"],["Ōedo Line","Roppongi → Shinjuku 9 min"]],
  pois:[
   {c:"sight",ic:"✨",n:"Keyakizaka winter illumination",d:"blue LED avenue, live late Nov",a:"hotel",lat:35.6591,lng:139.7291},

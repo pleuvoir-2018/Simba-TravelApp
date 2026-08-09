@@ -172,6 +172,26 @@
   .chip:not(.on):hover{border-color:var(--moss);color:var(--moss)}
   button{-webkit-tap-highlight-color:transparent}
 
+  /* Day plans */
+  .plform{padding:10px 12px;border-bottom:1px solid var(--rule);background:rgba(34,64,107,.04);display:flex;flex-direction:column;gap:6px}
+  .plform input,.plform select{font:12px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:5px 7px;background:#fff;min-width:0}
+  .plrow1{display:flex;gap:6px}
+  .plrow1>*{flex:1;min-width:0}
+  .pladd{font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--clay);color:#fff;border:none;border-radius:2px;cursor:pointer;padding:6px 10px}
+  .plhint{font:9px var(--mono);color:var(--grey)}
+  .pl-day{font:600 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--indigo);padding:8px 12px 3px;background:var(--washi2)}
+  .pl-row{display:flex;align-items:center;gap:8px;padding:7px 12px;border-bottom:1px dotted var(--rule);font-size:12.5px}
+  .pl-row:last-child{border-bottom:0}
+  .pl-row.done{opacity:.55}
+  .pl-row.done .pl-main a{text-decoration:line-through}
+  .pl-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--moss);cursor:pointer;flex:0 0 15px}
+  .pl-time{font:600 10px var(--mono);color:var(--grey);flex:0 0 38px}
+  .pl-ic{flex:0 0 18px;text-align:center}
+  .pl-main{flex:1;min-width:0}
+  .pl-main a{color:var(--ink);font-weight:600;text-decoration:none;border-bottom:1px dotted var(--indigo2)}
+  .pl-jpy{display:block;font:9.5px var(--mono);color:var(--moss);margin-top:1px}
+  .pl-row .plx{background:none;border:none;cursor:pointer;padding:0 3px;font-size:14px}
+
   /* Footer & Watermark Styles */
   footer { margin-top:20px; border-top:1px solid var(--rule); padding-top:10px; }
   .f-text { font-family:var(--mono); font-size:10px; color:var(--grey); line-height:1.8; margin-bottom: 12px;}
@@ -820,12 +840,132 @@ async function loadWeather(cityId){
   }
 }
 
+/* ---------------- DAY PLANS ---------------- */
+const PLAN_CATS={sight:'⛩ Sightseeing',cafe:'☕ Cafe',food:'🍽 Food',shop:'🛍 Shopping',transit:'🚃 Transit',other:'📍 Other'};
+const PLAN_ICO={sight:'⛩',cafe:'☕',food:'🍽',shop:'🛍',transit:'🚃',other:'📍'};
+const PLAN_CAT_TO_EXP={sight:'POI & Cafe',cafe:'POI & Cafe',food:'Food',shop:'Omiyage',transit:'Transit',other:'Other'};
+const EXP_CARDS=['AMEX Platinum','AMEX Gold','AMEX Bonvoy Brilliant','Capital One Venture X','United Quest','Cash'];
+window._editPid=null;
+function tripDates(){const out=[];for(let d=15;d<=27;d++)out.push('11/'+d);return out;}
+function planMapUrl(p,cityName){
+  return p.url&&/^https?:\/\//.test(p.url)?p.url:`https://www.google.com/maps/search/${encodeURIComponent(p.name+' '+cityName)}`;
+}
+function cityDefaultDate(c){
+  const cfg=WX_CFG[c.id];
+  if(cfg&&cfg.from)return '11/'+Number(cfg.from.slice(-2));
+  return '11/17';
+}
+function refreshPanel(){
+  const c=CITIES[ci];
+  if(c.today){renderToday();}
+  else if(c.stops){renderSide(c);}
+  else{render();}
+}
+function planRow(p,cityName,showCity){
+  const jpyLine=p.jpy?`<span class="pl-jpy">¥${Number(p.jpy).toLocaleString()}${p.card?' · '+esc(p.card):''} · on Expenses tab</span>`:'';
+  return `<div class="pl-row ${p.done?'done':''}">
+    <input type="checkbox" ${p.done?'checked':''} onchange="togglePlanDone('${p.id}',this.checked)" title="Done">
+    <span class="pl-time">${p.t||'—'}</span>
+    <span class="pl-ic">${PLAN_ICO[p.cat]||'📍'}</span>
+    <span class="pl-main"><a href="${esc(planMapUrl(p,cityName))}" target="_blank">${esc(p.name)}</a>${showCity?` <span style="font:9px var(--mono);color:var(--plum)">${cityName}</span>`:''}${jpyLine}</span>
+    <button class="plx" onclick="editPlan('${p.id}')" title="Edit" style="color:var(--indigo)">✎</button>
+    <button class="plx" onclick="delPlan('${p.id}')" title="Remove" style="color:var(--clay);font-size:17px">×</button>
+  </div>`;
+}
+function renderPlansCard(c){
+  const plans=(overrides.plans||[]).filter(p=>p.city===c.id);
+  const byDate={};plans.forEach(p=>{(byDate[p.d]=byDate[p.d]||[]).push(p);});
+  const defDate=cityDefaultDate(c);
+  const listHTML=Object.keys(byDate).sort((a,b)=>+a.split('/')[1]-+b.split('/')[1]).map(d=>
+    `<div class="pl-day">${d}</div>`+
+    byDate[d].sort((a,b)=>(a.t||'99:99').localeCompare(b.t||'99:99')).map(p=>planRow(p,c.city,false)).join('')
+  ).join('')||'<div style="padding:10px 12px;font-size:11.5px;color:var(--grey)">Nothing planned yet — add your first stop above.</div>';
+  return `<div class="card"><div class="chead"><span>Day plans · ${c.city}</span><span>${plans.length} item${plans.length===1?'':'s'}</span></div>
+    <div class="plform" id="plform">
+      <div class="plrow1">
+        <select id="pl_date">${tripDates().map(d=>`<option ${d===defDate?'selected':''}>${d}</option>`).join('')}</select>
+        <input id="pl_time" type="time" title="Approx. time">
+        <select id="pl_cat">${Object.entries(PLAN_CATS).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
+      </div>
+      <input id="pl_name" placeholder="Place / activity name" maxlength="80">
+      <input id="pl_url" placeholder="Google Maps link (optional — auto-generated from name if blank)">
+      <div class="plrow1">
+        <input id="pl_jpy" type="number" min="0" placeholder="¥ cost (optional)">
+        <select id="pl_card"><option value="">Card?</option>${EXP_CARDS.map(cd=>`<option>${cd}</option>`).join('')}</select>
+        <button class="pladd" id="pl_btn" type="button" onclick="savePlan('${c.id}')">+ Add</button>
+      </div>
+      <div class="plhint">A ¥ amount auto-logs this on the Expenses tab and stays in sync; clearing it removes the expense.</div>
+    </div>
+    ${listHTML}
+  </div>`;
+}
+function syncPlanExpense(p){
+  overrides.expenses=overrides.expenses||[];
+  const i=overrides.expenses.findIndex(e=>e.pid===p.id);
+  if(!p.jpy){ if(i>-1)overrides.expenses.splice(i,1); return; }
+  const usdVal=Number((Number(p.jpy)/liveJpyRate).toFixed(2));
+  const card=p.card||'AMEX Platinum';
+  const prev=i>-1?overrides.expenses[i]:null;
+  const prevPaid=prev?(prev.paidUsd!==undefined?Number(prev.paidUsd):(prev.paid?Number(prev.usd):0)):0;
+  const paidUsd=card==='Cash'?usdVal:Math.min(prevPaid,usdVal);
+  const exp={pid:p.id,date:'2026-'+p.d.replace('/','-'),usd:usdVal.toFixed(2),cat:PLAN_CAT_TO_EXP[p.cat]||'Other',card,desc:p.name,paidUsd,paid:paidUsd>=usdVal-0.005};
+  if(i>-1)overrides.expenses[i]=exp;else overrides.expenses.push(exp);
+}
+window.savePlan=function(cid){
+  const g=id=>document.getElementById(id);
+  const name=g('pl_name').value.trim();
+  if(!name){g('pl_name').focus();return;}
+  overrides.plans=overrides.plans||[];
+  let p;
+  if(window._editPid){
+    p=overrides.plans.find(x=>x.id===window._editPid);
+    window._editPid=null;
+    if(!p){p={id:'p'+Date.now()};overrides.plans.push(p);}
+  }else{
+    p={id:'p'+Date.now()};
+    overrides.plans.push(p);
+  }
+  Object.assign(p,{city:cid,d:g('pl_date').value,t:g('pl_time').value,cat:g('pl_cat').value,name,
+    url:g('pl_url').value.trim(),jpy:g('pl_jpy').value?Number(g('pl_jpy').value):'',card:g('pl_card').value,done:p.done||false});
+  syncPlanExpense(p);
+  saveOverrides();
+  refreshPanel();
+};
+window.delPlan=function(id){
+  if(!confirm('Remove this plan item? Its linked expense (if any) is removed too.'))return;
+  overrides.plans=(overrides.plans||[]).filter(x=>x.id!==id);
+  const i=(overrides.expenses||[]).findIndex(e=>e.pid===id);
+  if(i>-1)overrides.expenses.splice(i,1);
+  saveOverrides();
+  refreshPanel();
+};
+window.togglePlanDone=function(id,v){
+  const p=(overrides.plans||[]).find(x=>x.id===id);
+  if(p){p.done=v;saveOverrides();refreshPanel();}
+};
+window.editPlan=function(id){
+  const p=(overrides.plans||[]).find(x=>x.id===id);
+  if(!p)return;
+  if(!CITIES[ci].stops||CITIES[ci].id!==p.city){
+    ci=CITIES.findIndex(c=>c.id===p.city);
+    render();
+  }
+  window._editPid=id;
+  const g=i=>document.getElementById(i);
+  g('pl_date').value=p.d;g('pl_time').value=p.t||'';g('pl_cat').value=p.cat;
+  g('pl_name').value=p.name;g('pl_url').value=p.url||'';g('pl_jpy').value=p.jpy||'';g('pl_card').value=p.card||'';
+  g('pl_btn').textContent='✓ Update';
+  g('pl_btn').style.background='var(--moss)';
+  g('plform').scrollIntoView({behavior:'smooth',block:'center'});
+};
+
 function renderSide(c){
   const hotel=HOTELS[c.hotel];
   const total=c.stops.reduce((a,s)=>a+Number(eff(s).jpy),0);
   const spent=c.stops.reduce((a,s)=>a+(Number(eff(s).actualJpy)||0),0);
   const visPois=c.pois.map((p,i)=>({...p,i})).filter(p=>cat==='all'||p.c===cat);
   document.getElementById('side').innerHTML=`
+    ${renderPlansCard(c)}
     <div class="card"><div class="chead"><span>Meals</span><span>Plan ¥${total.toLocaleString()}${spent?` · Spent ¥${spent.toLocaleString()}`:''}</span></div>${c.stops.map(mealCard).join('')}</div>
     <div class="card"><div class="chead"><span>Getting there & away</span></div>
       ${c.legs.map(l=>`<div class="leg"><div class="lr">${l.r}</div><div class="lm">${l.m}</div><div class="note">${l.n}</div></div>`).join('')}</div>
@@ -970,7 +1110,7 @@ function renderExpenses() {
   const foodPct  = mealBudgetUsd>0 ? Math.min(100,(foodSpentUsd/mealBudgetUsd)*100) : 0;
   const foodOver = foodSpentUsd > mealBudgetUsd;
   
-  const cats = ["Food", "POI & Cafe", "Shinkansen", "Hotel", "Flight", "Omiyage"];
+  const cats = ["Food", "POI & Cafe", "Shinkansen", "Transit", "Hotel", "Flight", "Omiyage", "Other"];
   const cards = ["AMEX Platinum", "AMEX Gold", "AMEX Bonvoy Brilliant", "Capital One Venture X", "United Quest", "Cash"];
 
   // Calculate summaries
@@ -1144,6 +1284,7 @@ function renderExpenses() {
     if (idx !== "") { // We are UPDATING an existing expense
       const prev = overrides.expenses[idx];
       if (prev.mid !== undefined) newExp.mid = prev.mid;                    // keep meal link
+      if (prev.pid !== undefined) newExp.pid = prev.pid;                    // keep day-plan link
       const prevPaid = prev.paidUsd !== undefined ? Number(prev.paidUsd) : (prev.paid ? Number(prev.usd) : 0);
       newExp.paidUsd = newExp.card === 'Cash' ? Number(newExp.usd) : Math.min(prevPaid, Number(newExp.usd));
       overrides.expenses[idx] = newExp;
@@ -1242,6 +1383,11 @@ function renderToday(){
     meals.sort((a,b)=>(order[a.m]??9)-(order[b.m]??9));
     html+=`<div class="card"><div class="chead"><span>Today's meals</span></div>`+
       (meals.map(x=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${x.id}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span> <span class="tag ${x.res}">${RES_LABEL[x.res]||x.res}</span>${x.pay==='cash'?'<span class="tag cash">💴 cash</span>':''}<span class="td-meta">${x.m} · ${x.dish} · ${x.hrs} · ${x.area}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}${x.note?`<span class="td-note">${esc(x.note)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">No planned meals today — graze free.</div>')+`</div>`;
+    const dayPlans=(overrides.plans||[]).filter(p=>p.d==='11/'+day).sort((a,b)=>(a.t||'99:99').localeCompare(b.t||'99:99'));
+    if(dayPlans.length){
+      html+=`<div class="card"><div class="chead"><span>Today's plan</span><span>${dayPlans.filter(p=>p.done).length}/${dayPlans.length} done</span></div>`+
+        dayPlans.map(p=>{const pc=CITIES.find(c=>c.id===p.city);return planRow(p,pc?pc.city:'',true);}).join('')+`</div>`;
+    }
     const fl=FLIGHTS.filter(f=>f.d.includes('Nov '+day));
     const tr=TRAINS.filter(x=>x.d==='Nov '+day);
     if(fl.length||tr.length){

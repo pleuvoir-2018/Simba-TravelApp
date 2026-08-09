@@ -46,6 +46,15 @@ and the local weather. After the trip, a welcome-home card with total spend.
   hotel card, and a live weather strip (Open-Meteo) that shows your actual
   trip dates once they enter the 16-day forecast window.
 
+**Day plans** — a per-city daily itinerary builder at the top of every city
+tab. Each item has a date, approximate time, category (sightseeing / cafe /
+food / shopping / transit / other), a name, an optional Google Maps link
+(auto-generated from the name if blank), and an optional ¥ cost with card.
+Items can be added, edited, removed, and checked off freely; they group by
+day, sort by time, sync to the cloud, and surface on the Today view. A ¥
+amount auto-logs a linked expense on the Expenses tab (kept in sync via a
+`pid` back-reference; clearing the amount or deleting the item removes it).
+
 **Flights / Rail** — flight and Shinkansen legs with timing notes and warnings.
 
 **Vault** — free-text confirmation numbers / seat assignments for every
@@ -113,6 +122,15 @@ overrides = {
     mid: 12,            // present only when linked to a meal card
     paidUsd: 20,        // partial-payment amount — source of truth
     paid: false         // legacy boolean, kept in sync for back-compat
+  }],
+
+  // day plans, per city
+  plans: [{
+    id: "p17234...", city: "kyoto", d: "11/22", t: "10:30",
+    cat: "sight",             // sight|cafe|food|shop|transit|other
+    name: "Eikan-do", url: "https://maps.app.goo.gl/...",
+    jpy: 1200, card: "Cash",  // optional — auto-syncs to expenses via pid
+    done: false
   }]
 }
 ```

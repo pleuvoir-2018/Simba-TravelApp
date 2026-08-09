@@ -1058,7 +1058,40 @@ function vaultRow(key,label,sub){
   </div>`;
 }
 
+/* ---------------- PRIVACY LOCK (casual, not real security) ---------------- */
+window._privUnlocked=false;
+window._lockRetry=false;
+function renderLock(){
+  panel.innerHTML=`<div class="card" style="max-width:420px;margin:60px auto 0;">
+    <div class="chead"><span>🔒 Private tab</span></div>
+    <div style="padding:18px 16px;">
+      <div style="font-size:13px;color:var(--grey);margin-bottom:12px;">Expenses & Vault are passcode-locked. Enter it to view — everything else is open.</div>
+      <div style="display:flex;gap:8px;">
+        <input id="lockPw" type="password" placeholder="Passcode" autocomplete="off"
+          style="flex:1;min-width:0;font:14px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:8px 10px;background:#fff;"
+          onkeydown="if(event.key==='Enter')tryUnlock()">
+        <button class="pladd" type="button" onclick="tryUnlock()">Unlock</button>
+      </div>
+      ${window._lockRetry?'<div style="font:600 10px var(--mono);color:var(--clay);margin-top:10px;letter-spacing:.05em;">WRONG PASSCODE — TRY AGAIN</div>':''}
+      <div style="font:9px var(--mono);color:var(--grey);margin-top:12px;">Re-locks on page refresh.</div>
+    </div></div>`;
+  const el=document.getElementById('lockPw');
+  if(el)el.focus();
+}
+window.tryUnlock=function(){
+  const v=(document.getElementById('lockPw')||{value:''}).value;
+  if(v==='SIMBA1218'){
+    window._privUnlocked=true;
+    window._lockRetry=false;
+    render();
+  }else{
+    window._lockRetry=true;
+    renderLock();
+  }
+};
+
 function renderVault(){
+  if(!window._privUnlocked){renderLock();return;}
   const meals=CITIES.filter(c=>c.stops).flatMap(c=>c.stops.map(s=>({...s,cityName:c.city})));
   const sec=t=>`<div style="font:600 10px var(--mono);color:var(--indigo);text-transform:uppercase;margin:14px 0 4px;">${t}</div>`;
   panel.innerHTML=`<div class="card" style="max-width:850px;margin:0 auto;">
@@ -1093,6 +1126,7 @@ function renderVault(){
 }
 
 function renderExpenses() {
+  if(!window._privUnlocked){renderLock();return;}
   const exps = overrides.expenses || [];
 
   // Partial-payment helpers: paidUsd (number) is the source of truth; legacy boolean `paid` still honored

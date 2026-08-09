@@ -52,8 +52,11 @@ food / shopping / transit / other), a name, an optional Google Maps link
 (auto-generated from the name if blank), and an optional ¥ cost with card.
 Items can be added, edited, removed, and checked off freely; they group by
 day, sort by time, sync to the cloud, and surface on the Today view. A ¥
-amount auto-logs a linked expense on the Expenses tab (kept in sync via a
-`pid` back-reference; clearing the amount or deleting the item removes it).
+amount logs a linked **planned estimate** on the Expenses tab (via a `pid`
+back-reference) that is excluded from all totals; once actually paid, edit
+the amount to the real figure and hit "✓ Make actual" — from then on the
+plan item can't overwrite the recorded amount. Clearing ¥ or deleting the
+item removes the expense.
 
 **Flights / Rail** — flight and Shinkansen legs with timing notes and warnings.
 
@@ -66,6 +69,9 @@ flight, train, hotel, and restaurant. Saves on change, syncs to cloud.
 - **partial payments**: each expense has a `Paid $` field; the checkbox is
   a shortcut for "fully paid", cash is auto-settled, and the By Card summary
   splits PAID / UNPAID by the partial amounts,
+- **planned vs. actual**: any expense can be flagged Planned (day-plan
+  estimates start that way automatically); planned items live in their own
+  amber section, count toward nothing, and promote to actual with one tap,
 - a food budget vs. actual bar (planned-meal total at the live FX rate vs.
   logged Food + POI & Cafe spend),
 - JPY→USD entry at the live rate, edit/delete, and automatic linkage from

@@ -862,7 +862,9 @@ function refreshPanel(){
   else{render();}
 }
 function planRow(p,cityName,showCity){
-  const jpyLine=p.jpy?`<span class="pl-jpy">¥${Number(p.jpy).toLocaleString()}${p.card?' · '+esc(p.card):''} · on Expenses tab</span>`:'';
+  const linked=(overrides.expenses||[]).find(e=>e.pid===p.id);
+  const expTag=linked?(linked.planned===false?'✓ actual on Expenses':'planned est. on Expenses'):'on Expenses tab';
+  const jpyLine=p.jpy?`<span class="pl-jpy">¥${Number(p.jpy).toLocaleString()}${p.card?' · '+esc(p.card):''} · ${expTag}</span>`:'';
   return `<div class="pl-row ${p.done?'done':''}">
     <input type="checkbox" ${p.done?'checked':''} onchange="togglePlanDone('${p.id}',this.checked)" title="Done">
     <span class="pl-time">${p.t||'—'}</span>
@@ -894,7 +896,7 @@ function renderPlansCard(c){
         <select id="pl_card"><option value="">Card?</option>${EXP_CARDS.map(cd=>`<option>${cd}</option>`).join('')}</select>
         <button class="pladd" id="pl_btn" type="button" onclick="savePlan('${c.id}')">+ Add</button>
       </div>
-      <div class="plhint">A ¥ amount auto-logs this on the Expenses tab and stays in sync; clearing it removes the expense.</div>
+      <div class="plhint">A ¥ amount logs a PLANNED estimate on the Expenses tab — not counted in totals until you mark it actual there (after fixing the real amount). Clearing ¥ removes it.</div>
     </div>
     ${listHTML}
   </div>`;
@@ -903,12 +905,16 @@ function syncPlanExpense(p){
   overrides.expenses=overrides.expenses||[];
   const i=overrides.expenses.findIndex(e=>e.pid===p.id);
   if(!p.jpy){ if(i>-1)overrides.expenses.splice(i,1); return; }
+  const prev=i>-1?overrides.expenses[i]:null;
+  if(prev && prev.planned===false){
+    // Already confirmed actual — keep the recorded amount & payment state,
+    // refresh only the identity fields from the plan item.
+    Object.assign(prev,{date:'2026-'+p.d.replace('/','-'),cat:PLAN_CAT_TO_EXP[p.cat]||'Other',desc:p.name});
+    return;
+  }
   const usdVal=Number((Number(p.jpy)/liveJpyRate).toFixed(2));
   const card=p.card||'AMEX Platinum';
-  const prev=i>-1?overrides.expenses[i]:null;
-  const prevPaid=prev?(prev.paidUsd!==undefined?Number(prev.paidUsd):(prev.paid?Number(prev.usd):0)):0;
-  const paidUsd=card==='Cash'?usdVal:Math.min(prevPaid,usdVal);
-  const exp={pid:p.id,date:'2026-'+p.d.replace('/','-'),usd:usdVal.toFixed(2),cat:PLAN_CAT_TO_EXP[p.cat]||'Other',card,desc:p.name,paidUsd,paid:paidUsd>=usdVal-0.005};
+  const exp={pid:p.id,date:'2026-'+p.d.replace('/','-'),usd:usdVal.toFixed(2),cat:PLAN_CAT_TO_EXP[p.cat]||'Other',card,desc:p.name,planned:true,paidUsd:0,paid:false};
   if(i>-1)overrides.expenses[i]=exp;else overrides.expenses.push(exp);
 }
 window.savePlan=function(cid){
@@ -1096,8 +1102,13 @@ function renderExpenses() {
   };
   const isFullyPaid = e => paidAmt(e) >= Number(e.usd) - 0.005;
 
-  const total = exps.reduce((sum, e) => sum + Number(e.usd), 0);
-  const totalPaid = exps.reduce((sum, e) => sum + paidAmt(e), 0);
+  const isPlanned = e => e.planned === true;
+  const actuals = exps.filter(e => !isPlanned(e));
+  const plannedExps = exps.filter(isPlanned);
+  const plannedTotal = plannedExps.reduce((s, e) => s + Number(e.usd), 0);
+
+  const total = actuals.reduce((sum, e) => sum + Number(e.usd), 0);
+  const totalPaid = actuals.reduce((sum, e) => sum + paidAmt(e), 0);
   const totalUnpaid = Math.max(0, total - totalPaid);
   const paidPct = total > 0 ? Math.min(100, (totalPaid / total) * 100) : 0;
 
@@ -1105,7 +1116,7 @@ function renderExpenses() {
   const mealBudgetJpy = CITIES.filter(c=>c.stops).flatMap(c=>c.stops)
       .reduce((a,s)=>a+Number(eff(s).jpy),0);
   const mealBudgetUsd = mealBudgetJpy / liveJpyRate;
-  const foodSpentUsd  = exps.filter(e=>e.cat==="Food"||e.cat==="POI & Cafe")
+  const foodSpentUsd  = actuals.filter(e=>e.cat==="Food"||e.cat==="POI & Cafe")
       .reduce((a,e)=>a+Number(e.usd),0);
   const foodPct  = mealBudgetUsd>0 ? Math.min(100,(foodSpentUsd/mealBudgetUsd)*100) : 0;
   const foodOver = foodSpentUsd > mealBudgetUsd;
@@ -1119,7 +1130,7 @@ function renderExpenses() {
   const cardTotals = {};
   cards.forEach(c => cardTotals[c] = { paid: 0, unpaid: 0, total: 0 });
 
-  exps.forEach(e => {
+  actuals.forEach(e => {
     const amt = Number(e.usd);
     if(catTotals[e.cat] !== undefined) catTotals[e.cat] += amt;
     if(cardTotals[e.card] !== undefined) {
@@ -1131,7 +1142,7 @@ function renderExpenses() {
   });
 
   panel.innerHTML = `<div class="card" style="max-width:850px; margin: 0 auto;">
-    <div class="chead"><span>Expense Tracker</span><span>Total: $${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span></div>
+    <div class="chead"><span>Expense Tracker</span><span>Total: $${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}${plannedTotal>0.005?` · +$${plannedTotal.toLocaleString('en-US',{minimumFractionDigits:2})} planned`:''}</span></div>
 
     <div style="padding:12px 16px; border-bottom:1px solid var(--rule);">
       <div style="display:flex; justify-content:space-between; font:600 10px var(--mono); text-transform:uppercase; margin-bottom:6px;">
@@ -1217,39 +1228,60 @@ function renderExpenses() {
           <input type="text" id="exDesc" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="e.g., Cat collars for Simba & Ahri">
         </label>
         
+        <label style="flex:0 0 auto; font:600 10px var(--mono); color:#B08A1F; text-transform:uppercase; display:flex; align-items:center; gap:5px; height:30px; cursor:pointer;">
+          <input type="checkbox" id="exPlanned" style="width:14px; height:14px; accent-color:#B08A1F;"> Planned
+        </label>
+
         <button id="expSubmitBtn" type="submit" style="font:600 11px var(--mono); text-transform:uppercase; letter-spacing:0.08em; background:var(--clay); color:#fff; border:none; padding:7px 14px; border-radius:2px; cursor:pointer; height:30px; transition: background 0.2s;">+ Add</button>
       </form>
 
       <div>
         ${exps.length === 0 ? '<div class="note">No expenses logged yet.</div>' : ''}
-        ${exps.slice().reverse().map((e, revIdx) => {
-          const i = exps.length - 1 - revIdx; // Real array index
-          const amt = Number(e.usd), p = paidAmt(e);
-          const full = isFullyPaid(e), partial = p > 0.005 && !full;
-          return `
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dotted var(--rule); padding:10px 0; ${full ? 'opacity:0.6;' : ''}">
-            <div style="display:flex; align-items:center; gap:12px;">
-              <input type="checkbox" ${full ? 'checked' : ''} onchange="togglePaid(${i}, this.checked)" title="Mark fully paid" style="width:16px; height:16px; accent-color:var(--moss); cursor:pointer;">
-              <div>
-                <div style="font-family:var(--serif); font-size:15px; font-weight:700; color:var(--ink); ${full ? 'text-decoration:line-through;' : ''}">${esc(e.desc)}</div>
-                <div style="font-family:var(--mono); font-size:9.5px; color:var(--grey); margin-top:2px; text-transform:uppercase;">${e.date} · ${e.cat} · ${e.card}</div>
-                ${partial ? `<div style="font:600 9.5px var(--mono); color:var(--clay); margin-top:2px;">PARTIAL · $${p.toFixed(2)} PAID · $${(amt - p).toFixed(2)} LEFT</div>` : ''}
+        ${(() => {
+          const expRow = (e, i) => {
+            const amt = Number(e.usd), p = paidAmt(e);
+            const planned = isPlanned(e);
+            const full = !planned && isFullyPaid(e), partial = !planned && p > 0.005 && !full;
+            return `
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px dotted var(--rule); padding:10px 0; ${full ? 'opacity:0.6;' : ''}">
+              <div style="display:flex; align-items:center; gap:12px;">
+                ${planned
+                  ? `<span title="Planned estimate" style="width:16px; text-align:center; color:#B08A1F; font-size:13px;">◔</span>`
+                  : `<input type="checkbox" ${full ? 'checked' : ''} onchange="togglePaid(${i}, this.checked)" title="Mark fully paid" style="width:16px; height:16px; accent-color:var(--moss); cursor:pointer;">`}
+                <div>
+                  <div style="font-family:var(--serif); font-size:15px; font-weight:700; color:var(--ink); ${full ? 'text-decoration:line-through;' : ''}">${esc(e.desc)}</div>
+                  <div style="font-family:var(--mono); font-size:9.5px; color:var(--grey); margin-top:2px; text-transform:uppercase;">${e.date} · ${e.cat} · ${e.card}${e.pid?' · from day plan':''}${e.mid?' · from meal':''}</div>
+                  ${partial ? `<div style="font:600 9.5px var(--mono); color:var(--clay); margin-top:2px;">PARTIAL · $${p.toFixed(2)} PAID · $${(amt - p).toFixed(2)} LEFT</div>` : ''}
+                  ${planned ? `<div style="font:600 9.5px var(--mono); color:#B08A1F; margin-top:2px;">PLANNED ESTIMATE — not in totals</div>` : ''}
+                </div>
               </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-              <label style="font:600 8.5px var(--mono); color:var(--grey); text-transform:uppercase; text-align:right;">Paid $<br>
-                <input type="number" step="0.01" min="0" max="${amt}" value="${p > 0.005 ? p.toFixed(2) : ''}" placeholder="0"
-                  onchange="setPaidAmt(${i}, this.value)"
-                  style="width:72px; font:12px var(--mono); border:1px solid var(--rule); border-radius:2px; padding:3px 5px; text-align:right; background:#fff; margin-top:2px;">
-              </label>
-              <div style="font-family:var(--mono); font-weight:700; color:var(--indigo); font-size:14px;">$${amt.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-              <div style="display:flex; gap:6px;">
-                <button onclick="editExp(${i})" title="Edit" style="background:none; border:none; color:var(--indigo); cursor:pointer; font-size:14px; padding:0 4px;">✎</button>
-                <button onclick="deleteExp(${i})" title="Delete" style="background:none; border:none; color:var(--clay); cursor:pointer; font-size:18px; line-height:1; padding:0 4px;">×</button>
+              <div style="display:flex; align-items:center; gap:12px;">
+                ${planned
+                  ? `<button onclick="setExpPlanned(${i}, false)" style="font:600 9px var(--mono); letter-spacing:.05em; text-transform:uppercase; border:1.5px solid var(--moss); background:none; color:var(--moss); border-radius:2px; padding:5px 8px; cursor:pointer;">✓ Make actual</button>`
+                  : `<label style="font:600 8.5px var(--mono); color:var(--grey); text-transform:uppercase; text-align:right;">Paid $<br>
+                      <input type="number" step="0.01" min="0" max="${amt}" value="${p > 0.005 ? p.toFixed(2) : ''}" placeholder="0"
+                        onchange="setPaidAmt(${i}, this.value)"
+                        style="width:72px; font:12px var(--mono); border:1px solid var(--rule); border-radius:2px; padding:3px 5px; text-align:right; background:#fff; margin-top:2px;">
+                    </label>`}
+                <div style="font-family:var(--mono); font-weight:700; color:${planned?'#B08A1F':'var(--indigo)'}; font-size:14px;">$${amt.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+                <div style="display:flex; gap:6px;">
+                  <button onclick="editExp(${i})" title="Edit" style="background:none; border:none; color:var(--indigo); cursor:pointer; font-size:14px; padding:0 4px;">✎</button>
+                  <button onclick="deleteExp(${i})" title="Delete" style="background:none; border:none; color:var(--clay); cursor:pointer; font-size:18px; line-height:1; padding:0 4px;">×</button>
+                </div>
               </div>
+            </div>`;
+          };
+          const idxed = exps.map((e,i)=>({e,i}));
+          const actualRows = idxed.filter(x=>!isPlanned(x.e)).reverse().map(x=>expRow(x.e,x.i)).join('');
+          const plannedRows = idxed.filter(x=>isPlanned(x.e)).reverse().map(x=>expRow(x.e,x.i)).join('');
+          return actualRows + (plannedRows ? `
+            <div style="margin-top:18px; padding:8px 0 4px; border-top:2px solid var(--rule); display:flex; justify-content:space-between; font:600 10px var(--mono); letter-spacing:.1em; text-transform:uppercase;">
+              <span style="color:#B08A1F;">◔ Planned expenses — estimates</span>
+              <span style="color:#B08A1F;">$${plannedTotal.toLocaleString('en-US',{minimumFractionDigits:2})}</span>
             </div>
-          </div>
-        `}).join('')}
+            <div style="font:9px var(--mono); color:var(--grey); margin-bottom:4px;">Not counted in totals, categories, cards, or the budget bar. Edit the amount to the real figure, then hit "✓ Make actual" once paid.</div>
+            ${plannedRows}` : '');
+        })()}
       </div>
     </div>
   </div>`;
@@ -1278,7 +1310,8 @@ function renderExpenses() {
       usd: document.getElementById('exUsd').value,
       cat: document.getElementById('exCat').value,
       card: document.getElementById('exCard').value,
-      desc: document.getElementById('exDesc').value
+      desc: document.getElementById('exDesc').value,
+      planned: document.getElementById('exPlanned').checked
     };
 
     if (idx !== "") { // We are UPDATING an existing expense
@@ -1293,6 +1326,7 @@ function renderExpenses() {
       newExp.paidUsd = newExp.card === 'Cash' ? Number(newExp.usd) : 0;   // cash = settled instantly
       overrides.expenses.push(newExp);
     }
+    if (newExp.planned) { newExp.paidUsd = 0; }
     newExp.paid = newExp.paidUsd >= Number(newExp.usd) - 0.005;
 
     saveOverrides();
@@ -1326,6 +1360,15 @@ window.setPaidAmt = function(idx, val) {
   renderExpenses();
 };
 
+window.setExpPlanned = function(idx, planned) {
+  const e = overrides.expenses[idx];
+  e.planned = planned === true;
+  if (e.planned) { e.paidUsd = 0; e.paid = false; }
+  else if (e.card === 'Cash') { e.paidUsd = Number(e.usd); e.paid = true; }
+  saveOverrides();
+  renderExpenses();
+};
+
 window.editExp = function(idx) {
   const e = overrides.expenses[idx];
   document.getElementById('exDate').value = e.date;
@@ -1334,6 +1377,7 @@ window.editExp = function(idx) {
   document.getElementById('exCat').value = e.cat;
   document.getElementById('exCard').value = e.card;
   document.getElementById('exDesc').value = e.desc;
+  document.getElementById('exPlanned').checked = e.planned === true;
 
   // Change UI to "Update" mode
   const form = document.getElementById('expForm');

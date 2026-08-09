@@ -75,8 +75,12 @@
   }
   .grid{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;align-items:start}
   @media(max-width:840px){.grid{grid-template-columns:1fr}}
-  .mapcard{border:1px solid var(--rule);border-radius:2px;background:var(--washi2);overflow:hidden;position:sticky;top:12px;z-index:1}
-  @media(max-width:840px){.mapcard{position:static}}
+  .mapcard{border:1px solid var(--rule);border-radius:2px;background:var(--washi2);overflow:hidden}
+  /* Desktop: map + reference cards share the left column. Below 840px #sideleft
+     stays empty and every card renders in #side in its original order. */
+  .col-left{display:flex;flex-direction:column;gap:18px;min-width:0}
+  #sideleft{display:flex;flex-direction:column;gap:18px}
+  #sideleft:empty{display:none}
   .maphead{padding:8px 12px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;background:var(--washi)}
   .maphead h2{font-family:var(--serif);font-size:16px}
   .poitoggle{font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--moss);color:var(--moss);background:none;padding:5px 10px;border-radius:2px;cursor:pointer}
@@ -965,6 +969,20 @@ window.editPlan=function(id){
   g('plform').scrollIntoView({behavior:'smooth',block:'center'});
 };
 
+/* Wide screens: move the reference cards (hotel, weather, getting around) into
+   the left column under the map. Narrow screens leave the DOM exactly as built,
+   so the mobile stack is unchanged. */
+const LC_MQ=window.matchMedia('(min-width:841px)');
+function placeLeftCards(){
+  const left=document.getElementById('sideleft'),side=document.getElementById('side');
+  if(!left||!side||!LC_MQ.matches)return;
+  ['.js-lc-hotel','.js-lc-wx','.js-lc-metro'].forEach(sel=>{
+    const el=side.querySelector(sel);
+    if(el)left.appendChild(el);
+  });
+}
+if(LC_MQ.addEventListener)LC_MQ.addEventListener('change',()=>render());
+
 function renderSide(c){
   const hotel=HOTELS[c.hotel];
   const total=c.stops.reduce((a,s)=>a+Number(eff(s).jpy),0);
@@ -975,16 +993,16 @@ function renderSide(c){
     <div class="card"><div class="chead"><span>Meals</span><span>Plan ¥${total.toLocaleString()}${spent?` · Spent ¥${spent.toLocaleString()}`:''}</span></div>${c.stops.map(mealCard).join('')}</div>
     <div class="card"><div class="chead"><span>Getting there & away</span></div>
       ${c.legs.map(l=>`<div class="leg"><div class="lr">${l.r}</div><div class="lm">${l.m}</div><div class="note">${l.n}</div></div>`).join('')}</div>
-    <div class="card"><div class="chead"><span>Weather · ${c.city}</span></div>
+    <div class="card js-lc-wx"><div class="chead"><span>Weather · ${c.city}</span></div>
       <div id="wxbody" style="padding:10px 12px;"><div class="note">Loading forecast…</div></div></div>
-    <div class="card hotel-card"><div class="chead"><span>Hotel</span></div><dl>
+    <div class="card hotel-card js-lc-hotel"><div class="chead"><span>Hotel</span></div><dl>
       <dt>Name</dt><dd><b>${hotel.n}</b></dd>
       <dt>Address</dt><dd>${hotel.addr}</dd>
       <dt>Nearest station</dt><dd>${hotel.stn}</dd>
       <dt>Phone</dt><dd><a href="tel:${hotel.tel.replace(/[^+\d]/g,'')}">${hotel.tel}</a></dd>
       <dt>Email</dt><dd>${hotel.mail.includes('@')?`<a href="mailto:${hotel.mail}">${hotel.mail}</a>`:hotel.mail}</dd>
       <dt>Note</dt><dd>${hotel.note}</dd></dl></div>
-    <div class="card"><div class="chead"><span>Getting around</span></div>
+    <div class="card js-lc-metro"><div class="chead"><span>Getting around</span></div>
       <div class="metro">${c.metro.map(m=>`<div class="row"><b>${m[0]}</b><br>${m[1]}</div>`).join('')}</div></div>
     <div class="card"><div class="chead"><span>While you're there</span><span>◆ on map</span></div>
       <div class="chips">
@@ -993,6 +1011,8 @@ function renderSide(c){
       </div>
       <div class="poi-list">${visPois.map(p=>`<div class="prow ${selPoi===p.i?'on':''}" data-poi="${p.i}">
         <span class="icon">${p.ic}</span><span><b>${p.n}</b> — ${p.d} <span class="anchor">· near ${p.a}</span></span></div>`).join('')||'<div style="padding:8px 0;font-size:12px;color:var(--grey)">Nothing in this category here.</div>'}</div></div>`;
+
+  placeLeftCards();
 
   document.querySelectorAll('.chip').forEach(ch=>ch.onclick=()=>{cat=ch.dataset.cat;selPoi=null;render();});
   document.querySelectorAll('.prow').forEach(el=>el.onclick=()=>{
@@ -1646,9 +1666,11 @@ function render(){
     return;
   }
   panel.innerHTML=`<div class="grid">
+    <div class="col-left">
     <div class="mapcard"><div class="maphead"><h2>${c.city}</h2>
       <button class="poitoggle ${showPoi?'on':''}" id="poiT" type="button">◆ POI ${showPoi?'on':'off'}</button></div>
       <div id="map"></div></div>
+    <div class="stack" id="sideleft"></div></div>
     <div class="stack" id="side"></div></div>`;
   document.getElementById('poiT').onclick=()=>{showPoi=!showPoi;selPoi=null;render();};
   buildMap(c);

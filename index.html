@@ -386,7 +386,7 @@ const CITIES=[
   {c:"shop",ic:"🛍",n:"Shinsaibashi-suji arcade",d:"end-to-end covered shopping",a:"Ondoriya",lat:34.6717,lng:135.5012},
   {c:"shop",ic:"👕",n:"Amerikamura",d:"vintage & streetwear grid",a:"Ondoriya",lat:34.6726,lng:135.4980},
   {c:"shop",ic:"🕹",n:"Den Den Town",d:"Osaka's Akihabara, near Kuromon",a:"Sanpei",lat:34.6602,lng:135.5062},
-  {c:"shop",ic:"🔪",n:"Sennichimae Dōguyasuji",d:"kitchenware arcade — knives, takoyaki pans, food-sample magnets",a:"Sanpei",lat:34.6647,lng:135.5051},
+  {c:"shop",ic:"🔪",n:"Sennichimae Dōguyasuji",q:"千日前道具屋筋商店街",d:"THE 11/22 afternoon — kitchenware arcade, knives, takoyaki pans, food-sample magnets · 10:00–18:00, ~150 m, not every shop is tax-free",a:"Sanpei",lat:34.6640,lng:135.5035},
   {c:"gift",ic:"🥨",n:"Bâton d'or",d:"The 'Hermès of Pocky', upscale snacks",a:"Hankyu Umeda",lat:34.7029,lng:135.4984},
   {c:"gift",ic:"🥟",n:"551 Hōrai (Tennōji)",d:"steamed pork buns in your own station — buy for the 11/24 Shinkansen",a:"hotel",lat:34.6465,lng:135.5133},
   {c:"gift",ic:"🍮",n:"Rikuro Ojisan (Namba honten)",d:"the jiggly cheesecake, stamped fresh out of the oven",a:"Sanpei",lat:34.6656,lng:135.5010},
@@ -395,22 +395,26 @@ const CITIES=[
   {c:"conv",ic:"🏪",n:"Lawson (Q's Mall side)",d:"across the crossing, 24h",a:"hotel",lat:34.6455,lng:135.5105}],
  stops:[
   {id:9,d:"11/21 Sat",m:"Dinner",name:"Ondoriya",dish:"Yakitori",hrs:"18:00–03:00 daily",res:"ok",jpy:7500,lat:34.6732,lng:135.5034,area:"Shinsaibashi",note:"Aoniyoshi lands 18:12 → bags at the Miyako → aim ~19:30. Open to 03:00, zero pressure."},
-  {id:10,d:"11/22 Sun",m:"Dinner",name:"Okonomiyaki Houzenji Sanpei",dish:"Okonomiyaki",hrs:"Sun 17:00–23:00 · closed Tue",res:"ok",jpy:7500,lat:34.6682,lng:135.5027,area:"Dōtonbori alley",note:"Back from Kyoto for this."}]},
+  {id:21,d:"11/22 Sun",m:"Lunch",name:"Gyukatsu Kyoto Katsugyu",q:"牛カツ京都勝牛 あべの新宿ごちそうビル店",dish:"Beef katsu — grill it yourself",
+   hrs:"11:00–22:00 daily (LO 21:30)",res:"walk",jpy:5000,lat:34.6459,lng:135.5151,area:"Shinjuku Gochiso Bldg 1F, next to Harukas",
+   note:"2 min from the Miyako — rice, cabbage & miso are free refills. Six sauces; the tongue katsu is the standout.",warn:"Counter-heavy and very popular — arrive by 11:15 or expect a queue."},
+  {id:10,d:"11/22 Sun",m:"Dinner",name:"Okonomiyaki Houzenji Sanpei",dish:"Okonomiyaki",hrs:"Sun 17:00–23:00 · closed Tue",res:"ok",jpy:7500,lat:34.6682,lng:135.5027,area:"Dōtonbori alley",note:"5 min from Dōguyasuji — end the Namba afternoon here."}]},
 
-{id:"kyoto",city:"Kyoto",sub:"11/22–11/23 · from Osaka",hotel:"miyako",
+{id:"kyoto",city:"Kyoto",sub:"11/23 · day trip from Osaka",hotel:"miyako",
  legs:[
   {r:"Fastest: Tennōji → Kyoto",m:"JR Haruka Ltd. Express ~45 min direct",n:"Reserved seat recommended in foliage season."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
   {r:"Return 11/23 after Mamecha",m:"Keihan Gion-Shijō → Tōfukuji → JR → Tennōji",n:"Trains run past midnight; a 19:30 finish is completely relaxed."}],
- metro:[["To Kiyomizu / Gion","Keihan via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Nanzen-ji (11/22)","Karasuma line → Karasuma-Oike → Tōzai line → Keage · 20 min + 8-min walk"]],
+ // 11/22 is now a full Osaka day (Katsugyu → Dōguyasuji → Sanpei) — Kyoto is 11/23 only.
+ metro:[["To Kiyomizu / Gion","Keihan via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Higashiyama on foot","Menzou (Okazaki) → Kiyomizu → Ishibei-kōji is walkable; bus 100/206 if legs give out"]],
  pois:[
- // ── sights · 11/22 Nanzen-ji day (Junsei) ──
- {c:"sight",ic:"🍁",n:"Eikan-dō night illumination",d:"Kyoto's best autumn light-up — buy night ticket on-site, expect a queue",a:"Junsei",lat:35.0146,lng:135.7937},
- {c:"sight",ic:"🚶",n:"Philosopher's Path → Ginkaku-ji",d:"the 11/22 walking spine",a:"Junsei",lat:35.0270,lng:135.7982},
- {c:"sight",ic:"🤫",n:"Hōnen-in",d:"mossy gate, almost no one goes",a:"Junsei",lat:35.0208,lng:135.7965},
- {c:"sight",ic:"🏛",n:"Murin-an",d:"Meiji villa garden — timed entry, book online ahead, tea on the veranda",a:"Junsei",lat:35.0093,lng:135.7887},
- {c:"sight",ic:"🌉",n:"Nanzen-ji Suirokaku aqueduct",d:"1888 brick aqueduct through the temple grounds — free, 2 min from Junsei",a:"Junsei",lat:35.0107,lng:135.7937},   // NEW
- {c:"sight",ic:"🍂",n:"Shinnyo-dō",d:"free foliage that rivals Eikan-dō, a fraction of the crowd — 15 min N via Kurodani",a:"Junsei",lat:35.0225,lng:135.7930},   // NEW
+ // ── sights · Okazaki / Nanzen-ji cluster — near Menzou, optional 11/23 add-ons ──
+ {c:"sight",ic:"🍁",n:"Eikan-dō night illumination",d:"Kyoto's best autumn light-up — buy night ticket on-site, expect a queue · clashes with Mamecha 17:00",a:"Menzou",lat:35.0146,lng:135.7937},
+ {c:"sight",ic:"🚶",n:"Philosopher's Path → Ginkaku-ji",d:"north of Menzou — only if you skip the Higashiyama afternoon",a:"Menzou",lat:35.0270,lng:135.7982},
+ {c:"sight",ic:"🤫",n:"Hōnen-in",d:"mossy gate, almost no one goes",a:"Menzou",lat:35.0208,lng:135.7965},
+ {c:"sight",ic:"🏛",n:"Murin-an",d:"Meiji villa garden — timed entry, book online ahead, tea on the veranda",a:"Menzou",lat:35.0093,lng:135.7887},
+ {c:"sight",ic:"🌉",n:"Nanzen-ji Suirokaku aqueduct",d:"1888 brick aqueduct through the temple grounds — free, inside Nanzen-ji",a:"Menzou",lat:35.0107,lng:135.7937},   // NEW
+ {c:"sight",ic:"🍂",n:"Shinnyo-dō",d:"free foliage that rivals Eikan-dō, a fraction of the crowd — 15 min N via Kurodani",a:"Menzou",lat:35.0225,lng:135.7930},   // NEW
  // ── sights · 11/23 Higashiyama day (Mamecha) ──
  {c:"sight",ic:"⛩",n:"Kiyomizu-dera",d:"07:00 arrival — night session exists but Kōdai-ji is the better post-dinner call",a:"Mamecha",lat:34.9949,lng:135.7850},
  {c:"sight",ic:"🏮",n:"Ninenzaka / Sannenzaka",d:"preserved lanes up to the temple",a:"Mamecha",lat:34.9986,lng:135.7807},
@@ -423,15 +427,15 @@ const CITIES=[
  {c:"sight",ic:"⛩",n:"Heian Shrine + Shin'en garden",d:"3 min from Menzou — do the paid stroll garden, not just the courtyard",a:"Menzou",lat:35.0163,lng:135.7823},   // NEW
  {c:"sight",ic:"🖼",n:"Kyoto City KYOCERA Museum of Art",d:"1933 building, 2020 renovation — between Menzou and the canal",a:"Menzou",lat:35.0125,lng:135.7845},   // NEW
  // ── sights · transfer opportunity ──
- {c:"sight",ic:"🍁",n:"Tōfuku-ji (Tsūten-kyō)",d:"THE foliage temple — on your JR↔Keihan transfer; only fits as an 11/22 arrival detour, gates ~16:00",a:"transfer",lat:34.9764,lng:135.7739},   // NEW
+ {c:"sight",ic:"🍁",n:"Tōfuku-ji (Tsūten-kyō)",d:"THE foliage temple — sits on your 11/23 Keihan transfer; gates ~16:00, so only as an early-arrival detour",a:"transfer",lat:34.9764,lng:135.7739},   // NEW
  // ── cafés ──
- {c:"cafe",ic:"☕",n:"Blue Bottle Kyoto",d:"100-yr machiya by Nanzen-ji",a:"Junsei",lat:35.0110,lng:135.7877},
+ {c:"cafe",ic:"☕",n:"Blue Bottle Kyoto",d:"100-yr machiya by Nanzen-ji",a:"Menzou",lat:35.0110,lng:135.7877},
  {c:"cafe",ic:"☕",n:"% Arabica Higashiyama",d:"under Yasaka Pagoda — before 9:00",a:"Mamecha",lat:34.9987,lng:135.7795},
  {c:"cafe",ic:"🍵",n:"Ippodo Tea Kaboku",d:"renovated 2023 tearoom, whisk-it-yourself matcha · 10:00–17:00, LO 16:00",a:"Teramachi",lat:35.0125,lng:135.7671},
  {c:"cafe",ic:"☕",n:"Weekenders Coffee Tominokōji",d:"hidden behind a parking lot; Kyoto's cult roaster",a:"Teramachi",lat:35.0058,lng:135.7654},
  {c:"cafe",ic:"🍮",n:"Kagizen Yoshifusa (Shijō honten)",d:"Edo-era Gion tea house — kuzukiri in the back room",a:"Mamecha",lat:35.0037,lng:135.7736},   // NEW
  // ── shopping ──
- {c:"shop",ic:"👜",n:"Ichizawa Shinzaburō Hanpu",d:"cult canvas bags, one shop worldwide",a:"Junsei",lat:35.0059,lng:135.7830},
+ {c:"shop",ic:"👜",n:"Ichizawa Shinzaburō Hanpu",d:"cult canvas bags, one shop worldwide",a:"Menzou",lat:35.0059,lng:135.7830},
  {c:"shop",ic:"🌺",n:"Kazurasei (Gion)",d:"camellia-oil hair & skin gifts",a:"Mamecha",lat:35.0037,lng:135.7752},
  {c:"shop",ic:"🛍",n:"Teramachi–Sanjō arcades",d:"stationery, tea, prints",a:"Ippodo",lat:35.0070,lng:135.7670},
  {c:"shop",ic:"🔪",n:"Nishiki Market + Aritsugu",d:"the kitchen street — 1560s knife maker at the west end · go before 11:00",a:"Teramachi",lat:35.0050,lng:135.7649},   // NEW
@@ -444,7 +448,6 @@ const CITIES=[
  {c:"conv",ic:"🏪",n:"Lawson Gion-Shijō",d:"by the Keihan station for the ride home",a:"Mamecha",lat:35.0037,lng:135.7745},
  {c:"conv",ic:"🏪",n:"FamilyMart Kawaramachi-Sanjō",d:"corner of the arcades, 24h",a:"Teramachi",lat:35.0089,lng:135.7687}],
  stops:[
-  {id:11,d:"11/22 Sun",m:"Lunch",name:"Junsei",dish:"Yudofu",hrs:"11:00–14:30 daily",res:"walk",jpy:10000,lat:35.0114,lng:135.7901,area:"Nanzen-ji gate"},
   {id:12,d:"11/23 Mon·hol",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
  hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",pay:"cash",
  jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck — slots open 00:00 JST on 11/20 (3 days out). CC to hold, pay cash on the day.",note:"Backup: Okakita next door, walk-in."},
@@ -1451,7 +1454,7 @@ window.editExp = function(idx) {
 };
 
 /* ---------------- TODAY VIEW ---------------- */
-const TODAY_CITY={17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'kyoto',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
+const TODAY_CITY={17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'osaka',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
 const TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function tokyoToday(){

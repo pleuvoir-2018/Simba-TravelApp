@@ -30,6 +30,14 @@
   .editbtn.on{background:var(--clay);border-color:var(--clay);color:#fff}
   .savebar{display:none;position:sticky;top:0;z-index:1200;background:var(--clay);color:#fff;padding:9px 14px;font-family:var(--mono);font-size:11px;border-radius:2px;margin-top:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
   .savebar.show{display:flex}
+  /* Save toast — visible outside edit mode, where the savebar is hidden */
+  .toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,14px);z-index:4000;
+    background:var(--indigo);color:#fff;font:600 10.5px var(--mono);letter-spacing:.06em;
+    padding:8px 15px;border-radius:3px;box-shadow:0 3px 12px rgba(20,22,27,.25);
+    opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;max-width:88vw;text-align:center}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast.ok{background:var(--moss)}
+  .toast.err{background:var(--clay)}
   .savebar button{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:2px;border:1.5px solid #fff;background:#fff;color:var(--clay);cursor:pointer;margin-left:8px}
   .savebar button.ghost{background:transparent;color:#fff}
   /* ---- App shell & collapsible left nav ---- */
@@ -273,6 +281,7 @@
     <span><button id="saveBtn">Save</button><button class="ghost" id="exportBtn">Export</button><button class="ghost" id="resetBtn">Reset all</button></span>
   </div>
   <div id="panel"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <footer>
     <div class="f-text">Edits save to this browser instantly, then sync to the cloud (Vercel Blob) a moment later — both of you see the same data on any device. Offline edits stay local and go up on the next save.</div>
 
@@ -595,17 +604,26 @@ const TRAINS=[
 const KEY='japan_trip_v2';
 let overrides={},mem=null;
 async function sGet(){
-  // 1. Try to fetch from Edge Config Cloud
+  // Read BOTH copies and keep whichever was written last (_ts). Taking the
+  // cloud copy unconditionally would discard a local edit whose upload never
+  // finished — e.g. the tab closed inside the save debounce.
+  let cloud=null, local=null;
   try {
     const res = await fetch('/api/sync');
-    if (res.ok) {
-      const data = await res.json();
-      return data.value ? JSON.stringify(data.value) : null;
-    }
+    if (res.ok) { const data = await res.json(); if (data && data.value) cloud = data.value; }
   } catch(e) { console.error('Cloud load failed, falling back to local'); }
-  
-  // 2. Fallback to local storage if offline
-  try{return localStorage.getItem(KEY);}catch(e){}
+  try { const raw = localStorage.getItem(KEY); if (raw) local = JSON.parse(raw); } catch(e){}
+
+  const ct = cloud ? Number(cloud._ts||0) : -1;
+  const lt = local ? Number(local._ts||0) : -1;
+
+  if (local && lt > ct) {
+    // Local is ahead — adopt it and push it up once the app has settled.
+    setTimeout(()=>{ try{ flushSave(); }catch(e){} }, 2000);
+    return JSON.stringify(local);
+  }
+  if (cloud) return JSON.stringify(cloud);
+  if (local) return JSON.stringify(local);
   return mem;
 }
 
@@ -646,6 +664,7 @@ async function loadOverrides(){
    debounced so a burst of edits costs one trip instead of one each. */
 let _saveTimer=null,_savePending=false,_saveInFlight=false;
 function saveOverrides(){
+  overrides._ts=Date.now();
   try{localStorage.setItem(KEY,JSON.stringify(overrides));}catch(e){}
   flash('Saving…');
   _savePending=true;
@@ -665,7 +684,8 @@ async function flushSave(){
     }catch(e){}
     mode=await sSet(JSON.stringify(overrides));
   }finally{ _saveInFlight=false; }
-  flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist');
+  flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist',
+        mode==='cloud'?'ok':'err');
   if(_savePending)flushSave();
 }
 // Last-ditch flush if the tab closes mid-debounce (local copy is already written).
@@ -687,12 +707,17 @@ function exportData(){
   a.click();
 }
 
-function flash(m){
+let _toastTimer=null;
+function flash(m,kind){
   const s=document.getElementById('savemsg');
-  if(!s) return;
-  const t=s.textContent;
-  s.textContent=m;
-  setTimeout(()=>s.textContent=t,1800);
+  if(s){ const t=s.dataset.base||s.textContent; s.dataset.base=t; s.textContent=m; clearTimeout(s._t); s._t=setTimeout(()=>s.textContent=t,1800); }
+  const el=document.getElementById('toast');
+  if(!el)return;
+  el.textContent=m;
+  el.className='toast show'+(kind?' '+kind:'');
+  clearTimeout(_toastTimer);
+  // "Saving…" holds until the result replaces it; results fade on their own.
+  if(kind)_toastTimer=setTimeout(()=>{el.className='toast';},1600);
 }
 
 function eff(s){return{...s,...(overrides[s.id]||{})};}

@@ -236,7 +236,9 @@
   .f-text { font-family:var(--mono); font-size:10px; color:var(--grey); line-height:1.8; margin-bottom: 12px;}
   .f-bottom { display: flex; justify-content: flex-end; align-items: center; border-top: 1px dotted var(--rule); padding-top: 12px; padding-bottom: 12px;}
   .f-logos { display: flex; gap: 12px; align-items: center; color: var(--grey); }
-  .f-logos svg { height: 18px; width: auto; fill: currentColor; }
+  .f-logos svg { height: 20px; width: auto; }
+  .f-logos a { display:flex; align-items:center; opacity:.9; transition:opacity .15s }
+  .f-logos a:hover { opacity:1 }
 </style>
 </head>
 <body>
@@ -272,16 +274,37 @@
   </div>
   <div id="panel"></div>
   <footer>
-    <div class="f-text">Edits sync to the cloud (Vercel Blob) when you hit Save — both of you see the same data on any device. If you're offline, they fall back to this browser and sync next time you save.</div>
+    <div class="f-text">Edits save to this browser instantly, then sync to the cloud (Vercel Blob) a moment later — both of you see the same data on any device. Offline edits stay local and go up on the next save.</div>
 
     <div class="f-bottom">
       <div class="f-logos">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z"/>
-        </svg>
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M13.87 2.22l-1.87 5.76L10.13 2.22H7.2l3.42 8.4-7.53-3.69v3.1l6.98 3.42-6.98 3.42v3.1l7.53-3.69-3.42 8.4h2.93l1.87-5.76 1.87 5.76h2.93l-3.42-8.4 7.53 3.69v-3.1l-6.98-3.42 6.98-3.42v-3.1l-7.53 3.69 3.42-8.4h-2.93z"/>
-        </svg>
+        <span style="font:9px var(--mono);color:var(--grey);letter-spacing:.08em;text-transform:uppercase;margin-right:2px">Built with</span>
+        <a href="https://gemini.google.com" target="_blank" rel="noopener" title="Google Gemini">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gemini">
+            <defs><linearGradient id="gemGrad" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#4285F4"/><stop offset=".45" stop-color="#9B72CB"/>
+              <stop offset=".75" stop-color="#D96570"/><stop offset="1" stop-color="#F9AB55"/>
+            </linearGradient></defs>
+            <path fill="url(#gemGrad)" d="M12 0C12 6.627 17.373 12 24 12C17.373 12 12 17.373 12 24C12 17.373 6.627 12 0 12C6.627 12 12 6.627 12 0Z"/>
+          </svg>
+        </a>
+        <a href="https://claude.ai" target="_blank" rel="noopener" title="Claude by Anthropic">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Claude">
+            <g fill="#D97757">
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(32.7 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(65.5 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(98.2 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(130.9 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(163.6 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(196.4 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(229.1 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(261.8 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(294.5 12 12)"/>
+              <path d="M12 12 L11.1 2.6 C11.4 2.2 12.6 2.2 12.9 2.6 Z" transform="rotate(327.3 12 12)"/>
+            </g>
+          </svg>
+        </a>
       </div>
     </div>
   </footer>
@@ -618,16 +641,35 @@ async function loadOverrides(){
   try{const v=await sGet();if(v)overrides=JSON.parse(v);}catch(e){}
 }
 
-async function saveOverrides(){
-  try{ const r=await fetch('/api/sync'); const d=await r.json();
-    if(d.value){
-      const remote=d.value;   // remote first, my edits win conflicts; vault merged per-key
-      overrides={...remote,...overrides,vault:{...(remote.vault||{}),...(overrides.vault||{})}};
-    }
-  }catch(e){}
-  const mode=await sSet(JSON.stringify(overrides));
-  flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist');
+/* Saving is two-stage: the local copy is written synchronously so a refresh
+   can never lose an edit, and the cloud round-trip (GET-merge then POST) is
+   debounced so a burst of edits costs one trip instead of one each. */
+let _saveTimer=null,_savePending=false,_saveInFlight=false;
+function saveOverrides(){
+  try{localStorage.setItem(KEY,JSON.stringify(overrides));}catch(e){}
+  flash('Saving…');
+  _savePending=true;
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(flushSave,450);
 }
+async function flushSave(){
+  if(_saveInFlight)return;              // the trailing call below picks it up
+  _saveInFlight=true;_savePending=false;
+  let mode='memory';
+  try{
+    try{ const r=await fetch('/api/sync'); const d=await r.json();
+      if(d&&d.value){
+        const remote=d.value;   // remote first, my edits win conflicts; vault merged per-key
+        overrides={...remote,...overrides,vault:{...(remote.vault||{}),...(overrides.vault||{})}};
+      }
+    }catch(e){}
+    mode=await sSet(JSON.stringify(overrides));
+  }finally{ _saveInFlight=false; }
+  flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist');
+  if(_savePending)flushSave();
+}
+// Last-ditch flush if the tab closes mid-debounce (local copy is already written).
+window.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&_savePending){clearTimeout(_saveTimer);flushSave();}});
 
 async function resetAll(){
   if(!confirm('Discard all edits and expenses?'))return;
@@ -890,26 +932,28 @@ async function loadWeather(cityId){
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
 const TODO_ICO={ticket:'🎟',booking:'📞',transport:'🚄',concierge:'🛎',shop:'🛍',admin:'📋',other:'📍'};
 const DEFAULT_TODOS=[
- {id:'t1',d:'2026-08-11',cat:'booking',title:'Fix the Kitsune TableCheck date',desc:'Booking still sits on 11/19 — it should be 11/20. Move it before the slot goes.'},
- {id:'t2',d:'2026-08-15',cat:'ticket',title:'Cup Noodles Museum — book a My Cup Noodles slot',url:'https://www.cupnoodles-museum.jp/en/yokohama/',desc:'Timed slots for the 11/18 Yokohama day. Approximate date — check when the window opens.'},
- {id:'t3',d:'2026-09-01',cat:'admin',title:'Eikan-dō 2026 illumination dates',url:'https://www.eikando.or.jp/',desc:'Autumn light-up dates usually publish early September. Clashes with Mamecha 17:00 on 11/23 — check before committing.'},
- {id:'t4',d:'2026-09-10',cat:'ticket',title:'GHIBLI PARK — November tickets, 14:00 JST',url:'https://ghibli-park.jp/en/ticket/',desc:'Released on the 10th at 2pm JST for visits two months ahead. Lawson needs a Japanese card + address — buy via Klook or JTB from overseas.'},
- {id:'t5',d:'2026-09-15',cat:'booking',title:'The Victor (Parq) — check the booking window',url:'https://www.opentable.com/',desc:'Sun 11/15, 7:00–7:30 for two. OpenTable window is 30–90 days; phone 778-370-8600 often reaches past it. Or let the JW concierge place it.'},
  {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
- {id:'t7',d:'2026-10-15',cat:'booking',title:'Book SHUHARI, Poku-Poku & Kikukawa',desc:'SHUHARI 11/26 must end by 14:05 for Nozomi 24. Poku-Poku is a phone booking.'},
- {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. All-reserved and sells out in foliage season; window-facing twins.'},
- {id:'t9',d:'2026-11-10',cat:'concierge',title:'Email JW Marriott Parq Vancouver',desc:'Anniversary note + The Victor. Also ask: can The Victor charge to the folio against the FHR credit, and is early / to-go breakfast possible before a 7:45 departure?'},
- {id:'t10',d:'2026-11-12',cat:'concierge',title:'Email the Westin Yokohama',desc:'Anniversary note + ask them to book しらはら (Shirahara) for 17:30–18:00 on 11/17.'},
- {id:'t11',d:'2026-11-14',cat:'booking',title:'Call Fuku Sushi — 0742-26-5677',desc:'11/21 lunch, 11:30–13:30. Fifteen seats, couple-run. Closed Thursdays.'},
- {id:'t12',d:'2026-11-16',cat:'concierge',title:'Email Osaka Marriott Miyako',desc:'Third stay + anniversary. Ask whether breakfast is Club Lounge or COOKA, whether you can choose per morning, and the lounge hours (11/23 is a pre-7am start).'},
- {id:'t13',d:'2026-11-20',cat:'booking',title:'Yamamoto Menzou — TableCheck opens 00:00 JST',url:'https://www.tablecheck.com/',desc:'Three days ahead of the 11/23 holiday-Monday lunch. Card hold to book, but PAY CASH on the day. Backup: Okakita next door.'},
- {id:'t14',d:'2026-11-27',cat:'admin',title:'Tax refund at NRT — allow 45–60 min',desc:'From 11/1/26 refunds happen at the airport, not the register. Keep every receipt, do not open sealed goods, and leave the Grand Hyatt before 11:45.'}
+ {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. All-reserved and sells out in foliage season; window-facing twins.'}
 ];
+const TODO_SEED_VERSION=2;
 let todoView='list', todoMonth='2026-08', todoDaySel=null;
 window._editTid=null;
 function tokyoISO(){return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});}
 function ensureTodos(){
-  if(!overrides.todos){overrides.todos=DEFAULT_TODOS.map(t=>({...t,done:false}));saveOverrides();}
+  if(!overrides.todos){
+    overrides.todos=DEFAULT_TODOS.map(t=>({...t,done:false}));
+    overrides.todoSeed=TODO_SEED_VERSION;
+    saveOverrides();
+    return;
+  }
+  // One-time cleanup: drop the v1 seed items that are no longer defaults.
+  // User-added ids are 't'+Date.now() (13 digits) so they can never match.
+  if(overrides.todoSeed!==TODO_SEED_VERSION){
+    const keep=DEFAULT_TODOS.map(t=>t.id);
+    overrides.todos=overrides.todos.filter(t=>!(/^t([1-9]|1[0-4])$/.test(t.id)&&!keep.includes(t.id)));
+    overrides.todoSeed=TODO_SEED_VERSION;
+    saveOverrides();
+  }
 }
 function todoRow(x,compact){
   const today=tokyoISO();

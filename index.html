@@ -463,7 +463,7 @@ const CITIES=[
 {id:"osaka",city:"Osaka",sub:"11/21–11/24",hotel:"miyako",
  legs:[
   {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 eve · Midōsuji line 6 min",n:"Aoniyoshi lands Namba 18:12. The Miyako has a direct elevator from Tennōji / Ōsaka-Abenobashi — bags first, then back up for dinner."},
-  {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Midōsuji ~25 min, then Nozomi 90 dep 11:30",n:"Leave the hotel by 10:40. Arrives Nagoya 12:19 — Keitei is inside the station."}],
+  {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Midōsuji ~25 min, then Nozomi 90 dep 11:30",n:"Leave the hotel by 10:40. Arrives Nagoya 12:19 — lunch is a 5-min walk out of the station."}],
  metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min · every 2–4 min"],["JR Osaka Loop","backup ring from Tennōji; Osaka-jō 12 min"]],
  pois:[
   {c:"sight",ic:"🌃",n:"Hōzenji Yokochō",d:"lantern alley + moss-covered Fudō",a:"Namba",lat:34.6678,lng:135.5031},
@@ -559,9 +559,9 @@ const CITIES=[
 
 {id:"nagoya",city:"Nagoya",sub:"11/24–11/26",hotel:"tiad",
  legs:[
-  {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 90 · dep 11:30 → arr 12:19",n:"Keitei lunch is inside the station complex, then Higashiyama line to Sakae."},
+  {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 90 · dep 11:30 → arr 12:19",n:"Lunch at Ichio (Meieki, 5 min out), then Higashiyama line to Sakae."},
   {r:"Depart: Nagoya → Tokyo",m:"11/26 · Nozomi 24 · dep 14:36 → arr 16:15",n:"SHUHARI must end by 14:05 — book 11:30/12:00 and mention the train."}],
- metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Keitei, Kikukawa)"],["Meijō Line (purple)","Yabachō 4-min walk; one stop to Kamimaezu for Ōsu"],["On foot","Takara ~15 min; Moumoutei ~12 min from TIAD"]],
+ metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Ichio, Kikukawa)"],["Meijō Line (purple)","Yabachō 4-min walk; one stop to Kamimaezu for Ōsu"],["On foot","Takara ~15 min; Moumoutei ~12 min from TIAD"]],
  pois:[
   {c:"sight",ic:"🌳",n:"Hisaya Ōdōri Park + Mirai Tower",d:"TIAD's front yard, lit at night",a:"hotel",lat:35.1720,lng:136.9083},
   {c:"sight",ic:"🏯",n:"Nagoya Castle",d:"gold shachihoko",a:"hotel",lat:35.1856,lng:136.8997},
@@ -571,7 +571,7 @@ const CITIES=[
   {c:"sight",ic:"⛩",n:"Atsuta Jingū",d:"one of Shinto's holiest shrines, in a cypress forest — Meijō line direct from Yabachō",a:"hotel",lat:35.1278,lng:136.9086},
   {c:"sight",ic:"🍁",n:"Tokugawaen + Tokugawa Art Museum",d:"daimyō stroll garden — late-Nov foliage light-up most years; museum holds the Genji scrolls",a:"hotel",lat:35.1848,lng:136.9330},
   {c:"sight",ic:"🏘",n:"Shikemichi + Endōji arcade",d:"Edo merchant lane + retro shopping street, 10 min NE of the station",a:"Nagoya Stn",lat:35.1747,lng:136.8912},
-  {c:"cafe",ic:"🐤",n:"Café Gentiane",d:"home of the pyorin chick pudding",a:"Keitei",lat:35.1707,lng:136.8823},
+  {c:"cafe",ic:"🐤",n:"Café Gentiane",d:"home of the pyorin chick pudding",a:"Nagoya Stn",lat:35.1707,lng:136.8823},
   {c:"cafe",ic:"🍤",n:"Konparu (since 1947)",d:"retro kissaten; ebi-fry sando is the order",a:"Takara",lat:35.1607,lng:136.9046},
   {c:"cafe",ic:"☕",n:"Komeda's Coffee (Sakae)",d:"Nagoya's kissaten institution — order the shiro-noir",a:"hotel",lat:35.1680,lng:136.9065},
   {c:"cafe",ic:"🍞",n:"Coffee House Kako (1972)",d:"the ogura-toast kissaten — siphon coffee, near Shikemichi",a:"Nagoya Stn",lat:35.1741,lng:136.8895},
@@ -584,7 +584,10 @@ const CITIES=[
   {c:"conv",ic:"🏪",n:"Lawson Yabachō",d:"by your metro station, 24h",a:"hotel",lat:35.1630,lng:136.9080},
   {c:"conv",ic:"🏪",n:"7-Eleven Sakae Hirokōji",d:"on the walk to Moumoutei",a:"hotel",lat:35.1670,lng:136.9060}],
  stops:[
-  {id:14,d:"11/24 Tue",m:"Lunch",name:"Keitei",dish:"Miso katsu",hrs:"11:00–23:00 daily",res:"walk",jpy:5000,lat:35.1710,lng:136.8826,area:"Nagoya Stn"},
+  {id:14,d:"11/24 Tue",m:"Lunch",name:"Nagoya Cochin Ichio",q:"名古屋コーチン 一鳥 名駅 堀内ビル",dish:"Nagoya Cochin — charcoal skewers & oyakodon",
+   hrs:"11:30–14:00 · 17:00–22:00 daily",res:"walk",jpy:6000,lat:35.17207,lng:136.88620,area:"Meieki 3-25-9, Horiuchi Bldg B1 · 5 min from Nagoya Stn",
+   note:"Counter seats face the charcoal grill. English menu for the regular items (daily specials are Japanese only); raw cabbage with red miso comes free to start.",
+   warn:"Lunch 11:30–14:00 only, and office workers queue — go straight there off the 12:19 Nozomi."},
   {id:15,d:"11/24 Tue",m:"Dinner",name:"Moumoutei Hirokoji",dish:"Beef hitsumabushi",hrs:"18:00–22:30 · closed Sun",res:"ok",jpy:20000,lat:35.1679,lng:136.8954,area:"Sakae",note:"Signature set is reservation-only — confirm the course."},
   {id:16,d:"11/25 Wed",m:"Lunch",name:"Takara",dish:"Miso nikomi udon",hrs:"11:30–14:45 · closed Thu",res:"walk",jpy:5000,lat:35.1595,lng:136.9016,area:"Ōsu"},
   {id:17,d:"11/25 Wed",m:"Dinner",name:"Unagi Yondaime Kikukawa",dish:"Unagi hitsumabushi",hrs:"17:00–22:00 daily",res:"book",jpy:15000,lat:35.1697,lng:136.8853,area:"Midland Square 4F",warn:"Book 18:30/19:00 on Tabelog — fix the 7/29 date filter."},
@@ -635,7 +638,7 @@ const FLIGHTS=[
 const TRAINS=[
  {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 73 ✓ Smart EX",note:"Arr 16:00 → Kintetsu ltd. exp 16:20 → Nara 16:55 → Shisui → Poku-Poku by 18:00. Seats not finalized — pick them on Smart EX (E side for Fuji)."},
  {d:"Nov 21",t:"17:34",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Aoniyoshi sightseeing ltd. exp",note:"Sat/hol slot · arr Namba 18:12. All-reserved — booking opens on Kintetsu ~1 month out (Oct 21); window-facing twin seats, onboard sales counter. Then Midōsuji to Tennōji, bags, Ondoriya ~19:30."},
- {d:"Nov 24",t:"11:30",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 90 ✓ Smart EX",note:"Arr 12:19 — Keitei inside the station. Leave hotel 10:40. Seats not finalized."},
+ {d:"Nov 24",t:"11:30",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 90 ✓ Smart EX",note:"Arr 12:19 — lunch at Ichio, 5 min from the station. Leave hotel 10:40. Seats not finalized."},
  {d:"Nov 26",t:"14:36",route:"Nagoya → Tokyo",train:"Nozomi 24 ✓ Smart EX",note:"Arr 16:15, Roppongi ~17:00. SHUHARI ends 14:05 latest. Seats not finalized."}
 ];
 

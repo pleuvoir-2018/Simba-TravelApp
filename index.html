@@ -337,6 +337,29 @@ const CAT={sight:"⛩ Sights",cafe:"☕ Cafés",shop:"🛍 Shopping", gift:"🎁
 const CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
 {id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
+{id:"vancouver",city:"Vancouver",sub:"11/15–11/16 · repositioning",hotel:"parq",
+ legs:[
+  {r:"✈ YVR → JW Marriott Parq",m:"11/15 · Canada Line ~25 min, or 20-min taxi",n:"Off DL3748, clear Canadian customs, then Canada Line from the airport to Yaletown–Roundhouse and a 7-min walk. Taxi is ~C$40 and simpler with luggage after a long day."},
+  {r:"JW Marriott Parq → YVR ✈",m:"11/16 · Canada Line ~25 min from Yaletown–Roundhouse",n:"Leave the hotel ~7:45 for ZG021 at 10:30 — a 2-hour international cushion. Board a YVR-bound train, NOT a Richmond–Brighouse one; they alternate."}],
+ metro:[["Canada Line","Yaletown–Roundhouse is 7 min on foot · YVR direct ~25 min · trains alternate YVR / Richmond, check the front"],
+        ["On foot","The Victor is upstairs in the same complex · Yaletown and the False Creek seawall are 5–10 min · Gastown ~20 min"]],
+ pois:[
+ // ── the evening you actually have ──
+ {c:"sight",ic:"🌊",n:"False Creek seawall (Yaletown)",d:"5 min from the hotel — lit water and the Science World dome after dark; the one walk that fits",a:"The Victor",lat:49.2731,lng:-123.1211},
+ {c:"sight",ic:"🏙",n:"Vancouver Lookout",d:"360° deck, 9:30–18:30 · sunset is ~16:30 in mid-November, so a 17:00 visit is a city-lights view — tight after a 15:45 landing",a:"downtown",lat:49.28492,lng:-123.11223},
+ {c:"sight",ic:"🕰",n:"Gastown steam clock",d:"20-min walk or a short taxi — cobbles, whistle on the quarter hour",a:"downtown",lat:49.2844,lng:-123.1089},
+ {c:"sight",ic:"🏟",n:"BC Place & Rogers Arena",d:"both are next door to Parq — check if anything is on the night you land",a:"hotel",lat:49.2768,lng:-123.1119},
+ // ── food & drink ──
+ {c:"cafe",ic:"☕",n:"Nine Bar Coffee",d:"477 Davie St · opens 07:00 — the one good coffee that beats your 7:45 departure",a:"hotel",lat:49.27576,lng:-123.12374},
+ {c:"cafe",ic:"🍸",n:"Parker Rooftop",d:"1379 Howe St, 9F · 15:00–23:00 · a drink with a view if The Victor runs early",a:"downtown",lat:49.27616,lng:-123.13019},
+ // ── practical ──
+ {c:"shop",ic:"🛍",n:"Yaletown (Mainland & Hamilton St)",d:"brick warehouses, boutiques and patios — the pleasant 20 minutes before dinner",a:"The Victor",lat:49.2755,lng:-123.1213},
+ {c:"conv",ic:"🏪",n:"London Drugs (Granville)",d:"late-night pharmacy & sundries — last chance for anything forgotten before Japan",a:"downtown",lat:49.2812,lng:-123.1206}],
+ stops:[
+  {id:30,d:"11/15 Sun",m:"Dinner",name:"The Victor",dish:"Steakhouse — dry-aged beef, seafood tower",
+   hrs:"Sun 17:00–23:00",res:"book",jpy:0,cost:"~C$250 for two, before the FHR credit",lat:49.27523,lng:-123.11313,area:"Parq Vancouver, 6F rooftop — upstairs from your room",
+   note:"Reviews single out the onion milk bread, beef tartare and the sauce trio with the striploin. Charge it to the room so the FHR dining credit applies.",
+   warn:"BOOK IT — 778-370-8600 or victor@parqvancouver.com, or let the JW concierge place it with the anniversary noted. Confirm the folio charge reaches the FHR credit."}]},
 {id:"yokohama",city:"Yokohama",sub:"11/17–11/19",hotel:"westin",showNRT:true,
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX (Narita Express) direct ~90 min",n:"Land 12:45 → landside ~14:15 → N'EX to Yokohama Stn → 5-min taxi. Door-to-door ~16:45."},
@@ -739,7 +762,7 @@ const RES_LABEL={ok:'Booked',book:'To book',walk:'Walk-in'};
 
 /* ---- Left nav (collapsible sidebar) ---- */
 const shell=document.getElementById('shell'),navlist=document.getElementById('navlist');
-const NAV_ICO={today:'🗓️',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'};
+const NAV_ICO={today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'};
 navlist.innerHTML=CITIES.map((c,i)=>
   (i===0?'<div class="nvsec">Now</div>':'')+
   (c.id==='yokohama'?'<div class="nvsec">Itinerary</div>':'')+
@@ -811,7 +834,7 @@ function buildMap(c){
     if (e.res === 'ok' && (e.btime || e.bplat)) {
       popupContent += ` (${e.btime || ''}${e.btime && e.bplat ? ' via ' : ''}${e.bplat || ''})`;
     }
-    popupContent += ` · ¥${Number(e.jpy).toLocaleString()}`;
+    popupContent += e.jpy?` · ¥${Number(e.jpy).toLocaleString()}`:(e.cost?` · ${esc(e.cost)}`:"");
     popupContent += `<div style="margin-top:8px;border-top:1px dotted var(--rule);padding-top:6px;"><a href="https://www.google.com/maps/search/${encodeURIComponent((s.q||s.name)+' '+c.city)}/@${s.lat},${s.lng},17z" target="_blank" style="font-family:var(--mono);font-size:10px;color:var(--indigo);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;">📍 Open in Google Maps ↗</a></div>`;
 
     m.bindPopup(popupContent);
@@ -876,7 +899,7 @@ function mealCard(p){
       ${!editMode && e.actualJpy ? (()=>{const aU=Number(e.actualJpy)/liveJpyRate;const diff=Number(e.actualJpy)-Number(e.jpy);return `<div style="display:inline-block;margin:4px 0 2px 4px;padding:3px 6px;background:${diff>0?'rgba(184,85,42,.1)':'rgba(94,127,76,.1)'};color:${diff>0?'var(--clay)':'var(--moss)'};font:600 10px var(--mono);border-radius:2px;">¥${Number(e.actualJpy).toLocaleString()} · $${aU.toFixed(2)}${diff!==0?` ${diff>0?'▲':'▼'}¥${Math.abs(diff).toLocaleString()}`:''}</div>`})():''}
 
       <div class="m3">${p.dish}</div>
-      <div class="m4">${p.hrs} · ¥${Number(e.jpy).toLocaleString()}</div>
+      <div class="m4">${p.hrs}${e.jpy?` · ¥${Number(e.jpy).toLocaleString()}`:(e.cost?` · ${esc(e.cost)}`:"")}</div>
       <div class="efields">
         <div class="erow">
           <label>¥ <input type="number" data-f="jpy" data-id="${p.id}" value="${e.jpy}"></label>
@@ -908,6 +931,7 @@ function mealCard(p){
 
 /* ---------------- WEATHER (Open-Meteo, no key) ---------------- */
 const WX_CFG = {
+  vancouver:{lat:49.2756,lng:-123.1148,from:"2026-11-15",to:"2026-11-16"},
   yokohama:{lat:35.4620,lng:139.6300,from:"2026-11-17",to:"2026-11-19"},
   nara:    {lat:34.6857,lng:135.8340,from:"2026-11-19",to:"2026-11-21"},
   osaka:   {lat:34.6462,lng:135.5136,from:"2026-11-21",to:"2026-11-24"},
@@ -1724,7 +1748,7 @@ window.editExp = function(idx) {
 };
 
 /* ---------------- TODAY VIEW ---------------- */
-const TODAY_CITY={17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'osaka',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
+const TODAY_CITY={15:'vancouver',16:'vancouver',17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'osaka',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
 const TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function tokyoToday(){

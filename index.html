@@ -340,8 +340,8 @@ const CITIES=[
 {id:"yokohama",city:"Yokohama",sub:"11/17–11/19",hotel:"westin",showNRT:true,
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX (Narita Express) direct ~90 min",n:"Land 12:45 → landside ~14:15 → N'EX to Yokohama Stn → 5-min taxi. Door-to-door ~16:45."},
-  {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 73 · dep 14:07 → arr 16:00",n:"Kadohei done by 13:15 → JR Yokohama line to Shin-Yokohama, 12 min."}],
- metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["On foot","Shirahara is 3 min from the hotel · Hana Yori & Kadohei cluster at Yokohama Stn"]],
+  {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 73 · dep 14:07 → arr 16:00",n:"Lunch done by ~12:50 → JR Yokohama line Yokohama → Shin-Yokohama, 12 min. Bags: coin lockers at Yokohama Stn, or carry."}],
+ metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["On foot","Shirahara is 3 min from the hotel · Hana Yori is at Yokohama Stn · Tenshichi is at Kannai (JR Negishi line, 2 stops from Sakuragichō)"]],
  pois:[
  // ── sights ──
  {c:"sight",ic:"🧱",n:"Red Brick Warehouse",d:"waterfront landmark + shops",a:"Afuri",lat:35.4527,lng:139.6425},
@@ -375,7 +375,10 @@ const CITIES=[
  {c:"conv",ic:"🏪",n:"Lawson Minatomirai",d:"toward MARK IS — famous karaage-kun",a:"hotel",lat:35.4585,lng:139.6315}],
  stops:[
   {id:1,d:"11/17 Tue",m:"Dinner",name:"Shirahara (しらはら)",q:"貝・刺身専門店 しらはら みなとみらい一番街",dish:"Shellfish & sashimi",hrs:"Tue 17:00–23:00 (lunch to 14:00)",res:"book",jpy:12000,lat:35.4615,lng:139.6281,area:"Yokohama Shinfoster East Tower, 3-min walk",note:"Arrival-night pick — 3 min from the Westin. English menu via QR code. Counter seats face the chef.",warn:"Ask the Westin to book 17:30–18:00 for two."},
-  {id:2,d:"11/18 Wed",m:"Lunch",name:"Hana Yori Hanbagu",dish:"Hamburg steak",hrs:"11:30–22:00 daily",res:"ok",jpy:5000,lat:35.4682,lng:139.6229,area:"Tsuruyachō"},
+  {id:2,d:"11/18 Wed",m:"Lunch",name:"Tenshichi Kannai Honten",q:"天七 関内本店 横浜",dish:"Edomae tempura counter",
+   hrs:"11:00–15:00 · 17:00–22:30 daily",res:"book",jpy:12000,lat:35.44705,lng:139.63509,area:"5-57 Tokiwachō, Naka-ku · Kannai",
+   note:"Counter tempura since the mid-1960s — chef fries in front of you and explains each piece; English spoken. Oyster and anago singled out in reviews.",
+   warn:"Book ahead — 045-681-3376, or ask the Westin. Verify the lunch course price when you book."},
   {
     "id": 3,
     "d": "11/18 Wed",
@@ -389,7 +392,10 @@ const CITIES=[
     "lng": 139.6317,
     "area": "Minato Mirai"
   },
-  {id:4,d:"11/19 Thu",m:"Lunch",name:"Kadohei",dish:"Soba + prawn tempura",hrs:"11:00–19:50 · closed Tue",res:"walk",jpy:5000,lat:35.4606,lng:139.6201,area:"Hiranuma",note:"Your only tempura. Done by 13:15 → 14:07 Nozomi."}]},
+  {id:4,d:"11/19 Thu",m:"Lunch",name:"Hana Yori Hanbagu",q:"花より肉バーグ 横浜",dish:"Grill-your-own hamburg",
+   hrs:"11:30–22:00 daily",res:"walk",jpy:5000,lat:35.46816,lng:139.62292,area:"Tsuruyachō 2-16-4, 2F · Yokohama Stn west",
+   note:"Departure-day lunch: check out, Minatomirai Line to Yokohama Stn (2 min), eat, then JR to Shin-Yokohama. You grill the patty yourself at the table.",
+   warn:"Be seated at 11:30 opening and done by ~12:50 for the 14:07 Nozomi. The Yokohama Front branch (THE YOKOHAMA FRONT 2F, east side) is closer to the JR gates if you are running tight."}]},
 
 {id:"nara",city:"Nara",sub:"11/19–11/21",hotel:"shisui",
  legs:[

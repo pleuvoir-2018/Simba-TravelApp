@@ -178,6 +178,35 @@
   .chip:not(.on):hover{border-color:var(--moss);color:var(--moss)}
   button{-webkit-tap-highlight-color:transparent}
 
+  /* To-do / prep tracker */
+  .tdo-row{display:flex;gap:9px;align-items:flex-start;padding:9px 12px;border-bottom:1px dotted var(--rule)}
+  .tdo-row:last-child{border-bottom:0}
+  .tdo-row.done{opacity:.5}
+  .tdo-row.done .tdo-t{text-decoration:line-through}
+  .tdo-row.overdue{background:rgba(184,85,42,.07)}
+  .tdo-row.soon{background:rgba(176,138,31,.09)}
+  .tdo-row input[type=checkbox]{width:15px;height:15px;accent-color:var(--moss);cursor:pointer;flex:0 0 15px;margin-top:2px}
+  .tdo-date{font:600 9.5px var(--mono);color:var(--indigo);flex:0 0 46px;line-height:1.35;padding-top:1px}
+  .tdo-main{flex:1;min-width:0}
+  .tdo-t{font-size:13px;font-weight:600;color:var(--ink)}
+  .tdo-t a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--indigo2)}
+  .tdo-cat{font:600 8.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--plum);margin-left:5px}
+  .tdo-desc{font-size:11.5px;color:var(--grey);margin-top:2px;line-height:1.45}
+  .tdo-flag{font:600 9px var(--mono);letter-spacing:.05em;text-transform:uppercase;margin-top:3px}
+  .tdo-x{background:none;border:none;cursor:pointer;padding:0 3px;font-size:14px}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:10px 12px}
+  .cal-h{font:600 9px var(--mono);text-align:center;color:var(--grey);padding:2px 0;letter-spacing:.06em}
+  .cal-c{min-height:54px;border:1px solid var(--rule);border-radius:2px;padding:3px;background:#fff;cursor:pointer;overflow:hidden;text-align:left}
+  .cal-c.blank{background:transparent;border-color:transparent;cursor:default;min-height:0}
+  .cal-c.trip{background:rgba(34,64,107,.06)}
+  .cal-c.now{border-color:var(--clay);border-width:1.5px}
+  .cal-c.sel{outline:2px solid var(--indigo);outline-offset:-1px}
+  .cal-n{font:600 9.5px var(--mono);color:var(--grey);display:block}
+  .cal-i{font-size:8px;line-height:1.3;margin-top:1px;background:var(--washi2);border-radius:2px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cal-i.done{opacity:.45;text-decoration:line-through}
+  .cal-nav{display:flex;align-items:center;gap:10px}
+  .cal-nav button{background:none;border:1px solid var(--rule);border-radius:2px;cursor:pointer;font:600 12px var(--mono);padding:1px 7px;color:var(--indigo)}
+
   /* Day plans */
   .plform{padding:10px 12px;border-bottom:1px solid var(--rule);background:rgba(34,64,107,.04);display:flex;flex-direction:column;gap:6px}
   .plform input,.plform select{font:12px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:5px 7px;background:#fff;min-width:0;width:100%;max-width:100%}
@@ -275,6 +304,7 @@ const CAT={sight:"⛩ Sights",cafe:"☕ Cafés",shop:"🛍 Shopping", gift:"🎁
 
 const CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
+{id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
 {id:"yokohama",city:"Yokohama",sub:"11/17–11/19",hotel:"westin",showNRT:true,
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX (Narita Express) direct ~90 min",n:"Land 12:45 → landside ~14:15 → N'EX to Yokohama Stn → 5-min taxi. Door-to-door ~16:45."},
@@ -855,6 +885,146 @@ async function loadWeather(cityId){
     el.innerHTML = `<div class="note">Weather unavailable right now — check again when online.</div>`;
   }
 }
+
+/* ---------------- TO-DO / PREP TRACKER ---------------- */
+const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
+const TODO_ICO={ticket:'🎟',booking:'📞',transport:'🚄',concierge:'🛎',shop:'🛍',admin:'📋',other:'📍'};
+const DEFAULT_TODOS=[
+ {id:'t1',d:'2026-08-11',cat:'booking',title:'Fix the Kitsune TableCheck date',desc:'Booking still sits on 11/19 — it should be 11/20. Move it before the slot goes.'},
+ {id:'t2',d:'2026-08-15',cat:'ticket',title:'Cup Noodles Museum — book a My Cup Noodles slot',url:'https://www.cupnoodles-museum.jp/en/yokohama/',desc:'Timed slots for the 11/18 Yokohama day. Approximate date — check when the window opens.'},
+ {id:'t3',d:'2026-09-01',cat:'admin',title:'Eikan-dō 2026 illumination dates',url:'https://www.eikando.or.jp/',desc:'Autumn light-up dates usually publish early September. Clashes with Mamecha 17:00 on 11/23 — check before committing.'},
+ {id:'t4',d:'2026-09-10',cat:'ticket',title:'GHIBLI PARK — November tickets, 14:00 JST',url:'https://ghibli-park.jp/en/ticket/',desc:'Released on the 10th at 2pm JST for visits two months ahead. Lawson needs a Japanese card + address — buy via Klook or JTB from overseas.'},
+ {id:'t5',d:'2026-09-15',cat:'booking',title:'The Victor (Parq) — check the booking window',url:'https://www.opentable.com/',desc:'Sun 11/15, 7:00–7:30 for two. OpenTable window is 30–90 days; phone 778-370-8600 often reaches past it. Or let the JW concierge place it.'},
+ {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
+ {id:'t7',d:'2026-10-15',cat:'booking',title:'Book SHUHARI, Poku-Poku & Kikukawa',desc:'SHUHARI 11/26 must end by 14:05 for Nozomi 24. Poku-Poku is a phone booking.'},
+ {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. All-reserved and sells out in foliage season; window-facing twins.'},
+ {id:'t9',d:'2026-11-10',cat:'concierge',title:'Email JW Marriott Parq Vancouver',desc:'Anniversary note + The Victor. Also ask: can The Victor charge to the folio against the FHR credit, and is early / to-go breakfast possible before a 7:45 departure?'},
+ {id:'t10',d:'2026-11-12',cat:'concierge',title:'Email the Westin Yokohama',desc:'Anniversary note + ask them to book しらはら (Shirahara) for 17:30–18:00 on 11/17.'},
+ {id:'t11',d:'2026-11-14',cat:'booking',title:'Call Fuku Sushi — 0742-26-5677',desc:'11/21 lunch, 11:30–13:30. Fifteen seats, couple-run. Closed Thursdays.'},
+ {id:'t12',d:'2026-11-16',cat:'concierge',title:'Email Osaka Marriott Miyako',desc:'Third stay + anniversary. Ask whether breakfast is Club Lounge or COOKA, whether you can choose per morning, and the lounge hours (11/23 is a pre-7am start).'},
+ {id:'t13',d:'2026-11-20',cat:'booking',title:'Yamamoto Menzou — TableCheck opens 00:00 JST',url:'https://www.tablecheck.com/',desc:'Three days ahead of the 11/23 holiday-Monday lunch. Card hold to book, but PAY CASH on the day. Backup: Okakita next door.'},
+ {id:'t14',d:'2026-11-27',cat:'admin',title:'Tax refund at NRT — allow 45–60 min',desc:'From 11/1/26 refunds happen at the airport, not the register. Keep every receipt, do not open sealed goods, and leave the Grand Hyatt before 11:45.'}
+];
+let todoView='list', todoMonth='2026-08', todoDaySel=null;
+window._editTid=null;
+function tokyoToday(){return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});}
+function ensureTodos(){
+  if(!overrides.todos){overrides.todos=DEFAULT_TODOS.map(t=>({...t,done:false}));saveOverrides();}
+}
+function todoRow(x){
+  const today=tokyoToday();
+  const overdue=x.d&&x.d<today&&!x.done;
+  const soon=!overdue&&!x.done&&x.d&&(new Date(x.d)-new Date(today))/86400000<=7;
+  const md=x.d?x.d.slice(5).replace('-','/'):'—';
+  const title=x.url?`<a href="${esc(x.url)}" target="_blank">${esc(x.title)}</a>`:esc(x.title);
+  return `<div class="tdo-row ${x.done?'done':''} ${overdue?'overdue':''} ${soon?'soon':''}">
+    <input type="checkbox" ${x.done?'checked':''} onchange="toggleTodo('${x.id}',this.checked)">
+    <span class="tdo-date">${md}</span>
+    <span class="tdo-main">
+      <span class="tdo-t">${TODO_ICO[x.cat]||'📍'} ${title}</span><span class="tdo-cat">${(TODO_CATS[x.cat]||'').replace(/^\S+\s/,'')}</span>
+      ${x.desc?`<span class="tdo-desc">${esc(x.desc)}</span>`:''}
+      ${overdue?'<span class="tdo-flag" style="color:var(--clay)">⚠ PAST DUE</span>':(soon?'<span class="tdo-flag" style="color:#B08A1F">DUE SOON</span>':'')}
+    </span>
+    <button class="tdo-x" onclick="editTodo('${x.id}')" style="color:var(--indigo)">✎</button>
+    <button class="tdo-x" onclick="delTodo('${x.id}')" style="color:var(--clay);font-size:17px">×</button>
+  </div>`;
+}
+function todoCalendarHTML(){
+  const items=overrides.todos||[];
+  const [y,m]=todoMonth.split('-').map(Number);
+  const startDow=new Date(Date.UTC(y,m-1,1)).getUTCDay();
+  const nDays=new Date(Date.UTC(y,m,0)).getUTCDate();
+  const label=new Date(Date.UTC(y,m-1,1)).toLocaleDateString('en-US',{month:'long',year:'numeric',timeZone:'UTC'});
+  const today=tokyoToday();
+  let cells='';
+  for(let i=0;i<startDow;i++)cells+='<div class="cal-c blank"></div>';
+  for(let d=1;d<=nDays;d++){
+    const iso=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const its=items.filter(x=>x.d===iso);
+    const trip=iso>='2026-11-15'&&iso<='2026-11-27';
+    cells+=`<div class="cal-c ${trip?'trip':''} ${iso===today?'now':''} ${iso===todoDaySel?'sel':''}" onclick="pickTodoDay('${iso}')">
+      <span class="cal-n">${d}</span>
+      ${its.slice(0,2).map(x=>`<div class="cal-i ${x.done?'done':''}">${TODO_ICO[x.cat]||'📍'} ${esc(x.title)}</div>`).join('')}
+      ${its.length>2?`<div class="cal-i">+${its.length-2} more</div>`:''}
+    </div>`;
+  }
+  const sel=todoDaySel?items.filter(x=>x.d===todoDaySel):[];
+  return `<div class="chead"><span class="cal-nav"><button onclick="shiftTodoMonth(-1)">‹</button>${label}<button onclick="shiftTodoMonth(1)">›</button></span>
+      <span style="font:9px var(--mono);color:var(--grey)">shaded = trip days</span></div>
+    <div class="cal">${['S','M','T','W','T','F','S'].map(d=>`<div class="cal-h">${d}</div>`).join('')}${cells}</div>
+    ${todoDaySel?`<div style="border-top:1px solid var(--rule)"><div style="font:600 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);padding:8px 12px 2px;background:var(--washi2)">${todoDaySel}</div>${sel.length?sel.map(todoRow).join(''):'<div style="padding:10px 12px;font-size:11.5px;color:var(--grey)">Nothing on this day.</div>'}</div>`:''}`;
+}
+function renderTodo(){
+  ensureTodos();
+  const items=(overrides.todos||[]).slice();
+  const open=items.filter(x=>!x.done).length;
+  const dated=items.filter(x=>x.d).sort((a,b)=>a.d.localeCompare(b.d));
+  const undated=items.filter(x=>!x.d);
+  const byDate={};dated.forEach(x=>{(byDate[x.d]=byDate[x.d]||[]).push(x);});
+  const listHTML=Object.keys(byDate).map(d=>byDate[d].map(todoRow).join('')).join('')
+    +(undated.length?`<div style="font:600 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--grey);padding:8px 12px 2px;background:var(--washi2)">No date</div>`+undated.map(todoRow).join(''):'')
+    ||'<div style="padding:12px;font-size:11.5px;color:var(--grey)">Nothing tracked yet.</div>';
+  panel.innerHTML=`<div class="stack" style="max-width:760px;margin:0 auto">
+    <div class="card">
+      <div class="chead"><span>Things to do</span><span>${open} open · ${items.length-open} done</span></div>
+      <div class="plform">
+        <div class="plrow1">
+          <input id="td_date" type="date" value="${tokyoToday()}">
+          <select id="td_cat">${Object.entries(TODO_CATS).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
+        </div>
+        <input id="td_title" placeholder="What needs doing" maxlength="90">
+        <input id="td_url" placeholder="Link (booking page, ticket site…) — optional">
+        <div class="plrow1">
+          <input id="td_desc" placeholder="Notes — optional" maxlength="240">
+          <button class="pladd" id="td_btn" type="button" onclick="saveTodo()">+ Add</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid var(--rule)">
+        <button class="chip ${todoView==='list'?'on':''}" type="button" onclick="setTodoView('list')">List</button>
+        <button class="chip ${todoView==='cal'?'on':''}" type="button" onclick="setTodoView('cal')">Calendar</button>
+      </div>
+      ${todoView==='list'?listHTML:todoCalendarHTML()}
+    </div></div>`;
+}
+window.setTodoView=function(v){todoView=v;renderTodo();};
+window.shiftTodoMonth=function(n){
+  const [y,m]=todoMonth.split('-').map(Number);
+  const d=new Date(Date.UTC(y,m-1+n,1));
+  todoMonth=`${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`;
+  renderTodo();
+};
+window.pickTodoDay=function(iso){todoDaySel=(todoDaySel===iso?null:iso);renderTodo();};
+window.saveTodo=function(){
+  const g=i=>document.getElementById(i);
+  const title=g('td_title').value.trim();
+  if(!title){g('td_title').focus();return;}
+  overrides.todos=overrides.todos||[];
+  let x;
+  if(window._editTid){x=overrides.todos.find(t=>t.id===window._editTid);window._editTid=null;}
+  if(!x){x={id:'t'+Date.now(),done:false};overrides.todos.push(x);}
+  Object.assign(x,{d:g('td_date').value,cat:g('td_cat').value,title,url:g('td_url').value.trim(),desc:g('td_desc').value.trim()});
+  saveOverrides();renderTodo();
+};
+window.toggleTodo=function(id,v){
+  const x=(overrides.todos||[]).find(t=>t.id===id);
+  if(x){x.done=v;saveOverrides();renderTodo();}
+};
+window.delTodo=function(id){
+  if(!confirm('Remove this item?'))return;
+  overrides.todos=(overrides.todos||[]).filter(t=>t.id!==id);
+  saveOverrides();renderTodo();
+};
+window.editTodo=function(id){
+  const x=(overrides.todos||[]).find(t=>t.id===id);
+  if(!x)return;
+  if(todoView!=='list'){todoView='list';}
+  window._editTid=id;renderTodo();
+  const g=i=>document.getElementById(i);
+  g('td_date').value=x.d||'';g('td_cat').value=x.cat||'other';g('td_title').value=x.title;
+  g('td_url').value=x.url||'';g('td_desc').value=x.desc||'';
+  g('td_btn').textContent='✓ Update';g('td_btn').style.background='var(--moss)';
+  g('td_title').scrollIntoView({behavior:'smooth',block:'center'});
+};
 
 /* ---------------- DAY PLANS ---------------- */
 const PLAN_CATS={sight:'⛩ Sightseeing',cafe:'☕ Cafe',food:'🍽 Food',shop:'🛍 Shopping',transit:'🚃 Transit',other:'📍 Other'};
@@ -1665,6 +1835,8 @@ function render(){
     renderExpenses();
     return;
   }
+
+  if(c.todo){ if(map){map.remove();map=null;} renderTodo(); return; }
 
   if(c.vault){ if(map){map.remove();map=null;} renderVault(); return; }
 

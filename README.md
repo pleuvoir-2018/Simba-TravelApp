@@ -46,6 +46,17 @@ and the local weather. After the trip, a welcome-home card with total spend.
   hotel card, and a live weather strip (Open-Meteo) that shows your actual
   trip dates once they enter the 16-day forecast window.
 
+**Things to do** — a prep tracker on its own tab, with **list** and
+**calendar** views. Each item has a date, category (entry ticket / booking /
+transportation / hotel-concierge / shopping / admin / other), title, optional
+link, and notes. Items can be checked off, edited and removed; overdue items
+flag in clay and anything due within 7 days flags amber. The calendar is a
+month grid (‹ › to move) that shades the trip window and lists that day's
+items when you tap a cell. Seeded once with the trip's real deadlines
+(Ghibli Park's 14:00 JST release, Aoniyoshi seat opening, the Menzou
+TableCheck drop, hotel emails); after that it is entirely your data and
+syncs like everything else.
+
 **Day plans** — a per-city daily itinerary builder at the top of every city
 tab. Each item has a date, approximate time, category (sightseeing / cafe /
 food / shopping / transit / other), a name, an optional Google Maps link
@@ -128,6 +139,13 @@ overrides = {
     mid: 12,            // present only when linked to a meal card
     paidUsd: 20,        // partial-payment amount — source of truth
     paid: false         // legacy boolean, kept in sync for back-compat
+  }],
+
+  // prep to-dos (seeded on first load, then yours)
+  todos: [{
+    id: "t1", d: "2026-09-10", cat: "ticket",   // ticket|booking|transport|concierge|shop|admin|other
+    title: "Ghibli Park tickets", url: "https://…",
+    desc: "…", done: false
   }],
 
   // day plans, per city

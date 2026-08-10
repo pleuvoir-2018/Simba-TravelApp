@@ -907,12 +907,12 @@ const DEFAULT_TODOS=[
 ];
 let todoView='list', todoMonth='2026-08', todoDaySel=null;
 window._editTid=null;
-function tokyoToday(){return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});}
+function tokyoISO(){return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});}
 function ensureTodos(){
   if(!overrides.todos){overrides.todos=DEFAULT_TODOS.map(t=>({...t,done:false}));saveOverrides();}
 }
-function todoRow(x){
-  const today=tokyoToday();
+function todoRow(x,compact){
+  const today=tokyoISO();
   const overdue=x.d&&x.d<today&&!x.done;
   const soon=!overdue&&!x.done&&x.d&&(new Date(x.d)-new Date(today))/86400000<=7;
   const md=x.d?x.d.slice(5).replace('-','/'):'—';
@@ -925,8 +925,8 @@ function todoRow(x){
       ${x.desc?`<span class="tdo-desc">${esc(x.desc)}</span>`:''}
       ${overdue?'<span class="tdo-flag" style="color:var(--clay)">⚠ PAST DUE</span>':(soon?'<span class="tdo-flag" style="color:#B08A1F">DUE SOON</span>':'')}
     </span>
-    <button class="tdo-x" onclick="editTodo('${x.id}')" style="color:var(--indigo)">✎</button>
-    <button class="tdo-x" onclick="delTodo('${x.id}')" style="color:var(--clay);font-size:17px">×</button>
+    ${compact?'':`<button class="tdo-x" onclick="editTodo('${x.id}')" style="color:var(--indigo)">✎</button>
+    <button class="tdo-x" onclick="delTodo('${x.id}')" style="color:var(--clay);font-size:17px">×</button>`}
   </div>`;
 }
 function todoCalendarHTML(){
@@ -935,7 +935,7 @@ function todoCalendarHTML(){
   const startDow=new Date(Date.UTC(y,m-1,1)).getUTCDay();
   const nDays=new Date(Date.UTC(y,m,0)).getUTCDate();
   const label=new Date(Date.UTC(y,m-1,1)).toLocaleDateString('en-US',{month:'long',year:'numeric',timeZone:'UTC'});
-  const today=tokyoToday();
+  const today=tokyoISO();
   let cells='';
   for(let i=0;i<startDow;i++)cells+='<div class="cal-c blank"></div>';
   for(let d=1;d<=nDays;d++){
@@ -954,6 +954,25 @@ function todoCalendarHTML(){
     <div class="cal">${['S','M','T','W','T','F','S'].map(d=>`<div class="cal-h">${d}</div>`).join('')}${cells}</div>
     ${todoDaySel?`<div style="border-top:1px solid var(--rule)"><div style="font:600 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);padding:8px 12px 2px;background:var(--washi2)">${todoDaySel}</div>${sel.length?sel.map(todoRow).join(''):'<div style="padding:10px 12px;font-size:11.5px;color:var(--grey)">Nothing on this day.</div>'}</div>`:''}`;
 }
+function todoDigest(windowDays){
+  ensureTodos();
+  const today=tokyoISO();
+  return (overrides.todos||[]).filter(x=>{
+    if(x.done)return false;
+    if(!x.d)return false;
+    if(x.d<today)return true;                       // overdue
+    return (new Date(x.d)-new Date(today))/86400000<=windowDays;
+  }).sort((a,b)=>a.d.localeCompare(b.d));
+}
+function todoCard(windowDays,title){
+  const due=todoDigest(windowDays);
+  if(!due.length)return '';
+  const late=due.filter(x=>x.d<tokyoISO()).length;
+  return `<div class="card"><div class="chead"><span>${title}</span><span>${late?late+' past due · ':''}${due.length} open</span></div>`+
+    due.map(x=>todoRow(x,true)).join('')+
+    `<div style="padding:7px 12px;font:9px var(--mono);color:var(--grey);border-top:1px dotted var(--rule)">Full list on the To-do tab</div></div>`;
+}
+
 function renderTodo(){
   ensureTodos();
   const items=(overrides.todos||[]).slice();
@@ -969,7 +988,7 @@ function renderTodo(){
       <div class="chead"><span>Things to do</span><span>${open} open · ${items.length-open} done</span></div>
       <div class="plform">
         <div class="plrow1">
-          <input id="td_date" type="date" value="${tokyoToday()}">
+          <input id="td_date" type="date" value="${tokyoISO()}">
           <select id="td_cat">${Object.entries(TODO_CATS).map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
         </div>
         <input id="td_title" placeholder="What needs doing" maxlength="90">
@@ -1007,12 +1026,12 @@ window.saveTodo=function(){
 };
 window.toggleTodo=function(id,v){
   const x=(overrides.todos||[]).find(t=>t.id===id);
-  if(x){x.done=v;saveOverrides();renderTodo();}
+  if(x){x.done=v;saveOverrides();refreshPanel();}
 };
 window.delTodo=function(id){
   if(!confirm('Remove this item?'))return;
   overrides.todos=(overrides.todos||[]).filter(t=>t.id!==id);
-  saveOverrides();renderTodo();
+  saveOverrides();refreshPanel();
 };
 window.editTodo=function(id){
   const x=(overrides.todos||[]).find(t=>t.id===id);
@@ -1647,6 +1666,7 @@ function renderToday(){
   if(pre){
     const days=Math.round((Date.UTC(2026,10,15)-Date.UTC(t.y,t.m-1,t.d))/86400000);
     html+=`<div class="td-big">${days}</div><div class="td-sub">days until wheels-up · Delta 1015 · IAD 07:00 · Nov 15</div></div>`;
+    html+=todoCard(21,'Prep — due in the next 3 weeks');
     const toBook=allStops.filter(x=>x.res==='book');
     html+=`<div class="card"><div class="chead"><span>Still to book</span><span>${toBook.length} open</span></div>`+
       (toBook.map(x=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${x.id}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span><span class="td-meta">${x.cityName} · ${x.d} · ${x.m}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">Everything is booked ✓</div>')+`</div>`;
@@ -1668,6 +1688,7 @@ function renderToday(){
       html+=`<div class="card"><div class="chead"><span>Today's plan</span><span>${dayPlans.filter(p=>p.done).length}/${dayPlans.length} done</span></div>`+
         dayPlans.map(p=>{const pc=CITIES.find(c=>c.id===p.city);return planRow(p,pc?pc.city:'',true);}).join('')+`</div>`;
     }
+    html+=todoCard(0,"Today's to-dos");
     const fl=FLIGHTS.filter(f=>f.d.includes('Nov '+day));
     const tr=TRAINS.filter(x=>x.d==='Nov '+day);
     if(fl.length||tr.length){

@@ -341,6 +341,13 @@ const CITIES=[
  legs:[
   {r:"✈ YVR → JW Marriott Parq",m:"11/15 · Canada Line ~25 min, or 20-min taxi",n:"Off DL3748, clear Canadian customs, then Canada Line from the airport to Yaletown–Roundhouse and a 7-min walk. Taxi is ~C$40 and simpler with luggage after a long day."},
   {r:"JW Marriott Parq → YVR ✈",m:"11/16 · Canada Line ~25 min from Yaletown–Roundhouse",n:"Leave the hotel ~7:45 for ZG021 at 10:30 — a 2-hour international cushion. Board a YVR-bound train, NOT a Richmond–Brighouse one; they alternate."}],
+ lounges:[
+  {n:"Plaza Premium Lounge — International Departures",loc:"Airside · Level 4, Pier D — opposite the food court and duty free, between gates D67 and D68",
+   access:"Amex Platinum direct access: 3-hour limit · via the Priority Pass card: 2 hours",
+   note:"The bigger of the two at ~10,500 sq ft — floor-to-ceiling windows with mountain and apron views, congee with condiments, salads, noodles. Use the Amex card at the desk, not Priority Pass, for the longer stay."},
+  {n:"SkyTeam Lounge",loc:"Airside · International Terminal, near gate D53",
+   access:"Priority Pass · 3-hour limit",
+   note:"Half the size but refurbished in 2025 — made-to-order noodle station and a congee bar, solid breakfast spread. No full bar in the mornings. Reviewers who tried both preferred it for the noodles."}],
  metro:[["Canada Line","Yaletown–Roundhouse is 7 min on foot · YVR direct ~25 min · trains alternate YVR / Richmond, check the front"],
         ["On foot","The Victor is upstairs in the same complex · Yaletown and the False Creek seawall are 5–10 min · Gastown ~20 min"]],
  pois:[
@@ -1296,6 +1303,8 @@ function renderSide(c){
     <div class="card"><div class="chead"><span>Meals</span><span>Plan ¥${total.toLocaleString()}${spent?` · Spent ¥${spent.toLocaleString()}`:''}</span></div>${c.stops.map(mealCard).join('')}</div>
     <div class="card"><div class="chead"><span>Getting there & away</span></div>
       ${c.legs.map(l=>`<div class="leg"><div class="lr">${l.r}</div><div class="lm">${l.m}</div><div class="note">${l.n}</div></div>`).join('')}</div>
+    ${c.lounges?`<div class="card"><div class="chead"><span>Airport lounges</span><span>with Amex Plat / Priority Pass</span></div>
+      ${c.lounges.map(l=>`<div class="leg"><div class="lr">${esc(l.n)}</div><div class="lm">${esc(l.loc)}</div><div class="note warn">${esc(l.access)}</div><div class="note">${esc(l.note)}</div></div>`).join('')}</div>`:''}
     <div class="card js-lc-wx"><div class="chead"><span>Weather · ${c.city}</span></div>
       <div id="wxbody" style="padding:10px 12px;"><div class="note">Loading forecast…</div></div></div>
     <div class="card hotel-card js-lc-hotel"><div class="chead"><span>Hotel</span></div><dl>

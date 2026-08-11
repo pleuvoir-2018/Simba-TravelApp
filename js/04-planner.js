@@ -493,6 +493,10 @@ window.saveProfile=function(){
   const el=document.getElementById('pf_name');
   const v=el?el.value.trim():'';
   if(!v)return;
+  if(window._app.uid!=='admin'&&!isKoreanName(v)){
+    flash('한글 이름만 — display name must be a Korean name in Hangul','err');
+    el&&el.focus();return;
+  }
   const gf=i=>{const e=document.getElementById(i);return e?e.value.trim():'';};
   const first=gf('pf_first'), last=gf('pf_last'), dob=gf('pf_dob');
   const codeEl=document.getElementById('pf_code');

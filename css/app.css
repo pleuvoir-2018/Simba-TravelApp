@@ -32,7 +32,7 @@
   }
   h1{font-family:var(--mono);font-size:clamp(20px,4.6vw,31px);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.16;color:var(--tripac,var(--indigo));margin-top:4px}
   h1 .flag { height: 0.7em; width: auto; border: 1px solid var(--rule); border-radius: 2px; margin-right: 14px; vertical-align: -0.05em; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
-  .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);margin-bottom:7px}
+  .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);opacity:.62;margin-bottom:7px}
   .editbtn{font:600 10px var(--mono);letter-spacing:.07em;text-transform:uppercase;border:1px solid var(--ink);background:var(--card,#FBF8F1);color:var(--ink);padding:8px 14px;border-radius:6px;cursor:pointer;box-shadow:0 1px 2px rgba(20,22,27,.08)}
   .editbtn:hover{background:var(--ink);color:var(--washi)}
   .editbtn.on{background:var(--clay);border-color:var(--clay);color:#fff}
@@ -53,7 +53,7 @@
   .shell{display:flex;align-items:stretch;min-height:100vh}
   .shell>.wrap{flex:1;min-width:0}
   .sidenav{flex:0 0 236px;width:236px;position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;background:var(--washi2);border-right:1px solid var(--rule);display:flex;flex-direction:column;transition:width .22s ease,flex-basis .22s ease;z-index:1400;scrollbar-width:thin}
-  .nav-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 12px;border-bottom:2px solid var(--ink)}
+  .nav-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:16px 12px 4px;border-bottom:none;margin-bottom:10px}
   .nav-brand{display:flex;align-items:center;gap:8px;min-width:0}
   .nav-brand .nb-sun{font-size:15px;line-height:1;margin-right:2px}
   .nav-brand .nb-t{font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tripac,var(--indigo));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -210,7 +210,7 @@
   body.cruise .nvi .nv2{color:#7E9CC0}
   body.cruise .nvi.on{background:#123A63}
   body.cruise .nvi:hover{background:#102F4F}
-  body.cruise .nav-head{border-bottom-color:#12365C}
+
   body.cruise header h1{letter-spacing:-.01em}
   body.cruise .card{background:#fff}
   body.cruise .chead{background:#0B2545;color:#DCEAF9;border-bottom-color:#0B2545}

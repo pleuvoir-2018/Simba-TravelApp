@@ -323,7 +323,7 @@ var TRAINS=[
 ];
 
 window.TRIPS_REGISTRY['japan-2026']={accent:'#B8552A',cities:CITIES,hotels:HOTELS,flights:FLIGHTS,trains:TRAINS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
-   emoji:'🇯🇵',brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals",
+   emoji:'⛩',brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals",
    title:"Japan, November 2026",kicker:"Anniversary trip · 15–27 Nov 2026",depart:[2026,10,15],arrive:[2026,10,17],end:[2026,10,27],
    navIcons:{today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'},
    navSecs:{yokohama:'Itinerary',flights:'Tools'},

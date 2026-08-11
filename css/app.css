@@ -200,7 +200,7 @@
     .th-meta{align-items:center;gap:5px}
   }
   .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:6px}
-  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.78;margin:-4px 0 16px}
+  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.95;margin:2px 0 12px}
   .td-sub{font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:0}
   .td-row{display:flex;gap:10px;padding:10px 12px;border-bottom:1px dotted var(--rule);cursor:pointer;align-items:flex-start}
   .td-row:hover{background:#fff}

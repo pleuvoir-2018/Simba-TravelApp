@@ -308,7 +308,7 @@ function placeLeftCards(){
 }
 if(LC_MQ.addEventListener)LC_MQ.addEventListener('change',()=>render());
 
-/* ---------------- ADD RESTAURANT (developer mode) ---------------- */
+/* ---------------- ADD RESTAURANT (organizer tool) ---------------- */
 /* Pulls lat/lng out of a pasted Google Maps URL: @lat,lng / !3d..!4d.. / q=lat,lng */
 function parseLatLng(u){
   if(!u)return null;

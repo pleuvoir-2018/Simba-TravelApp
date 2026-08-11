@@ -10,9 +10,7 @@ var TRIP_TZ='Asia/Tokyo',TRIP_MON=11,CUR={code:'JPY',sym:'¥',key:'jpy',fallback
 const shell=document.getElementById('shell'),navlist=document.getElementById('navlist');
 /* Rebuilt on every trip switch — a nav built once from Japan would index
    into Korea's array and open the wrong tab. */
-let devMode=false;
-try{devMode=localStorage.getItem('jt_dev')==='1';}catch(e){}
-const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'developer mode',addrest:true};
+const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'organizer tools',addrest:true};
 function navCities(){
   let list=CITIES.slice();
   if(list.some(c=>c.cruiseTab||c.jjTab)&&!window._cru)return [];
@@ -20,15 +18,11 @@ function navCities(){
     list=list.filter(c=>!c.vault&&!c.expenses&&c.cruiseTab!=='cexp'&&c.jjTab!=='jexp');
   }
   if(list.some(c=>c.adminOnly)&&cruRole()!=='admin')list=list.filter(c=>!c.adminOnly);
-  if(devMode&&list.some(c=>c.stops)&&!list.some(c=>c.addrest))list.push(DEV_TAB);
+  const _adm=(window._app&&window._app.role==='admin');
+  if(_adm&&list.some(c=>c.stops)&&!list.some(c=>c.addrest))list.push(DEV_TAB);
   return list;
 }
-window.toggleDev=function(on){
-  devMode=on;
-  try{localStorage.setItem('jt_dev',on?'1':'0');}catch(e){}
-  if(!on)ci=0;
-  buildNav();render();
-};
+
 function buildNav(){
   const t=(typeof TRIP_DATA!=='undefined'&&TRIP_DATA[tripKey()])||null;
   const ico=(t&&t.navIcons)||{}, secs=(t&&t.navSecs)||{};
@@ -36,8 +30,7 @@ function buildNav(){
     (i===0?'<div class="nvsec">Now</div>':'')+
     (secs[c.id]?`<div class="nvsec">${secs[c.id]}</div>`:'')+
     `<button class="nvi" data-i="${i}" title="${c.city}"><span class="nvic">${ico[c.id]||'•'}</span><span class="nvtx"><span class="nv1">${c.city}</span><span class="nv2">${c.sub}</span></span></button>`
-  ).join('')+(CITIES.some(c=>c.stops)?`<label style="display:flex;align-items:center;gap:7px;padding:13px 14px 6px;font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);cursor:pointer">
-      <input type="checkbox" ${devMode?'checked':''} onchange="toggleDev(this.checked)" style="width:13px;height:13px;accent-color:var(--clay)"> <span class="devlbl">Developer mode</span></label>`:'');
+  ).join('');
   navlist.querySelectorAll('.nvi').forEach(b=>b.onclick=()=>{ci=+b.dataset.i;sel=null;selPoi=null;cat='all';shell.classList.remove('drawer');render();});
 }
 function refreshNav(){navlist.querySelectorAll('.nvi').forEach(b=>{const on=+b.dataset.i===ci;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}

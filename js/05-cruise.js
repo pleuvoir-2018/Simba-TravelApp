@@ -928,7 +928,7 @@ function renderSide(c){
   const visPois=c.pois.map((p,i)=>({...p,i})).filter(p=>cat==='all'||p.c===cat);
   document.getElementById('side').innerHTML=`
     ${renderPlansCard(c)}
-    <div class="card"><div class="chead"><span>Meals</span><span>Plan ${CUR.sym}${total.toLocaleString()}${spent?` · Spent ${CUR.sym}${spent.toLocaleString()}`:''}</span></div>${stopsFor(c).map(s=>mealCard(s,c)).join('')||`<div style="padding:11px 13px;font-size:12px;color:var(--grey)">No restaurants yet — turn on Developer mode in the sidebar and use the Add restaurant tab.</div>`}</div>
+    <div class="card"><div class="chead"><span>Meals</span><span>Plan ${CUR.sym}${total.toLocaleString()}${spent?` · Spent ${CUR.sym}${spent.toLocaleString()}`:''}</span></div>${stopsFor(c).map(s=>mealCard(s,c)).join('')||`<div style="padding:11px 13px;font-size:12px;color:var(--grey)">No restaurants yet — the organizer can add them via the Add restaurant tab.</div>`}</div>
     <div class="card"><div class="chead"><span>Getting there & away</span></div>
       ${c.legs.map(l=>`<div class="leg"><div class="lr">${l.r}</div><div class="lm">${l.m}</div><div class="note">${l.n}</div></div>`).join('')}</div>
     ${c.lounges?`<div class="card"><div class="chead"><span>Airport lounges</span><span>with Amex Plat / Priority Pass</span></div>

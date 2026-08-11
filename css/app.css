@@ -185,6 +185,20 @@
   /* Today view */
   .td-stack{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
   .td-hero{padding:16px 20px 14px;text-align:center}
+  .th-split{display:flex;align-items:center;justify-content:center;gap:30px;padding:12px 8px;text-align:left}
+  .th-count{display:flex;align-items:baseline;gap:12px}
+  .th-num{font-family:var(--serif);font-size:clamp(56px,7vw,84px);line-height:.8;color:var(--tripac,var(--indigo));font-weight:700}
+  .th-days{font:600 10px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--grey);line-height:1.7}
+  .th-sep{width:1px;align-self:stretch;background:var(--rule)}
+  .th-meta{display:flex;flex-direction:column;gap:7px;min-width:0}
+  .th-today{font:600 10px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--clay)}
+  .th-lbl{font:600 8.5px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--grey)}
+  .th-flight{font:600 13px var(--mono);letter-spacing:.06em;color:var(--ink);white-space:normal}
+  @media(max-width:640px){
+    .th-split{flex-direction:column;gap:14px;text-align:center}
+    .th-sep{width:56px;height:1px;align-self:center}
+    .th-meta{align-items:center;gap:5px}
+  }
   .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:6px}
   .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.78;margin:-4px 0 16px}
   .td-sub{font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:0}

@@ -42,10 +42,18 @@ function renderToday(){
   const tripDays=Math.round((Date.UTC(fin[0],fin[1],fin[2])-Date.UTC(arr[0],arr[1],arr[2]))/86400000)+1;
   const dateLine=`${t.w} · ${MONTH_NAMES[t.m-1]} ${t.d} · ${TRIP_TZ.split('/')[1].replace('_',' ')}`;
   const allStops=CITIES.map((c,i)=>c.stops?stopsFor(c).map(x=>({...eff(x),cityName:c.city,ci:i})):[]).flat();
-  let html=`<div class="td-stack"><div class="card td-hero"><div class="td-date">${dateLine}</div>`;
+  let html=`<div class="td-stack"><div class="card td-hero">`;
   if(pre){
     const days=Math.round((Date.UTC(dep[0],dep[1],dep[2])-Date.UTC(t.y,t.m-1,t.d))/86400000);
-    html+=`<div class="td-big">${days}</div><div class="td-sub">days until wheels-up${TD.departNote?' · '+TD.departNote:''}</div></div>`;
+    html+=`<div class="th-split">
+      <div class="th-count"><span class="th-num">${days}</span><span class="th-days">days<br>to go</span></div>
+      <div class="th-sep"></div>
+      <div class="th-meta">
+        <div class="th-today">${dateLine}</div>
+        <div class="th-lbl">Until wheels-up</div>
+        <div class="th-flight">${TD.departNote||''}</div>
+      </div>
+    </div></div>`;
     html+=todoCard(21,'Prep — due in the next 3 weeks');
     const toBook=allStops.filter(x=>x.res==='book');
     html+=`<div class="card"><div class="chead"><span>Still to book</span><span>${toBook.length} open</span></div>`+
@@ -57,7 +65,7 @@ function renderToday(){
     const dayNo=Math.round((Date.UTC(t.y,t.m-1,t.d)-Date.UTC(arr[0],arr[1],arr[2]))/86400000)+1;
     const headline=dayNo<1?(TD.preLabel||'Positioning day'):(`Day ${dayNo} of ${tripDays}`);
     const where=cityIdx>-1?CITIES[cityIdx].city:(TD.transitLabel||'In transit ✈');
-    html+=`<div class="td-big">${headline}</div><div class="td-sub">${where}</div>`+
+    html+=`<div class="td-date">${dateLine}</div><div class="td-big">${headline}</div><div class="td-sub">${where}</div>`+
       (cityIdx>-1?`<button class="td-go" onclick="gotoCity(${cityIdx})">Open the ${CITIES[cityIdx].city} tab →</button>`:'')+`</div>`;
     const meals=allStops.filter(x=>x.d.startsWith(TRIP_MON+'/'+day));
     const order={Breakfast:0,Lunch:1,Dinner:2};
@@ -91,7 +99,7 @@ function renderToday(){
     }
   } else {
     const spentUsd=(overrides.expenses||[]).reduce((a,e)=>a+Number(e.usd),0);
-    html+=`<div class="td-big">Okaeri 🏠</div><div class="td-sub">Trip complete${spentUsd?` · $${spentUsd.toLocaleString('en-US',{minimumFractionDigits:2})} logged`:''}</div></div>`;
+    html+=`<div class="td-date">${dateLine}</div><div class="td-big">Okaeri 🏠</div><div class="td-sub">Trip complete${spentUsd?` · $${spentUsd.toLocaleString('en-US',{minimumFractionDigits:2})} logged`:''}</div></div>`;
   }
   html+=`</div>`;
   panel.innerHTML=html;

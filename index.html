@@ -512,10 +512,17 @@ function mergeCruise(rt,lt,base){
     Object.keys(R).forEach(uid=>{ if(uid!==me)m[uid]=R[uid]; });
     if(Object.keys(m).length)out[key]=m;
   });
-  ['users','charges','sched','ann'].forEach(key=>{
+  ['users','charges','sched','ann','quotes'].forEach(key=>{
     const v=admin?(lt[key]!==undefined?lt[key]:rt[key]):(rt[key]!==undefined?rt[key]:lt[key]);
     if(v!==undefined)out[key]=v;
   });
+  {  // change requests: each guest owns their own; admin's decisions win
+    const R=rt.reqs, L=lt.reqs;
+    if(admin){ if(L!==undefined||R!==undefined)out.reqs=L!==undefined?L:R; }
+    else if(R!==undefined||L!==undefined){
+      out.reqs=[...(R||[]).filter(r=>r.uid!==me),...(L||[]).filter(r=>r.uid===me)];
+    }
+  }
   if(admin){ if(lt.rooms!==undefined||rt.rooms!==undefined)out.rooms=lt.rooms!==undefined?lt.rooms:rt.rooms; }
   else{
     const R=rt.rooms, L=lt.rooms||[];
@@ -1449,6 +1456,49 @@ function renderCruise(c){
     const mine=rooms.find(r=>(r.slots||[]).includes(me));
     const placed=new Set(rooms.flatMap(r=>(r.slots||[]).filter(Boolean)));
     const unplaced=users.filter(u=>!placed.has(u.uid));
+    const quotes=overrides.quotes||{};
+    const reqs=overrides.reqs||[];
+    const money=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
+    const quotedCats=cats.filter(k=>quotes[k.id]&&Number(quotes[k.id].q)>0);
+    const quoteAdmin=`<div class="card"><div class="chead"><span>💵 Quotes by room type</span><span>guests only see quoted types</span></div>
+      ${cats.map(k=>{const q=quotes[k.id]||{};return `<div class="tdo-row" style="flex-wrap:wrap;gap:6px">
+        <span class="tdo-main" style="flex:1 1 150px"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc">${esc(k.sq)}</span></span>
+        <input type="number" min="0" placeholder="$ quote" value="${q.q||''}" onchange="setQuote('${k.id}','q',this.value)" style="flex:0 1 100px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:5px 7px">
+        <input placeholder="image URL — right-click a photo on Royal's site → Copy Image Address" value="${esc(q.img||'')}" onchange="setQuote('${k.id}','img',this.value)" style="flex:2 1 210px;font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:5px 7px">
+      </div>`;}).join('')}
+    </div>`;
+    const pend=reqs.filter(r=>r.status==='pending');
+    const reqAdmin=`<div class="card"><div class="chead"><span>🔁 Room-type change requests</span><span>${pend.length} pending</span></div>
+      ${reqs.slice().sort((a,b)=>b.ts-a.ts).slice(0,10).map(r=>{
+        const room=rooms.find(x=>x.id===r.rid); const ri=room?rooms.indexOf(room)+1:'?';
+        const fromN=(cats.find(k=>k.id===r.from)||{}).n||r.from, toN=(cats.find(k=>k.id===r.to)||{}).n||r.to;
+        return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(r.uid))} · Room ${ri}</span>
+          <span class="tdo-desc">${esc(fromN)} → <b>${esc(toN)}</b>${r.note?' · '+esc(r.note):''} · ${r.status}</span></span>
+          ${r.status==='pending'?`<button class="tdo-x" onclick="decideReq('${r.id}',1)" title="Approve — applies immediately" style="color:var(--moss)">✓</button><button class="tdo-x" onclick="decideReq('${r.id}',0)" title="Deny" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`;
+      }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No requests yet.</div>'}
+    </div>`;
+    const quoteShow=quotedCats.length?`<div class="card"><div class="chead"><span>💵 Room types on offer</span><span>quotes from 조상연</span></div>
+      ${quotedCats.map(k=>{const q=quotes[k.id];return `<div style="display:flex;gap:12px;padding:12px 13px;border-bottom:1px dotted var(--rule);align-items:center">
+        ${q.img?`<img src="${esc(q.img)}" alt="${esc(k.n)}" loading="lazy" style="flex:0 0 110px;width:110px;height:78px;object-fit:cover;border-radius:3px" onerror="this.style.display='none'">`:`<span style="flex:0 0 110px;height:78px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 10px var(--mono)">${esc(k.n.slice(0,2).toUpperCase())}</span>`}
+        <span style="flex:1;min-width:0"><span style="font-size:13.5px;font-weight:600">${esc(k.n)}</span>
+          <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--indigo2);margin-top:1px">${esc(k.sq)}</span>
+          <span style="display:block;font-size:11.5px;color:var(--grey);margin-top:2px">${esc(k.d)}</span></span>
+        <span style="flex:0 0 auto;text-align:right;font-family:var(--serif);font-size:19px;font-weight:700;color:var(--indigo)">${money(q.q)}</span>
+      </div>`;}).join('')}
+    </div>`:'';
+    const myPendReq=reqs.find(r=>r.uid===me&&r.status==='pending');
+    const myLastReq=reqs.filter(r=>r.uid===me&&r.status!=='pending').sort((a,b)=>(b.decided||b.ts)-(a.decided||a.ts))[0];
+    const reqCard=(!admin&&mine)?`<div class="card"><div class="chead"><span>🔁 Request a room-type change</span><span>Room ${rooms.indexOf(mine)+1}</span></div>
+      ${myPendReq?`<div style="padding:12px 13px;font-size:12.5px">Pending with 조상연: <b>${esc((cats.find(k=>k.id===myPendReq.to)||{}).n||myPendReq.to)}</b>${myPendReq.note?' · '+esc(myPendReq.note):''}
+        <button onclick="cancelReq('${myPendReq.id}')" style="margin-left:10px;background:none;border:1px solid var(--rule);border-radius:2px;font:600 9px var(--mono);text-transform:uppercase;color:var(--clay);padding:4px 8px;cursor:pointer">Cancel</button></div>`
+      :`<div class="plform">
+        ${myLastReq?`<div class="plhint">Your last request (${esc((cats.find(k=>k.id===myLastReq.to)||{}).n||myLastReq.to)}) was <b>${myLastReq.status}</b>.</div>`:''}
+        <select id="rq_to">${cats.filter(k=>k.id!==mine.cat).map(k=>`<option value="${k.id}">${esc(k.n)}${quotes[k.id]&&quotes[k.id].q?' — '+money(quotes[k.id].q):''}</option>`).join('')}</select>
+        <input id="rq_note" placeholder="Anything 조상연 should know (optional)" maxlength="80">
+        <button class="pladd" type="button" onclick="reqChange()" style="align-self:flex-start;padding:8px 14px">Send request</button>
+        <div class="plhint">Once approved, your cabin's type changes automatically — nothing else to do.</div>
+      </div>`}
+    </div>`:'';
     body=(admin?`<div class="card"><div class="chead"><span>${window._editRoom?'Edit cabin':'Add a cabin'}</span></div>
       <div class="plform">
         <div class="plrow1">
@@ -1460,7 +1510,7 @@ function renderCruise(c){
           <button class="pladd" type="button" onclick="addRoom()" style="padding:8px 14px;${window._editRoom?'background:var(--moss)':''}">${window._editRoom?'✓ Save cabin':'+ Add cabin'}</button>
           ${window._editRoom?'<button type="button" onclick="window._editRoom=null;render()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);padding:7px 11px;cursor:pointer;color:var(--grey)">Cancel</button>':''}
         </div>
-      </div></div>`:'')+
+      </div></div>`+quoteAdmin+reqAdmin:quoteShow)+
       `<div class="card"><div class="chead"><span>🛏 Cabins</span><span>${placed.size}/${rooms.length*2} slots taken</span></div>
       ${rooms.length?rooms.map((r,ri)=>{
         const k=cats.find(x=>x.id===r.cat)||{n:r.cat,d:'',sq:'',tone:'#5B7185'};
@@ -1483,7 +1533,7 @@ function renderCruise(c){
           ${admin?`<span style="display:flex;flex-direction:column;gap:2px"><button class="tdo-x" onclick="editRoom('${r.id}')" style="color:var(--indigo)">✎</button><button class="tdo-x" onclick="delRoom('${r.id}')" style="color:var(--clay);font-size:17px">×</button></span>`:''}
         </div>`;
       }).join(''):'<div style="padding:13px;font-size:12px;color:var(--grey)">No cabins added yet.</div>'}
-      </div>
+      </div>`+reqCard+`
       ${unplaced.length?`<div class="card"><div class="chead"><span>Not in a cabin yet</span><span>${unplaced.length}</span></div>
         <div style="padding:10px 13px;font-size:12.5px;color:var(--grey)">${unplaced.map(u=>esc(u.name)).join(' · ')}</div></div>`:''}`;
   }
@@ -1932,6 +1982,39 @@ window.delCharge=function(id){
     overrides.charges=(overrides.charges||[]).filter(c=>c.id!==id);
     saveOverrides();render();
   }
+};
+window.setQuote=function(cat,f,v){
+  overrides.quotes=overrides.quotes||{};
+  overrides.quotes[cat]=overrides.quotes[cat]||{};
+  if(f==='q')overrides.quotes[cat].q=Number(v)||0;
+  else overrides.quotes[cat][f]=String(v).trim();
+  saveOverrides();
+};
+window.reqChange=function(){
+  const g=i=>document.getElementById(i);
+  const me=(window._cru||{}).uid;
+  const rooms=overrides.rooms||[];
+  const mine=rooms.find(r=>(r.slots||[]).includes(me));
+  if(!mine||!g('rq_to'))return;
+  overrides.reqs=(overrides.reqs||[]).filter(r=>!(r.uid===me&&r.status==='pending'));
+  overrides.reqs.push({id:'q'+Date.now(),uid:me,rid:mine.id,from:mine.cat,to:g('rq_to').value,
+    note:g('rq_note')?g('rq_note').value.trim():'',ts:Date.now(),status:'pending'});
+  saveOverrides();render();
+};
+window.cancelReq=function(id){
+  overrides.reqs=(overrides.reqs||[]).filter(r=>r.id!==id);
+  saveOverrides();render();
+};
+window.decideReq=function(id,ok){
+  const r=(overrides.reqs||[]).find(x=>x.id===id);
+  if(!r)return;
+  if(ok){
+    const room=(overrides.rooms||[]).find(x=>x.id===r.rid);
+    if(room)room.cat=r.to;          // the approval IS the change — nothing else to do
+    r.status='approved';
+  }else r.status='denied';
+  r.decided=Date.now();
+  saveOverrides();render();
 };
 window._editRoom=null;
 window.addRoom=function(){

@@ -186,6 +186,37 @@
   .chip:not(.on):hover{border-color:var(--moss);color:var(--moss)}
   button{-webkit-tap-highlight-color:transparent}
 
+  /* Landing / trip picker */
+  body.home .shell{display:block}
+  body.home #sidenav,body.home .backdrop,body.home header,body.home footer{display:none}
+  body.home .wrap{max-width:980px}
+  .home-hero{padding:46px 4px 26px;text-align:center}
+  .home-hero .hk{font:600 10px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--clay)}
+  .home-hero h1{font-family:var(--serif);font-size:clamp(30px,6vw,46px);font-weight:700;color:var(--indigo);margin:8px 0 6px;letter-spacing:-.01em}
+  .home-hero p{font-size:13px;color:var(--grey);max-width:460px;margin:0 auto}
+  .trips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;padding:4px 0 40px}
+  .trip{position:relative;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:var(--washi2);
+    text-align:left;padding:0;cursor:pointer;font-family:inherit;transition:transform .18s ease,box-shadow .18s ease}
+  .trip:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(20,22,27,.14)}
+  .trip .ph{position:relative;height:210px;background:linear-gradient(135deg,#22406B,#4A6B8A 55%,#B8552A)}
+  .trip .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .trip .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(20,22,27,.78) 0%,rgba(20,22,27,.15) 48%,rgba(20,22,27,0) 100%)}
+  .trip .cap{position:absolute;left:16px;right:16px;bottom:13px;z-index:2;color:#fff}
+  .trip .cap .cn{font:600 9.5px var(--mono);letter-spacing:.18em;text-transform:uppercase;opacity:.9}
+  .trip .cap .ct{font-family:var(--serif);font-size:25px;font-weight:700;line-height:1.15;margin:3px 0 2px}
+  .trip .cap .cd{font:11px var(--mono);opacity:.92}
+  .trip .bar{display:flex;justify-content:space-between;align-items:center;padding:11px 16px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--indigo)}
+  .trip .credit{font:8.5px var(--mono);color:var(--grey);text-transform:none;letter-spacing:0}
+  .trip.soon{cursor:default}
+  .trip.soon:hover{transform:none;box-shadow:none}
+  .trip.soon .ph img{filter:grayscale(1) brightness(.72)}
+  .trip.soon .bar{color:var(--grey)}
+  .ribbon{position:absolute;top:14px;left:0;z-index:3;background:var(--clay);color:#fff;
+    font:600 9.5px var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:5px 13px 5px 16px;border-radius:0 2px 2px 0;box-shadow:0 2px 8px rgba(20,22,27,.3)}
+  .home-foot{text-align:center;padding:0 0 40px;font:9.5px var(--mono);color:var(--grey);line-height:1.7}
+  .backtrips{background:none;border:1px solid var(--rule);border-radius:2px;cursor:pointer;
+    font:600 9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--indigo);padding:5px 9px;margin-right:8px}
+
   /* To-do / prep tracker */
   .tdo-row{display:flex;gap:9px;align-items:flex-start;padding:9px 12px;border-bottom:1px dotted var(--rule)}
   .tdo-row:last-child{border-bottom:0}
@@ -272,6 +303,7 @@
       </h1>
     </div>
     <span style="display:flex;gap:8px;align-items:center">
+      <button class="backtrips" type="button" onclick="backToTrips()" title="All trips">← Trips</button>
       <button class="navburger" id="navBurger" type="button" aria-label="Open menu">☰</button>
       <button class="editbtn" id="editToggle" type="button">✎ Edit mode</button>
     </span>
@@ -992,6 +1024,59 @@ async function loadWeather(cityId){
     el.innerHTML = `<div class="note">Weather unavailable right now — check again when online.</div>`;
   }
 }
+
+/* ---------------- TRIPS / LANDING ---------------- */
+const wm=f=>`https://commons.wikimedia.org/wiki/Special:FilePath/${f}?width=900`;
+const TRIPS=[
+ {id:'japan-2026',country:'Japan',title:'Japan, November 2026',dates:'15–27 November 2026',
+  blurb:'Vancouver · Yokohama · Nara · Osaka · Kyoto · Nagoya · Tokyo',
+  photo:wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg'),
+  credit:'Kiyomizu-dera in autumn · Martin Falbisoner, CC BY-SA 4.0',status:'active'},
+ {id:'korea-2027',country:'South Korea',title:'Korea, May 2027',dates:'7–18 May 2027',
+  blurb:'Planning starts later — Seoul and beyond',
+  photo:wm('Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg'),
+  credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'soon'}
+];
+let tripSel=null;
+try{tripSel=localStorage.getItem('jt_trip');}catch(e){}
+function renderHome(){
+  document.body.classList.add('home');
+  panel.innerHTML=`
+  <div class="home-hero">
+    <div class="hk">Trip journal</div>
+    <h1>Where to?</h1>
+    <p>Pick a trip to open its plans, meals, maps and expenses. Finished trips stay here as a record of where you have been.</p>
+  </div>
+  <div class="trips">
+    ${TRIPS.map(t=>`
+      <button class="trip ${t.status==='soon'?'soon':''}" type="button" ${t.status==='soon'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
+        ${t.status==='soon'?'<span class="ribbon">Coming soon</span>':''}
+        <div class="ph">
+          <img src="${t.photo}" alt="${esc(t.country)}" loading="lazy"
+               onerror="this.style.display='none'">
+          <div class="cap">
+            <div class="cn">${esc(t.country)}</div>
+            <div class="ct">${esc(t.title)}</div>
+            <div class="cd">${esc(t.dates)}</div>
+          </div>
+        </div>
+        <div class="bar"><span>${t.status==='soon'?'Not planned yet':'Open trip →'}</span>
+          <span class="credit">${esc(t.credit)}</span></div>
+      </button>`).join('')}
+  </div>
+  <div class="home-foot">${esc(TRIPS.find(t=>t.id==='japan-2026').blurb)}<br>Photos via Wikimedia Commons under their stated licences.</div>`;
+}
+window.openTrip=function(id){
+  tripSel=id;
+  try{localStorage.setItem('jt_trip',id);}catch(e){}
+  document.body.classList.remove('home');
+  render();
+};
+window.backToTrips=function(){
+  tripSel=null;
+  try{localStorage.removeItem('jt_trip');}catch(e){}
+  renderHome();
+};
 
 /* ---------------- TO-DO / PREP TRACKER ---------------- */
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
@@ -1947,6 +2032,7 @@ function renderCalc() {
 }
 
 function render(){
+  if(!tripSel){renderHome();return;}
   refreshNav();
   const c=CITIES[ci];
 

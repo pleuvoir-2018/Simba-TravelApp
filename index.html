@@ -1552,7 +1552,7 @@ function renderCruise(c){
             <span style="font:11px var(--mono);color:${pd>=b-0.005?'var(--moss)':'var(--clay)'};flex:0 0 auto">${money(pd)} / ${money(b)}</span></div>`;
         }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No charges assigned yet.</div>'}
         </div></div>
-      <div class="card"><div class="chead"><span>Bill someone</span></div>
+      <div class="card"><div class="chead"><span>${window._editCharge?'✎ Edit charge':'Bill someone'}</span>${window._editCharge?'<span>payments already recorded are kept</span>':''}</div>
         <div class="plform">
           <div class="plrow1">
             <select id="ch_uid">${users.map(u=>`<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select>
@@ -1565,7 +1565,9 @@ function renderCruise(c){
           <div class="plrow1">
             <input id="ch_amt" type="number" min="0" step="0.01" placeholder="$ total (ignored when line items are set)" oninput="updateChTotal()">
             <input id="ch_dep" type="number" min="0" step="0.01" placeholder="$ deposit (optional)" title="Royal's booking deposit — tracked as its own milestone" style="flex:0 1 150px">
-            <button class="pladd" type="button" onclick="addCharge()" style="flex:0 0 auto;padding:8px 14px">Bill · <span id="ch_total">$0.00</span></button>
+            <button class="pladd" type="button" onclick="addCharge()" style="flex:0 0 auto;padding:8px 14px;${window._editCharge?'background:var(--moss)':''}">${window._editCharge?'✓ Save':'Bill'} · <span id="ch_total">$0.00</span></button>
+            ${window._editCharge?'<button type="button" onclick="window._editCharge=null;window._chItems=[];render()" style="flex:0 0 auto;background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);padding:7px 11px;cursor:pointer;color:var(--grey)">Cancel</button>':''}
+            <span id="ch_msg" style="font:10px var(--mono);color:var(--clay);align-self:center"></span>
           </div>
           <div class="plhint">Guests see ONE line on their tracker; the invoice shows every line with its category.</div>
         </div></div>
@@ -1574,6 +1576,7 @@ function renderCruise(c){
             <span class="tdo-desc">${money(x.amt)} · ${x.kind}${x.dep?` · dep ${money(x.dep)} ${Number(x.paid||0)>=Number(x.dep)-0.005?'✓':'due'}`:''}${x.items?` · ${x.items.length} lines`:''}</span></span>
           <label style="flex:0 0 auto;font:600 8px var(--mono);color:var(--grey);text-transform:uppercase;text-align:right">Paid $<br>
             <input type="number" min="0" step="0.01" value="${Number(x.paid||0)>0.005?Number(x.paid).toFixed(2):''}" placeholder="0" onchange="setChargePaid('${x.id}',this.value)" style="width:78px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;text-align:right;background:#fff;margin-top:2px"></label>
+          <button class="tdo-x" onclick="editCharge('${x.id}')" title="Edit" style="color:var(--indigo)">✎</button>
           ${x.dep&&Number(x.paid||0)<Number(x.dep)-0.005?`<button class="tdo-x" onclick="setChargePaid('${x.id}','${Number(x.dep)}')" title="Deposit received" style="color:#0E7C86;font:700 9px var(--mono)">✓dep</button>`:''}
           <button class="tdo-x" onclick="setChargePaid('${x.id}','${Number(x.amt)}')" title="Mark fully paid" style="color:var(--moss);font-size:13px">✓</button>
           <button class="tdo-x" onclick="delCharge('${x.id}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No charges yet.</div>'}
@@ -1813,23 +1816,54 @@ function invoiceHTML(x,billedTo){
     </span>
   </span>`;
 }
+window._editCharge=null;
 window.addCharge=function(){
   const g=i=>document.getElementById(i);
+  const msg=g('ch_msg');
   const desc=g('ch_desc').value.trim();
-  if(!desc){g('ch_desc').focus();return;}
+  if(!desc){if(msg)msg.textContent='Description needed.';g('ch_desc').focus();return;}
+  // An amount on a line is enough — a blank detail inherits its category name.
   const items=window._chItems
     .map(x=>({c:x.c||'other',d:String(x.d||'').trim(),amt:Number(x.amt)}))
-    .filter(x=>x.d&&isFinite(x.amt)&&x.amt>0);
+    .filter(x=>isFinite(x.amt)&&x.amt>0)
+    .map(x=>({...x,d:x.d||(CH_CATS[x.c]||CH_CATS.other).slice(2).trim()}));
   const amt=items.length?items.reduce((a,x)=>a+x.amt,0):Number(g('ch_amt').value);
-  if(!(amt>0)){g('ch_amt').focus();return;}
-  overrides.charges=overrides.charges||[];
-  const rec={id:'c'+Date.now(),uid:g('ch_uid').value,kind:g('ch_kind').value,desc,amt:Number(amt.toFixed(2)),paid:0};
+  if(!(amt>0)){if(msg)msg.textContent='Add an amount on a line item, or a single total.';g(items.length?'ch_desc':'ch_amt').focus();return;}
   const dep=Number(g('ch_dep')?g('ch_dep').value:0);
-  if(dep>0)rec.dep=Number(Math.min(dep,amt).toFixed(2));
-  if(items.length)rec.items=items;
-  overrides.charges.push(rec);
+  overrides.charges=overrides.charges||[];
+  if(window._editCharge){
+    const x=overrides.charges.find(c=>c.id===window._editCharge);
+    window._editCharge=null;
+    if(x){
+      x.uid=g('ch_uid').value;x.kind=g('ch_kind').value;x.desc=desc;
+      x.amt=Number(amt.toFixed(2));
+      x.paid=Math.min(Number(x.paid||0),x.amt);     // keep payments, clamped to the new total
+      if(dep>0)x.dep=Number(Math.min(dep,x.amt).toFixed(2)); else delete x.dep;
+      if(items.length)x.items=items; else delete x.items;
+    }
+  }else{
+    const rec={id:'c'+Date.now(),uid:g('ch_uid').value,kind:g('ch_kind').value,desc,amt:Number(amt.toFixed(2)),paid:0};
+    if(dep>0)rec.dep=Number(Math.min(dep,amt).toFixed(2));
+    if(items.length)rec.items=items;
+    overrides.charges.push(rec);
+  }
   window._chItems=[];
   saveOverrides();render();
+};
+window.editCharge=function(id){
+  const x=(overrides.charges||[]).find(c=>c.id===id);
+  if(!x)return;
+  window._editCharge=id;
+  window._chItems=(x.items||[]).map(it=>({c:it.c||'other',d:it.d,amt:it.amt}));
+  render();                                   // paints the form + item rows
+  const g=i=>document.getElementById(i);
+  if(g('ch_uid'))g('ch_uid').value=x.uid;
+  if(g('ch_kind'))g('ch_kind').value=x.kind;
+  if(g('ch_desc'))g('ch_desc').value=x.desc;
+  if(g('ch_dep'))g('ch_dep').value=x.dep||'';
+  if(g('ch_amt'))g('ch_amt').value=x.items?'':x.amt;
+  updateChTotal();
+  g('ch_desc').scrollIntoView({behavior:'smooth',block:'center'});
 };
 window.setChargePaid=function(id,v){
   const x=(overrides.charges||[]).find(c=>c.id===id);

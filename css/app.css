@@ -343,3 +343,21 @@
 @media (min-width:1800px){ body{zoom:1.22} }
 @media (min-width:2400px){ body{zoom:1.5} }
 @media (min-width:3400px){ body{zoom:1.85} }
+
+/* ---- Admin page: user rows that survive a phone ---- */
+.urow{padding:12px 13px;border-bottom:1px dotted var(--rule)}
+.urow-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.urow-id{display:flex;align-items:center;gap:9px;min-width:0}
+.urow-id b{font-size:13.5px}
+.urow-code{font:600 11px var(--mono);letter-spacing:.12em;color:var(--grey);background:var(--washi2);border-radius:3px;padding:2px 7px}
+.urow-badge{border:1px solid #B0761F;color:#B0761F;border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px}
+.urow-ops{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.urow-ops select{font:600 10.5px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:4px 5px;background:var(--card,#fff);height:30px}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:9px 14px;margin-top:10px}
+.gcell{display:flex;flex-direction:column;gap:4px;min-width:0}
+.gname{font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gcell select{font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:5px 6px;background:var(--card,#fff);width:100%}
+@media(max-width:640px){
+  .ggrid{grid-template-columns:repeat(2,1fr)}
+  .urow-ops{width:100%;justify-content:flex-end}
+}

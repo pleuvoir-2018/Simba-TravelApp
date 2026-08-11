@@ -36,36 +36,36 @@ function renderAdminPage(){
       <h1>Admin</h1>
       <div style="position:absolute;top:0;right:0"><button type="button" onclick="renderHome()" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;height:34px;display:inline-flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--ink)">← Trips</button></div>
     </div>
-    <div class="card"><div class="chead"><span>👥 People & access</span><span>${users.length} · master code ${CRUISE_MASTER}</span></div>
+    <div class="card"><div class="chead"><span>👥 People & access</span><span>${users.length} people · master ${CRUISE_MASTER}</span></div>
       ${users.map(u=>{
         const acc=u.access||{};
-        return `<div style="padding:11px 13px;border-bottom:1px dotted var(--rule)">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <b style="font-size:13px">${esc(u.name)}</b>
-            ${u.role==='pending'?'<span style="border:1px solid #B0761F;color:#B0761F;border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px">⏳ pending</span>':''}
-            <span style="font:11px var(--mono);color:var(--grey)">code <b style="letter-spacing:.12em">${esc(u.code)}</b></span>
-            <span style="flex:1"></span>
-            ${u.role==='pending'?`<button class="tdo-x" onclick="appApprove('${u.uid}')" title="Approve" style="color:var(--moss);font:700 11px var(--mono)">✓ approve</button>`
-              :`<select onchange="appSetRole('${u.uid}',this.value)" title="App role" style="font:600 10px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;background:var(--card,#fff)">
-                  <option value="user" ${u.role!=='designer'?'selected':''}>Member</option>
-                  <option value="designer" ${u.role==='designer'?'selected':''}>Designer</option>
-                </select>`}
-            <button class="tdo-x" onclick="appRename('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
-            <button class="tdo-x" onclick="appRegen('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
-            <button class="tdo-x" onclick="appDel('${u.uid}')" style="color:var(--clay);font-size:17px">×</button>
+        return `<div class="urow">
+          <div class="urow-top">
+            <span class="urow-id"><b>${esc(u.name)}</b><span class="urow-code">${esc(u.code)}</span>
+              ${u.role==='pending'?'<span class="urow-badge">⏳ pending</span>':''}</span>
+            <span class="urow-ops">
+              ${u.role==='pending'?`<button class="tdo-x" onclick="appApprove('${u.uid}')" title="Approve" style="color:var(--moss);font:700 11px var(--mono)">✓ approve</button>`
+                :`<select onchange="appSetRole('${u.uid}',this.value)" title="App role">
+                    <option value="user" ${u.role!=='designer'?'selected':''}>Member</option>
+                    <option value="designer" ${u.role==='designer'?'selected':''}>Designer</option>
+                  </select>`}
+              <button class="tdo-x" onclick="appRename('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
+              <button class="tdo-x" onclick="appRegen('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
+              <button class="tdo-x" onclick="appDel('${u.uid}')" style="color:var(--clay);font-size:17px">×</button>
+            </span>
           </div>
           ${u.role==='designer'?`<div style="margin-top:7px;font:10.5px var(--mono);color:var(--indigo2)">🎨 Designer — opens every destination for review; Expenses, Vault and all money tabs are hidden, and nothing they do saves.</div>`
-          :u.role==='pending'?'':`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px">
+          :u.role==='pending'?'':`<div class="ggrid">
             ${dests.map(d=>{
               const td=TRIP_DATA[d.id];
-              if(td.cruise||td.group)return `<label style="display:flex;align-items:center;gap:5px">${d.emoji||'🚢'} ${esc(d.country)}
-                <select onchange="appGrant('${u.uid}','${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;background:var(--card,#fff)">
+              const roled=td.cruise||td.group;
+              return `<label class="gcell"><span class="gname">${d.emoji||''} ${esc(d.country)}</span>
+                <select onchange="appGrant('${u.uid}','${d.id}',this.value)">
                   <option value="" ${!acc[d.id]?'selected':''}>No access</option>
-                  <option value="guest" ${acc[d.id]==='guest'?'selected':''}>Guest</option>
-                  <option value="organizer" ${acc[d.id]==='organizer'?'selected':''}>Organizer</option>
+                  ${roled?`<option value="guest" ${acc[d.id]==='guest'?'selected':''}>Guest</option>
+                  <option value="organizer" ${acc[d.id]==='organizer'?'selected':''}>Organizer</option>`
+                  :`<option value="yes" ${acc[d.id]?'selected':''}>Access</option>`}
                 </select></label>`;
-              return `<label style="display:flex;align-items:center;gap:5px;cursor:pointer">
-                <input type="checkbox" ${acc[d.id]?'checked':''} onchange="appGrant('${u.uid}','${d.id}',this.checked?'yes':'')" style="width:13px;height:13px;accent-color:var(--moss)"> ${d.emoji||''} ${esc(d.country)}</label>`;
             }).join('')}
           </div>`}
         </div>`;

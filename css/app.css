@@ -173,10 +173,10 @@
   .map-legend .l-dia { width: 7px; height: 7px; display: inline-block; transform: rotate(45deg); }
   /* Today view */
   .td-stack{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-  .td-hero{padding:26px 20px 22px;text-align:center}
-  .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:10px}
-  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:1.05}
-  .td-sub{font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:9px}
+  .td-hero{padding:24px 20px;text-align:center}
+  .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:0}
+  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.9;margin:12px 0 14px}
+  .td-sub{font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:0}
   .td-row{display:flex;gap:10px;padding:10px 12px;border-bottom:1px dotted var(--rule);cursor:pointer;align-items:flex-start}
   .td-row:hover{background:#fff}
   .td-row:last-child{border-bottom:0}

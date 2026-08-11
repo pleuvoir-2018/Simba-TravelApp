@@ -194,6 +194,7 @@
   }
   body.cruise .sidenav{background:#0B2545;border-right-color:#0A1E3A}
   body.cruise .nav-brand,body.cruise .nvsec,body.cruise .nav-foot{color:#8FB3D9}
+  body.cruise .nav-brand .nb-t{color:#EAF3FF}
   body.cruise .nvi .nv1{color:#EAF3FF}
   body.cruise .nvi .nv2{color:#7E9CC0}
   body.cruise .nvi.on{background:#123A63}
@@ -230,6 +231,8 @@
   .trip.soon:hover{transform:none;box-shadow:none}
   .trip.soon .ph img{filter:grayscale(1) brightness(.72)}
   .trip.soon .bar{color:var(--grey)}
+  .shell.mini .devlbl{display:none}
+  .shell.mini #navlist label{justify-content:center;padding-left:0;padding-right:0}
   .trip.ocean{border-color:#0B2545}
   .trip.ocean .ph{background:linear-gradient(135deg,#0B2545,#13315C 55%,#1D5C8F)}
   .trip.ocean .bar{background:#0B2545;color:#CFE4FF}
@@ -585,7 +588,7 @@ function buildNav(){
     (secs[c.id]?`<div class="nvsec">${secs[c.id]}</div>`:'')+
     `<button class="nvi" data-i="${i}" title="${c.city}"><span class="nvic">${ico[c.id]||'•'}</span><span class="nvtx"><span class="nv1">${c.city}</span><span class="nv2">${c.sub}</span></span></button>`
   ).join('')+`<label style="display:flex;align-items:center;gap:7px;padding:13px 14px 6px;font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);cursor:pointer">
-      <input type="checkbox" ${devMode?'checked':''} onchange="toggleDev(this.checked)" style="width:13px;height:13px;accent-color:var(--clay)"> Developer mode</label>`;
+      <input type="checkbox" ${devMode?'checked':''} onchange="toggleDev(this.checked)" style="width:13px;height:13px;accent-color:var(--clay)"> <span class="devlbl">Developer mode</span></label>`;
   navlist.querySelectorAll('.nvi').forEach(b=>b.onclick=()=>{ci=+b.dataset.i;sel=null;selPoi=null;cat='all';shell.classList.remove('drawer');render();});
 }
 function refreshNav(){navlist.querySelectorAll('.nvi').forEach(b=>{const on=+b.dataset.i===ci;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}
@@ -856,6 +859,7 @@ function currentArchived(){
 const CRUISE_MASTER='THEO1218';
 window._cru=null;
 try{const raw=localStorage.getItem('jt_cru');if(raw)window._cru=JSON.parse(raw);}catch(e){}
+if(window._cru&&window._cru.role==='admin')window._cru.name='조상연';   // migrate old sessions
 function cruRole(){return window._cru&&window._cru.role;}
 function cruName(){return (window._cru&&window._cru.name)||'';}
 function cruiseSignIn(id){
@@ -869,7 +873,7 @@ function cruiseSignIn(id){
   const v=prompt('This is a group trip.\nEnter YOUR access code:');
   if(v===null)return false;
   const code=String(v).trim().toUpperCase();
-  if(code===CRUISE_MASTER){window._cru={role:'admin',name:'Admin',uid:'admin'};}
+  if(code===CRUISE_MASTER){window._cru={role:'admin',name:'조상연',uid:'admin'};}
   else{
     const u=users.find(u=>String(u.code).toUpperCase()===code);
     if(!u){alert('Code not recognized — ask the organizer for yours.');return false;}
@@ -1395,7 +1399,7 @@ function renderCruise(c){
   if(c.cruiseTab==='rooms'){
     const cats=T.cats||[], rooms=(overrides.rooms||[]);
     const users=(overrides.users||[]);
-    const nameOf=uid=>uid==='admin'?'Organizer':((users.find(u=>u.uid===uid)||{}).name||'—');
+    const nameOf=uid=>uid==='admin'?'조상연':((users.find(u=>u.uid===uid)||{}).name||'—');
     const me=(window._cru||{}).uid;
     const mine=rooms.find(r=>(r.slots||[]).includes(me));
     const placed=new Set(rooms.flatMap(r=>(r.slots||[]).filter(Boolean)));
@@ -1435,11 +1439,109 @@ function renderCruise(c){
       ${unplaced.length?`<div class="card"><div class="chead"><span>Not in a cabin yet</span><span>${unplaced.length}</span></div>
         <div style="padding:10px 13px;font-size:12.5px;color:var(--grey)">${unplaced.map(u=>esc(u.name)).join(' · ')}</div></div>`:''}`;
   }
-  if(c.cruiseTab==='cexp'||c.cruiseTab==='clog'){
-    const what={cexp:'Per-person expenses, the itemized cruise invoice, and paid-vs-unpaid tracking',
-      clog:'Your flights in, feeding the organizer\'s transport plan'}[c.cruiseTab];
+  if(c.cruiseTab==='cexp'){
+    const me=(window._cru||{}).uid;
+    const users=(overrides.users||[]);
+    const nameOf=uid=>uid==='admin'?'조상연':((users.find(u=>u.uid===uid)||{}).name||'—');
+    const charges=(overrides.charges||[]);
+    const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const myCharges=charges.filter(x=>x.uid===me);
+    const mine=(overrides.cexp&&overrides.cexp[me])||[];
+    const myPersonal=mine.reduce((a,x)=>a+Number(x.amt||0),0);
+    const myBilled=myCharges.reduce((a,x)=>a+Number(x.amt||0),0);
+    const myPaid=myCharges.reduce((a,x)=>a+Number(x.paid||0),0);
+    const chargeRow=x=>{
+      const st=Number(x.paid||0)>=Number(x.amt)-0.005?['PAID','var(--moss)']:(Number(x.paid||0)>0.005?['PARTIAL','#B0761F']:['UNPAID','var(--clay)']);
+      return `<div class="tdo-row"><span class="tdo-main">
+        <span class="tdo-t">${esc(x.desc)}</span>
+        <span class="tdo-desc">${x.kind==='cruise'?'cruise':x.kind==='transport'?'transport':x.kind}${x.items&&x.items.length?` · <a href="#" onclick="event.preventDefault();toggleInv('${x.id}')" style="color:var(--indigo2)">${window._inv===x.id?'hide invoice':'view itemized invoice'}</a>`:''}</span>
+        ${window._inv===x.id&&x.items?`<span style="display:block;margin-top:7px;border:1px solid var(--rule);border-radius:2px;background:var(--washi2);padding:8px 11px">
+          <span style="display:block;font:600 8.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--indigo2);margin-bottom:5px">Invoice · ${esc(x.desc)}</span>
+          ${x.items.map(it=>`<span style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0"><span>${esc(it.d)}</span><span style="font-family:var(--mono)">${money(it.amt)}</span></span>`).join('')}
+          <span style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;border-top:1px solid var(--rule);margin-top:5px;padding-top:5px"><span>Total</span><span style="font-family:var(--mono)">${money(x.amt)}</span></span>
+          <span style="display:flex;justify-content:space-between;font-size:11px;color:var(--grey);padding-top:2px"><span>Paid so far</span><span style="font-family:var(--mono)">${money(x.paid||0)}</span></span>
+        </span>`:''}
+      </span>
+      <span style="text-align:right;flex:0 0 auto"><b style="font-family:var(--mono);font-size:13px">${money(x.amt)}</b>
+        <span style="display:block;font:600 8.5px var(--mono);letter-spacing:.08em;color:${st[1]}">${st[0]}</span></span></div>`;
+    };
+    const myRows=mine.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(x=>`<div class="tdo-row">
+      <span class="tdo-date">${esc((x.date||'').slice(5))||'—'}</span>
+      <span class="tdo-main"><span style="font-size:13px">${esc(x.desc)}</span></span>
+      <b style="font-family:var(--mono);font-size:12.5px;flex:0 0 auto">${money(x.amt)}</b>
+      <button class="tdo-x" onclick="delMyExp('${x.id}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('');
+    const myBlock=`
+      <div class="card"><div class="chead"><span>My trip total</span><span>${money(myBilled+myPersonal)}</span></div>
+        <div style="display:flex;gap:0;text-align:center">
+          <div style="flex:1;padding:11px 6px;border-right:1px dotted var(--rule)"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Billed by organizer</div><div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--indigo)">${money(myBilled)}</div></div>
+          <div style="flex:1;padding:11px 6px;border-right:1px dotted var(--rule)"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Paid</div><div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--moss)">${money(myPaid)}</div></div>
+          <div style="flex:1;padding:11px 6px"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">My own spend</div><div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--indigo2)">${money(myPersonal)}</div></div>
+        </div></div>
+      <div class="card"><div class="chead"><span>Charges from the organizer</span><span>${myCharges.length}</span></div>
+        ${myCharges.map(chargeRow).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing billed to you yet.</div>'}</div>
+      <div class="card"><div class="chead"><span>My expenses</span><span>${money(myPersonal)}</span></div>
+        <div class="plform"><div class="plrow1">
+          <input id="mx_date" type="date">
+          <input id="mx_desc" placeholder="Flight to MCO, hotel night, parking…" maxlength="60">
+          <input id="mx_amt" type="number" min="0" step="0.01" placeholder="$">
+          <button class="pladd" type="button" onclick="addMyExp()" style="flex:0 0 auto;padding:8px 13px">+ Add</button>
+        </div></div>
+        ${myRows||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing yet — flights, hotel nights, parking, whatever is yours alone.</div>'}</div>`;
+    if(!admin){ body=myBlock; }
+    else{
+      const billed=charges.reduce((a,x)=>a+Number(x.amt||0),0);
+      const collected=charges.reduce((a,x)=>a+Number(x.paid||0),0);
+      const byUser={};charges.forEach(x=>{(byUser[x.uid]=byUser[x.uid]||[]).push(x);});
+      body=`
+      <div class="card"><div class="chead"><span>💰 Collection dashboard</span><span>${money(billed-collected)} still to collect</span></div>
+        <div style="display:flex;text-align:center">
+          <div style="flex:1;padding:11px 6px;border-right:1px dotted var(--rule)"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Billed</div><div style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--indigo)">${money(billed)}</div></div>
+          <div style="flex:1;padding:11px 6px;border-right:1px dotted var(--rule)"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Collected</div><div style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--moss)">${money(collected)}</div></div>
+          <div style="flex:1;padding:11px 6px"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Outstanding</div><div style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--clay)">${money(billed-collected)}</div></div>
+        </div>
+        <div style="border-top:1px solid var(--rule)">
+        ${Object.keys(byUser).map(uid=>{
+          const b=byUser[uid].reduce((a,x)=>a+Number(x.amt||0),0), pd=byUser[uid].reduce((a,x)=>a+Number(x.paid||0),0);
+          return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(uid))}</span></span>
+            <span style="font:11px var(--mono);color:${pd>=b-0.005?'var(--moss)':'var(--clay)'};flex:0 0 auto">${money(pd)} / ${money(b)}</span></div>`;
+        }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No charges assigned yet.</div>'}
+        </div></div>
+      <div class="card"><div class="chead"><span>Bill someone</span></div>
+        <div class="plform">
+          <div class="plrow1">
+            <select id="ch_uid">${users.map(u=>`<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select>
+            <select id="ch_kind"><option value="cruise">Cruise fare</option><option value="room">Room</option><option value="transport">Transport</option><option value="other">Other</option></select>
+          </div>
+          <input id="ch_desc" placeholder="Description — e.g. Star of the Seas · balcony share" maxlength="80">
+          <textarea id="ch_items" rows="3" placeholder="Itemize (optional) — one line each, 'label | amount':&#10;Cruise fare | 1480&#10;Taxes & fees | 195.40&#10;Gratuities | 145.60" style="font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;resize:vertical"></textarea>
+          <div class="plrow1">
+            <input id="ch_amt" type="number" min="0" step="0.01" placeholder="$ total (auto-summed if itemized)">
+            <button class="pladd" type="button" onclick="addCharge()" style="flex:0 0 auto;padding:8px 14px">+ Bill it</button>
+          </div>
+          <div class="plhint">Itemized charges show the guest ONE line on their tracker plus a "view itemized invoice" toggle.</div>
+        </div></div>
+      <div class="card"><div class="chead"><span>All charges</span><span>record payments here</span></div>
+        ${charges.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(x.uid))} · ${esc(x.desc)}</span>
+            <span class="tdo-desc">${money(x.amt)} · ${x.kind}${x.items?` · ${x.items.length} lines`:''}</span></span>
+          <label style="flex:0 0 auto;font:600 8px var(--mono);color:var(--grey);text-transform:uppercase;text-align:right">Paid $<br>
+            <input type="number" min="0" step="0.01" value="${Number(x.paid||0)>0.005?Number(x.paid).toFixed(2):''}" placeholder="0" onchange="setChargePaid('${x.id}',this.value)" style="width:78px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;text-align:right;background:#fff;margin-top:2px"></label>
+          <button class="tdo-x" onclick="setChargePaid('${x.id}','${Number(x.amt)}')" title="Mark fully paid" style="color:var(--moss);font-size:13px">✓</button>
+          <button class="tdo-x" onclick="delCharge('${x.id}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No charges yet.</div>'}
+      </div>
+      <div class="card"><div class="chead"><span>My own expenses (organizer)</span></div>
+        <div class="plform"><div class="plrow1">
+          <input id="mx_date" type="date">
+          <input id="mx_desc" placeholder="Description" maxlength="60">
+          <input id="mx_amt" type="number" min="0" step="0.01" placeholder="$">
+          <button class="pladd" type="button" onclick="addMyExp()" style="flex:0 0 auto;padding:8px 13px">+ Add</button>
+        </div></div>
+        ${myRows||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing yet.</div>'}
+      </div>`;
+    }
+  }
+  if(c.cruiseTab==='clog'){
     body=`<div class="card"><div class="chead"><span>Coming in the next build</span></div>
-      <div style="padding:14px;font-size:13px;color:var(--grey)">${what}. The tab is here so the shape of the app is testable — say the word and it gets built next.</div></div>`;
+      <div style="padding:14px;font-size:13px;color:var(--grey)">Your flights in, feeding the organizer's transport plan — plus transport invoicing into the charge system that is now live on Expenses.</div></div>`;
   }
   if(c.cruiseTab==='cadmin'){
     const users=(overrides.users||[]);
@@ -1452,6 +1554,7 @@ function renderCruise(c){
         <div class="plhint">Each guest signs in with their own code from the landing page. Your organizer code stays ${CRUISE_MASTER}.</div>
       </div>
       ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span><span class="tdo-desc">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
+        <button class="tdo-x" onclick="renameUser('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
         <button class="tdo-x" onclick="regenUser('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
         <button class="tdo-x" onclick="delUser('${u.uid}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No guests yet — add the first one above.</div>'}
     </div>`;
@@ -1492,6 +1595,60 @@ window.delSched=function(id){
   if(!confirm('Remove this from the schedule?'))return;
   overrides.sched=(overrides.sched||[]).filter(x=>x.id!==id);
   saveOverrides();render();
+};
+window._inv=null;
+window.toggleInv=function(id){window._inv=(window._inv===id?null:id);render();};
+window.addMyExp=function(){
+  const g=i=>document.getElementById(i);
+  const desc=g('mx_desc').value.trim(), amt=Number(g('mx_amt').value);
+  if(!desc||!(amt>0)){(!desc?g('mx_desc'):g('mx_amt')).focus();return;}
+  const me=(window._cru||{}).uid;
+  overrides.cexp=overrides.cexp||{};
+  overrides.cexp[me]=overrides.cexp[me]||[];
+  overrides.cexp[me].push({id:'x'+Date.now(),date:g('mx_date').value,desc,amt});
+  saveOverrides();render();
+};
+window.delMyExp=function(id){
+  const me=(window._cru||{}).uid;
+  if(!overrides.cexp||!overrides.cexp[me])return;
+  overrides.cexp[me]=overrides.cexp[me].filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.addCharge=function(){
+  const g=i=>document.getElementById(i);
+  const desc=g('ch_desc').value.trim();
+  if(!desc){g('ch_desc').focus();return;}
+  let items=null;
+  const raw=g('ch_items').value.trim();
+  if(raw){
+    items=raw.split('\n').map(l=>{
+      const m=l.split('|');
+      if(m.length<2)return null;
+      const amt=Number(String(m[m.length-1]).replace(/[^0-9.\-]/g,''));
+      return isFinite(amt)&&amt?{d:m.slice(0,-1).join('|').trim(),amt}:null;
+    }).filter(Boolean);
+    if(!items.length)items=null;
+  }
+  const amt=items?items.reduce((a,x)=>a+x.amt,0):Number(g('ch_amt').value);
+  if(!(amt>0)){g('ch_amt').focus();return;}
+  overrides.charges=overrides.charges||[];
+  const rec={id:'c'+Date.now(),uid:g('ch_uid').value,kind:g('ch_kind').value,desc,amt:Number(amt.toFixed(2)),paid:0};
+  if(items)rec.items=items;
+  overrides.charges.push(rec);
+  saveOverrides();render();
+};
+window.setChargePaid=function(id,v){
+  const x=(overrides.charges||[]).find(c=>c.id===id);
+  if(!x)return;
+  x.paid=Math.min(Math.max(Number(v)||0,0),Number(x.amt));
+  saveOverrides();render();
+};
+window.delCharge=function(id){
+  const x=(overrides.charges||[]).find(c=>c.id===id);
+  if(x&&confirm('Remove this charge to '+x.desc+'?')){
+    overrides.charges=(overrides.charges||[]).filter(c=>c.id!==id);
+    saveOverrides();render();
+  }
 };
 window.addRoom=function(){
   const g=i=>document.getElementById(i);
@@ -1537,6 +1694,14 @@ window.addUser=function(){
   if(!name){el&&el.focus();return;}
   overrides.users=overrides.users||[];
   overrides.users.push({uid:'u'+Date.now(),name,code:genCode(),role:'participant'});
+  saveOverrides();render();
+};
+window.renameUser=function(uid){
+  const u=(overrides.users||[]).find(x=>x.uid===uid);
+  if(!u)return;
+  const v=prompt('Name for this guest:',u.name);
+  if(v===null||!v.trim())return;
+  u.name=v.trim();
   saveOverrides();render();
 };
 window.regenUser=function(uid){

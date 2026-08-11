@@ -32,17 +32,22 @@ function tokyoToday(){
 }
 window.gotoCity=function(i){ci=i;sel=null;selPoi=null;cat='all';render();};
 window.gotoMeal=function(i,id){ci=i;sel=id;selPoi=null;cat='all';render();};
+function pickWxKey(){
+  const wx=TD.wx||{};
+  const days=w=>{try{return (new Date(w.to)-new Date(w.from))/86400000;}catch(e){return 0;}};
+  return Object.keys(wx).sort((a,b)=>days(wx[b])-days(wx[a]))[0];
+}
 async function loadTodayWx(){
   const el=document.getElementById('tdwx2');
   if(!el)return;
-  const wx=TD.wx||{}; const k=Object.keys(wx)[0];
+  const wx=TD.wx||{}; const k=pickWxKey();
   if(!k){el.parentElement.style.display='none';return;}
   const key=tripKey();
   try{
     window._wx2=window._wx2||{};
     if(!window._wx2[key]){
       const w=wx[k];
-      const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`);
+      const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`,{signal:(AbortSignal&&AbortSignal.timeout)?AbortSignal.timeout(8000):undefined});
       if(!r.ok)throw new Error('wx');
       window._wx2[key]=(await r.json()).daily;
     }
@@ -54,7 +59,7 @@ async function loadTodayWx(){
       <em>${Math.round(d.temperature_2m_max[i])}°</em>
       <u>${Math.round(d.temperature_2m_min[i])}°</u>
     </span>`).join('');
-  }catch(e){ el.innerHTML='<span class="td-empty" style="padding:10px 4px;display:block">Forecast unavailable right now.</span>'; }
+  }catch(e){ el.innerHTML='<span class="td-empty wx2-span">Forecast unavailable right now.</span>'; }
 }
 let _tdCalRef=null;
 function tdCalHtml(dep,fin,t){
@@ -130,8 +135,8 @@ function renderToday(){
       </div>
       <div class="td2-side">
         <div class="card"><div class="td2-h"><span>Calendar</span></div>${tdCalHtml(dep,fin,t)}</div>
-        <div class="card"><div class="td2-h"><span>Weather</span><span class="ov-l" style="margin:0">${esc((CITIES.find(c=>c.id===Object.keys(TD.wx||{})[0])||{}).city||Object.keys(TD.wx||{})[0]||'')}</span></div>
-          <div id="tdwx2" class="wx2"><span class="td-empty" style="padding:10px 4px;display:block">Loading forecast…</span></div></div>
+        <div class="card"><div class="td2-h"><span>Weather</span><span class="ov-l" style="margin:0">${esc((CITIES.find(c=>c.id===pickWxKey())||{}).city||pickWxKey()||'')}</span></div>
+          <div id="tdwx2" class="wx2"><span class="td-empty wx2-span">Loading forecast…</span></div></div>
       </div>
     </div>`;
   } else if(inTrip){

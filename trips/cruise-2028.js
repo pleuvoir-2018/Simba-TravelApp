@@ -30,14 +30,20 @@ var CR_ITIN=[
    these are the ones a group like this actually books. */
 var CR_CATS=[
  {id:'interior',n:'Interior',sq:'156 sq ft · sleeps 2',d:'The standard interior — relaxing retreat at a great value. Royal King converts to two twins.',tone:'#5D7185',img:'https://assets.widgety.co.uk/2022/10/24/09/43/10/f3ccfb46-4aee-4665-9299-5068bef5751d/RCI%20Icon%20of%20the%20Seas%20Interior.jpeg'},
- {id:'insideplus',n:'Inside Plus',sq:'157 sq ft · sleeps 2',d:'Interior with a walk-in closet with vanity plus a lounge chair and ottoman — no such thing as overpacking.',tone:'#6B7F94',img:'https://assets.widgety.co.uk/2022/10/24/09/41/31/3bcfef5e-db7b-4f17-bea2-52ff750bc0ba/RCI%20Icon%20of%20the%20Seas%20Interior%20Plus.jpeg'},
+ {id:'insideplus',n:'Interior Plus',sq:'157 sq ft · sleeps 2',d:'Interior with a walk-in closet with vanity plus a lounge chair and ottoman.',tone:'#6B7F94',img:'https://assets.widgety.co.uk/2022/10/24/09/41/31/3bcfef5e-db7b-4f17-bea2-52ff750bc0ba/RCI%20Icon%20of%20the%20Seas%20Interior%20Plus.jpeg'},
+ {id:'spaciousint',n:'Spacious Interior',sq:'178 sq ft · up to 4',d:'More interior space at a great value; sofa-bed configurations for 3–4.',tone:'#61758B',img:'https://assets.widgety.co.uk/2022/10/24/09/36/34/e9f0bc57-690e-4b17-9ba9-a558e1cf5cd1/RCI%20Icon%20of%20the%20Seas%20Spacious%20Interior.jpeg'},
+ {id:'cpint',n:'Central Park View Interior',sq:'187 sq ft · up to 4',d:'Interior with a window over the tree-lined Central Park neighbourhood.',tone:'#4F7D63',img:'https://assets.widgety.co.uk/2022/10/24/10/19/33/19737454-8c9b-4292-856e-1090d182b49e/RCI%20Icon%20of%20the%20Seas%20Central%20Park%20View%20Interior.jpeg'},
+ {id:'surfint',n:'Surfside Family View Interior',sq:'187 sq ft · up to 4',d:'Interior with a window over the Surfside family neighbourhood.',tone:'#9A7A33',img:'https://assets.widgety.co.uk/2022/10/24/10/15/35/76896c7b-ff9f-43d6-9f97-5643afe735d9/RCI%20Icon%20of%20the%20Seas%20Surfside%20Family%20View%20Interior.jpeg'},
  {id:'oceanview',n:'Ocean View',sq:'160–187 sq ft · up to 4',d:'Picture window over the sea, no balcony; sofa bed configurations for 3–4.',tone:'#2E6E8E',img:'https://assets.widgety.co.uk/2022/10/24/09/30/02/afc0b87d-1618-4d0d-b1b7-0e7bba785ee1/RCI%20Icon%20of%20the%20Seas%20Ocean%20View.jpeg'},
  {id:'panoramic',n:'Panoramic Ocean View',sq:'258 sq ft · up to 3',d:'Prime top decks with a floor-to-ceiling panoramic window and a dedicated seating nook.',tone:'#1D5C8F',img:'https://assets.widgety.co.uk/2022/10/24/10/33/43/af55eebe-ff21-4aa7-b94b-e1f47f7ccaf3/RCI%20Icon%20of%20the%20Seas%20Panoramic%20Ocean%20View.jpeg'},
- {id:'infinite',n:'Infinite Balcony',sq:'250 sq ft incl 50 convertible',d:'The window-wall drops at a button-press, turning the seating area open-air. Extra indoor space when closed.',tone:'#0E7C86',img:'https://assets.widgety.co.uk/2022/10/24/09/11/28/031ed4d7-1a2b-43c4-a2d5-94593592fef3/RCI%20Icon%20of%20the%20Seas%20Infinite%20Ocean%20View%20Balcony.jpeg'},
+ {id:'cpbalcony',n:'Central Park View Balcony',sq:'196 sq ft + 50 balcony',d:'Private balcony over Central Park — nature at sea, no ocean view.',tone:'#3E7D5A',img:'https://assets.widgety.co.uk/2022/10/24/09/01/07/72c58961-8fad-4c52-a727-cd414e106420/RCI%20Icon%20of%20the%20Seas%20Central%20Park%20View%20Balcony.jpeg'},
+ {id:'surfside',n:'Surfside Family View Balcony',sq:'196 sq ft + 50 balcony',d:'Balcony over the Surfside family neighbourhood, aft — all the action below.',tone:'#B0761F',img:'https://assets.widgety.co.uk/2022/10/24/08/55/45/848df165-a4ee-4571-9c23-62fe0ed1f513/RCI%20Icon%20of%20the%20Seas%20Surfside%20Family%20View%20Balcony%20H2.jpeg'},
+ {id:'infinite',n:'Infinite Ocean View Balcony',sq:'250 sq ft incl 50 convertible',d:'The window-wall drops at a button-press, turning the seating area open-air.',tone:'#0E7C86',img:'https://assets.widgety.co.uk/2022/10/24/09/11/28/031ed4d7-1a2b-43c4-a2d5-94593592fef3/RCI%20Icon%20of%20the%20Seas%20Infinite%20Ocean%20View%20Balcony.jpeg'},
+ {id:'centralpark',n:'Infinite Central Park View Balcony',sq:'250 sq ft incl 50 convertible',d:'Convertible balcony over Central Park. Great people-watching, no sea view.',tone:'#347052',img:'https://assets.widgety.co.uk/2022/10/24/09/20/41/e49505b0-3e07-41ea-9cc3-e6a33510208a/RCI%20Icon%20of%20the%20Seas%20Infinite%20Central%20Park%20View%20Balcony.jpeg'},
  {id:'balcony',n:'Ocean View Balcony',sq:'204 sq ft + 50 balcony',d:'The classic step-out balcony with chairs and a table — the most common choice aboard.',tone:'#0F6E7A',img:'https://assets.widgety.co.uk/2022/10/24/09/07/24/ab9d4dc6-7b0a-45df-8f8e-54c61ed7e6bc/RCI%20Icon%20of%20the%20Seas%20Ocean%20View%20Balcony.jpeg'},
- {id:'centralpark',n:'Infinite Central Park View',sq:'250 sq ft incl 50 convertible',d:'Convertible balcony over the tree-lined Central Park neighbourhood. Great people-watching, no sea view.',tone:'#3E7D5A',img:'https://assets.widgety.co.uk/2022/10/24/09/20/41/e49505b0-3e07-41ea-9cc3-e6a33510208a/RCI%20Icon%20of%20the%20Seas%20Infinite%20Central%20Park%20View%20Balcony.jpeg'},
- {id:'surfside',n:'Surfside Family View',sq:'196 sq ft + 50 balcony',d:'Balcony over the Surfside family neighbourhood, aft — all the action below.',tone:'#B0761F',img:'https://assets.widgety.co.uk/2022/10/24/08/55/45/848df165-a4ee-4571-9c23-62fe0ed1f513/RCI%20Icon%20of%20the%20Seas%20Surfside%20Family%20View%20Balcony%20H2.jpeg'},
+ {id:'largebalcony',n:'Ocean View with Large Balcony',sq:'204 sq ft + 65–70 balcony',d:'The classic balcony room with extra outdoor square footage.',tone:'#0B5E6B',img:'https://assets.widgety.co.uk/2022/10/24/09/13/57/18d137b3-d7f6-452a-95c7-440bada2fc1b/RCI%20Icon%20of%20the%20Seas%20Ocean%20View%20with%20Large%20Balcony.jpeg'},
  {id:'junior',n:'Junior Suite',sq:'322 sq ft + 80 balcony',d:'The suite life, intimately: full bath with tub, Coastal Kitchen dinner by reservation, priority boarding.',tone:'#7A4F8C',img:'https://assets.widgety.co.uk/2022/10/21/10/10/17/48359f8d-7dd6-4360-bf5f-0ea3859b3c42/RCI%20Icon%20of%20the%20Seas%20Junior%20Suite.jpeg'},
+ {id:'surfsuite',n:'Surfside Family Suite',sq:'269 sq ft + 53 · 2 adults + 2 kids',d:'Separate cosy kids\' room, split bathroom, Surfside view — Sky Class amenities.',tone:'#A05A2C',img:'https://assets.widgety.co.uk/2022/10/21/09/59/11/8e7a59ca-6d54-4797-8717-384131ef4676/RCI%20Icon%20of%20the%20Seas%20Surfside%20Family%20Suite.jpeg'},
  {id:'suite',n:'Suite (Sky / Star)',sq:'431+ sq ft · varies',d:'Grand, Sunset, Icon Loft and above — Coastal Kitchen, Suite Lounge, concierge or Genie service.',tone:'#8C3F52',img:'https://assets.widgety.co.uk/2022/10/21/09/06/15/21634a29-2d31-4bd5-b3b7-10ce4fea5d07/RCI%20Icon%20of%20the%20Seas%20Grand%20Suite.jpeg'}
 ];
 
@@ -99,12 +105,13 @@ window.TRIPS_REGISTRY['cruise-2028']={accent:'#0E7C86',cruise:true,cities:CR_TAB
  },
  // Royal Caribbean live pricing pulled Aug 2026 — 4-adult total per room
  seedQuotes:[
-  {cat:'interior',ppl:4,q:4385},
-  {cat:'oceanview',ppl:4,q:4163},
-  {cat:'surfside',ppl:4,q:4714},
-  {cat:'centralpark',ppl:4,q:4884},
-  {cat:'infinite',ppl:4,q:5340},
-  {cat:'balcony',ppl:4,q:5597}
+  {cat:'interior',ppl:2,q:3347},{cat:'insideplus',ppl:2,q:3406},{cat:'spaciousint',ppl:2,q:3464},
+  {cat:'cpint',ppl:2,q:3484},{cat:'surfint',ppl:2,q:3484},{cat:'oceanview',ppl:2,q:3592},
+  {cat:'panoramic',ppl:2,q:3654},{cat:'surfsuite',ppl:2,q:7826},
+  {cat:'spaciousint',ppl:4,q:4385},{cat:'cpint',ppl:4,q:4404},{cat:'surfint',ppl:4,q:4404},
+  {cat:'oceanview',ppl:4,q:4163},{cat:'surfside',ppl:4,q:4714},{cat:'cpbalcony',ppl:4,q:4936},
+  {cat:'centralpark',ppl:4,q:4884},{cat:'infinite',ppl:4,q:5340},{cat:'balcony',ppl:4,q:5597},
+  {cat:'largebalcony',ppl:4,q:5899}
  ],
  airport:{n:'Orlando International (MCO)',lat:28.4312,lng:-81.3081,note:'~45 min drive to the port'},
  emoji:'🚢',brand:"Icon Cruise · Jan '28",foot:'Jan 9–16 2028 · Star of the Seas',

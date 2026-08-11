@@ -95,7 +95,7 @@ function renderCruise(c){
           ${note?`<div class="decknote">${esc(note)}</div>`:''}
           <div class="deckview"><img src="${T.deckPlans[sel]}" alt="Deck ${sel} plan" loading="lazy"
             onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'decknote',textContent:'Deck plan couldn\u2019t load — check your connection.'}))"></div>
-          <div class="decknote" style="border-top:1px solid var(--rule)">Deck ${sel} · swipe the plan to walk bow → stern</div>
+          <div class="decknote" style="border-top:1px solid var(--rule)">Deck ${sel} · full resolution — pan to explore · <a href="${T.deckPlans[sel]}" target="_blank" rel="noopener" style="color:var(--indigo)">open full screen ↗</a></div>
         </div>`;
       })():''}`;
   }
@@ -154,6 +154,7 @@ function renderCruise(c){
     // cat+occupancy not already quoted; the organizer's own entries always win,
     // and edits/deletes persist normally on their next save.
     if(!Array.isArray(overrides.quotes))overrides.quotes=quoteList;
+    overrides.quotes=overrides.quotes.filter(q=>!(q.id==='seed_interior_4'&&Number(q.q)===4385));
     (T.seedQuotes||[]).forEach(sq=>{
       if(!overrides.quotes.some(q=>q.cat===sq.cat&&Number(q.ppl)===Number(sq.ppl)))
         overrides.quotes.push({id:'seed_'+sq.cat+'_'+sq.ppl,cat:sq.cat,ppl:sq.ppl,q:sq.q,img:''});
@@ -190,8 +191,11 @@ function renderCruise(c){
           ${r.status==='pending'?`<button class="tdo-x" onclick="decideReq('${r.id}',1)" title="Approve — applies immediately" style="color:var(--moss)">✓</button><button class="tdo-x" onclick="decideReq('${r.id}',0)" title="Deny" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`;
       }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No requests yet.</div>'}
     </div>`;
+    const qF=window._qFilter||'all';
+    const quoteVis=quoteList.filter(q=>qF==='all'||Number(q.ppl)===qF);
     const quoteShow=quoteList.length?`<div class="card"><div class="chead"><span>💵 Rooms on offer</span><span>from the organizer</span></div>
-      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat,sq:'',d:'',tone:'#5B7185'};return `<div style="display:flex;gap:12px;padding:12px 13px;border-bottom:1px dotted var(--rule);align-items:center">
+      <div class="qfilter">${[['all','All'],[2,'2 adults'],[4,'4 adults']].map(([v,l])=>`<button type="button" class="qfchip ${qF===v?'on':''}" onclick="window._qFilter=${typeof v==='number'?v:`'all'`};render()">${l}</button>`).join('')}<span class="qfcount">${quoteVis.length} of ${quoteList.length}</span></div>
+      ${quoteVis.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat,sq:'',d:'',tone:'#5B7185'};return `<div style="display:flex;gap:12px;padding:12px 13px;border-bottom:1px dotted var(--rule);align-items:center">
         ${(q.img||k.img)?`<img src="${esc(q.img||k.img)}" alt="${esc(k.n)}" loading="lazy" style="flex:0 0 110px;width:110px;height:78px;object-fit:cover;border-radius:3px" onerror="this.style.display='none'">`:`<span style="flex:0 0 110px;height:78px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 10px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>`}
         <span style="flex:1;min-width:0"><span style="font-size:13.5px;font-weight:600">${esc(k.n)}</span>
           <span style="display:inline-block;margin-left:7px;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 8.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;vertical-align:1px">sleeps ${q.ppl}</span>

@@ -512,7 +512,7 @@ function mergeCruise(rt,lt,base){
     Object.keys(R).forEach(uid=>{ if(uid!==me)m[uid]=R[uid]; });
     if(Object.keys(m).length)out[key]=m;
   });
-  ['charges','sched','ann','quotes','adminName'].forEach(key=>{
+  ['charges','sched','ann','quotes','adminName','adminLegal'].forEach(key=>{
     const v=admin?(lt[key]!==undefined?lt[key]:rt[key]):(rt[key]!==undefined?rt[key]:lt[key]);
     if(v!==undefined)out[key]=v;
   });
@@ -521,7 +521,12 @@ function mergeCruise(rt,lt,base){
     if(admin){ if(L!==undefined||R!==undefined)out.users=L!==undefined?L:R; }
     else if(R!==undefined||L!==undefined){
       const meLocal=(L||[]).find(u=>u.uid===me);
-      out.users=(R||[]).map(u=>(u.uid===me&&meLocal&&meLocal.name)?{...u,name:meLocal.name}:u);
+      let list=(R||[]).map(u=>(u.uid===me&&meLocal)
+        ?{...u,name:meLocal.name??u.name,legalFirst:meLocal.legalFirst??u.legalFirst,legalLast:meLocal.legalLast??u.legalLast,dob:meLocal.dob??u.dob}
+        :u);
+      // self-registration: my record may not exist remotely yet — it lands, but only ever as pending
+      if(meLocal&&!list.some(u=>u.uid===me))list=list.concat([{...meLocal,role:'pending'}]);
+      out.users=list;
     }
   }
   {  // change requests: each guest owns their own; admin's decisions win
@@ -629,6 +634,7 @@ try{devMode=localStorage.getItem('jt_dev')==='1';}catch(e){}
 const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'developer mode',addrest:true};
 function navCities(){
   let list=CITIES.slice();
+  if(list.some(c=>c.cruiseTab)&&(!window._cru||cruRole()==='pending'))return [];
   if(list.some(c=>c.adminOnly)&&cruRole()!=='admin')list=list.filter(c=>!c.adminOnly);
   if(devMode&&list.some(c=>c.stops)&&!list.some(c=>c.addrest))list.push(DEV_TAB);
   return list;
@@ -921,36 +927,103 @@ try{const raw=localStorage.getItem('jt_cru');if(raw)window._cru=JSON.parse(raw);
 if(window._cru&&window._cru.uid==='admin'&&window._cru.name==='Admin')window._cru.name='조상연';   // migrate legacy sessions only
 function cruRole(){return window._cru&&window._cru.role;}
 function cruName(){return (window._cru&&window._cru.name)||'';}
-function cruiseSignIn(id){
-  // a remembered session still valid?
-  const users=((store.trips&&store.trips[id])||{}).users||[];
-  if(window._cru){
-    if(window._cru.uid==='admin'){                          // master code — pick up a saved display name
-      const an=((store.trips&&store.trips[id])||{}).adminName;
-      if(an){window._cru.name=an;try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}}
-      return true;
-    }
-    const u=users.find(x=>x.uid===window._cru.uid);
-    if(u){                                                 // refresh name/role — demotions and promotions take effect on next open
-      window._cru.name=u.name;
-      window._cru.role=(u.role==='admin')?'admin':'participant';
-      try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
-      return true;
-    }
-    window._cru=null;
+function validateCruSession(id){
+  const slice=(store.trips&&store.trips[id])||{};
+  const users=slice.users||[];
+  if(!window._cru||!window._cru.uid)return false;
+  if(window._cru.uid==='admin'){
+    if(slice.adminName){window._cru.name=slice.adminName;}
+    try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+    return true;
   }
-  const v=prompt('This is a group trip.\nEnter YOUR access code:');
-  if(v===null)return false;
-  const code=String(v).trim().toUpperCase();
-  if(code===CRUISE_MASTER){window._cru={role:'admin',name:(((store.trips||{})[id]||{}).adminName)||'조상연',uid:'admin'};}
-  else{
+  const u=users.find(x=>x.uid===window._cru.uid);
+  if(u){
+    window._cru.name=u.name;
+    window._cru.role=(u.role==='admin')?'admin':(u.role==='pending'?'pending':'participant');
+    try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+    return true;
+  }
+  window._cru=null;
+  try{localStorage.removeItem('jt_cru');}catch(e){}
+  return false;
+}
+function renderCruiseLogin(){
+  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:26px auto 0">
+    <div class="card">
+      <div class="chead"><span>🚢 Icon Cruise · sign in</span></div>
+      <div class="plform" style="padding:16px 15px 6px">
+        <label style="font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Your access code
+          <input id="cl_code" maxlength="12" autocomplete="off" style="margin-top:4px;letter-spacing:.2em;font-family:var(--mono);text-transform:uppercase" onkeydown="if(event.key==='Enter')doCruLogin()"></label>
+        <button class="pladd" type="button" onclick="doCruLogin()" style="align-self:flex-start;padding:9px 18px">Sign in</button>
+        <div id="cl_err" style="font:10px var(--mono);color:var(--clay)"></div>
+      </div>
+      <div style="border-top:1px solid var(--rule);padding:13px 15px 15px">
+        <div style="font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:7px">No code yet? Request access</div>
+        <div class="plform" style="padding:0">
+          <input id="cl_name" placeholder="Your name (Korean is fine)" maxlength="40" onkeydown="if(event.key==='Enter')doCruRequest()">
+          <button type="button" onclick="doCruRequest()" style="align-self:flex-start;background:none;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:8px 14px;cursor:pointer">Request access</button>
+          <div class="plhint">You get a login code immediately; the organizer approves your access from the Admin tab.</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  const i=document.getElementById('cl_code'); if(i)i.focus();
+}
+function renderCruisePending(){
+  const me=window._cru||{};
+  const u=(overrides.users||[]).find(x=>x.uid===me.uid);
+  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:26px auto 0">
+    <div class="card"><div class="chead"><span>⏳ Access pending</span></div>
+      <div style="padding:16px 15px">
+        <div style="font-size:14px;font-weight:600;margin-bottom:6px">${esc(me.name||'')}, your access request is being reviewed.</div>
+        <div style="font-size:12.5px;color:var(--grey);margin-bottom:11px">The organizer will approve it from the Admin tab. Once approved, this page turns into the trip automatically the next time you check.</div>
+        <div style="font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Your login code — keep it</div>
+        <div style="font:700 19px var(--mono);letter-spacing:.28em;color:var(--indigo);margin:4px 0 13px">${esc((u&&u.code)||'—')}</div>
+        <div style="font-size:11.5px;color:var(--grey);margin-bottom:12px">While you wait: click your avatar (top right) and add your legal English name and date of birth — they're needed for the booking.</div>
+        <div style="display:flex;gap:8px">
+          <button class="pladd" type="button" onclick="checkAccess()" style="padding:8px 14px">Check status</button>
+          <button type="button" onclick="cruSignOut()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);padding:7px 12px;cursor:pointer">Sign out</button>
+        </div>
+      </div></div>
+  </div>`;
+}
+window.doCruLogin=function(){
+  const el=document.getElementById('cl_code'), err=document.getElementById('cl_err');
+  const code=String(el?el.value:'').trim().toUpperCase();
+  if(!code){el&&el.focus();return;}
+  const id=tripKey();
+  const users=((store.trips&&store.trips[id])||{}).users||[];
+  if(code===CRUISE_MASTER){
+    window._cru={role:'admin',name:(((store.trips||{})[id]||{}).adminName)||'조상연',uid:'admin'};
+  }else{
     const u=users.find(u=>String(u.code).toUpperCase()===code);
-    if(!u){alert('Code not recognized — ask the organizer for yours.');return false;}
-    window._cru={role:(u.role==='admin')?'admin':'participant',name:u.name,uid:u.uid};
+    if(!u){if(err)err.textContent='Code not recognized — ask the organizer, or request access below.';return;}
+    window._cru={role:(u.role==='admin')?'admin':(u.role==='pending'?'pending':'participant'),name:u.name,uid:u.uid};
   }
   try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
-  return true;
-}
+  updateAvatar();render();
+};
+window.doCruRequest=function(){
+  const el=document.getElementById('cl_name');
+  const name=String(el?el.value:'').trim();
+  if(!name){el&&el.focus();return;}
+  const rec={uid:'u'+Date.now(),name,code:genCode(),role:'pending',ts:Date.now()};
+  overrides.users=overrides.users||[];
+  overrides.users.push(rec);
+  window._cru={role:'pending',name,uid:rec.uid};
+  try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+  saveOverrides();
+  updateAvatar();render();
+};
+window.checkAccess=async function(){
+  try{
+    const v=await sGet();
+    if(v){store=normalizeStore(JSON.parse(v));bindTrip();}
+  }catch(e){}
+  validateCruSession(tripKey());
+  updateAvatar();buildNav();render();
+  if(cruRole()==='participant'||cruRole()==='admin')flash('Approved — welcome aboard ✓','ok');
+};
 window.cruSignOut=function(){
   window._cru=null;
   try{localStorage.removeItem('jt_cru');}catch(e){}
@@ -958,7 +1031,7 @@ window.cruSignOut=function(){
 };
 window.openTrip=function(id){
   const td=TRIP_DATA[id];
-  if(td&&td.cruise){ if(!cruiseSignIn(id))return; tripSel=id; applyTripData(id); bindTrip(); document.body.classList.remove('home'); render(); return; }
+  if(td&&td.cruise){ tripSel=id; applyTripData(id); bindTrip(); validateCruSession(id); updateAvatar(); buildNav(); document.body.classList.remove('home'); render(); return; }
   const tr=TRIPS.find(x=>x.id===id);
   if(tr&&tr.code&&!tripUnlocked(tr)){
     const v=prompt(tr.title+' is still being built.\nEnter the access code:');
@@ -1439,14 +1512,20 @@ window.cruProfile=function(){
   const isMaster=me.uid==='admin';
   const u=(overrides.users||[]).find(x=>x.uid===me.uid);
   const code=isMaster?CRUISE_MASTER:((u&&u.code)||'—');
+  const lg=isMaster?(overrides.adminLegal||{}):{first:(u||{}).legalFirst,last:(u||{}).legalLast,dob:(u||{}).dob};
   const pop=document.createElement('div');
   pop.id='cruPop';
   pop.innerHTML=`<div class="cruPopBack" onclick="document.getElementById('cruPop').remove()"></div>
     <div class="cruPopCard">
       <div style="width:52px;height:52px;border-radius:50%;background:#0E7C86;color:#fff;font:700 22px var(--sans);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">${esc((me.name||'?').slice(0,1))}</div>
       <label>Display name<input id="pf_name" value="${esc(me.name||'')}" maxlength="40"></label>
+      <div style="display:flex;gap:8px">
+        <label style="flex:1">Legal first (EN)<input id="pf_first" value="${esc(lg.first||'')}" maxlength="40" placeholder="as in passport"></label>
+        <label style="flex:1">Legal last (EN)<input id="pf_last" value="${esc(lg.last||'')}" maxlength="40"></label>
+      </div>
+      <label>Date of birth<input id="pf_dob" type="date" value="${esc(lg.dob||'')}"></label>
       <label>Login code<div class="ro">${esc(code)}</div></label>
-      <label>Role<div class="ro">${me.role==='admin'?'Organizer':'Guest'}</div></label>
+      <label>Role<div class="ro">${me.role==='admin'?'Organizer':(me.role==='pending'?'Pending approval':'Guest')}</div></label>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="pladd" type="button" onclick="saveProfile()" style="flex:1;padding:8px 0">Save</button>
         <button type="button" onclick="document.getElementById('cruPop').remove();cruSignOut()" style="flex:1;background:none;border:1px solid #C4D6E6;border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);cursor:pointer">Sign out</button>
@@ -1460,10 +1539,14 @@ window.saveProfile=function(){
   const el=document.getElementById('pf_name');
   const v=el?el.value.trim():'';
   if(!v)return;
-  if(window._cru.uid==='admin'){ overrides.adminName=v; }
-  else{
+  const gf=i=>{const e=document.getElementById(i);return e?e.value.trim():'';};
+  const first=gf('pf_first'), last=gf('pf_last'), dob=gf('pf_dob');
+  if(window._cru.uid==='admin'){
+    overrides.adminName=v;
+    overrides.adminLegal={first,last,dob};
+  }else{
     const u=(overrides.users||[]).find(x=>x.uid===window._cru.uid);
-    if(u)u.name=v;
+    if(u){u.name=v;u.legalFirst=first;u.legalLast=last;u.dob=dob;}
   }
   window._cru.name=v;
   try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
@@ -1478,9 +1561,79 @@ function genCode(){
 }
 window._editSched=null;
 function renderCruise(c){
+  if(!window._cru||!window._cru.uid){renderCruiseLogin();return;}
+  if(cruRole()==='pending'){renderCruisePending();return;}
   const T=TRIP_DATA[tripKey()]||{};
   const admin=cruRole()==='admin';
   let body='';
+  if(c.cruiseTab==='csum'){
+    const me=(window._cru||{}).uid;
+    const users=(overrides.users||[]);
+    const nameOf=uid=>uid==='admin'?(overrides.adminName||'조상연'):((users.find(u=>u.uid===uid)||{}).name||'—');
+    const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const charges=(overrides.charges||[]), rooms=(overrides.rooms||[]), logi=overrides.logi||{}, reqs=overrides.reqs||[];
+    const legalOf=uid=>uid==='admin'?(overrides.adminLegal||{}):{first:(users.find(u=>u.uid===uid)||{}).legalFirst,last:(users.find(u=>u.uid===uid)||{}).legalLast,dob:(users.find(u=>u.uid===uid)||{}).dob};
+    const legalMissing=uid=>{const l=legalOf(uid);return !(l&&l.first&&l.last&&l.dob);};
+    // --- my reminders ---
+    const rem=[];
+    const myCh=charges.filter(x=>x.uid===me);
+    const owe=myCh.reduce((a,x)=>a+Math.max(0,Number(x.amt)-(Number(x.paid)||0)),0);
+    const depDue=myCh.filter(x=>x.dep&&(Number(x.paid)||0)<Number(x.dep)-0.005).reduce((a,x)=>a+Number(x.dep),0);
+    if(owe>0.005)rem.push({ic:'💳',t:`Payment due to ${nameOf('admin')}: ${money(owe)} outstanding${depDue>0.005?` — deposit ${money(depDue)} due first`:''}`,tab:'cexp'});
+    if(!((logi[me])||[]).length)rem.push({ic:'✈️',t:'Add your travel plans so ground transport can be arranged',tab:'clog'});
+    if(legalMissing(me))rem.push({ic:'🪪',t:'Add your legal English name and date of birth (needed for the booking) — click your avatar top right',tab:null});
+    // --- organizer reminders ---
+    let orgRem=[];
+    if(admin){
+      const billed=charges.reduce((a,x)=>a+Number(x.amt||0),0), coll=charges.reduce((a,x)=>a+Number(x.paid||0),0);
+      if(billed-coll>0.005)orgRem.push({ic:'💰',t:`${money(billed-coll)} still to collect across the group`,tab:'cexp'});
+      const noLogi=users.filter(u=>u.role!=='pending'&&!((logi[u.uid])||[]).length);
+      if(noLogi.length)orgRem.push({ic:'✈️',t:`No travel info yet: ${noLogi.map(u=>u.name).join(', ')}`,tab:'clog'});
+      const noLegal=users.filter(u=>u.role!=='pending'&&legalMissing(u.uid));
+      if(noLegal.length)orgRem.push({ic:'🪪',t:`Missing legal name / DOB: ${noLegal.map(u=>u.name).join(', ')}`,tab:null});
+      const pendAccess=users.filter(u=>u.role==='pending');
+      if(pendAccess.length)orgRem.push({ic:'⏳',t:`${pendAccess.length} access request${pendAccess.length>1?'s':''} waiting: ${pendAccess.map(u=>u.name).join(', ')}`,tab:'cadmin'});
+      const pendReqs=reqs.filter(r=>r.status==='pending');
+      if(pendReqs.length)orgRem.push({ic:'🔁',t:`${pendReqs.length} room request${pendReqs.length>1?'s':''} to decide`,tab:'rooms'});
+    }
+    const remRow=r=>`<div class="tdo-row" ${r.tab?`onclick="gotoCruiseTab('${r.tab}')" style="cursor:pointer"`:''}>
+      <span style="flex:0 0 22px;text-align:center">${r.ic}</span>
+      <span class="tdo-main"><span style="font-size:12.5px">${r.t}</span></span>${r.tab?'<span style="color:var(--indigo2);font-size:12px">→</span>':''}</div>`;
+    const myRoom=rooms.find(r=>(r.slots||[]).includes(me));
+    const cats2=T.cats||[];
+    const myLegs=((logi[me])||[]).slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+    body=`
+      <div class="card"><div class="chead"><span>🔔 Reminders</span><span>${rem.length||'all clear'}</span></div>
+        ${rem.map(remRow).join('')||'<div style="padding:12px;font-size:12.5px;color:var(--moss)">Nothing outstanding — you are all set ✓</div>'}
+      </div>
+      ${admin&&orgRem.length?`<div class="card"><div class="chead"><span>🛠 Organizer reminders</span><span>${orgRem.length}</span></div>${orgRem.map(remRow).join('')}</div>`:''}
+      <div class="card"><div class="chead"><span>🛏 My cabin</span></div>
+        ${myRoom?`<div style="padding:12px 13px;font-size:13px"><b>Room ${rooms.indexOf(myRoom)+1}</b>${myRoom.num?' · Cabin '+esc(myRoom.num):''} · ${esc((cats2.find(k=>k.id===myRoom.cat)||{}).n||myRoom.cat)}${myRoom.locked?' 🔒':''}
+          <span style="display:block;font-size:11.5px;color:var(--grey);margin-top:3px">Sharing with: ${(myRoom.slots||[]).filter(u=>u&&u!==me).map(nameOf).join(', ')||'nobody yet'}</span></div>`
+        :`<div class="tdo-row" onclick="gotoCruiseTab('rooms')" style="cursor:pointer"><span class="tdo-main"><span style="font-size:12.5px">You're not in a cabin yet — pick a slot or request a room</span></span><span style="color:var(--indigo2)">→</span></div>`}
+      </div>
+      <div class="card"><div class="chead"><span>✈️ My travel</span><span>${myLegs.length} leg${myLegs.length===1?'':'s'}</span></div>
+        ${myLegs.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))||'—'}</span><span class="tdo-main"><span style="font-size:12.5px">${x.dir==='arrive'?'→':'←'} ${esc(x.flt||'—')}${x.ap?' · '+esc(x.ap):''}${x.time?' · '+esc(x.time):''}</span></span></div>`).join('')||`<div class="tdo-row" onclick="gotoCruiseTab('clog')" style="cursor:pointer"><span class="tdo-main"><span style="font-size:12.5px">Nothing yet — add your flights</span></span><span style="color:var(--indigo2)">→</span></div>`}
+      </div>
+      <div class="card"><div class="chead"><span>🪪 Travelers</span><span>legal details for the booking</span></div>
+        ${['admin',...users.filter(u=>u.role!=='pending').map(u=>u.uid)].map(uid=>{
+          const l=legalOf(uid);
+          return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(uid))}</span>
+            <span class="tdo-desc" style="margin-left:10px">${l&&l.first?esc(l.first+' '+(l.last||'')):'<i>legal name not set</i>'} · ${l&&l.dob?esc(l.dob):'<i>DOB not set</i>'}</span></span></div>`;
+        }).join('')}
+      </div>`;
+  }
+  if(c.cruiseTab==='ship'){
+    const SI=T.shipInfo||{facts:[],hoods:[],note:''};
+    body=`
+      <div class="card"><div class="chead"><span>🛳️ ${esc(T.ship||'The ship')}</span><span>Icon class</span></div>
+        <dl style="margin:0;padding:6px 13px 11px">${SI.facts.map(f=>`<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px dotted var(--rule)"><dt style="flex:0 0 118px;font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey);padding-top:2px">${esc(f[0])}</dt><dd style="flex:1;margin:0;font-size:12.5px">${esc(f[1])}</dd></div>`).join('')}</dl>
+      </div>
+      <div class="card"><div class="chead"><span>The eight neighborhoods</span></div>
+        ${SI.hoods.map(h=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(h[0])}</span><span class="tdo-desc">${esc(h[1])}</span></span></div>`).join('')}
+        ${SI.note?`<div style="padding:9px 13px;font-size:11px;color:var(--grey);border-top:1px solid var(--rule)">${esc(SI.note)}</div>`:''}
+      </div>`;
+  }
   if(c.cruiseTab==='board'){
     const ann=(overrides.ann||[]).slice().sort((a,b)=>b.ts-a.ts);
     body=`<div class="card"><div class="chead"><span>📣 Announcements</span><span>${ann.length}</span></div>
@@ -1559,8 +1712,8 @@ function renderCruise(c){
       ${reqs.slice().sort((a,b)=>b.ts-a.ts).slice(0,10).map(r=>{
         const room=rooms.find(x=>x.id===r.rid); const ri=room?rooms.indexOf(room)+1:'?';
         const fromN=(cats.find(k=>k.id===r.from)||{}).n||r.from, toN=(cats.find(k=>k.id===r.to)||{}).n||r.to;
-        return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(r.uid))} · Room ${ri}</span>
-          <span class="tdo-desc">${esc(fromN)} → <b>${esc(toN)}</b>${r.note?' · '+esc(r.note):''} · ${r.status}</span></span>
+        return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(r.uid))}${r.kind==='new'?'':' · Room '+ri}</span>
+          <span class="tdo-desc">${r.kind==='new'?`<b>NEW ROOM</b> · ${esc(toN)} · sleeps ${r.ppl||2}`:`${esc(fromN)} → <b>${esc(toN)}</b>`}${r.note?' · '+esc(r.note):''} · ${r.status}</span></span>
           ${r.status==='pending'?`<button class="tdo-x" onclick="decideReq('${r.id}',1)" title="Approve — applies immediately" style="color:var(--moss)">✓</button><button class="tdo-x" onclick="decideReq('${r.id}',0)" title="Deny" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`;
       }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No requests yet.</div>'}
     </div>`;
@@ -1577,6 +1730,20 @@ function renderCruise(c){
     </div>`:'';
     const myPendReq=reqs.find(r=>r.uid===me&&r.status==='pending');
     const myLastReq=reqs.filter(r=>r.uid===me&&r.status!=='pending').sort((a,b)=>(b.decided||b.ts)-(a.decided||a.ts))[0];
+    const newRoomCard=(!admin&&!mine)?`<div class="card"><div class="chead"><span>🛏 Request a room</span></div>
+      ${myPendReq?`<div style="padding:12px 13px;font-size:12.5px">Pending with ${nameOf('admin')}: <b>${myPendReq.kind==='new'?'new ':''}${esc((cats.find(k=>k.id===myPendReq.to)||{}).n||myPendReq.to)}</b>${myPendReq.ppl?' · sleeps '+myPendReq.ppl:''}${myPendReq.note?' · '+esc(myPendReq.note):''}
+        <button onclick="cancelReq('${myPendReq.id}')" style="margin-left:10px;background:none;border:1px solid var(--rule);border-radius:2px;font:600 9px var(--mono);text-transform:uppercase;color:var(--clay);padding:4px 8px;cursor:pointer">Cancel</button></div>`
+      :`<div class="plform">
+        ${myLastReq?`<div class="plhint">Your last request (${esc((cats.find(k=>k.id===myLastReq.to)||{}).n||myLastReq.to)}) was <b>${myLastReq.status}</b>.</div>`:''}
+        <div class="plrow1">
+          <select id="rn_to">${cats.map(k=>`<option value="${k.id}">${esc(k.n)}${qMin(k.id)?' — from '+money(qMin(k.id)):''}</option>`).join('')}</select>
+          <select id="rn_ppl"><option value="2">Sleeps 2</option><option value="3">Sleeps 3</option><option value="4">Sleeps 4</option></select>
+        </div>
+        <input id="rn_note" placeholder="Anything ${esc(nameOf('admin'))} should know (optional)" maxlength="80">
+        <button class="pladd" type="button" onclick="requestRoom()" style="align-self:flex-start;padding:8px 14px">Send request</button>
+        <div class="plhint">If approved, the room is created and you take its first slot automatically.</div>
+      </div>`}
+    </div>`:'';
     const reqCard=(!admin&&mine)?(mine.locked?`<div class="card"><div class="chead"><span>🔁 Room-type changes</span><span>Room ${rooms.indexOf(mine)+1}</span></div>
       <div style="padding:12px 13px;font-size:12.5px;color:var(--grey)">🔒 Your room is locked by 조상연 — type changes are closed${myPendReq?'; your pending request will still be decided':''}.</div>
     </div>`:`<div class="card"><div class="chead"><span>🔁 Request a room-type change</span><span>Room ${rooms.indexOf(mine)+1}</span></div>
@@ -1589,7 +1756,7 @@ function renderCruise(c){
         <button class="pladd" type="button" onclick="reqChange()" style="align-self:flex-start;padding:8px 14px">Send request</button>
         <div class="plhint">Once approved, your cabin's type changes automatically — nothing else to do.</div>
       </div>`}
-    </div>`):'';
+    </div>`):newRoomCard;
     body=(admin?`<div class="card"><div class="chead"><span>${window._editRoom?'Edit cabin':'Add a cabin'}</span></div>
       <div class="plform">
         <div class="plrow1">
@@ -1709,7 +1876,7 @@ function renderCruise(c){
       <div class="card"><div class="chead"><span>${window._editCharge?'✎ Edit charge':'Bill someone'}</span>${window._editCharge?'<span>payments already recorded are kept</span>':''}</div>
         <div class="plform">
           <div class="plrow1">
-            <select id="ch_uid">${users.map(u=>`<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select>
+            <select id="ch_uid">${users.filter(u=>u.role!=='pending').map(u=>`<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select>
             <select id="ch_kind"><option value="cruise">Cruise fare</option><option value="room">Room</option><option value="transport">Transport</option><option value="other">Other</option></select>
           </div>
           <input id="ch_desc" placeholder="Description — e.g. Star of the Seas · balcony share" maxlength="80">
@@ -1804,8 +1971,8 @@ function renderCruise(c){
         </div>
         <div class="plhint">Everyone signs in with their own code from the landing page. Organizers get the Admin tab and full control; your master code stays ${CRUISE_MASTER}. Role changes take effect the next time that person opens the trip.</div>
       </div>
-      ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span>${u.role==='admin'?'<span style="margin-left:8px;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;vertical-align:1px">organizer</span>':''}<span class="tdo-desc" style="margin-left:10px">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
-        <button class="tdo-x" onclick="roleUser('${u.uid}')" title="${u.role==='admin'?'Make guest':'Make organizer'}" style="color:var(--indigo2);font:700 9px var(--mono)">${u.role==='admin'?'⬇︎':'⬆︎'}</button>
+      ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span>${u.role==='admin'?'<span style="margin-left:8px;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;vertical-align:1px">organizer</span>':(u.role==='pending'?'<span style="margin-left:8px;border:1px solid #B0761F;color:#B0761F;border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;vertical-align:1px">⏳ pending</span>':'')}<span class="tdo-desc" style="margin-left:10px">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
+        ${u.role==='pending'?`<button class="tdo-x" onclick="approveUser('${u.uid}')" title="Approve as guest" style="color:var(--moss);font:700 10px var(--mono)">✓</button>`:`<button class="tdo-x" onclick="roleUser('${u.uid}')" title="${u.role==='admin'?'Make guest':'Make organizer'}" style="color:var(--indigo2);font:700 9px var(--mono)">${u.role==='admin'?'⬇︎':'⬆︎'}</button>`}
         <button class="tdo-x" onclick="renameUser('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
         <button class="tdo-x" onclick="regenUser('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
         <button class="tdo-x" onclick="delUser('${u.uid}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No guests yet — add the first one above.</div>'}
@@ -2126,6 +2293,18 @@ window.reqChange=function(){
     note:g('rq_note')?g('rq_note').value.trim():'',ts:Date.now(),status:'pending'});
   saveOverrides();render();
 };
+window.requestRoom=function(){
+  const g=i=>document.getElementById(i);
+  const me=(window._cru||{}).uid;
+  if(!me||!g('rn_to'))return;
+  const inRoom=(overrides.rooms||[]).some(r=>(r.slots||[]).includes(me));
+  if(inRoom){flash('You already have a room — use the change request instead','err');render();return;}
+  overrides.reqs=(overrides.reqs||[]).filter(r=>!(r.uid===me&&r.status==='pending'));
+  overrides.reqs.push({id:'q'+Date.now(),uid:me,kind:'new',to:g('rn_to').value,
+    ppl:Math.min(4,Math.max(2,Number(g('rn_ppl')?g('rn_ppl').value:2)||2)),
+    note:g('rn_note')?g('rn_note').value.trim():'',ts:Date.now(),status:'pending'});
+  saveOverrides();render();
+};
 window.cancelReq=function(id){
   overrides.reqs=(overrides.reqs||[]).filter(r=>r.id!==id);
   saveOverrides();render();
@@ -2140,8 +2319,17 @@ window.decideReq=function(id,ok){
   const r=(overrides.reqs||[]).find(x=>x.id===id);
   if(!r)return;
   if(ok){
-    const room=(overrides.rooms||[]).find(x=>x.id===r.rid);
-    if(room)room.cat=r.to;          // the approval IS the change — nothing else to do
+    if(r.kind==='new'){
+      // Approval creates the room with the requester already in slot 1.
+      const cap=Math.min(4,Math.max(2,Number(r.ppl)||2));
+      overrides.rooms=overrides.rooms||[];
+      overrides.rooms.forEach(rr=>{rr.slots=(rr.slots||[]).map(u=>u===r.uid?null:u);});
+      const slots=Array.from({length:cap},()=>null); slots[0]=r.uid;
+      overrides.rooms.push({id:'r'+Date.now(),num:'',cat:r.to,note:'',cap,slots});
+    }else{
+      const room=(overrides.rooms||[]).find(x=>x.id===r.rid);
+      if(room)room.cat=r.to;        // the approval IS the change
+    }
     r.status='approved';
   }else r.status='denied';
   r.decided=Date.now();
@@ -2220,6 +2408,13 @@ window.addUser=function(){
   overrides.users=overrides.users||[];
   overrides.users.push({uid:'u'+Date.now(),name,code:genCode(),role:(rl&&rl.value==='admin')?'admin':'participant'});
   saveOverrides();render();
+};
+window.approveUser=function(uid){
+  const u=(overrides.users||[]).find(x=>x.uid===uid);
+  if(!u)return;
+  u.role='participant';
+  saveOverrides();render();
+  flash(u.name+' approved ✓','ok');
 };
 window.roleUser=function(uid){
   const u=(overrides.users||[]).find(x=>x.uid===uid);
@@ -2947,6 +3142,9 @@ function renderCalc() {
 function render(){
   if(!tripSel){renderHome();return;}
   refreshNav();
+  const TT=(typeof TRIP_DATA!=='undefined')&&TRIP_DATA[tripKey()];
+  if(TT&&TT.cruise&&(!window._cru||!window._cru.uid)){ if(map){map.remove();map=null;} renderCruiseLogin(); return; }
+  if(TT&&TT.cruise&&cruRole()==='pending'){ if(map){map.remove();map=null;} renderCruisePending(); return; }
   const NAVC=navCities(); if(ci>=NAVC.length)ci=0;
   const c=NAVC[ci];
 

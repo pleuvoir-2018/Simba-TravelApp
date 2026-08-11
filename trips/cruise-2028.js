@@ -2,8 +2,10 @@
 window.TRIPS_REGISTRY=window.TRIPS_REGISTRY||{};
 
 var CR_TABS=[
+ {id:'csum',city:'Overview',sub:'summary & reminders',cruiseTab:'csum'},
  {id:'board',city:'Board',sub:'announcements',cruiseTab:'board'},
  {id:'sched',city:'Schedule',sub:'day by day',cruiseTab:'sched'},
+ {id:'ship',city:'The ship',sub:'Star of the Seas',cruiseTab:'ship'},
  {id:'rooms',city:'Rooms',sub:'cabin picker',cruiseTab:'rooms'},
  {id:'cexp',city:'Expenses',sub:'yours + invoice',cruiseTab:'cexp'},
  {id:'clog',city:'Logistics',sub:'flights & rides',cruiseTab:'clog'},
@@ -39,12 +41,31 @@ var CR_CATS=[
  {id:'suite',n:'Suite (Sky / Star)',sq:'varies',d:'Grand, Sunset, Icon Loft and above — Coastal Kitchen, Suite Lounge, concierge or Genie service.',tone:'#8C3F52'}
 ];
 
+/* Ship facts — Icon-class figures from public sources; worth re-checking
+   against Royal's page before quoting them to anyone. */
+var CR_SHIP={
+ facts:[["Class","Icon class — sister ship to Icon of the Seas (the class that took the 'world's largest' title)"],
+  ["Entered service","August 2025, homeported at Port Canaveral"],
+  ["Size","~250,000 gross tons · 365 m long · 48.5 m beam"],
+  ["Guests","~5,610 at double occupancy (up to ~7,600) · ~2,350 crew"],
+  ["Staterooms","2,805 across 28 categories — about 70% have some form of balcony"],
+  ["Builder","Meyer Turku, Finland"]],
+ hoods:[["Thrill Island","Category 6 — the largest waterpark at sea — plus the rock wall and sports court"],
+  ["Chill Island","Four pools across multiple decks, including a swim-up bar"],
+  ["Surfside","The young-family neighborhood aft on Deck 7 — kid-height everything"],
+  ["Central Park","Open-air garden with live plants, flanked by specialty dining"],
+  ["AquaDome","The glass dome forward — aqua theater shows, wraparound views"],
+  ["The Hideaway","Adults-ish suspended infinity pool with its own DJ deck"],
+  ["Royal Promenade","The indoor main street — bars, shops, and the Pearl sphere"],
+  ["Suite Neighborhood","Dedicated decks with Coastal Kitchen and the suite sun deck"]],
+ note:"Details worth confirming on Royal's site once your sailing's brochure is out — venues occasionally differ between sisters."};
+
 window.TRIPS_REGISTRY['cruise-2028']={cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
- itinerary:CR_ITIN,cats:CR_CATS,ship:'Star of the Seas',
+ itinerary:CR_ITIN,cats:CR_CATS,ship:'Star of the Seas',shipInfo:CR_SHIP,
  airport:{n:'Orlando International (MCO)',lat:28.4312,lng:-81.3081,note:'~45 min drive to the port'},
  emoji:'🚢',brand:"Icon Cruise · Jan '28",foot:'Jan 9–16 2028 · Star of the Seas',
  title:'Icon Class Cruise, January 2028',kicker:'Star of the Seas · Port Canaveral · departs Jan 9, 2028',
  depart:[2028,0,9],arrive:[2028,0,9],end:[2028,0,16],
  tz:'America/New_York',mon:1,cur:{code:'USD',sym:'$',key:'usd',fallback:1,name:'dollars'},
- navIcons:{board:'📣',sched:'🗓️',rooms:'🛏️',cexp:'💳',clog:'✈️',cadmin:'🛠️'},navSecs:{},
+ navIcons:{csum:'🧭',board:'📣',sched:'🗓️',ship:'🛳️',rooms:'🛏️',cexp:'💳',clog:'✈️',cadmin:'🛠️'},navSecs:{},
  seedTodos:[],vault:[]};

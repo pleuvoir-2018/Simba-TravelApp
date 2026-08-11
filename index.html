@@ -494,6 +494,47 @@ function saveOverrides(){
   clearTimeout(_saveTimer);
   _saveTimer=setTimeout(flushSave,450);
 }
+/* Role-aware merge for the shared cruise namespace, so eight people's saves
+   interleave instead of clobbering:
+   - cexp/logi are per-person maps: MY slice comes from local (so my deletes
+     stick), everyone else's from remote (so their latest survives my save)
+   - users/charges/sched/ann are organizer-owned: admin's local wins;
+     participants always take remote
+   - rooms: admin's local wins wholesale; for participants the room LIST is
+     remote (admin adds/removes cabins) and each slot merges individually —
+     my claim or release stands, anyone else's newer action comes from remote */
+function mergeCruise(rt,lt,base){
+  const me=(window._cru||{}).uid||null, admin=me==='admin';
+  const out={...base};
+  ['cexp','logi'].forEach(key=>{
+    const R=rt[key]||{}, L=lt[key]||{};
+    const m={...L};
+    Object.keys(R).forEach(uid=>{ if(uid!==me)m[uid]=R[uid]; });
+    if(Object.keys(m).length)out[key]=m;
+  });
+  ['users','charges','sched','ann'].forEach(key=>{
+    const v=admin?(lt[key]!==undefined?lt[key]:rt[key]):(rt[key]!==undefined?rt[key]:lt[key]);
+    if(v!==undefined)out[key]=v;
+  });
+  if(admin){ if(lt.rooms!==undefined||rt.rooms!==undefined)out.rooms=lt.rooms!==undefined?lt.rooms:rt.rooms; }
+  else{
+    const R=rt.rooms, L=lt.rooms||[];
+    if(R!==undefined){
+      out.rooms=R.map(r=>{
+        const l=L.find(x=>x.id===r.id);
+        if(!l)return r;
+        const slots=[0,1].map(i=>{
+          const lv=(l.slots||[])[i]??null, rv=(r.slots||[])[i]??null;
+          if(lv===rv)return lv;
+          if(lv===me||rv===me)return lv;   // my own claim or release stands
+          return rv;                        // someone else's newer action
+        });
+        return {...r,...l,slots};
+      });
+    }
+  }
+  return out;
+}
 async function flushSave(){
   if(_saveInFlight)return;              // the trailing call below picks it up
   _saveInFlight=true;_savePending=false;
@@ -506,7 +547,9 @@ async function flushSave(){
         const trips={...(remote.trips||{})};
         Object.keys(store.trips||{}).forEach(k=>{
           const rt=trips[k]||{}, lt=(store.trips||{})[k]||{};
-          trips[k]={...rt,...lt,vault:{...(rt.vault||{}),...(lt.vault||{})}};
+          let m={...rt,...lt,vault:{...(rt.vault||{}),...(lt.vault||{})}};
+          if(TRIP_DATA[k]&&TRIP_DATA[k].cruise)m=mergeCruise(rt,lt,m);
+          trips[k]=m;
         });
         store={...store,trips};
         bindTrip();
@@ -1404,14 +1447,17 @@ function renderCruise(c){
     const mine=rooms.find(r=>(r.slots||[]).includes(me));
     const placed=new Set(rooms.flatMap(r=>(r.slots||[]).filter(Boolean)));
     const unplaced=users.filter(u=>!placed.has(u.uid));
-    body=(admin?`<div class="card"><div class="chead"><span>Add a cabin</span></div>
+    body=(admin?`<div class="card"><div class="chead"><span>${window._editRoom?'Edit cabin':'Add a cabin'}</span></div>
       <div class="plform">
         <div class="plrow1">
           <input id="rm_num" placeholder="Cabin no. (e.g. 10254)" maxlength="10">
           <select id="rm_cat">${cats.map(k=>`<option value="${k.id}">${k.n}</option>`).join('')}</select>
         </div>
         <input id="rm_note" placeholder="Deck / note (optional)" maxlength="60">
-        <button class="pladd" type="button" onclick="addRoom()" style="align-self:flex-start;padding:8px 14px">+ Add cabin</button>
+        <div style="display:flex;gap:8px">
+          <button class="pladd" type="button" onclick="addRoom()" style="padding:8px 14px;${window._editRoom?'background:var(--moss)':''}">${window._editRoom?'✓ Save cabin':'+ Add cabin'}</button>
+          ${window._editRoom?'<button type="button" onclick="window._editRoom=null;render()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);padding:7px 11px;cursor:pointer;color:var(--grey)">Cancel</button>':''}
+        </div>
       </div></div>`:'')+
       `<div class="card"><div class="chead"><span>🛏 Cabins</span><span>${placed.size}/${rooms.length*2} slots taken</span></div>
       ${rooms.length?rooms.map(r=>{
@@ -1432,7 +1478,7 @@ function renderCruise(c){
               }).join('')}
             </span>
           </span>
-          ${admin?`<button class="tdo-x" onclick="delRoom('${r.id}')" style="color:var(--clay);font-size:17px">×</button>`:''}
+          ${admin?`<span style="display:flex;flex-direction:column;gap:2px"><button class="tdo-x" onclick="editRoom('${r.id}')" style="color:var(--indigo)">✎</button><button class="tdo-x" onclick="delRoom('${r.id}')" style="color:var(--clay);font-size:17px">×</button></span>`:''}
         </div>`;
       }).join(''):'<div style="padding:13px;font-size:12px;color:var(--grey)">No cabins added yet.</div>'}
       </div>
@@ -1604,7 +1650,16 @@ function renderCruise(c){
         <button class="tdo-x" onclick="renameUser('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
         <button class="tdo-x" onclick="regenUser('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
         <button class="tdo-x" onclick="delUser('${u.uid}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No guests yet — add the first one above.</div>'}
-    </div>`;
+    </div>
+    <div class="card"><div class="chead"><span>🔔 Discord integration</span></div>
+      <div class="plform">
+        <input id="dc_hook" placeholder="Discord webhook URL — https://discord.com/api/webhooks/…" value="${esc(overrides.discordHook||'')}">
+        <div style="display:flex;gap:8px">
+          <button class="pladd" type="button" onclick="saveHook()" style="padding:8px 14px">Save</button>
+          <button type="button" onclick="testHook()" style="background:none;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:7px 12px;cursor:pointer">Send test</button>
+        </div>
+        <div class="plhint">Server Settings → Integrations → Webhooks → New Webhook, pick the channel, copy the URL. Every announcement posted here pings that channel. Clear the field and Save to disconnect.</div>
+      </div></div>`;
   }
   panel.innerHTML=`<div class="stack" style="max-width:760px;margin:0 auto">${cruStrip()}${body}</div>`;
   if(c.cruiseTab==='cexp'&&admin)renderChItems();
@@ -1612,9 +1667,31 @@ function renderCruise(c){
 window.postAnn=function(){
   const el=document.getElementById('an_txt');
   if(!el||!el.value.trim())return;
+  const txt=el.value.trim();
   overrides.ann=overrides.ann||[];
-  overrides.ann.push({id:'a'+Date.now(),ts:Date.now(),txt:el.value.trim()});
+  overrides.ann.push({id:'a'+Date.now(),ts:Date.now(),txt});
   saveOverrides();render();
+  pingDiscord('📣 **New announcement** — '+txt);
+};
+function pingDiscord(msg){
+  const hook=overrides.discordHook;
+  if(!hook||!/^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(hook))return;
+  try{
+    fetch(hook,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({content:String(msg).slice(0,1900),username:'Icon Cruise'})})
+      .then(r=>{ if(!r.ok)flash('Discord ping failed ('+r.status+')','err'); })
+      .catch(()=>flash('Discord ping failed — check the webhook URL','err'));
+  }catch(e){}
+}
+window.saveHook=function(){
+  const el=document.getElementById('dc_hook');
+  overrides.discordHook=(el?el.value.trim():'');
+  saveOverrides();
+  flash(overrides.discordHook?'Webhook saved ✓':'Webhook cleared','ok');
+};
+window.testHook=function(){
+  window.saveHook();
+  if(overrides.discordHook)pingDiscord('🔧 Test from the cruise app — webhook connected.');
 };
 window.delAnn=function(id){
   overrides.ann=(overrides.ann||[]).filter(a=>a.id!==id);
@@ -1767,13 +1844,28 @@ window.delCharge=function(id){
     saveOverrides();render();
   }
 };
+window._editRoom=null;
 window.addRoom=function(){
   const g=i=>document.getElementById(i);
   const num=g('rm_num').value.trim();
   if(!num){g('rm_num').focus();return;}
   overrides.rooms=overrides.rooms||[];
-  overrides.rooms.push({id:'r'+Date.now(),num,cat:g('rm_cat').value,note:g('rm_note').value.trim(),slots:[null,null]});
+  if(window._editRoom){
+    const r=overrides.rooms.find(x=>x.id===window._editRoom);
+    window._editRoom=null;
+    if(r)Object.assign(r,{num,cat:g('rm_cat').value,note:g('rm_note').value.trim()});  // slots untouched
+  }else{
+    overrides.rooms.push({id:'r'+Date.now(),num,cat:g('rm_cat').value,note:g('rm_note').value.trim(),slots:[null,null]});
+  }
   saveOverrides();render();
+};
+window.editRoom=function(id){
+  const r=(overrides.rooms||[]).find(x=>x.id===id);
+  if(!r)return;
+  window._editRoom=id;render();
+  const g=i=>document.getElementById(i);
+  g('rm_num').value=r.num||'';g('rm_cat').value=r.cat;g('rm_note').value=r.note||'';
+  g('rm_num').scrollIntoView({behavior:'smooth',block:'center'});
 };
 window.delRoom=function(id){
   const r=(overrides.rooms||[]).find(x=>x.id===id);
@@ -2325,6 +2417,9 @@ function applyTripData(id){
   const kk=document.getElementById('kickerTxt');if(kk)kk.textContent=t.kicker;
   const nbs=document.querySelector('.nb-sun');if(nbs)nbs.textContent=t.emoji||'🧭';
   document.body.classList.toggle('cruise',!!t.cruise);
+  const eb=document.getElementById('editToggle');
+  if(eb)eb.style.display=t.cruise?'none':'';
+  if(t.cruise&&editMode){editMode=false;document.body.classList.remove('editing');const sb=document.getElementById('savebar');if(sb)sb.classList.remove('show');}
   document.title=t.title;
   buildNav();
   drawCountdown();

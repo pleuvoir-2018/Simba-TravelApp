@@ -156,7 +156,7 @@ function renderCruise(c){
         </div>
         <div class="plhint">Guests see each quote as its own card. Quote the same type at different occupancies freely.</div>
       </div>
-      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat};return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc" style="margin-left:10px">${q.ppl} people · ${money(q.q)}${q.img?' · 🖼 image set':''}</span></span>
+      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat};return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc" style="margin-left:10px">${q.ppl} people · ${money(q.q)}${q.img?((/\.(jpe?g|png|webp|gif|avif)([?#]|$)/i.test(q.img)||/\/render\/image\//.test(q.img))?' · 🖼 image set':' · ⚠ image link is a webpage — edit & re-paste'):''}</span></span>
         <button class="tdo-x" onclick="editQuote('${q.id}')" title="Edit" style="color:var(--indigo)">✎</button>
         <button class="tdo-x" onclick="delQuote('${q.id}')" style="color:var(--clay);font-size:17px">×</button></div>`;}).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing quoted yet.</div>'}
     </div>`;
@@ -697,7 +697,12 @@ window.addQuote=function(){
   const amt=Number(g('qt_amt').value);
   if(!(amt>0)){g('qt_amt').focus();return;}
   overrides.quotes=quoteListNow();
-  const fields={cat:g('qt_cat').value,ppl:Math.min(4,Math.max(2,Number(g('qt_ppl').value)||2)),q:Number(amt.toFixed(2)),img:g('qt_img').value.trim()};
+  const imgUrl=g('qt_img').value.trim();
+  if(imgUrl&&!/\.(jpe?g|png|webp|gif|avif)([?#]|$)/i.test(imgUrl)&&!/\/render\/image\//.test(imgUrl)){
+    flash('That looks like a webpage, not an image — on the page, right-click the photo → Copy image address, and paste that','err');
+    g('qt_img').focus();return;
+  }
+  const fields={cat:g('qt_cat').value,ppl:Math.min(4,Math.max(2,Number(g('qt_ppl').value)||2)),q:Number(amt.toFixed(2)),img:imgUrl};
   if(window._editQuote){
     const q=overrides.quotes.find(x=>x.id===window._editQuote);
     window._editQuote=null;

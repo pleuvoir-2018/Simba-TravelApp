@@ -326,7 +326,7 @@ function renderAddRestaurant(){
   const cities=CITIES.filter(c=>c.stops);
   const mine=(overrides.stops||[]);
   const F=(id,label,ph,type)=>`<label style="display:block;margin-bottom:9px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">${label}</span>
-    <input id="${id}" type="${type||'text'}" placeholder="${ph||''}" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"></label>`;
+    <input id="${id}" type="${type||'text'}" placeholder="${ph||''}" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:var(--card,#fff)"></label>`;
   panel.innerHTML=`<div class="stack" style="max-width:720px;margin:0 auto">
     <div class="card">
       <div class="chead"><span>🛠 ${window._editStopId?'Edit restaurant':'Add a restaurant'}</span><span>${mine.length} added here</span></div>
@@ -334,11 +334,11 @@ function renderAddRestaurant(){
         <div class="note" style="margin-bottom:11px">Everything you add here is saved with this trip and behaves exactly like a built-in stop — map pin, meal card, budget, Still-to-book and the Vault.</div>
         <div style="display:flex;gap:9px;flex-wrap:wrap">
           <label style="flex:1 1 150px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">City</span>
-            <select id="ar_city" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff">${cities.map(c=>`<option value="${c.id}">${c.city}</option>`).join('')}</select></label>
+            <select id="ar_city" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:var(--card,#fff)">${cities.map(c=>`<option value="${c.id}">${c.city}</option>`).join('')}</select></label>
           <label style="flex:1 1 110px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Day</span>
-            <select id="ar_day" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff">${tripDates().map(d=>`<option>${d}</option>`).join('')}</select></label>
+            <select id="ar_day" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:var(--card,#fff)">${tripDates().map(d=>`<option>${d}</option>`).join('')}</select></label>
           <label style="flex:1 1 110px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Meal</span>
-            <select id="ar_meal" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"><option>Breakfast</option><option selected>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
+            <select id="ar_meal" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:var(--card,#fff)"><option>Breakfast</option><option selected>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
         </div>
         <div style="height:9px"></div>
         ${F('ar_name','Name','e.g. Tousuiro Gion')}
@@ -349,11 +349,11 @@ function renderAddRestaurant(){
         ${F('ar_url','Google Maps link','paste the URL — the pin is read from it')}
         <div style="display:flex;gap:9px;flex-wrap:wrap">
           <label style="flex:1 1 120px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Booking</span>
-            <select id="ar_res" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"><option value="book">To book</option><option value="ok">Booked</option><option value="walk">Walk-in</option></select></label>
+            <select id="ar_res" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:var(--card,#fff)"><option value="book">To book</option><option value="ok">Booked</option><option value="walk">Walk-in</option></select></label>
           <label style="flex:1 1 120px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Payment</span>
-            <select id="ar_pay" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"><option value="">—</option><option value="cash">Cash only</option><option value="card">Cards OK</option></select></label>
+            <select id="ar_pay" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:var(--card,#fff)"><option value="">—</option><option value="cash">Cash only</option><option value="card">Cards OK</option></select></label>
           <label style="flex:1 1 120px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Budget (${CUR.sym}, for two)</span>
-            <input id="ar_jpy" type="number" min="0" placeholder="12000" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"></label>
+            <input id="ar_jpy" type="number" min="0" placeholder="12000" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:var(--card,#fff)"></label>
         </div>
         <div style="height:2px"></div>
         ${F('ar_note','Note (blue box on the card)','')}

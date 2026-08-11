@@ -54,7 +54,7 @@ function renderAdminPage(){
             ${dests.map(d=>{
               const td=TRIP_DATA[d.id];
               if(td.cruise||td.group)return `<label style="display:flex;align-items:center;gap:5px">${d.emoji||'🚢'} ${esc(d.country)}
-                <select onchange="appGrant('${u.uid}','${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;background:#fff">
+                <select onchange="appGrant('${u.uid}','${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;background:var(--card,#fff)">
                   <option value="" ${!acc[d.id]?'selected':''}>No access</option>
                   <option value="guest" ${acc[d.id]==='guest'?'selected':''}>Guest</option>
                   <option value="organizer" ${acc[d.id]==='organizer'?'selected':''}>Organizer</option>
@@ -74,7 +74,7 @@ function renderAdminPage(){
     </div>
     <div class="card"><div class="chead"><span>🏷 Destination labels</span><span>shown on the landing cards</span></div>
       ${dests.map(d=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${d.emoji||''} ${esc(d.title)}</span></span>
-        <select onchange="appLabel('${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;background:#fff">
+        <select onchange="appLabel('${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;background:var(--card,#fff)">
           ${Object.entries(TRIP_LABELS).map(([v,[t]])=>`<option value="${v}" ${tripLabelOf(TRIPS.find(x=>x.id===d.id))===v?'selected':''}>${t}</option>`).join('')}
         </select></div>`).join('')}
     </div>

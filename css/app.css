@@ -42,6 +42,7 @@
     padding:8px 15px;border-radius:3px;box-shadow:0 3px 12px rgba(20,22,27,.25);
     opacity:0;pointer-events:none;transition:opacity .18s ease,transform .18s ease;max-width:88vw;text-align:center}
   .toast.show{opacity:1;transform:translate(-50%,0)}
+  body.dark .toast{background:var(--indigo2);color:#0D1218}
   .toast.ok{background:var(--moss)}
   .toast.err{background:var(--clay)}
   .savebar button{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:2px;border:1.5px solid #fff;background:#fff;color:var(--clay);cursor:pointer;margin-left:8px}
@@ -60,6 +61,7 @@
   .nvi{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border:0;background:none;cursor:pointer;font:inherit;text-align:left;border-left:3px solid transparent}
   .nvi:hover{background:rgba(34,64,107,.07)}
   .nvi:focus-visible{outline:2px solid var(--clay);outline-offset:-2px}
+  button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--indigo2);outline-offset:1px;border-radius:2px}
   .nvi.on{background:var(--indigo);border-left-color:var(--clay)}
   .nvi.on .nv1{color:#fff}
   .nvi.on .nv2{color:rgba(255,255,255,.7)}
@@ -242,7 +244,7 @@
   .shell.mini #navlist label{justify-content:center;padding-left:0;padding-right:0}
   #cruAvatar{width:34px;height:34px;border-radius:50%;background:#0E7C86;color:#fff;font:700 14px var(--sans);border:2px solid #fff;box-shadow:0 1px 5px rgba(11,37,69,.35);cursor:pointer;align-items:center;justify-content:center;padding:0;flex:0 0 auto}
   #cruPop .cruPopBack{position:fixed;inset:0;z-index:60}
-  #cruPop .cruPopCard{position:fixed;top:64px;right:16px;z-index:61;width:264px;background:#fff;border:1px solid #C4D6E6;border-radius:6px;box-shadow:0 8px 30px rgba(11,37,69,.25);padding:16px 16px 14px}
+  #cruPop .cruPopCard{position:fixed;top:64px;right:16px;z-index:61;width:264px;background:var(--card,#fff);border:1px solid #C4D6E6;border-radius:7px;box-shadow:0 8px 30px rgba(11,37,69,.25);padding:16px 16px 14px}
   #cruPop label{display:block;font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:9px}
   #cruPop input{width:100%;box-sizing:border-box;min-width:0;font:13.5px var(--sans);border:1px solid #C4D6E6;border-radius:3px;padding:7px 9px;margin-top:3px;-webkit-appearance:none;appearance:none;background:#fff}
   #cruPop input[type=date]{text-align:left}
@@ -286,7 +288,7 @@
   .tdo-cat{font:600 8.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--plum);margin-left:5px}
   .tdo-desc{font-size:11.5px;color:var(--grey);margin-top:2px;line-height:1.45}
   .tdo-flag{font:600 9px var(--mono);letter-spacing:.05em;text-transform:uppercase;margin-top:3px}
-  .tdo-x{background:none;border:none;cursor:pointer;padding:0 3px;font-size:14px}
+  .tdo-x{background:none;border:none;cursor:pointer;padding:0 3px;font-size:14px;min-width:30px;min-height:30px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
   .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;padding:10px 12px}
   .cal-h{font:600 9px var(--mono);text-align:center;color:var(--grey);padding:2px 0;letter-spacing:.06em}
   .cal-c{min-height:54px;border:1px solid var(--rule);border-radius:2px;padding:3px;background:#fff;cursor:pointer;overflow:hidden;text-align:left}

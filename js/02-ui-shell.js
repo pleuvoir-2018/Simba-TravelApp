@@ -230,7 +230,7 @@ async function loadWeather(cityId){
           const dt=new Date(d.time[i]+'T12:00:00');
           const wd=dt.toLocaleDateString('en-US',{weekday:'short'});
           const md=(dt.getMonth()+1)+'/'+dt.getDate();
-          return `<div style="flex:1;min-width:64px;text-align:center;border:1px solid var(--rule);border-radius:2px;padding:7px 4px;background:#fff8;">
+          return `<div style="flex:1;min-width:64px;text-align:center;border:1px solid var(--rule);border-radius:2px;padding:7px 4px;background:var(--card,#fff)8;">
             <div style="font:600 9px var(--mono);color:var(--grey);text-transform:uppercase;">${wd} ${md}</div>
             <div style="font-size:20px;line-height:1.4;">${WX_ICON(d.weather_code[i])}</div>
             <div style="font:600 11px var(--mono);">${Math.round(d.temperature_2m_max[i])}°<span style="color:var(--grey);font-weight:400;">/${Math.round(d.temperature_2m_min[i])}°</span></div>

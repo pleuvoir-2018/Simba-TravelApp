@@ -256,7 +256,7 @@ function renderCruise(c){
     if(!CFX[cpref])cpref='USD';
     const crate=cpref==='USD'?1:((window._cruFx||{})[cpref]||null);
     const cfmt=n=>CFX[cpref]+(n*crate).toLocaleString('en-US',{minimumFractionDigits:cpref==='KRW'?0:2,maximumFractionDigits:cpref==='KRW'?0:2});
-    const curSel=`<select onchange="setCruCur(this.value)" style="font:600 10px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;background:#fff;color:var(--ink)">${Object.keys(CFX).map(k=>`<option ${k===cpref?'selected':''}>${k}</option>`).join('')}</select>`;
+    const curSel=`<select onchange="setCruCur(this.value)" style="font:600 10px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;background:var(--card,#fff);color:var(--ink)">${Object.keys(CFX).map(k=>`<option ${k===cpref?'selected':''}>${k}</option>`).join('')}</select>`;
     const cvtLine=(pairs)=>cpref==='USD'?'':(crate
       ?`<div style="padding:7px 12px;border-top:1px dotted var(--rule);font:11px var(--mono);color:var(--indigo2);text-align:center">≈ ${pairs.map(([l,v])=>`${cfmt(v)} ${l}`).join(' · ')} <span style="color:var(--grey)">@ 1 USD = ${crate.toFixed(cpref==='KRW'?0:4)} ${cpref}</span></div>`
       :`<div style="padding:7px 12px;border-top:1px dotted var(--rule);font:11px var(--mono);color:var(--grey);text-align:center">fetching ${cpref} rate…</div>`);
@@ -349,7 +349,7 @@ function renderCruise(c){
         ${charges.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(x.uid))} · ${esc(x.desc)}</span>
             <span class="tdo-desc">${money(x.amt)} · ${x.kind}${x.dep?` · dep ${money(x.dep)} ${Number(x.paid||0)>=Number(x.dep)-0.005?'✓':'due'}`:''}${x.items?` · ${x.items.length} lines`:''}</span></span>
           <label style="flex:0 0 auto;font:600 8px var(--mono);color:var(--grey);text-transform:uppercase;text-align:right">Paid $<br>
-            <input type="number" min="0" step="0.01" value="${Number(x.paid||0)>0.005?Number(x.paid).toFixed(2):''}" placeholder="0" onchange="setChargePaid('${x.id}',this.value)" style="width:78px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;text-align:right;background:#fff;margin-top:2px"></label>
+            <input type="number" min="0" step="0.01" value="${Number(x.paid||0)>0.005?Number(x.paid).toFixed(2):''}" placeholder="0" onchange="setChargePaid('${x.id}',this.value)" style="width:78px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;text-align:right;background:var(--card,#fff);margin-top:2px"></label>
           <button class="tdo-x" onclick="editCharge('${x.id}')" title="Edit" style="color:var(--indigo)">✎</button>
           ${x.dep&&Number(x.paid||0)<Number(x.dep)-0.005?`<button class="tdo-x" onclick="setChargePaid('${x.id}','${Number(x.dep)}')" title="Deposit received" style="color:#0E7C86;font:700 9px var(--mono)">✓dep</button>`:''}
           <button class="tdo-x" onclick="setChargePaid('${x.id}','${Number(x.amt)}')" title="Mark fully paid" style="color:var(--moss);font-size:13px">✓</button>
@@ -587,7 +587,7 @@ function invoiceHTML(x,billedTo){
   const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   const bal=Number(x.amt)-Number(x.paid||0);
   const settled=bal<=0.005;
-  return `<span style="display:block;margin-top:9px;border:1px solid #0B2545;border-radius:3px;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(11,37,69,.10)">
+  return `<span style="display:block;margin-top:9px;border:1px solid #0B2545;border-radius:3px;overflow:hidden;background:var(--card,#fff);box-shadow:0 2px 10px rgba(11,37,69,.10)">
     <span style="display:flex;justify-content:space-between;align-items:center;background:#0B2545;color:#DCEAF9;padding:10px 14px">
       <span><span style="display:block;font:600 8px var(--mono);letter-spacing:.18em">STAR OF THE SEAS · JAN 9–16, 2028</span>
         <span style="display:block;font-family:var(--serif);font-size:17px;font-weight:700;margin-top:2px">Invoice</span></span>
@@ -953,7 +953,7 @@ function vaultRow(key,label,sub){
       <div style="font:9.5px var(--mono);color:var(--grey);">${sub}</div>
     </div>
     <input data-vault="${key}" value="${v}" placeholder="conf # / seats / notes"
-      style="flex:1;min-width:160px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:6px 8px;background:#fff;">
+      style="flex:1;min-width:160px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:6px 8px;background:var(--card,#fff);">
   </div>`;
 }
 
@@ -1089,32 +1089,32 @@ function renderExpenses() {
       <form id="expForm" data-edit-idx="" style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:24px; align-items:flex-end; background:rgba(34,64,107,.04); padding:12px; border:1px solid var(--rule); border-radius:2px;">
         
         <label style="flex:1; min-width:110px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Date<br>
-          <input type="date" id="exDate" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
+          <input type="date" id="exDate" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:var(--card,#fff);">
         </label>
 
         <div style="flex:1.5; min-width:160px; display:flex; gap:6px;">
           <label style="flex:1; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">${CUR.sym} ${CUR.code}<br>
-            <input type="number" id="exJpy" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="0">
+            <input type="number" id="exJpy" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:var(--card,#fff);" placeholder="0">
           </label>
           <label style="flex:1; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">$ USD<br>
-            <input type="number" step="0.01" id="exUsd" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="0.00">
+            <input type="number" step="0.01" id="exUsd" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:var(--card,#fff);" placeholder="0.00">
           </label>
         </div>
         
         <label style="flex:1; min-width:110px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Category<br>
-          <select id="exCat" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
+          <select id="exCat" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:var(--card,#fff);">
             ${cats.map(c=>`<option>${c}</option>`).join('')}
           </select>
         </label>
         
         <label style="flex:1.5; min-width:130px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Card Used<br>
-          <select id="exCard" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;">
+          <select id="exCard" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:var(--card,#fff);">
             ${cards.map(c=>`<option>${c}</option>`).join('')}
           </select>
         </label>
         
         <label style="flex:2; min-width:150px; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">Description<br>
-          <input type="text" id="exDesc" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="e.g., Cat collars for Simba & Ahri">
+          <input type="text" id="exDesc" required style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:var(--card,#fff);" placeholder="e.g., Cat collars for Simba & Ahri">
         </label>
         
         <label style="flex:0 0 auto; font:600 10px var(--mono); color:#B08A1F; text-transform:uppercase; display:flex; align-items:center; gap:5px; height:30px; cursor:pointer;">
@@ -1150,7 +1150,7 @@ function renderExpenses() {
                   : `<label style="font:600 8.5px var(--mono); color:var(--grey); text-transform:uppercase; text-align:right;">Paid $<br>
                       <input type="number" step="0.01" min="0" max="${amt}" value="${p > 0.005 ? p.toFixed(2) : ''}" placeholder="0"
                         onchange="setPaidAmt(${i}, this.value)"
-                        style="width:72px; font:12px var(--mono); border:1px solid var(--rule); border-radius:2px; padding:3px 5px; text-align:right; background:#fff; margin-top:2px;">
+                        style="width:72px; font:12px var(--mono); border:1px solid var(--rule); border-radius:2px; padding:3px 5px; text-align:right; background:var(--card,#fff); margin-top:2px;">
                     </label>`}
                 <div style="font-family:var(--mono); font-weight:700; color:${planned?'#B08A1F':'var(--indigo)'}; font-size:14px;">$${amt.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
                 <div style="display:flex; gap:6px;">
@@ -1434,7 +1434,7 @@ function renderJeju(c){
     const myPersonal=mine.reduce((a,x)=>a+Number(x.amt||0),0);
     body=`
       <div class="card"><div class="chead"><span>👥 Group pot</span><span style="display:flex;gap:7px;align-items:center">${jjMoney(groupTotal)} · ${jjMoney(share)}/person
-        ${admin?`<span style="display:flex;gap:4px;align-items:center">÷ <input type="number" min="1" max="50" value="${N}" onchange="jjSetHead(this.value)" title="How many people the pot splits across" style="width:46px;font:600 11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;text-align:center;background:#fff"></span>`:`÷ ${N} people`}</span></div>
+        ${admin?`<span style="display:flex;gap:4px;align-items:center">÷ <input type="number" min="1" max="50" value="${N}" onchange="jjSetHead(this.value)" title="How many people the pot splits across" style="width:46px;font:600 11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;text-align:center;background:var(--card,#fff)"></span>`:`÷ ${N} people`}</span></div>
         ${chosenCosts.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">decided on the Decisions tab</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b></div>`).join('')}
         ${gexp.map(x=>`<div class="tdo-row"><span style="flex:0 0 24px;text-align:center">${JJ_EXPICO[x.cat||'Other']||'📦'}</span><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">paid by ${esc(jjName(x.payer))}${x.note?' · '+esc(x.note):''}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
           ${(admin||x.by===me)?`<button class="tdo-x" onclick="jjDelGexp('${x.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`).join('')||''}

@@ -12,14 +12,14 @@ var CR_TABS=[
 /* Star of the Seas · 7-night Eastern Caribbean & Perfect Day skeleton.
    The Jan 9 2028 variant isn't published precisely — admin can edit any day. */
 var CR_ITIN=[
- {day:1,date:'Sun · Jan 9',port:'Port Canaveral (Orlando) — embark',hrs:'boarding from ~11:00 · sails 4:30 PM'},
- {day:2,date:'Mon · Jan 10',port:'Perfect Day at CocoCay, Bahamas',hrs:'confirm times against the booking'},
+ {day:1,date:'Sun · Jan 9',port:'Port Canaveral (Orlando) — embark',hrs:'boarding from ~11:00 · sails 4:30 PM',lat:28.4058,lng:-80.6266},
+ {day:2,date:'Mon · Jan 10',port:'Perfect Day at CocoCay, Bahamas',hrs:'confirm times against the booking',lat:25.8199,lng:-77.9384},
  {day:3,date:'Tue · Jan 11',port:'At sea',hrs:'—'},
- {day:4,date:'Wed · Jan 12',port:'Charlotte Amalie, St. Thomas',hrs:'confirm — Eastern variant'},
- {day:5,date:'Thu · Jan 13',port:'Philipsburg, St. Maarten',hrs:'confirm — Eastern variant'},
+ {day:4,date:'Wed · Jan 12',port:'Charlotte Amalie, St. Thomas',hrs:'confirm — Eastern variant',lat:18.3419,lng:-64.9307},
+ {day:5,date:'Thu · Jan 13',port:'Philipsburg, St. Maarten',hrs:'confirm — Eastern variant',lat:18.0237,lng:-63.0458},
  {day:6,date:'Fri · Jan 14',port:'At sea',hrs:'—'},
  {day:7,date:'Sat · Jan 15',port:'At sea',hrs:'—'},
- {day:8,date:'Sun · Jan 16',port:'Port Canaveral — disembark',hrs:'morning arrival'}
+ {day:8,date:'Sun · Jan 16',port:'Port Canaveral — disembark',hrs:'morning arrival',lat:28.4058,lng:-80.6266}
 ];
 
 /* Stateroom categories — names and specs from Royal's public material for the
@@ -41,6 +41,7 @@ var CR_CATS=[
 
 window.TRIPS_REGISTRY['cruise-2028']={cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
  itinerary:CR_ITIN,cats:CR_CATS,ship:'Star of the Seas',
+ airport:{n:'Orlando International (MCO)',lat:28.4312,lng:-81.3081,note:'~45 min drive to the port'},
  emoji:'🚢',brand:"Icon Cruise · Jan '28",foot:'Jan 9–16 2028 · Star of the Seas',
  title:'Icon Class Cruise, January 2028',kicker:'Star of the Seas · Port Canaveral · departs Jan 9, 2028',
  depart:[2028,0,9],arrive:[2028,0,9],end:[2028,0,16],

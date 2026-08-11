@@ -630,8 +630,8 @@ function buildNav(){
     (i===0?'<div class="nvsec">Now</div>':'')+
     (secs[c.id]?`<div class="nvsec">${secs[c.id]}</div>`:'')+
     `<button class="nvi" data-i="${i}" title="${c.city}"><span class="nvic">${ico[c.id]||'•'}</span><span class="nvtx"><span class="nv1">${c.city}</span><span class="nv2">${c.sub}</span></span></button>`
-  ).join('')+`<label style="display:flex;align-items:center;gap:7px;padding:13px 14px 6px;font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);cursor:pointer">
-      <input type="checkbox" ${devMode?'checked':''} onchange="toggleDev(this.checked)" style="width:13px;height:13px;accent-color:var(--clay)"> <span class="devlbl">Developer mode</span></label>`;
+  ).join('')+(CITIES.some(c=>c.stops)?`<label style="display:flex;align-items:center;gap:7px;padding:13px 14px 6px;font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);cursor:pointer">
+      <input type="checkbox" ${devMode?'checked':''} onchange="toggleDev(this.checked)" style="width:13px;height:13px;accent-color:var(--clay)"> <span class="devlbl">Developer mode</span></label>`:'');
   navlist.querySelectorAll('.nvi').forEach(b=>b.onclick=()=>{ci=+b.dataset.i;sel=null;selPoi=null;cat='all';shell.classList.remove('drawer');render();});
 }
 function refreshNav(){navlist.querySelectorAll('.nvi').forEach(b=>{const on=+b.dataset.i===ci;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}
@@ -1416,7 +1416,9 @@ function renderCruise(c){
   }
   if(c.cruiseTab==='sched'){
     const plans=(overrides.sched||[]);
-    body=(admin?`<div class="card"><div class="chead"><span>${window._editSched?'Edit plan':'Add to the schedule'}</span></div>
+    body=`<div class="card"><div class="chead"><span>🗺 The route</span><span>MCO · Port Canaveral · ports of call</span></div>
+      <div id="crmap" style="height:330px"></div></div>`+
+    (admin?`<div class="card"><div class="chead"><span>${window._editSched?'Edit plan':'Add to the schedule'}</span></div>
       <div class="plform">
         <div class="plrow1">
           <select id="sc_day">${(T.itinerary||[]).map(d=>`<option value="${d.day}">Day ${d.day} · ${d.port.split('—')[0].split(',')[0]}</option>`).join('')}</select>
@@ -1486,6 +1488,15 @@ function renderCruise(c){
         <div style="padding:10px 13px;font-size:12.5px;color:var(--grey)">${unplaced.map(u=>esc(u.name)).join(' · ')}</div></div>`:''}`;
   }
   if(c.cruiseTab==='cexp'){
+    const CFX={USD:'$',CAD:'CA$',NZD:'NZ$',KRW:'₩'};
+    let cpref='USD';try{cpref=localStorage.getItem('jt_cru_cur')||'USD';}catch(e){}
+    if(!CFX[cpref])cpref='USD';
+    const crate=cpref==='USD'?1:((window._cruFx||{})[cpref]||null);
+    const cfmt=n=>CFX[cpref]+(n*crate).toLocaleString('en-US',{minimumFractionDigits:cpref==='KRW'?0:2,maximumFractionDigits:cpref==='KRW'?0:2});
+    const curSel=`<select onchange="setCruCur(this.value)" style="font:600 10px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;background:#fff;color:var(--ink)">${Object.keys(CFX).map(k=>`<option ${k===cpref?'selected':''}>${k}</option>`).join('')}</select>`;
+    const cvtLine=(pairs)=>cpref==='USD'?'':(crate
+      ?`<div style="padding:7px 12px;border-top:1px dotted var(--rule);font:11px var(--mono);color:var(--indigo2);text-align:center">≈ ${pairs.map(([l,v])=>`${cfmt(v)} ${l}`).join(' · ')} <span style="color:var(--grey)">@ 1 USD = ${crate.toFixed(cpref==='KRW'?0:4)} ${cpref}</span></div>`
+      :`<div style="padding:7px 12px;border-top:1px dotted var(--rule);font:11px var(--mono);color:var(--grey);text-align:center">fetching ${cpref} rate…</div>`);
     const me=(window._cru||{}).uid;
     const users=(overrides.users||[]);
     const nameOf=uid=>uid==='admin'?'조상연':((users.find(u=>u.uid===uid)||{}).name||'—');
@@ -1517,12 +1528,12 @@ function renderCruise(c){
       <b style="font-family:var(--mono);font-size:12.5px;flex:0 0 auto">${money(x.amt)}</b>
       <button class="tdo-x" onclick="delMyExp('${x.id}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('');
     const myBlock=`
-      <div class="card"><div class="chead"><span>My trip total</span><span>${money(myBilled+myPersonal)}</span></div>
+      <div class="card"><div class="chead"><span>My trip total</span><span style="display:flex;gap:8px;align-items:center">${money(myBilled+myPersonal)} ${curSel}</span></div>
         <div style="display:flex;gap:0;text-align:center">
           <div style="flex:1;padding:11px 6px;border-right:1px dotted var(--rule)"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Billed by organizer</div><div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--indigo)">${money(myBilled)}</div></div>
           <div style="flex:1;padding:11px 6px;border-right:1px dotted var(--rule)"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Paid</div><div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--moss)">${money(myPaid)}</div></div>
           <div style="flex:1;padding:11px 6px"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">My own spend</div><div style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--indigo2)">${money(myPersonal)}</div></div>
-        </div></div>
+        </div>${cvtLine([['billed',myBilled],['paid',myPaid],['own',myPersonal]])}</div>
       <div class="card"><div class="chead"><span>Charges from the organizer</span><span>${myCharges.length}</span></div>
         ${myCharges.map(chargeRow).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing billed to you yet.</div>'}</div>
       <div class="card"><div class="chead"><span>My expenses</span><span>${money(myPersonal)}</span></div>
@@ -1539,12 +1550,12 @@ function renderCruise(c){
       const collected=charges.reduce((a,x)=>a+Number(x.paid||0),0);
       const byUser={};charges.forEach(x=>{(byUser[x.uid]=byUser[x.uid]||[]).push(x);});
       body=`
-      <div class="card"><div class="chead"><span>💰 Collection dashboard</span><span>${money(billed-collected)} still to collect</span></div>
+      <div class="card"><div class="chead"><span>💰 Collection dashboard</span><span style="display:flex;gap:8px;align-items:center">${money(billed-collected)} still to collect ${curSel}</span></div>
         <div style="display:flex;text-align:center">
           <div style="flex:1;padding:11px 6px;border-right:1px dotted var(--rule)"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Billed</div><div style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--indigo)">${money(billed)}</div></div>
           <div style="flex:1;padding:11px 6px;border-right:1px dotted var(--rule)"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Collected</div><div style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--moss)">${money(collected)}</div></div>
           <div style="flex:1;padding:11px 6px"><div style="font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Outstanding</div><div style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--clay)">${money(billed-collected)}</div></div>
-        </div>
+        </div>${cvtLine([['billed',billed],['collected',collected],['outstanding',billed-collected]])}
         <div style="border-top:1px solid var(--rule)">
         ${Object.keys(byUser).map(uid=>{
           const b=byUser[uid].reduce((a,x)=>a+Number(x.amt||0),0), pd=byUser[uid].reduce((a,x)=>a+Number(x.paid||0),0);
@@ -1666,6 +1677,36 @@ function renderCruise(c){
   }
   panel.innerHTML=`<div class="stack" style="max-width:760px;margin:0 auto">${cruStrip()}${body}</div>`;
   if(c.cruiseTab==='cexp'&&admin)renderChItems();
+  if(c.cruiseTab==='sched'&&document.getElementById('crmap'))drawCruiseMap(T);
+}
+function drawCruiseMap(T){
+  map=L.map('crmap',{scrollWheelZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'&copy; Esri'}).addTo(map);
+  const pin=(emoji,size)=>L.divIcon({className:'',html:`<div style="font-size:${size||20}px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))">${emoji}</div>`,iconSize:[size||20,size||20],iconAnchor:[(size||20)/2,(size||20)/2]});
+  const stops=(T.itinerary||[]).filter(d=>typeof d.lat==='number');
+  const bounds=[];
+  if(T.airport){
+    L.marker([T.airport.lat,T.airport.lng],{icon:pin('✈️',19)}).addTo(map).bindPopup(`<b>${esc(T.airport.n)}</b><br>${esc(T.airport.note||'')}`);
+    bounds.push([T.airport.lat,T.airport.lng]);
+  }
+  const seen=new Set();
+  stops.forEach(d=>{
+    const key=d.lat+','+d.lng;
+    if(!seen.has(key)){
+      seen.add(key);
+      const home=d.port.indexOf('Port Canaveral')>-1;
+      L.marker([d.lat,d.lng],{icon:pin(home?'🚢':'🏝',home?24:20)}).addTo(map)
+        .bindPopup(`<b>${esc(d.port)}</b><br>Day ${d.day} · ${esc(d.date)}`);
+    }
+    bounds.push([d.lat,d.lng]);
+  });
+  if(stops.length>1){
+    L.polyline(stops.map(d=>[d.lat,d.lng]),{color:'#0E7C86',weight:2.5,dashArray:'7 7',opacity:.85}).addTo(map);
+  }
+  if(T.airport&&stops.length){
+    L.polyline([[T.airport.lat,T.airport.lng],[stops[0].lat,stops[0].lng]],{color:'#5B7185',weight:1.5,dashArray:'2 6',opacity:.8}).addTo(map);
+  }
+  if(bounds.length)map.fitBounds(bounds,{padding:[28,28]});
 }
 window.postAnn=function(){
   const el=document.getElementById('an_txt');
@@ -1816,6 +1857,20 @@ function invoiceHTML(x,billedTo){
     </span>
   </span>`;
 }
+window.setCruCur=function(v){
+  try{localStorage.setItem('jt_cru_cur',v);}catch(e){}
+  if(v!=='USD'&&!(window._cruFx&&window._cruFx[v])){
+    fetch('https://latest.currency-api.pages.dev/v1/currencies/usd.json')
+      .then(r=>r.json())
+      .then(d=>{
+        window._cruFx=window._cruFx||{};
+        [['cad','CAD'],['nzd','NZD'],['krw','KRW']].forEach(([k,K])=>{ if(d&&d.usd&&d.usd[k])window._cruFx[K]=d.usd[k]; });
+        render();
+      })
+      .catch(()=>{ flash('Rate fetch failed — showing USD','err'); render(); });
+  }
+  render();
+};
 window._editCharge=null;
 window.addCharge=function(){
   const g=i=>document.getElementById(i);

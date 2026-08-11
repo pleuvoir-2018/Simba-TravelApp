@@ -233,6 +233,12 @@
   .trip.soon .bar{color:var(--grey)}
   .shell.mini .devlbl{display:none}
   .shell.mini #navlist label{justify-content:center;padding-left:0;padding-right:0}
+  #cruAvatar{width:34px;height:34px;border-radius:50%;background:#0E7C86;color:#fff;font:700 14px var(--sans);border:2px solid #fff;box-shadow:0 1px 5px rgba(11,37,69,.35);cursor:pointer;align-items:center;justify-content:center;padding:0;flex:0 0 auto}
+  #cruPop .cruPopBack{position:fixed;inset:0;z-index:60}
+  #cruPop .cruPopCard{position:fixed;top:64px;right:16px;z-index:61;width:264px;background:#fff;border:1px solid #C4D6E6;border-radius:6px;box-shadow:0 8px 30px rgba(11,37,69,.25);padding:16px 16px 14px}
+  #cruPop label{display:block;font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:9px}
+  #cruPop input{width:100%;font:13.5px var(--sans);border:1px solid #C4D6E6;border-radius:3px;padding:7px 9px;margin-top:3px}
+  #cruPop .ro{font:12.5px var(--mono);color:#0D2033;background:#F0F5FA;border-radius:3px;padding:7px 9px;margin-top:3px;letter-spacing:.08em}
   .trip.ocean{border-color:#0B2545}
   .trip.ocean .ph{background:linear-gradient(135deg,#0B2545,#13315C 55%,#1D5C8F)}
   .trip.ocean .bar{background:#0B2545;color:#CFE4FF}
@@ -330,6 +336,7 @@
       <button class="backtrips" type="button" onclick="backToTrips()" title="All trips">← Trips</button>
       <button class="navburger" id="navBurger" type="button" aria-label="Open menu">☰</button>
       <button class="editbtn" id="editToggle" type="button">✎ Edit mode</button>
+      <button id="cruAvatar" type="button" title="Your profile" onclick="cruProfile()" style="display:none"></button>
     </span>
   </header>
   <div class="savebar" id="savebar">
@@ -505,10 +512,18 @@ function mergeCruise(rt,lt,base){
     Object.keys(R).forEach(uid=>{ if(uid!==me)m[uid]=R[uid]; });
     if(Object.keys(m).length)out[key]=m;
   });
-  ['users','charges','sched','ann','quotes'].forEach(key=>{
+  ['charges','sched','ann','quotes','adminName'].forEach(key=>{
     const v=admin?(lt[key]!==undefined?lt[key]:rt[key]):(rt[key]!==undefined?rt[key]:lt[key]);
     if(v!==undefined)out[key]=v;
   });
+  {  // users: the roster is organizer-owned, but each guest owns their display name
+    const R=rt.users, L=lt.users;
+    if(admin){ if(L!==undefined||R!==undefined)out.users=L!==undefined?L:R; }
+    else if(R!==undefined||L!==undefined){
+      const meLocal=(L||[]).find(u=>u.uid===me);
+      out.users=(R||[]).map(u=>(u.uid===me&&meLocal&&meLocal.name)?{...u,name:meLocal.name}:u);
+    }
+  }
   {  // change requests: each guest owns their own; admin's decisions win
     const R=rt.reqs, L=lt.reqs;
     if(admin){ if(L!==undefined||R!==undefined)out.reqs=L!==undefined?L:R; }
@@ -903,14 +918,18 @@ function currentArchived(){
 const CRUISE_MASTER='THEO1218';
 window._cru=null;
 try{const raw=localStorage.getItem('jt_cru');if(raw)window._cru=JSON.parse(raw);}catch(e){}
-if(window._cru&&window._cru.role==='admin')window._cru.name='조상연';   // migrate old sessions
+if(window._cru&&window._cru.uid==='admin'&&window._cru.name==='Admin')window._cru.name='조상연';   // migrate legacy sessions only
 function cruRole(){return window._cru&&window._cru.role;}
 function cruName(){return (window._cru&&window._cru.name)||'';}
 function cruiseSignIn(id){
   // a remembered session still valid?
   const users=((store.trips&&store.trips[id])||{}).users||[];
   if(window._cru){
-    if(window._cru.uid==='admin')return true;              // master code
+    if(window._cru.uid==='admin'){                          // master code — pick up a saved display name
+      const an=((store.trips&&store.trips[id])||{}).adminName;
+      if(an){window._cru.name=an;try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}}
+      return true;
+    }
     const u=users.find(x=>x.uid===window._cru.uid);
     if(u){                                                 // refresh name/role — demotions and promotions take effect on next open
       window._cru.name=u.name;
@@ -923,7 +942,7 @@ function cruiseSignIn(id){
   const v=prompt('This is a group trip.\nEnter YOUR access code:');
   if(v===null)return false;
   const code=String(v).trim().toUpperCase();
-  if(code===CRUISE_MASTER){window._cru={role:'admin',name:'조상연',uid:'admin'};}
+  if(code===CRUISE_MASTER){window._cru={role:'admin',name:(((store.trips||{})[id]||{}).adminName)||'조상연',uid:'admin'};}
   else{
     const u=users.find(u=>String(u.code).toUpperCase()===code);
     if(!u){alert('Code not recognized — ask the organizer for yours.');return false;}
@@ -953,7 +972,7 @@ window.openTrip=function(id){
   document.body.classList.remove('home');
   render();
 };
-window.backToTrips=function(){ tripSel=null; document.body.classList.remove('cruise'); renderHome(); };
+window.backToTrips=function(){ tripSel=null; document.body.classList.remove('cruise'); const pp=document.getElementById('cruPop'); if(pp)pp.remove(); if(typeof updateAvatar==='function')updateAvatar(); renderHome(); };
 
 /* ---------------- TO-DO / PREP TRACKER ---------------- */
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
@@ -1404,11 +1423,54 @@ window.restoreStop=function(id){
 
 
 /* ---------------- CRUISE (group trip) ---------------- */
-function cruStrip(){
-  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey)">
-    <span>Signed in as <span style="color:var(--indigo)">${esc(cruName())}</span> · ${cruRole()==='admin'?'organizer':'guest'}</span>
-    <button onclick="cruSignOut()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:inherit;color:var(--grey);padding:4px 8px;cursor:pointer">Sign out</button></div>`;
+function updateAvatar(){
+  const b=document.getElementById('cruAvatar');
+  if(!b)return;
+  const t=(typeof TRIP_DATA!=='undefined')&&TRIP_DATA[tripKey()];
+  const on=!!(t&&t.cruise&&window._cru&&window._cru.uid);
+  b.style.display=on?'inline-flex':'none';
+  if(on)b.textContent=(window._cru.name||'?').slice(0,1);
 }
+window.cruProfile=function(){
+  const old=document.getElementById('cruPop');
+  if(old){old.remove();return;}
+  const me=window._cru||{};
+  if(!me.uid)return;
+  const isMaster=me.uid==='admin';
+  const u=(overrides.users||[]).find(x=>x.uid===me.uid);
+  const code=isMaster?CRUISE_MASTER:((u&&u.code)||'—');
+  const pop=document.createElement('div');
+  pop.id='cruPop';
+  pop.innerHTML=`<div class="cruPopBack" onclick="document.getElementById('cruPop').remove()"></div>
+    <div class="cruPopCard">
+      <div style="width:52px;height:52px;border-radius:50%;background:#0E7C86;color:#fff;font:700 22px var(--sans);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">${esc((me.name||'?').slice(0,1))}</div>
+      <label>Display name<input id="pf_name" value="${esc(me.name||'')}" maxlength="40"></label>
+      <label>Login code<div class="ro">${esc(code)}</div></label>
+      <label>Role<div class="ro">${me.role==='admin'?'Organizer':'Guest'}</div></label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="pladd" type="button" onclick="saveProfile()" style="flex:1;padding:8px 0">Save</button>
+        <button type="button" onclick="document.getElementById('cruPop').remove();cruSignOut()" style="flex:1;background:none;border:1px solid #C4D6E6;border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);cursor:pointer">Sign out</button>
+      </div>
+    </div>`;
+  document.body.appendChild(pop);
+  const inp=document.getElementById('pf_name');
+  if(inp){inp.focus();inp.select();}
+};
+window.saveProfile=function(){
+  const el=document.getElementById('pf_name');
+  const v=el?el.value.trim():'';
+  if(!v)return;
+  if(window._cru.uid==='admin'){ overrides.adminName=v; }
+  else{
+    const u=(overrides.users||[]).find(x=>x.uid===window._cru.uid);
+    if(u)u.name=v;
+  }
+  window._cru.name=v;
+  try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+  saveOverrides();
+  const pop=document.getElementById('cruPop');if(pop)pop.remove();
+  updateAvatar();render();
+};
 function genCode(){
   const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   let c='';for(let i=0;i<6;i++)c+=A[Math.floor(Math.random()*A.length)];
@@ -1458,7 +1520,7 @@ function renderCruise(c){
   if(c.cruiseTab==='rooms'){
     const cats=T.cats||[], rooms=(overrides.rooms||[]);
     const users=(overrides.users||[]);
-    const nameOf=uid=>uid==='admin'?'조상연':((users.find(u=>u.uid===uid)||{}).name||'—');
+    const nameOf=uid=>uid==='admin'?(overrides.adminName||'조상연'):((users.find(u=>u.uid===uid)||{}).name||'—');
     const me=(window._cru||{}).uid;
     const mine=rooms.find(r=>(r.slots||[]).includes(me));
     const placed=new Set(rooms.flatMap(r=>(r.slots||[]).filter(Boolean)));
@@ -1580,7 +1642,7 @@ function renderCruise(c){
       :`<div style="padding:7px 12px;border-top:1px dotted var(--rule);font:11px var(--mono);color:var(--grey);text-align:center">fetching ${cpref} rate…</div>`);
     const me=(window._cru||{}).uid;
     const users=(overrides.users||[]);
-    const nameOf=uid=>uid==='admin'?'조상연':((users.find(u=>u.uid===uid)||{}).name||'—');
+    const nameOf=uid=>uid==='admin'?(overrides.adminName||'조상연'):((users.find(u=>u.uid===uid)||{}).name||'—');
     const charges=(overrides.charges||[]);
     const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
     const myCharges=charges.filter(x=>x.uid===me);
@@ -1687,7 +1749,7 @@ function renderCruise(c){
   if(c.cruiseTab==='clog'){
     const me=(window._cru||{}).uid;
     const users=(overrides.users||[]);
-    const nameOf=uid=>uid==='admin'?'조상연':((users.find(u=>u.uid===uid)||{}).name||'—');
+    const nameOf=uid=>uid==='admin'?(overrides.adminName||'조상연'):((users.find(u=>u.uid===uid)||{}).name||'—');
     const logi=overrides.logi||{};
     const mine=(logi[me]||[]);
     const legRow=(x,owner)=>`<div class="tdo-row">
@@ -1758,7 +1820,7 @@ function renderCruise(c){
         <div class="plhint">Server Settings → Integrations → Webhooks → New Webhook, pick the channel, copy the URL. Every announcement posted here pings that channel. Clear the field and Save to disconnect.</div>
       </div></div>`;
   }
-  panel.innerHTML=`<div class="stack" style="max-width:760px;margin:0 auto">${cruStrip()}${body}</div>`;
+  panel.innerHTML=`<div class="stack" style="max-width:760px;margin:0 auto">${body}</div>`;
   if(c.cruiseTab==='cexp'&&admin)renderChItems();
   if(c.cruiseTab==='sched'&&document.getElementById('crmap'))drawCruiseMap(T);
 }
@@ -2681,6 +2743,7 @@ function applyTripData(id){
   const kk=document.getElementById('kickerTxt');if(kk)kk.textContent=t.kicker;
   const nbs=document.querySelector('.nb-sun');if(nbs)nbs.textContent=t.emoji||'🧭';
   document.body.classList.toggle('cruise',!!t.cruise);
+  if(typeof updateAvatar==='function')updateAvatar();
   const eb=document.getElementById('editToggle');
   if(eb)eb.style.display=t.cruise?'none':'';
   if(t.cruise&&editMode){editMode=false;document.body.classList.remove('editing');const sb=document.getElementById('savebar');if(sb)sb.classList.remove('show');}

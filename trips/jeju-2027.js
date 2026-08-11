@@ -28,7 +28,7 @@ window.TRIPS_REGISTRY['jeju-2027']={accent:'#E8871E',cities:JJ_CITIES,hotels:{},
  {c:"food",ic:"🐟",n:"Dongmun Market",d:"Jeju City's market — hairtail, tangerines, black pork",a:"Jeju City",lat:33.5124,lng:126.5270},
  {c:"food",ic:"🐖",n:"Heukdwaeji (black pork)",d:"the island signature, grilled over charcoal — clusters in Jeju City and Seogwipo",a:"Seogwipo",lat:33.2490,lng:126.5620},
  {c:"cafe",ic:"☕",n:"Aewol coast cafés",d:"the west-coast café strip with sea views",a:"west",lat:33.4630,lng:126.3100}],
- stay:{n:'Parnas Hotel Jeju',lat:33.24460,lng:126.40596,addr:'100 Jungmungwangwang-ro 72beon-gil, Seogwipo',
+ stay:{n:'Parnas Hotel Jeju',sub:'Jungmun resort area · 10 min walk to Jungmun Saekdal Beach',lat:33.24460,lng:126.40596,addr:'100 Jungmungwangwang-ro 72beon-gil, Seogwipo',
    tel:'+82 64-801-5555',
    note:'Set — no change. Jungmun resort area, 10 min walk to the beach; heated outdoor infinity pool. Newer wing gets the better reviews; ocean-view rooms are the ones to ask for.'},
  flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="120" fill="#cd2e3a"/><path d="M330 300a120 120 0 0 1 240 0a60 60 0 0 0-120 0a60 60 0 0 1-120 0" fill="#0047a0"/></svg>'};

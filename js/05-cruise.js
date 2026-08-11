@@ -904,7 +904,7 @@ function renderSide(c){
     sel=+el.dataset.n;selPoi=null;renderSide(c);refreshIcons(c);
     const mk=markers['m'+sel];if(mk){map.panTo(mk.getLatLng());mk.openPopup();}});
   const onRow=document.querySelector('.prow.on');
-  if(onRow)onRow.scrollIntoView({block:'nearest'});
+  // selection highlight only — no scroll: clicking a map pin must not yank the page to the list
 
   document.querySelectorAll('[data-f]').forEach(inp=>{inp.onchange=()=>{
     const id=+inp.dataset.id, f=inp.dataset.f;
@@ -1520,23 +1520,28 @@ function renderJeju(c){
   if(c.jjTab==='jsched'&&document.getElementById('jjmap'))drawJejuMap(T);
 }
 
+function mapsLinkHtml(q,url){
+  const href=url||('https://www.google.com/maps/search/'+encodeURIComponent(q));
+  return `<div style="margin-top:8px;border-top:1px dotted var(--rule);padding-top:6px;"><a href="${esc(href)}" target="_blank" rel="noopener" style="font-family:var(--mono);font-size:10px;color:var(--indigo);text-decoration:none;font-weight:600;text-transform:uppercase;letter-spacing:0.02em;">📍 Open in Google Maps ↗</a></div>`;
+}
 function drawJejuMap(T){
   map=L.map('jjmap',{scrollWheelZoom:false});
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'&copy; Esri'}).addTo(map);
   const pin=(emoji,size)=>L.divIcon({className:'',html:`<div style="font-size:${size||18}px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))">${emoji}</div>`,iconSize:[size||18,size||18],iconAnchor:[(size||18)/2,(size||18)/2]});
   const bounds=[];
   const st=T.stay;
-  if(st&&st.lat){ L.marker([st.lat,st.lng],{icon:pin('🏨',22)}).addTo(map).bindPopup(`<b>${esc(st.n)}</b><br>home base`); bounds.push([st.lat,st.lng]); }
+  if(st&&st.lat){ L.marker([st.lat,st.lng],{icon:pin('🏨',22)}).addTo(map).bindPopup(
+    `<b>${esc(st.n)}</b><br>${esc(st.sub||'')}${st.tel?`<br>${esc(st.tel)}`:''}`+mapsLinkHtml(st.n+' Jeju')); bounds.push([st.lat,st.lng]); }
   // curated island ideas — muted, always on the map
   (T.pois||[]).forEach(p=>{
     L.marker([p.lat,p.lng],{icon:pin(`<span style="opacity:.62">${p.ic||'📍'}</span>`,16),zIndexOffset:-100}).addTo(map)
-      .bindPopup(`<b>${esc(p.n)}</b><br>${esc(p.d||'')}<br><i>idea — pin it with a day to schedule it</i>`);
+      .bindPopup(`<b>${esc(p.n)}</b><br>${esc(p.d||'')}<br><i>idea — pin it with a day to schedule it</i>`+mapsLinkHtml(p.n+' Jeju'));
     bounds.push([p.lat,p.lng]);
   });
   (overrides.pins||[]).forEach(p=>{
     if(typeof p.lat!=='number')return;
     L.marker([p.lat,p.lng],{icon:pin(({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍',19)}).addTo(map)
-      .bindPopup(`<b>${esc(p.n)}</b><br>${p.day?esc(p.day)+' · ':''}${p.time?esc(p.time)+' · ':''}by ${esc(jjName(p.by))}`);
+      .bindPopup(`<b>${esc(p.n)}</b><br>${p.day?esc(p.day)+' · ':''}${p.time?esc(p.time)+' · ':''}by ${esc(jjName(p.by))}`+mapsLinkHtml(p.n+' Jeju',p.url));
     bounds.push([p.lat,p.lng]);
   });
   // Esri street tiles run out around z13-14 on Jeju: cap the fit so the map

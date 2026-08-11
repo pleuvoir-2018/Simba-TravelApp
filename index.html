@@ -1451,10 +1451,15 @@ function renderCruise(c){
     const myBilled=myCharges.reduce((a,x)=>a+Number(x.amt||0),0);
     const myPaid=myCharges.reduce((a,x)=>a+Number(x.paid||0),0);
     const chargeRow=x=>{
-      const st=Number(x.paid||0)>=Number(x.amt)-0.005?['PAID','var(--moss)']:(Number(x.paid||0)>0.005?['PARTIAL','#B0761F']:['UNPAID','var(--clay)']);
+      const pd=Number(x.paid||0), dep=Number(x.dep||0);
+      const st=pd>=Number(x.amt)-0.005?['PAID','var(--moss)']
+        :(dep>0&&pd>=dep-0.005?['DEPOSIT PAID','#0E7C86']
+        :(pd>0.005?['PARTIAL','#B0761F']:['UNPAID','var(--clay)']));
+      const depLine=dep>0&&pd<Number(x.amt)-0.005
+        ?` · deposit ${'$'+dep.toLocaleString('en-US',{minimumFractionDigits:2})} ${pd>=dep-0.005?'✓ received':'due'}`:'';
       return `<div class="tdo-row"><span class="tdo-main">
         <span class="tdo-t">${esc(x.desc)}</span>
-        <span class="tdo-desc">${x.kind==='cruise'?'cruise':x.kind==='transport'?'transport':x.kind}${x.items&&x.items.length?` · <a href="#" onclick="event.preventDefault();toggleInv('${x.id}')" style="color:var(--indigo2)">${window._inv===x.id?'hide invoice':'view itemized invoice'}</a>`:''}</span>
+        <span class="tdo-desc">${x.kind==='cruise'?'cruise':x.kind==='transport'?'transport':x.kind}${depLine}${x.items&&x.items.length?` · <a href="#" onclick="event.preventDefault();toggleInv('${x.id}')" style="color:var(--indigo2)">${window._inv===x.id?'hide invoice':'view itemized invoice'}</a>`:''}</span>
         ${window._inv===x.id&&x.items?invoiceHTML(x,nameOf(x.uid)):''}
       </span>
       <span style="text-align:right;flex:0 0 auto"><b style="font-family:var(--mono);font-size:13px">${money(x.amt)}</b>
@@ -1513,15 +1518,17 @@ function renderCruise(c){
           <button type="button" onclick="addChLine()" style="align-self:flex-start;background:none;border:1px dashed var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:6px 11px;cursor:pointer">+ Add line</button>
           <div class="plrow1">
             <input id="ch_amt" type="number" min="0" step="0.01" placeholder="$ total (ignored when line items are set)" oninput="updateChTotal()">
+            <input id="ch_dep" type="number" min="0" step="0.01" placeholder="$ deposit (optional)" title="Royal's booking deposit — tracked as its own milestone" style="flex:0 1 150px">
             <button class="pladd" type="button" onclick="addCharge()" style="flex:0 0 auto;padding:8px 14px">Bill · <span id="ch_total">$0.00</span></button>
           </div>
           <div class="plhint">Guests see ONE line on their tracker; the invoice shows every line with its category.</div>
         </div></div>
       <div class="card"><div class="chead"><span>All charges</span><span>record payments here</span></div>
         ${charges.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(x.uid))} · ${esc(x.desc)}</span>
-            <span class="tdo-desc">${money(x.amt)} · ${x.kind}${x.items?` · ${x.items.length} lines`:''}</span></span>
+            <span class="tdo-desc">${money(x.amt)} · ${x.kind}${x.dep?` · dep ${money(x.dep)} ${Number(x.paid||0)>=Number(x.dep)-0.005?'✓':'due'}`:''}${x.items?` · ${x.items.length} lines`:''}</span></span>
           <label style="flex:0 0 auto;font:600 8px var(--mono);color:var(--grey);text-transform:uppercase;text-align:right">Paid $<br>
             <input type="number" min="0" step="0.01" value="${Number(x.paid||0)>0.005?Number(x.paid).toFixed(2):''}" placeholder="0" onchange="setChargePaid('${x.id}',this.value)" style="width:78px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;text-align:right;background:#fff;margin-top:2px"></label>
+          ${x.dep&&Number(x.paid||0)<Number(x.dep)-0.005?`<button class="tdo-x" onclick="setChargePaid('${x.id}','${Number(x.dep)}')" title="Deposit received" style="color:#0E7C86;font:700 9px var(--mono)">✓dep</button>`:''}
           <button class="tdo-x" onclick="setChargePaid('${x.id}','${Number(x.amt)}')" title="Mark fully paid" style="color:var(--moss);font-size:13px">✓</button>
           <button class="tdo-x" onclick="delCharge('${x.id}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No charges yet.</div>'}
       </div>
@@ -1723,6 +1730,7 @@ function invoiceHTML(x,billedTo){
         <span style="flex:1;min-width:0">${esc(it.d)}${it.c&&CH_CATS[it.c]?`<span style="display:block;font:600 7.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">${CH_CATS[it.c].slice(2).trim()}</span>`:''}</span>
         <span style="font-family:var(--mono);font-size:12.5px">${money(it.amt)}</span></span>`).join('')}
       <span style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;padding-top:9px"><span>Total</span><span style="font-family:var(--mono)">${money(x.amt)}</span></span>
+      ${Number(x.dep||0)>0?`<span style="display:flex;justify-content:space-between;font-size:11.5px;color:${Number(x.paid||0)>=Number(x.dep)-0.005?'var(--moss)':'#B0761F'};padding-top:3px"><span>Deposit ${Number(x.paid||0)>=Number(x.dep)-0.005?'✓ received':'— due at booking'}</span><span style="font-family:var(--mono)">${money(x.dep)}</span></span>`:''}
       <span style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--moss);padding-top:2px"><span>Paid to date</span><span style="font-family:var(--mono)">− ${money(x.paid||0)}</span></span>
       <span style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:${settled?'var(--moss)':'var(--clay)'};border-top:1.5px solid var(--ink);margin-top:6px;padding-top:6px"><span>${settled?'Settled — thank you':'Balance due'}</span><span style="font-family:var(--mono)">${money(Math.max(bal,0))}</span></span>
     </span>
@@ -1739,6 +1747,8 @@ window.addCharge=function(){
   if(!(amt>0)){g('ch_amt').focus();return;}
   overrides.charges=overrides.charges||[];
   const rec={id:'c'+Date.now(),uid:g('ch_uid').value,kind:g('ch_kind').value,desc,amt:Number(amt.toFixed(2)),paid:0};
+  const dep=Number(g('ch_dep')?g('ch_dep').value:0);
+  if(dep>0)rec.dep=Number(Math.min(dep,amt).toFixed(2));
   if(items.length)rec.items=items;
   overrides.charges.push(rec);
   window._chItems=[];

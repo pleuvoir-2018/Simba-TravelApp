@@ -263,8 +263,8 @@
   .ribbon{position:absolute;top:14px;left:0;z-index:3;background:var(--clay);color:#fff;
     font:600 9.5px var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:5px 13px 5px 16px;border-radius:0 2px 2px 0;box-shadow:0 2px 8px rgba(20,22,27,.3)}
   .home-foot{text-align:center;padding:0 0 40px;font:9.5px var(--mono);color:var(--grey);line-height:1.7}
-  .backtrips{background:none;border:1px solid var(--rule);border-radius:2px;cursor:pointer;
-    font:600 9.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--indigo);padding:5px 9px;margin-right:8px}
+  .backtrips{background:none;border:1.5px solid var(--ink);border-radius:2px;cursor:pointer;
+    font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink);padding:8px 14px;margin-right:8px}
 
   /* To-do / prep tracker */
   .tdo-row{display:flex;gap:9px;align-items:flex-start;padding:9px 12px;border-bottom:1px dotted var(--rule)}
@@ -919,7 +919,7 @@ const TRIPS=[
  {id:'hawaii-2028',country:'Hawaii',title:'Hawaii, December 2028',dates:'Dec 29 – Jan 5 · New Year',emoji:'🌺',
   photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'wip'},
  {id:'hawaii-2029',country:'Hawaii',title:'Hawaii, March 2029',dates:'March 2029 · dates TBD',emoji:'🏝',
-  photo:wm('Waikiki_Beach_and_Diamond_Head.jpg'),credit:'Waikīkī & Diamond Head · Wikimedia Commons',status:'wip'}
+  photo:wm('Waikiki_Beach_(2024)-L1004709.jpg'),credit:'Waikīkī & Diamond Head · Frank Schulenburg, CC BY-SA 4.0',status:'wip'}
 ];
 let tripSel=null;                 // never restored from storage: every reload
 
@@ -2718,39 +2718,9 @@ function vaultRow(key,label,sub){
 }
 
 /* ---------------- PRIVACY LOCK (casual, not real security) ---------------- */
-window._privUnlocked=false;
 window._lockRetry=false;
-function renderLock(){
-  panel.innerHTML=`<div class="card" style="max-width:420px;margin:60px auto 0;">
-    <div class="chead"><span>🔒 Private tab</span></div>
-    <div style="padding:18px 16px;">
-      <div style="font-size:13px;color:var(--grey);margin-bottom:12px;">Expenses & Vault are passcode-locked. Enter it to view — everything else is open.</div>
-      <div style="display:flex;gap:8px;">
-        <input id="lockPw" type="password" placeholder="Passcode" autocomplete="off"
-          style="flex:1;min-width:0;font:14px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:8px 10px;background:#fff;"
-          onkeydown="if(event.key==='Enter')tryUnlock()">
-        <button class="pladd" type="button" onclick="tryUnlock()">Unlock</button>
-      </div>
-      ${window._lockRetry?'<div style="font:600 10px var(--mono);color:var(--clay);margin-top:10px;letter-spacing:.05em;">WRONG PASSCODE — TRY AGAIN</div>':''}
-      <div style="font:9px var(--mono);color:var(--grey);margin-top:12px;">Re-locks on page refresh.</div>
-    </div></div>`;
-  const el=document.getElementById('lockPw');
-  if(el)el.focus();
-}
-window.tryUnlock=function(){
-  const v=(document.getElementById('lockPw')||{value:''}).value;
-  if(v==='SIMBA1218'){
-    window._privUnlocked=true;
-    window._lockRetry=false;
-    render();
-  }else{
-    window._lockRetry=true;
-    renderLock();
-  }
-};
 
 function renderVault(){
-  if(!window._privUnlocked){renderLock();return;}
   const meals=CITIES.filter(c=>c.stops).flatMap(c=>stopsFor(c).map(s=>({...s,cityName:c.city})));
   const sec=t=>`<div style="font:600 10px var(--mono);color:var(--indigo);text-transform:uppercase;margin:14px 0 4px;">${t}</div>`;
   panel.innerHTML=`<div class="card" style="max-width:850px;margin:0 auto;">
@@ -2772,7 +2742,6 @@ function renderVault(){
 }
 
 function renderExpenses() {
-  if(!window._privUnlocked){renderLock();return;}
   const exps = overrides.expenses || [];
 
   // Partial-payment helpers: paidUsd (number) is the source of truth; legacy boolean `paid` still honored

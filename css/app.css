@@ -180,7 +180,7 @@
   .map-legend .l-dia { width: 7px; height: 7px; display: inline-block; transform: rotate(45deg); }
   /* Today view */
   .td-stack{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-  .td-hero{padding:38px 20px 34px;text-align:center}
+  .td-hero{padding:16px 20px 14px;text-align:center}
   .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:6px}
   .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.78;margin:-12px 0 13px}
   .td-sub{font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:0}

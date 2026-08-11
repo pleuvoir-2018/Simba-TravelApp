@@ -389,6 +389,8 @@
 <script src="trips/japan-2026.js"></script>
 <script src="trips/korea-2027.js"></script>
 <script src="trips/cruise-2028.js"></script>
+<script src="trips/hawaii-2028.js"></script>
+<script src="trips/hawaii-2029.js"></script>
 <script>
 /* ---------------- DATA ---------------- */
 const NRT={n:"Narita Airport (NRT)",lat:35.7719,lng:140.3929};
@@ -899,8 +901,10 @@ const TRIPS=[
   credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'},
  {id:'cruise-2028',country:'Caribbean',title:'Icon Class Cruise, January 2028',dates:'9–16 January 2028 · Star of the Seas',emoji:'🚢',
   photo:wm('Icon_of_the_Seas.jpg'),credit:'Icon of the Seas · Wikimedia Commons',status:'group',theme:'ocean'},
- {id:'hawaii-2028',country:'Hawaii',title:'Hawaii, December 2028',dates:'December 2028',emoji:'🌺',
-  photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'idea'}
+ {id:'hawaii-2028',country:'Hawaii',title:'Hawaii, December 2028',dates:'Dec 29 – Jan 5 · New Year',emoji:'🌺',
+  photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'wip'},
+ {id:'hawaii-2029',country:'Hawaii',title:'Hawaii, March 2029',dates:'March 2029 · dates TBD',emoji:'🏝',
+  photo:wm('Waikiki_Beach_and_Diamond_Head.jpg'),credit:'Waikīkī & Diamond Head · Wikimedia Commons',status:'wip'}
 ];
 let tripSel=null;                 // never restored from storage: every reload
 
@@ -1777,8 +1781,8 @@ function renderCruise(c){
       <div class="card"><div class="chead"><span>✈️ My travel</span><span>${myLegs.length} leg${myLegs.length===1?'':'s'}</span></div>
         ${myLegs.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))||'—'}</span><span class="tdo-main"><span style="font-size:12.5px">${x.dir==='arrive'?'→':'←'} ${esc(x.flt||'—')}${x.ap?' · '+esc(x.ap):''}${x.time?' · '+esc(x.time):''}</span></span></div>`).join('')||`<div class="tdo-row" onclick="gotoCruiseTab('clog')" style="cursor:pointer"><span class="tdo-main"><span style="font-size:12.5px">Nothing yet — add your flights</span></span><span style="color:var(--indigo2)">→</span></div>`}
       </div>
-      ${(()=>{
-        // Guest list = whoever holds a cabin slot, in room order — the booking manifest.
+      ${admin?(()=>{
+        // Guest list = whoever holds a cabin slot, in room order — the booking manifest. DOB stays organizer-only.
         const seated=[];
         rooms.forEach((r,ri)=>(r.slots||[]).forEach(u=>{ if(u&&!seated.some(x=>x.uid===u))seated.push({uid:u,room:ri+1}); }));
         const roleBadge=uid=>{
@@ -1797,7 +1801,7 @@ function renderCruise(c){
           ${seated.map(row).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nobody has taken a cabin slot yet.</div>'}
           ${admin&&unseated.length?`<div style="padding:9px 13px;font-size:11px;color:var(--grey);border-top:1px solid var(--rule)">Not in a cabin yet: ${unseated.map(uid=>esc(nameOf(uid))).join(', ')}</div>`:''}
         </div>`;
-      })()}`;
+      })():''}`;
   }
   if(c.cruiseTab==='ship'){
     const SI=T.shipInfo||{facts:[],hoods:[],note:''};

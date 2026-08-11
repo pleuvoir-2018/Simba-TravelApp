@@ -11,6 +11,8 @@ const TRIPS=[
   blurb:'Planning starts later — Seoul and beyond',
   photo:wm('Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg'),
   credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'},
+ {id:'jeju-2027',country:'South Korea · Jeju',title:'Jeju, May 2027',dates:'10–14 May 2027 · group trip',emoji:'🍊',
+  photo:wm('Seongsan_Ilchulbong_from_the_air.jpg'),credit:'Seongsan Ilchulbong · KOCIS, CC BY-SA 2.0',status:'group'},
  {id:'cruise-2028',country:'Caribbean',title:'Icon Class Cruise, January 2028',dates:'9–16 January 2028 · Star of the Seas',emoji:'🚢',
   photo:wm('Icon_of_the_Seas.jpg'),credit:'Icon of the Seas · Wikimedia Commons',status:'group',theme:'ocean'},
  {id:'hawaii-2028',country:'Hawaii',title:'Hawaii, December 2028',dates:'10–19 December · 10th anniversary',emoji:'🌺',
@@ -51,7 +53,7 @@ function renderAdminPage(){
           ${u.role==='pending'?'':`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px">
             ${dests.map(d=>{
               const td=TRIP_DATA[d.id];
-              if(td.cruise)return `<label style="display:flex;align-items:center;gap:5px">${d.emoji||'🚢'} ${esc(d.country)}
+              if(td.cruise||td.group)return `<label style="display:flex;align-items:center;gap:5px">${d.emoji||'🚢'} ${esc(d.country)}
                 <select onchange="appGrant('${u.uid}','${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;background:#fff">
                   <option value="" ${!acc[d.id]?'selected':''}>No access</option>
                   <option value="guest" ${acc[d.id]==='guest'?'selected':''}>Guest</option>
@@ -231,15 +233,16 @@ function canOpen(id){
   const u=appUsers().find(x=>x.uid===sAp.uid);
   return !!(u&&u.access&&u.access[id]);
 }
-function appCruiseSession(){
+function appGroupSession(tripId){
   const sAp=window._app;
   if(!sAp||!sAp.uid)return null;
   if(sAp.role==='admin')return {uid:'admin',name:appAdminName(),role:'admin'};
   const u=appUsers().find(x=>x.uid===sAp.uid);
-  const g=u&&u.access&&u.access['cruise-2028'];
+  const g=u&&u.access&&u.access[tripId];
   if(!g)return null;
   return {uid:u.uid,name:u.name,role:g==='organizer'?'admin':'participant'};
 }
+function appCruiseSession(){ return appGroupSession('cruise-2028'); }
 window.appSignOut=function(){
   window._app=null;window._cru=null;tripSel=null;
   try{localStorage.removeItem('jt_app');localStorage.removeItem('jt_cru');}catch(e){}
@@ -345,9 +348,9 @@ window.cruSignOut=function(){ appSignOut(); };
 window.openTrip=function(id){
   if(!canOpen(id)){flash('No access to this trip — ask '+appAdminName(),'err');return;}
   const td=TRIP_DATA[id];
-  if(td&&td.cruise){
-    window._cru=appCruiseSession();
-    if(!window._cru){flash('No cruise access — ask '+appAdminName(),'err');return;}
+  if(td&&(td.cruise||td.group)){
+    window._cru=appGroupSession(id);
+    if(!window._cru){flash('No access to this group trip — ask '+appAdminName(),'err');return;}
   }
   tripSel=id;
   applyTripData(id);

@@ -222,11 +222,12 @@ function render(){
   if(!window._app){ renderLogin(); return; }
   if(appRole()==='pending'){ renderPendingApp(); return; }
   const TT=(typeof TRIP_DATA!=='undefined')&&TRIP_DATA[tripKey()];
-  if(TT&&TT.cruise&&(!window._cru||!window._cru.uid)){ window._cru=appCruiseSession(); if(!window._cru){ backToTrips(); return; } }
+  if(TT&&(TT.cruise||TT.group)&&(!window._cru||!window._cru.uid)){ window._cru=appGroupSession(tripKey()); if(!window._cru){ backToTrips(); return; } }
   const NAVC=navCities(); if(ci>=NAVC.length)ci=0;
   const c=NAVC[ci];
 
   if(c.cruiseTab){ if(map){map.remove();map=null;} renderCruise(c); return; }
+  if(c.jjTab){ if(map){map.remove();map=null;} renderJeju(c); return; }
 
   if(c.addrest){ if(map){map.remove();map=null;} renderAddRestaurant(); return; }
 

@@ -15,7 +15,7 @@ try{devMode=localStorage.getItem('jt_dev')==='1';}catch(e){}
 const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'developer mode',addrest:true};
 function navCities(){
   let list=CITIES.slice();
-  if(list.some(c=>c.cruiseTab)&&!window._cru)return [];
+  if(list.some(c=>c.cruiseTab||c.jjTab)&&!window._cru)return [];
   if(list.some(c=>c.adminOnly)&&cruRole()!=='admin')list=list.filter(c=>!c.adminOnly);
   if(devMode&&list.some(c=>c.stops)&&!list.some(c=>c.addrest))list.push(DEV_TAB);
   return list;

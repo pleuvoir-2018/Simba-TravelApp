@@ -120,6 +120,7 @@ async function loadOverrides(){
     if(cru.adminName)store.app.adminName=cru.adminName;
     if(cru.adminLegal)store.app.adminLegal=cru.adminLegal;
   }
+  Object.keys(store.trips||{}).forEach(k=>{ store.trips[k]._seen=Date.now(); });
   bindTrip();
   validateAppSession();
 }
@@ -187,6 +188,50 @@ function mergeCruise(rt,lt,base){
       });
     }
   }
+  // Collaborative owned lists (group trips): union by id. Admin's copy wins
+  // per item where present (and remote-only items are appended, so an admin's
+  // stale copy cannot drop a guest's new item); otherwise each item follows
+  // its owner (.by) — mine local, everyone else's remote. Votes are a per-uid
+  // map merged separately: my vote is mine, everyone else's comes from remote.
+  ['options','pins','gexp','links'].forEach(key=>{
+    const R=rt[key], L=lt[key];
+    if(R===undefined&&L===undefined)return;
+    const Ra=R||[], La=L||[];
+    const ids=[...new Set([...Ra.map(x=>x.id),...La.map(x=>x.id)])];
+    out[key]=ids.map(id=>{
+      const r=Ra.find(x=>x.id===id), l=La.find(x=>x.id===id);
+      let item;
+      if(admin)item=l||r;
+      else if(r&&l)item=((l.by===me)?l:r);
+      else if(l)item=(l.by===me||admin)?l:null;   // my creation (or admin's) may be new
+      else item=r;
+      if(!item)return null;
+      if(key==='options'){
+        const votes={...(r&&r.votes||{}),...(l&&l.votes||{})};
+        const mergedVotes={};
+        Object.keys(votes).forEach(uid=>{
+          const lv=(l&&l.votes||{})[uid], rv=(r&&r.votes||{})[uid];
+          const v=(uid===me)?lv:(rv!==undefined?rv:lv);
+          if(v)mergedVotes[uid]=1;
+        });
+        item={...item,votes:mergedVotes};
+      }
+      return item;
+    }).filter(Boolean);
+    // Deletions. A non-admin's removal of THEIR OWN item sticks (it is absent
+    // from their local list). An admin's removal of anything sticks unless the
+    // item is remote-only (i.e. created after the admin last synced) — those
+    // survive, which is exactly the stale-copy protection we want.
+    out[key]=out[key].filter(x=>{
+      const inL=La.some(y=>y.id===x.id), inR=Ra.some(y=>y.id===x.id);
+      if(!admin)return (x.by===me)?inL:true;
+      if(L===undefined)return true;          // admin never loaded this list — keep remote
+      if(inL)return true;                    // in the admin's copy — keep
+      // Absent from the admin's copy: deleted by admin, UNLESS it was created
+      // after the admin's last sync (remote-only + newer timestamp) — keep those.
+      return inR&&Number(x.ts||0)>Number(lt._seen||0);
+    });
+  });
   // Tombstones: a removed person stays removed on every device, no matter
   // whose stale copy merges later. Union the lists, then scrub every store.
   const dead=new Set([...(rt.removedUids||[]),...(lt.removedUids||[])]);
@@ -212,9 +257,10 @@ async function flushSave(){
         Object.keys(store.trips||{}).forEach(k=>{
           const rt=trips[k]||{}, lt=(store.trips||{})[k]||{};
           let m={...rt,...lt,vault:{...(rt.vault||{}),...(lt.vault||{})}};
-          if(TRIP_DATA[k]&&TRIP_DATA[k].cruise)m=mergeCruise(rt,lt,m);
+          if(TRIP_DATA[k]&&(TRIP_DATA[k].cruise||TRIP_DATA[k].group))m=mergeCruise(rt,lt,m);
           trips[k]=m;
         });
+        Object.keys(trips).forEach(k=>{ trips[k]._seen=Date.now(); });
         const appOut=mergeApp((remote.app||{}),(store.app||{}));
         store={...store,trips,app:appOut};
         bindTrip();

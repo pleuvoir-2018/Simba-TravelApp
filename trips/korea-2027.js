@@ -9,11 +9,7 @@ var KR_HOTELS = {
  westin_parnas:{n:"The Westin Seoul Parnas",lat:37.51293,lng:127.05745,addr:"524 Bongeunsa-ro, Gangnam-gu, Seoul 06164",
    tel:"+82 2-3452-2500",mail:"— Marriott app chat",
    stn:"Bongeunsa (Line 9) Exit 7 · 5 min walk — Samseong (Line 2) Exit 6 · 13 min · airport limousine 6703 stops at COEX North Gate",
-   note:"Two stays: 7–10 and 14–18 May. Reopened Sept 2025 as a Westin after a full rebuild of the old InterContinental COEX — 564 rooms, and one of the largest club lounges in Seoul, which your Platinum status should open. Ask for a Bongeunsa temple view."},
- parnas_jeju:{n:"Parnas Hotel Jeju",lat:33.24460,lng:126.40596,addr:"100 Jungmungwangwang-ro 72beon-gil, Seogwipo, Jeju-do",
-   tel:"+82 64-801-5555",mail:"— add if needed",
-   stn:"No rail on Jeju — rental car or taxi from CJU (~50 min). Jungmun resort area, 10 min walk to the beach",
-   note:"10–14 May. Not a Marriott property, so no Bonvoy benefits. Heated outdoor infinity pool, Fondmer lounge; two towers — the newer wing gets better reviews. Ocean-view rooms are the ones worth asking for."}
+   note:"Two stays: 7–10 and 14–18 May. Reopened Sept 2025 as a Westin after a full rebuild of the old InterContinental COEX — 564 rooms, and one of the largest club lounges in Seoul, which your Platinum status should open. Ask for a Bongeunsa temple view."}
 };
 var KR_FLIGHTS=[
  {d:"May 7",r:"IAD → ICN",f:"not booked",t:"—",n:"Award options researched earlier: Amex MR → Aeroplan/Asiana, or Virgin Atlantic → Korean Air, both from Dulles."},
@@ -22,11 +18,11 @@ var KR_FLIGHTS=[
  {d:"May 18",r:"ICN → IAD",f:"not booked",t:"—",n:"Homeward."}
 ];
 var KR_WX = {
- seoul:{lat:37.5665,lng:126.9780,from:"2027-05-07",to:"2027-05-18"},
- jeju:{lat:33.2500,lng:126.4100,from:"2027-05-10",to:"2027-05-14"}
+ seoul:{lat:37.5665,lng:126.9780,from:"2027-05-07",to:"2027-05-18"}
 };
-var KR_TODAY_CITY={7:'seoul',8:'seoul',9:'seoul',10:'jeju',11:'jeju',12:'jeju',13:'jeju',14:'seoul',15:'seoul',16:'seoul',17:'seoul',18:'seoul'};
-var KR_TONIGHT={7:'westin_parnas',8:'westin_parnas',9:'westin_parnas',10:'parnas_jeju',11:'parnas_jeju',12:'parnas_jeju',13:'parnas_jeju',
+var KR_TODAY_CITY={7:'seoul',8:'seoul',9:'seoul',10:'seoul',11:'seoul',12:'seoul',13:'seoul',14:'seoul',15:'seoul',16:'seoul',17:'seoul',18:'seoul'};
+var KR_TONIGHT={7:'westin_parnas',8:'westin_parnas',9:'westin_parnas',
+ 10:['On Jeju \ud83c\udf4a','see the Jeju group trip'],11:['On Jeju \ud83c\udf4a','see the Jeju group trip'],12:['On Jeju \ud83c\udf4a','see the Jeju group trip'],13:['On Jeju \ud83c\udf4a','see the Jeju group trip'],
  14:'westin_parnas',15:'westin_parnas',16:'westin_parnas',17:'westin_parnas',18:['Homeward \u2708','ICN \u2192 IAD']};
 var KR_CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
@@ -52,23 +48,6 @@ var KR_CITIES=[
  {c:"shop",ic:"🏬",n:"Hyundai Dept Store COEX",d:"next door — depachika-style food hall in the basement",a:"COEX",lat:37.5088,lng:127.0596},
  {c:"cafe",ic:"☕",n:"Ikseon-dong",d:"hanok alleys full of small cafés and restaurants",a:"Jongno",lat:37.5740,lng:126.9903}],
  stops:[]},
-{id:"jeju",city:"Jeju",sub:"5/10–5/14",hotel:"parnas_jeju",
- legs:[
-  {r:"✈ CJU → Jungmun",m:"5/10 · rental car or taxi, ~50 min",n:"Decide early whether you are renting — it changes what half the island is worth attempting."},
-  {r:"Jeju → Seoul ✈",m:"5/14 · CJU → Gimpo",n:"Leave time to return a rental car."}],
- metro:[["Getting around","No rail. A rental car is normal; the 201/282 buses cover the ring road slowly"],
-        ["Driving","An International Driving Permit is required — get one from AAA before leaving the US"]],
- pois:[
- {c:"sight",ic:"🌅",n:"Seongsan Ilchulbong",d:"tuff cone on the east coast, about an hour up and back — the sunrise landmark",a:"east",lat:33.4580,lng:126.9427},
- {c:"sight",ic:"🕳",n:"Manjanggul Lava Tube",d:"UNESCO lava cave and cold inside — take a layer",a:"east",lat:33.5285,lng:126.7714},
- {c:"sight",ic:"⛰",n:"Hallasan",d:"Yeongsil trail is the manageable one; summit routes need a reservation",a:"centre",lat:33.3617,lng:126.5292},
- {c:"sight",ic:"💧",n:"Cheonjeyeon Falls",d:"three-tier falls in Jungmun, minutes from the hotel",a:"Jungmun",lat:33.2530,lng:126.4160},
- {c:"sight",ic:"🏖",n:"Jungmun Saekdal Beach",d:"10 min walk from the hotel — black volcanic rock at the ends",a:"Jungmun",lat:33.2440,lng:126.4110},
- {c:"sight",ic:"⛵",n:"Udo",d:"ferry from Seongsan; scooters and beaches make an easy half day",a:"east",lat:33.5060,lng:126.9530},
- {c:"food",ic:"🐟",n:"Dongmun Market",d:"Jeju City's market — hairtail, tangerines, black pork",a:"Jeju City",lat:33.5124,lng:126.5270},
- {c:"food",ic:"🐖",n:"Heukdwaeji (black pork)",d:"the island signature, grilled over charcoal — clusters in Jeju City and Seogwipo",a:"Seogwipo",lat:33.2490,lng:126.5620},
- {c:"cafe",ic:"☕",n:"Aewol coast cafés",d:"the west-coast café strip with sea views",a:"west",lat:33.4630,lng:126.3100}],
- stops:[]},
 {id:"flights",city:"Flights",sub:"all legs",flights:true},
 {id:"vault",city:"Vault",sub:"confirmations",vault:true},
 {id:"expenses",city:"Expenses",sub:"budget tracker",expenses:true},
@@ -76,9 +55,9 @@ var KR_CITIES=[
 ];
 
 window.TRIPS_REGISTRY['korea-2027']={accent:'#2E5FA3',cities:KR_CITIES,hotels:KR_HOTELS,flights:KR_FLIGHTS,wx:KR_WX,todayCity:KR_TODAY_CITY,tonight:KR_TONIGHT,
-   emoji:'🇰🇷',brand:"Korea · May '27",foot:"7–18 May · Seoul & Jeju",
+   emoji:'🇰🇷',brand:"Korea · May '27",foot:"7–18 May · Seoul (Jeju is its own trip)",
    title:"Korea, May 2027",kicker:"7–18 May 2027",depart:[2027,4,7],arrive:[2027,4,7],end:[2027,4,18],
-   navIcons:{today:'🗓️',todo:'✅',seoul:'🏯',jeju:'🍊',flights:'✈️',vault:'🗂️',expenses:'💳',calc:'💱'},
+   navIcons:{today:'🗓️',todo:'✅',seoul:'🏯',flights:'✈️',vault:'🗂️',expenses:'💳',calc:'💱'},
    navSecs:{seoul:'Itinerary',flights:'Tools'},
    tz:'Asia/Seoul',mon:5,cur:{code:'KRW',sym:'₩',key:'krw',fallback:1350,name:'won'},
    departNote:'IAD → ICN · May 7',preLabel:'Travel day',transitLabel:'In transit ✈',

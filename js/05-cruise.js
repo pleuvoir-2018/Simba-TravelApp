@@ -1288,3 +1288,287 @@ window.editExp = function(idx) {
 
 
 const TRIP_DATA=window.TRIPS_REGISTRY||{};
+
+/* ================= JEJU GROUP MODULE =================
+   A collaborative land trip: decisions (car/flights) with voting, a shared
+   map+schedule everyone can pin, group-vs-personal money, and a file-links
+   vault. Rides the same _cru session and role-aware merge as the cruise. */
+function jjUsers(){ return groupUsers(tripKey()); }
+function jjName(uid){ return uid==='admin'?appAdminName():((jjUsers().find(u=>u.uid===uid)||{}).name||'—'); }
+function jjMoney(n){ return CUR.sym+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0}); }
+function jjEveryone(){ return ['admin',...jjUsers().map(u=>u.uid)]; }
+
+function renderJeju(c){
+  if(!window._cru||!window._cru.uid){window._cru=appGroupSession(tripKey());if(!window._cru){backToTrips();return;}}
+  const T=TRIP_DATA[tripKey()]||{};
+  const admin=cruRole()==='admin';
+  const me=(window._cru||{}).uid;
+  const dates=tripDates();
+  let body='';
+
+  if(c.jjTab==='jsum'){
+    const opts=overrides.options||[];
+    const car=opts.find(o=>o.kind==='car'&&o.chosen), fl=opts.find(o=>o.kind==='flight'&&o.chosen);
+    const links=(overrides.links||[]).length;
+    const pins=(overrides.pins||[]).length;
+    const st=T.stay||{};
+    body=`
+      <div class="card"><div class="chead"><span>🏨 Where we're staying — set</span></div>
+        <div style="padding:12px 13px;font-size:13px"><b>${esc(st.n||'')}</b>
+          <span style="display:block;font-size:11.5px;color:var(--grey);margin-top:3px">${esc(st.addr||'')} · ${esc(st.tel||'')}</span>
+          <span style="display:block;font-size:12px;margin-top:6px">${esc(st.note||'')}</span></div>
+      </div>
+      <div class="card"><div class="chead"><span>🗳 Where we've landed</span><span>${admin?'you decide — everyone votes':'vote on the Decisions tab'}</span></div>
+        <div class="tdo-row" onclick="gotoJjTab('jvote')" style="cursor:pointer"><span style="flex:0 0 26px;text-align:center">🚗</span>
+          <span class="tdo-main"><span class="tdo-t">${car?esc(car.title)+' · '+jjMoney(car.cost):'Rental car — not decided yet'}</span></span><span style="color:var(--indigo2)">→</span></div>
+        <div class="tdo-row" onclick="gotoJjTab('jvote')" style="cursor:pointer"><span style="flex:0 0 26px;text-align:center">✈️</span>
+          <span class="tdo-main"><span class="tdo-t">${fl?esc(fl.title)+' · '+jjMoney(fl.cost):'Flights — not decided yet'}</span></span><span style="color:var(--indigo2)">→</span></div>
+      </div>
+      <div class="card"><div class="chead"><span>🧭 The trip so far</span></div>
+        <div class="tdo-row" onclick="gotoJjTab('jsched')" style="cursor:pointer"><span class="tdo-main"><span style="font-size:12.5px">${pins} place${pins===1?'':'s'} pinned on the map</span></span><span style="color:var(--indigo2)">→</span></div>
+        <div class="tdo-row" onclick="gotoJjTab('jlinks')" style="cursor:pointer"><span class="tdo-main"><span style="font-size:12.5px">${links} confirmation${links===1?'':'s'} filed</span></span><span style="color:var(--indigo2)">→</span></div>
+      </div>`;
+  }
+
+  if(c.jjTab==='jvote'){
+    const opts=overrides.options||[];
+    const kinds=[['car','🚗 Rental car','company / class — e.g. Lotte Rent-a-Car · SUV'],['flight','✈️ Flights','route / airline — e.g. GMP→CJU · Korean Air 1207']];
+    body=kinds.map(([kind,label,ph])=>{
+      const list=opts.filter(o=>o.kind===kind);
+      const chosen=list.find(o=>o.chosen);
+      return `<div class="card"><div class="chead"><span>${label}</span><span>${chosen?'✓ decided':'collecting options'}</span></div>
+        ${list.map(o=>{
+          const n=Object.keys(o.votes||{}).length;
+          const iVoted=!!(o.votes||{})[me];
+          const voters=Object.keys(o.votes||{}).map(jjName).join(', ');
+          return `<div class="tdo-row" style="${o.chosen?'background:rgba(94,127,76,.08)':''}">
+            <span class="tdo-main"><span class="tdo-t">${o.chosen?'✓ ':''}${esc(o.title)}</span>
+              <span class="tdo-desc" style="margin-left:10px">${jjMoney(o.cost)}${o.per==='pp'?' / person':' total'}${o.note?' · '+esc(o.note):''}${o.url?` · <a href="${esc(o.url)}" target="_blank" rel="noopener">link</a>`:''}
+                · by ${esc(jjName(o.by))}${n?` · 👍 ${n} (${esc(voters)})`:''}</span></span>
+            <button class="tdo-x" onclick="jjVote('${o.id}')" title="${iVoted?'Un-vote':'Vote for this'}" style="font-size:14px;${iVoted?'':'filter:grayscale(1);opacity:.55'}">👍</button>
+            ${admin?`<button class="tdo-x" onclick="jjChoose('${o.id}')" title="${o.chosen?'Un-choose':'Choose this one'}" style="color:var(--moss);font:700 10px var(--mono)">${o.chosen?'undo':'✓ pick'}</button>`:''}
+            ${(admin||o.by===me)?`<button class="tdo-x" onclick="jjDelOpt('${o.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}
+          </div>`;}).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No options yet — add the first.</div>'}
+        <div class="plform" style="border-top:1px solid var(--rule)">
+          <input id="jo_t_${kind}" placeholder="${ph}" maxlength="70">
+          <div class="plrow1">
+            <input id="jo_c_${kind}" type="number" min="0" placeholder="${CUR.sym} cost">
+            <select id="jo_p_${kind}"><option value="tot">total</option><option value="pp">per person</option></select>
+            <input id="jo_u_${kind}" placeholder="link (optional)">
+          </div>
+          <input id="jo_n_${kind}" placeholder="Note (optional)" maxlength="80">
+          <button class="pladd" type="button" onclick="jjAddOpt('${kind}')" style="align-self:flex-start;padding:8px 14px">+ Add option</button>
+        </div>
+      </div>`;}).join('')+`
+      <div style="font:10.5px var(--mono);color:var(--grey);padding:2px 4px">Anyone adds options and votes; the organizer picks. The chosen car and flights feed the Money tab as group costs.</div>`;
+  }
+
+  if(c.jjTab==='jsched'){
+    const pins=(overrides.pins||[]).slice();
+    body=`
+      <div class="card"><div class="chead"><span>🗺 Our map</span><span>${pins.length} pinned</span></div>
+        <div id="jjmap" style="height:330px"></div></div>
+      <div class="card"><div class="chead"><span>＋ Pin a place</span><span>paste a Google Maps link</span></div>
+        <div class="plform">
+          <input id="jp_name" placeholder="Place name" maxlength="60">
+          <input id="jp_url" placeholder="Google Maps link — coordinates are read from it automatically">
+          <div class="plrow1">
+            <select id="jp_day"><option value="">Any day</option>${dates.map(d=>`<option>${d}</option>`).join('')}</select>
+            <input id="jp_time" placeholder="Time (optional)" maxlength="12">
+            <select id="jp_cat"><option value="sight">⛰ Sight</option><option value="food">🍽 Food</option><option value="cafe">☕ Café</option><option value="other">📍 Other</option></select>
+          </div>
+          <input id="jp_note" placeholder="Note (optional)" maxlength="90">
+          <button class="pladd" type="button" onclick="jjAddPin()" style="align-self:flex-start;padding:8px 14px">+ Pin it</button>
+          <div class="plhint">Share → Copy link in Google Maps works; so does the browser URL with @lat,lng in it.</div>
+        </div>
+      </div>
+      ${['',...dates].map(day=>{
+        const list=pins.filter(p=>String(p.day||'')===day).sort((a,b)=>String(a.time||'').localeCompare(String(b.time||'')));
+        if(!list.length)return '';
+        return `<div class="card"><div class="chead"><span>${day?('5/'===day.slice(0,2)?day:day):'📍 Unscheduled ideas'}${day?' · '+({'5/10':'Wed — arrive','5/11':'Thu','5/12':'Fri','5/13':'Sat','5/14':'Sun — depart'}[day]||''):''}</span><span>${list.length}</span></div>
+          ${list.map(p=>`<div class="tdo-row">
+            <span style="flex:0 0 26px;text-align:center">${({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍'}</span>
+            <span class="tdo-main"><span class="tdo-t">${esc(p.n)}</span>
+              <span class="tdo-desc" style="margin-left:10px">${p.time?esc(p.time)+' · ':''}${p.note?esc(p.note)+' · ':''}by ${esc(jjName(p.by))} · <a href="${esc(p.url)}" target="_blank" rel="noopener">map</a></span></span>
+            ${(admin||p.by===me)?`<button class="tdo-x" onclick="jjDelPin('${p.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}
+          </div>`).join('')}
+        </div>`;}).join('')}`;
+  }
+
+  if(c.jjTab==='jexp'){
+    const opts=overrides.options||[];
+    const N=jjEveryone().length;
+    const chosenCosts=opts.filter(o=>o.chosen).map(o=>({desc:(o.kind==='car'?'🚗 ':'✈️ ')+o.title,amt:o.per==='pp'?Number(o.cost)*N:Number(o.cost),by:'—',fromVote:true}));
+    const gexp=(overrides.gexp||[]);
+    const groupTotal=chosenCosts.reduce((a,x)=>a+x.amt,0)+gexp.reduce((a,x)=>a+Number(x.amt),0);
+    const share=N?groupTotal/N:0;
+    const paidBy={}; jjEveryone().forEach(u=>paidBy[u]=0);
+    gexp.forEach(x=>{ paidBy[x.payer]=(paidBy[x.payer]||0)+Number(x.amt); });
+    const mine=(overrides.cexp&&overrides.cexp[me])||[];
+    const myPersonal=mine.reduce((a,x)=>a+Number(x.amt||0),0);
+    body=`
+      <div class="card"><div class="chead"><span>👥 Group pot</span><span>${jjMoney(groupTotal)} · ${jjMoney(share)}/person (${N})</span></div>
+        ${chosenCosts.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">decided on the Decisions tab</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b></div>`).join('')}
+        ${gexp.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">paid by ${esc(jjName(x.payer))}${x.note?' · '+esc(x.note):''}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
+          ${(admin||x.by===me)?`<button class="tdo-x" onclick="jjDelGexp('${x.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`).join('')||''}
+        <div class="plform" style="border-top:1px solid var(--rule)">
+          <div class="plrow1">
+            <input id="jg_d" placeholder="Group expense — e.g. groceries, fuel" maxlength="60">
+            <input id="jg_a" type="number" min="0" placeholder="${CUR.sym} amount">
+            <select id="jg_p">${jjEveryone().map(u=>`<option value="${u}" ${u===me?'selected':''}>paid by ${esc(jjName(u))}</option>`).join('')}</select>
+          </div>
+          <button class="pladd" type="button" onclick="jjAddGexp()" style="align-self:flex-start;padding:8px 14px">+ Add group expense</button>
+        </div>
+      </div>
+      <div class="card"><div class="chead"><span>⚖️ Who's paid what</span><span>even share = ${jjMoney(share)}</span></div>
+        ${jjEveryone().map(u=>{const d=(paidBy[u]||0)-share;return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(jjName(u))}</span>
+          <span class="tdo-desc" style="margin-left:10px">paid ${jjMoney(paidBy[u]||0)}</span></span>
+          <b style="font-family:var(--mono);font-size:11.5px;color:${d>=0?'var(--moss)':'var(--clay)'}">${d>=0?'+':''}${jjMoney(d)}</b></div>`;}).join('')}
+        <div style="padding:8px 13px;font:10px var(--mono);color:var(--grey)">Positive = the group owes them; negative = they owe the pot. Chosen car/flight costs count into the pot but aren't assigned a payer until you log who actually paid, as a group expense.</div>
+      </div>
+      <div class="card"><div class="chead"><span>💳 My own spending</span><span>${jjMoney(myPersonal)}</span></div>
+        ${mine.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))}</span><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
+          <button class="tdo-x" onclick="jjDelMy('${x.id}')" style="color:var(--clay);font-size:16px">×</button></div>`).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing yet — souvenirs, coffees, your own meals.</div>'}
+        <div class="plform" style="border-top:1px solid var(--rule)">
+          <div class="plrow1">
+            <input id="jm_date" type="date" value="2027-05-10">
+            <input id="jm_d" placeholder="What" maxlength="50">
+            <input id="jm_a" type="number" min="0" placeholder="${CUR.sym}">
+          </div>
+          <button class="pladd" type="button" onclick="jjAddMy()" style="align-self:flex-start;padding:8px 14px">+ Add</button>
+          <div class="plhint">Personal — only you see your own list; totals stay yours.</div>
+        </div>
+      </div>`;
+  }
+
+  if(c.jjTab==='jlinks'){
+    const links=(overrides.links||[]).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
+    body=`
+      <div class="card"><div class="chead"><span>📁 Confirmations & files</span><span>Google Drive links</span></div>
+        ${links.map(l=>`<div class="tdo-row">
+          <span style="flex:0 0 26px;text-align:center">${l.url&&l.url.indexOf('drive.google')>-1?'🟢':'🔗'}</span>
+          <span class="tdo-main"><span class="tdo-t"><a href="${esc(l.url)}" target="_blank" rel="noopener" style="color:var(--indigo)">${esc(l.t)}</a></span>
+            <span class="tdo-desc" style="margin-left:10px">by ${esc(jjName(l.by))}</span></span>
+          ${(admin||l.by===me)?`<button class="tdo-x" onclick="jjDelLink('${l.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}
+        </div>`).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing filed yet — car confirmation, flight PDFs, the hotel booking.</div>'}
+        <div class="plform" style="border-top:1px solid var(--rule)">
+          <input id="jl_t" placeholder="What is it — e.g. Rental car confirmation" maxlength="60">
+          <input id="jl_u" placeholder="Paste the Google Drive share link (Anyone with the link → Viewer)">
+          <button class="pladd" type="button" onclick="jjAddLink()" style="align-self:flex-start;padding:8px 14px">+ File it</button>
+          <div class="plhint">Links only — the file itself stays in Drive. Set sharing to 'Anyone with the link' so the group can open it.</div>
+        </div>
+      </div>`;
+  }
+
+  panel.innerHTML=`<div class="stack" style="max-width:760px;margin:0 auto">${body}</div>`;
+  if(c.jjTab==='jsched'&&document.getElementById('jjmap'))drawJejuMap(T);
+}
+
+function drawJejuMap(T){
+  map=L.map('jjmap',{scrollWheelZoom:false});
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'&copy; Esri'}).addTo(map);
+  const pin=(emoji,size)=>L.divIcon({className:'',html:`<div style="font-size:${size||18}px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))">${emoji}</div>`,iconSize:[size||18,size||18],iconAnchor:[(size||18)/2,(size||18)/2]});
+  const bounds=[];
+  const st=T.stay;
+  if(st&&st.lat){ L.marker([st.lat,st.lng],{icon:pin('🏨',22)}).addTo(map).bindPopup(`<b>${esc(st.n)}</b><br>home base`); bounds.push([st.lat,st.lng]); }
+  (overrides.pins||[]).forEach(p=>{
+    if(typeof p.lat!=='number')return;
+    L.marker([p.lat,p.lng],{icon:pin(({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍',18)}).addTo(map)
+      .bindPopup(`<b>${esc(p.n)}</b><br>${p.day?esc(p.day)+' · ':''}${p.time?esc(p.time)+' · ':''}by ${esc(jjName(p.by))}`);
+    bounds.push([p.lat,p.lng]);
+  });
+  if(bounds.length)map.fitBounds(bounds,{padding:[30,30]}); else map.setView([33.38,126.53],10);
+}
+
+window.gotoJjTab=function(tab){
+  const i=navCities().findIndex(x=>x.jjTab===tab);
+  if(i>=0){ci=i;render();}
+};
+window.jjAddOpt=function(kind){
+  const g=i=>document.getElementById(i);
+  const t=g('jo_t_'+kind).value.trim();
+  const cost=Number(g('jo_c_'+kind).value);
+  if(!t){g('jo_t_'+kind).focus();return;}
+  if(!(cost>=0)){g('jo_c_'+kind).focus();return;}
+  overrides.options=(overrides.options||[]);
+  overrides.options.push({id:'o'+Date.now(),kind,title:t,cost,per:g('jo_p_'+kind).value,url:g('jo_u_'+kind).value.trim(),note:g('jo_n_'+kind).value.trim(),by:(window._cru||{}).uid,ts:Date.now(),votes:{}});
+  saveOverrides();render();
+};
+window.jjVote=function(id){
+  const o=(overrides.options||[]).find(x=>x.id===id);
+  if(!o)return;
+  const me=(window._cru||{}).uid;
+  o.votes=o.votes||{};
+  if(o.votes[me])delete o.votes[me]; else o.votes[me]=1;
+  saveOverrides();render();
+};
+window.jjChoose=function(id){
+  const opts=overrides.options||[];
+  const o=opts.find(x=>x.id===id);
+  if(!o)return;
+  const was=o.chosen;
+  opts.forEach(x=>{ if(x.kind===o.kind)delete x.chosen; });
+  if(!was)o.chosen=true;
+  saveOverrides();render();
+};
+window.jjDelOpt=function(id){
+  overrides.options=(overrides.options||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.jjAddPin=function(){
+  const g=i=>document.getElementById(i);
+  const n=g('jp_name').value.trim(), url=g('jp_url').value.trim();
+  if(!n){g('jp_name').focus();return;}
+  const ll=parseLatLng(url);
+  if(!ll){flash('Could not read coordinates from that link — paste a Google Maps link','err');g('jp_url').focus();return;}
+  overrides.pins=(overrides.pins||[]);
+  overrides.pins.push({id:'p'+Date.now(),n,url,lat:ll.lat,lng:ll.lng,day:g('jp_day').value,time:g('jp_time').value.trim(),cat:g('jp_cat').value,note:g('jp_note').value.trim(),by:(window._cru||{}).uid,ts:Date.now()});
+  saveOverrides();render();
+};
+window.jjDelPin=function(id){
+  overrides.pins=(overrides.pins||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.jjAddGexp=function(){
+  const g=i=>document.getElementById(i);
+  const d=g('jg_d').value.trim(), a=Number(g('jg_a').value);
+  if(!d){g('jg_d').focus();return;}
+  if(!(a>0)){g('jg_a').focus();return;}
+  overrides.gexp=(overrides.gexp||[]);
+  overrides.gexp.push({id:'g'+Date.now(),desc:d,amt:a,payer:g('jg_p').value,by:(window._cru||{}).uid,ts:Date.now()});
+  saveOverrides();render();
+};
+window.jjDelGexp=function(id){
+  overrides.gexp=(overrides.gexp||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.jjAddMy=function(){
+  const g=i=>document.getElementById(i);
+  const d=g('jm_d').value.trim(), a=Number(g('jm_a').value);
+  const me=(window._cru||{}).uid;
+  if(!d){g('jm_d').focus();return;}
+  if(!(a>0)){g('jm_a').focus();return;}
+  overrides.cexp=overrides.cexp||{};
+  overrides.cexp[me]=overrides.cexp[me]||[];
+  overrides.cexp[me].push({id:'x'+Date.now(),date:g('jm_date').value,desc:d,amt:a});
+  saveOverrides();render();
+};
+window.jjDelMy=function(id){
+  const me=(window._cru||{}).uid;
+  if(!overrides.cexp||!overrides.cexp[me])return;
+  overrides.cexp[me]=overrides.cexp[me].filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.jjAddLink=function(){
+  const g=i=>document.getElementById(i);
+  const t=g('jl_t').value.trim(), u=g('jl_u').value.trim();
+  if(!t){g('jl_t').focus();return;}
+  if(!/^https?:\/\//.test(u)){flash('Paste a full link (https://…)','err');g('jl_u').focus();return;}
+  overrides.links=(overrides.links||[]);
+  overrides.links.push({id:'l'+Date.now(),t,url:u,by:(window._cru||{}).uid,ts:Date.now()});
+  saveOverrides();render();
+};
+window.jjDelLink=function(id){
+  overrides.links=(overrides.links||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};

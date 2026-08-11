@@ -519,10 +519,11 @@ window.saveProfile=function(){
   const pop=document.getElementById('cruPop');if(pop)pop.remove();
   updateAvatar();render();
 };
-function cruiseUsers(){
-  return appUsers().filter(u=>u.role!=='pending'&&u.access&&u.access['cruise-2028'])
-    .map(u=>({...u,role:(u.access['cruise-2028']==='organizer')?'admin':'participant'}));
+function groupUsers(tripId){
+  return appUsers().filter(u=>u.role!=='pending'&&u.access&&u.access[tripId])
+    .map(u=>({...u,role:(u.access[tripId]==='organizer')?'admin':'participant'}));
 }
+function cruiseUsers(){ return groupUsers('cruise-2028'); }
 function genCode(){
   const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   let c='';for(let i=0;i<6;i++)c+=A[Math.floor(Math.random()*A.length)];

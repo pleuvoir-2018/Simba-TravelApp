@@ -130,3 +130,11 @@ api/sync.js         Vercel Blob GET/POST
 Load order matters (classic scripts, no build step): trips first, then js/01→07.
 Statement order inside the modules is exactly the pre-split engine's, so the
 split is behavior-preserving by construction.
+
+### Trip types
+- **Couple trips** (Japan, Hawaii ×2): full city engine.
+- **Seoul** (korea-2027): city engine; the Jeju days hand off to…
+- **Group land trip** (jeju-2027): collaborative Decisions (options+votes,
+  organizer picks), shared map/schedule (Google-Maps-link pinning), group-pot
+  vs personal money with even-share settle-up, and a Drive-links file vault.
+- **Cruise** (cruise-2028): rooms/quotes/billing module.

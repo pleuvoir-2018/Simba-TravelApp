@@ -10,21 +10,21 @@ var HI28_HOTELS = {
    note:"Not booked. Bonvoy options on the beach: Royal Hawaiian, Moana Surfrider, Sheraton Waikiki — Platinum upgrades are strongest at the Sheraton. Decide island split first."}
 };
 var HI28_FLIGHTS=[
- {d:"Dec 29",r:"IAD → HNL",f:"not booked",t:"—",n:"~11 hrs with one stop westbound (or IAD→LAX/SFO→HNL). Award space is tight for the New Year peak — book early."},
- {d:"Jan 5",r:"HNL → IAD",f:"not booked",t:"—",n:"Red-eye eastbound is standard; lands next day."}
+ {d:"Dec 10",r:"IAD → HNL",f:"not booked",t:"—",n:"~11 hrs with one stop westbound (or IAD→LAX/SFO→HNL). Mid-December is shoulder season — good award space if booked early."},
+ {d:"Dec 19",r:"HNL → IAD",f:"not booked",t:"—",n:"Red-eye eastbound is standard; lands next day."}
 ];
 var HI28_WX = {
- oahu:{lat:21.3069,lng:-157.8583,from:"2028-12-29",to:"2029-01-05"}
+ oahu:{lat:21.3069,lng:-157.8583,from:"2028-12-10",to:"2028-12-19"}
 };
-var HI28_TODAY_CITY={29:'oahu',30:'oahu',31:'oahu',1:'oahu',2:'oahu',3:'oahu',4:'oahu',5:'oahu'};
-var HI28_TONIGHT={29:'hi28_hotel',30:'hi28_hotel',31:'hi28_hotel',1:'hi28_hotel',2:'hi28_hotel',3:'hi28_hotel',4:'hi28_hotel',5:['Homeward \u2708','HNL \u2192 IAD']};
+var HI28_TODAY_CITY={10:'oahu',11:'oahu',12:'oahu',13:'oahu',14:'oahu',15:'oahu',16:'oahu',17:'oahu',18:'oahu',19:'oahu'};
+var HI28_TONIGHT={10:'hi28_hotel',11:'hi28_hotel',12:'hi28_hotel',13:'hi28_hotel',14:'hi28_hotel',15:'hi28_hotel',16:'hi28_hotel',17:'hi28_hotel',18:'hi28_hotel',19:['Homeward \u2708','HNL \u2192 IAD']};
 var HI28_CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
 {id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
-{id:"oahu",city:"Oʻahu",sub:"12/29–1/5 · island TBD",hotel:"hi28_hotel",
+{id:"oahu",city:"Oʻahu",sub:"12/10–12/19 · island TBD",hotel:"hi28_hotel",
  legs:[
-  {r:"✈ HNL → Waikīkī",m:"12/29 · taxi/shuttle ~25 min",n:"Uber/Lyft pick up on the second level. TheBus runs but is slow with luggage."},
-  {r:"Waikīkī → HNL ✈",m:"1/5 · allow 2 hrs before departure",n:"Ag inspection for checked bags with fruit/plants."}],
+  {r:"✈ HNL → Waikīkī",m:"12/10 · taxi/shuttle ~25 min",n:"Uber/Lyft pick up on the second level. TheBus runs but is slow with luggage."},
+  {r:"Waikīkī → HNL ✈",m:"12/19 · allow 2 hrs before departure",n:"Ag inspection for checked bags with fruit/plants."}],
  metro:[["Getting around","Rental car for North Shore / east side days; Waikīkī itself is walkable"],
         ["TheBus","$3 flat with HOLO card — Route 8/20/23 cover Waikīkī–Ala Moana"],
         ["Biki","Bikeshare docks all over Waikīkī and Kakaʻako"]],
@@ -46,15 +46,15 @@ var HI28_CITIES=[
 ];
 
 window.TRIPS_REGISTRY['hawaii-2028']={accent:'#C2497B',cities:HI28_CITIES,hotels:HI28_HOTELS,flights:HI28_FLIGHTS,wx:HI28_WX,todayCity:HI28_TODAY_CITY,tonight:HI28_TONIGHT,
-   emoji:'🌺',brand:"Hawaii · NYE '29",foot:"Dec 29 – Jan 5 · Oʻahu (TBD)",
-   title:"Hawaii, December 2028",kicker:"Dec 29 – Jan 5 · New Year in the islands · dates TBD",depart:[2028,11,29],arrive:[2028,11,29],end:[2029,0,5],
+   emoji:'🌺',brand:"Hawaii · Dec '28",foot:"10–19 Dec · 10th anniversary 🎉",
+   title:"Hawaii, December 2028",kicker:"10–19 December 2028 · the 10th-anniversary trip",depart:[2028,11,10],arrive:[2028,11,10],end:[2028,11,19],
    navIcons:{today:'🗓️',todo:'✅',oahu:'🌺',flights:'✈️',vault:'🗂️',expenses:'💳'},
    navSecs:{oahu:'Itinerary',flights:'Tools'},
    tz:'Pacific/Honolulu',mon:12,cur:{code:'USD',sym:'$',key:'usd',fallback:1,name:'dollars'},
-   departNote:'IAD → HNL · Dec 29',preLabel:'Travel day',transitLabel:'In transit ✈',
+   departNote:'IAD → HNL · Dec 10',preLabel:'Travel day',transitLabel:'In transit ✈',
    seedTodos:[
-     {id:'hi281',d:'2028-02-01',cat:'transport',title:'Book IAD → HNL',desc:'~330 days out for award space. NYE week is the most expensive week of the year in Waikīkī — book the moment the calendar opens.'},
+     {id:'hi281',d:'2028-02-01',cat:'transport',title:'Book IAD → HNL',desc:'~330 days out for award space. Mid-December sits before the holiday surge — the anniversary deserves the good cabin.'},
      {id:'hi282',d:'2028-03-01',cat:'stay',title:'Pick the hotel (and island split)',desc:'Bonvoy beachfront: Royal Hawaiian / Moana Surfrider / Sheraton Waikiki. Decide Oʻahu-only vs. adding a neighbor island before booking.'},
-     {id:'hi283',d:'2028-11-03',cat:'admin',title:'Pearl Harbor tickets',desc:'USS Arizona timed tickets release 8 weeks out, 3 PM ET on recreation.gov — they go in minutes.'}],
-   vault:[['Flights',[['hi28f_out','IAD → HNL','Dec 29 · conf / seats'],['hi28f_home','HNL → IAD','Jan 5 · conf / seats']]]],
+     {id:'hi283',d:'2028-10-15',cat:'admin',title:'Pearl Harbor tickets',desc:'USS Arizona timed tickets release 8 weeks out, 3 PM ET on recreation.gov — they go in minutes.'}],
+   vault:[['Flights',[['hi28f_out','IAD → HNL','Dec 10 · conf / seats'],['hi28f_home','HNL → IAD','Dec 19 · conf / seats']]]],
    flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#fff"/><g><rect y="0" width="900" height="75" fill="#fff"/><rect y="75" width="900" height="75" fill="#c8102e"/><rect y="150" width="900" height="75" fill="#003087"/><rect y="225" width="900" height="75" fill="#fff"/><rect y="300" width="900" height="75" fill="#c8102e"/><rect y="375" width="900" height="75" fill="#003087"/><rect y="450" width="900" height="75" fill="#fff"/><rect y="525" width="900" height="75" fill="#c8102e"/><rect width="450" height="300" fill="#003087"/><path d="M0 0l450 300M450 0L0 300" stroke="#fff" stroke-width="55"/><path d="M0 0l450 300M450 0L0 300" stroke="#c8102e" stroke-width="22"/><path d="M225 0v300M0 150h450" stroke="#fff" stroke-width="90"/><path d="M225 0v300M0 150h450" stroke="#c8102e" stroke-width="55"/></g></svg>'};

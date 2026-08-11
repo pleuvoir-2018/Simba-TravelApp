@@ -821,7 +821,7 @@ function mealCard(p){
       <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span>${e.pay==='cash'?'<span class="tag cash">💴 cash only</span>':''}</div>
 
       ${!editMode && e.res==='ok' && (e.btime || e.bplat) ? `<div style="display:inline-block; margin-top:4px; margin-bottom:2px; padding:3px 6px; background:rgba(94,127,76,.1); color:var(--moss); font:600 10px var(--mono); text-transform:uppercase; letter-spacing:0.05em; border-radius:2px;">✓ Reserved ${e.btime ? 'at ' + e.btime : ''} ${e.bplat ? 'via ' + e.bplat : ''}</div>` : ''}
-      ${!editMode && e.actualJpy ? (()=>{const aU=Number(e.actualJpy)/liveRate;const diff=Number(e.actualJpy)-Number(e.jpy);return `<div style="display:inline-block;margin:4px 0 2px 4px;padding:3px 6px;background:${diff>0?'rgba(184,85,42,.1)':'rgba(94,127,76,.1)'};color:${diff>0?'var(--clay)':'var(--moss)'};font:600 10px var(--mono);border-radius:2px;">${CUR.sym}${Number(e.actualJpy).toLocaleString()} · $${aU.toFixed(2)}${diff!==0?` ${diff>0?'▲':'▼'}${CUR.sym}${Math.abs(diff).toLocaleString()}`:''}</div>`})():''}
+      ${!editMode && e.actualJpy ? (()=>{const aU=Number(e.actualJpy)/liveRate;const diff=Number(e.actualJpy)-Number(e.jpy);return `<div style="display:inline-block;margin:4px 0 2px 4px;padding:3px 6px;background:${diff>0?'rgba(184,85,42,.1)':'rgba(94,127,76,.1)'};color:${diff>0?'var(--clay)':'var(--moss)'};font:600 10px var(--mono);border-radius:2px;">${CUR.sym}${Number(e.actualJpy).toLocaleString()}${CUR.code==='USD'?'':` · $${aU.toFixed(2)}`}${diff!==0?` ${diff>0?'▲':'▼'}${CUR.sym}${Math.abs(diff).toLocaleString()}`:''}</div>`})():''}
 
       <div class="m3">${p.dish}</div>
       <div class="m4">${p.hrs}${e.jpy?` · ${CUR.sym}${Number(e.jpy).toLocaleString()}`:(e.cost?` · ${esc(e.cost)}`:"")}</div>
@@ -927,6 +927,7 @@ window.openAdmin=function(){ renderAdminPage(); };
 function renderAdminPage(){
   if(appRole()!=='admin'){renderHome();return;}
   document.body.classList.add('home');
+  document.body.style.setProperty('--tripac','#22406B');
   const users=appUsers();
   const dests=TRIPS.filter(t=>TRIP_DATA[t.id]);
   const labels=(store.app&&store.app.tripLabels)||{};
@@ -1025,6 +1026,7 @@ window.appDel=function(uid){
 };
 function renderHome(){
   document.body.classList.add('home');
+  document.body.style.setProperty('--tripac','#22406B');
   panel.innerHTML=`
   <div class="home-hero" style="position:relative">
     <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">
@@ -1140,6 +1142,7 @@ window.appSignOut=function(){
 };
 function renderLogin(){
   document.body.classList.add('home');
+  document.body.style.setProperty('--tripac','#22406B');
   if(typeof updateAvatar==='function')updateAvatar();
   panel.innerHTML=`<div style="position:fixed;top:14px;right:16px;z-index:50">${themeBtn()}</div>
     <div class="stack" style="max-width:430px;margin:26px auto 0">
@@ -1198,7 +1201,12 @@ window.doAppLogin=function(){
     window._app={role:'admin',name:appAdminName(),uid:'admin'};
   }else{
     const u=appUsers().find(u=>String(u.code).toUpperCase()===code);
-    if(!u){if(err)err.textContent='Code not recognized — ask the organizer, or request access below.';return;}
+    if(!u){
+      if(err)err.textContent=(!store._ts)
+        ?'Still syncing — give it a second and try again.'
+        :'Code not recognized — ask the organizer, or request access below.';
+      return;
+    }
     window._app={role:(u.role==='pending')?'pending':'user',name:u.name,uid:u.uid};
   }
   try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
@@ -2818,7 +2826,7 @@ function renderExpenses() {
         <div style="height:100%; width:${foodPct}%; background:${foodOver?'var(--clay)':foodPct>80?'#C9A227':'var(--moss)'}; transition:width .3s;"></div>
       </div>
       <div style="font:9px var(--mono); color:var(--grey); margin-top:5px;">
-        Budget = your ${allCityStops().length} planned meals (${CUR.sym}${mealBudgetJpy.toLocaleString()}) at today's rate · counts Food + POI & Cafe expenses
+        Budget = your ${allCityStops().length} planned meals (${CUR.sym}${mealBudgetJpy.toLocaleString()})${CUR.code==='USD'?'':" at today's rate"} · counts Food + POI & Cafe expenses
       </div>
     </div>
     

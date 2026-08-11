@@ -62,6 +62,15 @@ var CR_SHIP={
 
 window.TRIPS_REGISTRY['cruise-2028']={accent:'#0E7C86',cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
  itinerary:CR_ITIN,cats:CR_CATS,ship:'Star of the Seas',shipInfo:CR_SHIP,
+ // Royal Caribbean live pricing pulled Aug 2026 — 4-adult total per room
+ seedQuotes:[
+  {cat:'interior',ppl:4,q:4385},
+  {cat:'oceanview',ppl:4,q:4163},
+  {cat:'surfside',ppl:4,q:4714},
+  {cat:'centralpark',ppl:4,q:4884},
+  {cat:'infinite',ppl:4,q:5340},
+  {cat:'balcony',ppl:4,q:5597}
+ ],
  airport:{n:'Orlando International (MCO)',lat:28.4312,lng:-81.3081,note:'~45 min drive to the port'},
  emoji:'🚢',brand:"Icon Cruise · Jan '28",foot:'Jan 9–16 2028 · Star of the Seas',
  title:'Icon Class Cruise, January 2028',kicker:'Star of the Seas · Port Canaveral · departs Jan 9, 2028',

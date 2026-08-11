@@ -138,6 +138,14 @@ function renderCruise(c){
       :(quotesRaw&&typeof quotesRaw==='object'
         ?Object.entries(quotesRaw).filter(([k,v])=>v&&Number(v.q)>0).map(([k,v])=>({id:'mig_'+k,cat:k,ppl:2,q:Number(v.q),img:v.img||''}))
         :[]);
+    // Seed quotes (Royal's live pricing in the trip file) materialise once per
+    // cat+occupancy not already quoted; the organizer's own entries always win,
+    // and edits/deletes persist normally on their next save.
+    if(!Array.isArray(overrides.quotes))overrides.quotes=quoteList;
+    (T.seedQuotes||[]).forEach(sq=>{
+      if(!overrides.quotes.some(q=>q.cat===sq.cat&&Number(q.ppl)===Number(sq.ppl)))
+        overrides.quotes.push({id:'seed_'+sq.cat+'_'+sq.ppl,cat:sq.cat,ppl:sq.ppl,q:sq.q,img:''});
+    });
     const reqs=overrides.reqs||[];
     const money=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
     const qFor=cat=>quoteList.filter(x=>x.cat===cat);

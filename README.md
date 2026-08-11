@@ -110,3 +110,23 @@ Access codes, the vault passcode, and the Discord webhook all live
 client-side or in the shared blob, and `/api/sync` is unauthenticated. This
 keeps honest people organized; it is not a defense against a motivated
 technical attacker. Don't store anything here that would matter if read.
+
+## Repository layout (v2 — modular)
+
+```
+index.html          markup + stylesheet/script links only (no inline code)
+css/app.css         the full stylesheet
+js/01-core.js       storage, cloud sync, role-aware merges, save pipeline
+js/02-ui-shell.js   nav shell, maps, meal cards, weather
+js/03-identity-home.js  IAM: sessions, login/pending, admin page, landing, profile/theme
+js/04-planner.js    to-dos, day plans, dev-mode restaurant manager
+js/05-cruise.js     the whole cruise module
+js/06-engine.js     trip switching, Today/city/expenses/vault views, master render()
+js/07-boot.js       boot sequence
+trips/*.js          DATA only — one file per destination, self-registering
+api/sync.js         Vercel Blob GET/POST
+```
+
+Load order matters (classic scripts, no build step): trips first, then js/01→07.
+Statement order inside the modules is exactly the pre-split engine's, so the
+split is behavior-preserving by construction.

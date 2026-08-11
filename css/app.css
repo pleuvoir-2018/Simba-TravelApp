@@ -16,7 +16,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--washi);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 70px}
-  header{border-bottom:2px solid var(--ink);padding-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+  header{border-bottom:none;padding-bottom:2px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
   .hdr-actions{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}
   .hdr-actions button{height:34px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
   @media (min-width:1800px){ .hdr-actions button{height:30px} .hdr-actions .themebtn,.hdr-actions #cruAvatar{width:30px} }

@@ -18,7 +18,7 @@ function renderCruise(c){
     const myCh=charges.filter(x=>x.uid===me);
     const owe=myCh.reduce((a,x)=>a+Math.max(0,Number(x.amt)-(Number(x.paid)||0)),0);
     const depDue=myCh.filter(x=>x.dep&&(Number(x.paid)||0)<Number(x.dep)-0.005).reduce((a,x)=>a+Number(x.dep),0);
-    if(owe>0.005)rem.push({ic:'💳',t:`Payment due to ${nameOf('admin')}: ${money(owe)} outstanding${depDue>0.005?` — deposit ${money(depDue)} due first`:''}`,tab:'cexp'});
+    if(owe>0.005)rem.push({ic:'💳',t:`Payment due to the organizer: ${money(owe)} outstanding${depDue>0.005?` — deposit ${money(depDue)} due first`:''}`,tab:'cexp'});
     if(!((logi[me])||[]).length)rem.push({ic:'✈️',t:'Add your travel plans so ground transport can be arranged',tab:'clog'});
     if(legalMissing(me))rem.push({ic:'🪪',t:'Add your legal English name and date of birth (needed for the booking) — click your avatar top right',tab:null});
     // --- organizer reminders ---
@@ -170,7 +170,7 @@ function renderCruise(c){
           ${r.status==='pending'?`<button class="tdo-x" onclick="decideReq('${r.id}',1)" title="Approve — applies immediately" style="color:var(--moss)">✓</button><button class="tdo-x" onclick="decideReq('${r.id}',0)" title="Deny" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`;
       }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No requests yet.</div>'}
     </div>`;
-    const quoteShow=quoteList.length?`<div class="card"><div class="chead"><span>💵 Rooms on offer</span><span>quotes from 조상연</span></div>
+    const quoteShow=quoteList.length?`<div class="card"><div class="chead"><span>💵 Rooms on offer</span><span>from the organizer</span></div>
       ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat,sq:'',d:'',tone:'#5B7185'};return `<div style="display:flex;gap:12px;padding:12px 13px;border-bottom:1px dotted var(--rule);align-items:center">
         ${q.img?`<img src="${esc(q.img)}" alt="${esc(k.n)}" loading="lazy" style="flex:0 0 110px;width:110px;height:78px;object-fit:cover;border-radius:3px" onerror="this.style.display='none'">`:`<span style="flex:0 0 110px;height:78px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 10px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>`}
         <span style="flex:1;min-width:0"><span style="font-size:13.5px;font-weight:600">${esc(k.n)}</span>
@@ -184,7 +184,7 @@ function renderCruise(c){
     const myPendReq=reqs.find(r=>r.uid===me&&r.status==='pending');
     const myLastReq=reqs.filter(r=>r.uid===me&&r.status!=='pending').sort((a,b)=>(b.decided||b.ts)-(a.decided||a.ts))[0];
     const newRoomCard=(!admin&&!mine)?`<div class="card"><div class="chead"><span>🛏 Request a room</span></div>
-      ${myPendReq?`<div style="padding:12px 13px;font-size:12.5px">Pending with ${nameOf('admin')}: <b>${myPendReq.kind==='new'?'new ':''}${esc((cats.find(k=>k.id===myPendReq.to)||{}).n||myPendReq.to)}</b>${myPendReq.ppl?' · sleeps '+myPendReq.ppl:''}${myPendReq.note?' · '+esc(myPendReq.note):''}
+      ${myPendReq?`<div style="padding:12px 13px;font-size:12.5px">Pending with the organizer: <b>${myPendReq.kind==='new'?'new ':''}${esc((cats.find(k=>k.id===myPendReq.to)||{}).n||myPendReq.to)}</b>${myPendReq.ppl?' · sleeps '+myPendReq.ppl:''}${myPendReq.note?' · '+esc(myPendReq.note):''}
         <button onclick="cancelReq('${myPendReq.id}')" style="margin-left:10px;background:none;border:1px solid var(--rule);border-radius:2px;font:600 9px var(--mono);text-transform:uppercase;color:var(--clay);padding:4px 8px;cursor:pointer">Cancel</button></div>`
       :`<div class="plform">
         ${myLastReq?`<div class="plhint">Your last request (${esc((cats.find(k=>k.id===myLastReq.to)||{}).n||myLastReq.to)}) was <b>${myLastReq.status}</b>.</div>`:''}
@@ -192,7 +192,7 @@ function renderCruise(c){
           <select id="rn_to">${cats.map(k=>`<option value="${k.id}">${esc(k.n)}${qMin(k.id)?' — from '+money(qMin(k.id)):''}</option>`).join('')}</select>
           <select id="rn_ppl"><option value="2">Sleeps 2</option><option value="3">Sleeps 3</option><option value="4">Sleeps 4</option></select>
         </div>
-        <input id="rn_note" placeholder="Anything ${esc(nameOf('admin'))} should know (optional)" maxlength="80">
+        <input id="rn_note" placeholder="Anything the organizer should know (optional)" maxlength="80">
         <button class="pladd" type="button" onclick="requestRoom()" style="align-self:flex-start;padding:8px 14px">Send request</button>
         <div class="plhint">If approved, the room is created and you take its first slot automatically.</div>
       </div>`}
@@ -205,7 +205,7 @@ function renderCruise(c){
       :`<div class="plform">
         ${myLastReq?`<div class="plhint">Your last request (${esc((cats.find(k=>k.id===myLastReq.to)||{}).n||myLastReq.to)}) was <b>${myLastReq.status}</b>.</div>`:''}
         <select id="rq_to">${cats.filter(k=>k.id!==mine.cat).map(k=>`<option value="${k.id}">${esc(k.n)}${qMin(k.id)?' — from '+money(qMin(k.id)):''}</option>`).join('')}</select>
-        <input id="rq_note" placeholder="Anything 조상연 should know (optional)" maxlength="80">
+        <input id="rq_note" placeholder="Anything the organizer should know (optional)" maxlength="80">
         <button class="pladd" type="button" onclick="reqChange()" style="align-self:flex-start;padding:8px 14px">Send request</button>
         <div class="plhint">Once approved, your cabin's type changes automatically — nothing else to do.</div>
       </div>`}

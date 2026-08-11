@@ -409,11 +409,11 @@ window.checkAppStatus=async function(){
 };
 window.cruSignOut=function(){ appSignOut(); };
 window.openTrip=function(id){
-  if(!canOpen(id)){flash('No access to this trip — ask '+appAdminName(),'err');return;}
+  if(!canOpen(id)){flash('No access to this trip — ask the organizer','err');return;}
   const td=TRIP_DATA[id];
   if(td&&(td.cruise||td.group)){
     window._cru=appGroupSession(id);
-    if(!window._cru){flash('No access to this group trip — ask '+appAdminName(),'err');return;}
+    if(!window._cru){flash('No access to this group trip — ask the organizer','err');return;}
   }
   tripSel=id;
   applyTripData(id);

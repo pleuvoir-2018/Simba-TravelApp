@@ -49,7 +49,7 @@ function renderToday(){
     html+=todoCard(21,'Prep — due in the next 3 weeks');
     const toBook=allStops.filter(x=>x.res==='book');
     html+=`<div class="card"><div class="chead"><span>Still to book</span><span>${toBook.length} open</span></div>`+
-      (toBook.map(x=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${x.id}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span><span class="td-meta">${x.cityName} · ${x.d} · ${x.m}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">Everything is booked ✓</div>')+`</div>`;
+      (toBook.map((x,i)=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${i+1}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span><span class="td-meta">${x.cityName} · ${x.d} · ${x.m}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">Everything is booked ✓</div>')+`</div>`;
     const walkIns=allStops.filter(x=>x.res==='walk');
     html+=`<div class="card"><div class="chead"><span>Walk-ins — no action needed</span></div><div style="padding:9px 12px;font-size:12px;color:var(--grey)">${walkIns.map(x=>x.name).join(' · ')||'—'}</div></div>`;
   } else if(inTrip){

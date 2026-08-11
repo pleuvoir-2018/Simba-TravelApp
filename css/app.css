@@ -175,7 +175,7 @@
   .td-stack{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
   .td-hero{padding:24px 20px;text-align:center}
   .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:0}
-  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.9;margin:12px 0 14px}
+  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.9;margin:3px 0 14px}
   .td-sub{font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:0}
   .td-row{display:flex;gap:10px;padding:10px 12px;border-bottom:1px dotted var(--rule);cursor:pointer;align-items:flex-start}
   .td-row:hover{background:#fff}

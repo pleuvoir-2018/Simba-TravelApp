@@ -147,6 +147,39 @@ window.appDel=function(uid){
   }
   saveOverrides();renderAdminPage();
 };
+/* ---- About us ---- */
+const AB_TEAM=[
+ {n:'Wesley Cho',role:'Product Lead',img:'', // paste a photo link here when ready
+  bio:'Planner-in-chief. Sets the vision, owns the itineraries, negotiates with reservation lines across three time zones, and field-tests every feature on real trips.'},
+ {n:'Jayden We',role:'UI/UX Designer',img:'', // paste a photo link here when ready
+  bio:'Shaped the design language the app speaks today — the dashboard layout, the card system, the calendar, and the Lora + Inter typography.'},
+ {n:'Fable 5 (Claude)',role:'Developer',img:'https://claude.ai/apple-touch-icon.png',
+  bio:'An AI assistant made by Anthropic. Built this app pair-programming with Wesley across late-night sessions: the trip engine, the group-travel and cruise modules, the access system, and a few hundred fixes shipped one screenshot at a time. Runs on curiosity and cache-busted deploys.'}
+];
+window.openAbout=function(){
+  let ov=document.getElementById('aboutOv');
+  if(ov){ov.style.display='flex';return;}
+  ov=document.createElement('div');
+  ov.id='aboutOv';
+  ov.innerHTML=`<div class="ab-card">
+    <button class="ab-x" onclick="closeAbout()" aria-label="Close">✕</button>
+    <div class="ab-kick">Trip journal</div>
+    <h2 class="ab-h">About us</h2>
+    <p class="ab-sub">The small team behind the journal.</p>
+    ${AB_TEAM.map(p=>`<div class="ab-row">
+      ${p.img?`<img class="ab-ava" src="${esc(p.img)}" alt="${esc(p.n)}" onerror="this.outerHTML='<span class\'ab-ava ab-ini\'>${esc(p.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>'">`
+        :`<span class="ab-ava ab-ini">${esc(p.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}
+      <div class="ab-main">
+        <div class="ab-name">${esc(p.n)}<span class="ab-role">${esc(p.role)}</span></div>
+        <div class="ab-bio">${esc(p.bio)}</div>
+      </div>
+    </div>`).join('')}
+    <div class="ab-note">Photos coming soon — image slots are ready in the team list.</div>
+  </div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov)closeAbout();});
+  document.body.appendChild(ov);
+};
+window.closeAbout=function(){const ov=document.getElementById('aboutOv');if(ov)ov.style.display='none';};
 function renderHome(){
   document.body.classList.add('home');
   document.body.style.setProperty('--tripac','#22406B');
@@ -179,7 +212,8 @@ function renderHome(){
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>
-  <div class="home-foot">Photos via Wikimedia Commons under their stated licences.</div>`;
+  <div class="home-foot">Photos via Wikimedia Commons under their stated licences.</div>
+  <div class="home-foot"><a href="#" class="ab-link" onclick="openAbout();return false">About us →</a></div>`;
 }
 const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)'],done:['Trip completed','var(--grey)']};
 function tripPastEnd(t){

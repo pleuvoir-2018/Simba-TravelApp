@@ -45,12 +45,17 @@ function renderAdminPage(){
             ${u.role==='pending'?'<span style="border:1px solid #B0761F;color:#B0761F;border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px">⏳ pending</span>':''}
             <span style="font:11px var(--mono);color:var(--grey)">code <b style="letter-spacing:.12em">${esc(u.code)}</b></span>
             <span style="flex:1"></span>
-            ${u.role==='pending'?`<button class="tdo-x" onclick="appApprove('${u.uid}')" title="Approve" style="color:var(--moss);font:700 11px var(--mono)">✓ approve</button>`:''}
+            ${u.role==='pending'?`<button class="tdo-x" onclick="appApprove('${u.uid}')" title="Approve" style="color:var(--moss);font:700 11px var(--mono)">✓ approve</button>`
+              :`<select onchange="appSetRole('${u.uid}',this.value)" title="App role" style="font:600 10px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;background:var(--card,#fff)">
+                  <option value="user" ${u.role!=='designer'?'selected':''}>Member</option>
+                  <option value="designer" ${u.role==='designer'?'selected':''}>Designer</option>
+                </select>`}
             <button class="tdo-x" onclick="appRename('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
             <button class="tdo-x" onclick="appRegen('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
             <button class="tdo-x" onclick="appDel('${u.uid}')" style="color:var(--clay);font-size:17px">×</button>
           </div>
-          ${u.role==='pending'?'':`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px">
+          ${u.role==='designer'?`<div style="margin-top:7px;font:10.5px var(--mono);color:var(--indigo2)">🎨 Designer — opens every destination for review; Expenses, Vault and all money tabs are hidden, and nothing they do saves.</div>`
+          :u.role==='pending'?'':`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px">
             ${dests.map(d=>{
               const td=TRIP_DATA[d.id];
               if(td.cruise||td.group)return `<label style="display:flex;align-items:center;gap:5px">${d.emoji||'🚢'} ${esc(d.country)}
@@ -80,6 +85,13 @@ function renderAdminPage(){
     </div>
   </div>`;
 }
+window.appSetRole=function(uid,val){
+  const u=appUsers().find(x=>x.uid===uid);
+  if(!u)return;
+  u.role=(val==='designer')?'designer':'user';
+  saveOverrides();renderAdminPage();
+  flash(u.name+(val==='designer'?' is now a Designer (read-only, no money tabs)':' is a Member')+' ✓','ok');
+};
 window.appApprove=function(uid){
   const u=appUsers().find(x=>x.uid===uid);
   if(!u)return;
@@ -217,7 +229,7 @@ function validateAppSession(){
   const u=appUsers().find(x=>x.uid===window._app.uid);
   if(u){
     window._app.name=u.name;
-    window._app.role=(u.role==='pending')?'pending':'user';
+    window._app.role=(u.role==='pending')?'pending':(u.role==='designer'?'designer':'user');
     try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
     return true;
   }
@@ -229,6 +241,7 @@ function canOpen(id){
   const sAp=window._app;
   if(!sAp||!sAp.uid)return false;
   if(sAp.role==='admin')return true;
+  if(sAp.role==='designer')return !!TRIP_DATA[id];   // every destination — sensitive tabs are stripped elsewhere
   if(sAp.role!=='user')return false;
   const u=appUsers().find(x=>x.uid===sAp.uid);
   return !!(u&&u.access&&u.access[id]);
@@ -237,6 +250,7 @@ function appGroupSession(tripId){
   const sAp=window._app;
   if(!sAp||!sAp.uid)return null;
   if(sAp.role==='admin')return {uid:'admin',name:appAdminName(),role:'admin'};
+  if(sAp.role==='designer')return {uid:sAp.uid,name:sAp.name,role:'participant'};   // guest view; writes are blocked at the save layer
   const u=appUsers().find(x=>x.uid===sAp.uid);
   const g=u&&u.access&&u.access[tripId];
   if(!g)return null;
@@ -318,7 +332,7 @@ window.doAppLogin=function(){
         :'Code not recognized — ask the organizer, or request access below.';
       return;
     }
-    window._app={role:(u.role==='pending')?'pending':'user',name:u.name,uid:u.uid};
+    window._app={role:(u.role==='pending')?'pending':(u.role==='designer'?'designer':'user'),name:u.name,uid:u.uid};
   }
   try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
   if(typeof updateAvatar==='function')updateAvatar();

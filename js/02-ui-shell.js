@@ -16,6 +16,9 @@ const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'developer mode',addrest:t
 function navCities(){
   let list=CITIES.slice();
   if(list.some(c=>c.cruiseTab||c.jjTab)&&!window._cru)return [];
+  if(typeof appRole==='function'&&appRole()==='designer'){
+    list=list.filter(c=>!c.vault&&!c.expenses&&c.cruiseTab!=='cexp'&&c.jjTab!=='jexp');
+  }
   if(list.some(c=>c.adminOnly)&&cruRole()!=='admin')list=list.filter(c=>!c.adminOnly);
   if(devMode&&list.some(c=>c.stops)&&!list.some(c=>c.addrest))list.push(DEV_TAB);
   return list;

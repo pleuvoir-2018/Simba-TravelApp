@@ -271,9 +271,9 @@ function renderLogin(){
       <div style="border-top:1px solid var(--rule);padding:13px 15px 15px">
         <div style="font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:7px">No code yet? Request access</div>
         <div class="plform" style="padding:0">
-          <input id="al_name" placeholder="Your name (Korean is fine)" maxlength="40" onkeydown="if(event.key==='Enter')doAppRequest()">
+          <input id="al_name" placeholder="이름 — Korean name in Hangul only" maxlength="15" onkeydown="if(event.key==='Enter')doAppRequest()">
           <button type="button" onclick="doAppRequest()" style="align-self:flex-start;background:none;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:8px 14px;cursor:pointer">Request access</button>
-          <div class="plhint">You get a login code immediately; the organizer grants access to each destination.</div>
+          <div class="plhint">Korean names only (한글) — your legal English name is collected separately in your profile for bookings. You get a login code immediately; the organizer grants access to each destination.</div>
         </div>
       </div>
     </div>
@@ -324,10 +324,19 @@ window.doAppLogin=function(){
   if(typeof updateAvatar==='function')updateAvatar();
   if(appRole()==='pending')renderPendingApp(); else renderHome();
 };
+function isKoreanName(v){
+  // Hangul syllables only, 2-6 characters, optional single space (성 이름)
+  return /^[가-힣]{2,6}( [가-힣]{1,6})?$/.test(String(v||'').trim());
+}
 window.doAppRequest=function(){
   const el=document.getElementById('al_name');
+  const err=document.getElementById('al_err');
   const name=String(el?el.value:'').trim();
   if(!name){el&&el.focus();return;}
+  if(!isKoreanName(name)){
+    if(err)err.textContent='한글 이름만 가능합니다 — Korean name (Hangul) only, e.g. 조상연.';
+    el&&el.focus();return;
+  }
   const rec={uid:'u'+Date.now(),name,code:genCode(),role:'pending',ts:Date.now(),access:{}};
   APP().users=appUsers().concat([rec]);
   window._app={role:'pending',name,uid:rec.uid};

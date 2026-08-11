@@ -371,3 +371,20 @@
 #viewAsBar b{letter-spacing:.02em}
 #viewAsBar button{background:#fff;color:#7A4E0E;border:none;border-radius:2px;font:700 10px var(--mono);letter-spacing:.06em;padding:6px 11px;cursor:pointer;height:28px}
 #viewAsBar button:hover{background:#F3E3C6}
+
+/* ---- Form baseline -------------------------------------------------------
+   Element-level floor for every control that carries no class or inline
+   style (edit-mode meal/hotel/vault fields showed raw browser defaults:
+   giant serif labels, four different control heights). Lowest specificity,
+   so anything already styled by class or inline wins untouched. */
+input:not([type=checkbox]):not([type=radio]),select{
+  font:12.5px var(--mono);color:var(--ink);background:var(--card,#fff);
+  border:1px solid var(--rule);border-radius:2px;padding:0 9px;height:36px;box-sizing:border-box}
+textarea{
+  font:12.5px/1.45 var(--mono);color:var(--ink);background:var(--card,#fff);
+  border:1px solid var(--rule);border-radius:2px;padding:8px 10px;min-height:56px;box-sizing:border-box}
+label{font:600 9.5px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--grey)}
+input::placeholder,textarea::placeholder{color:var(--grey);opacity:.75}
+@media(max-width:640px){
+  input:not([type=checkbox]):not([type=radio]),select{height:34px}
+}

@@ -32,6 +32,30 @@ function tokyoToday(){
 }
 window.gotoCity=function(i){ci=i;sel=null;selPoi=null;cat='all';render();};
 window.gotoMeal=function(i,id){ci=i;sel=id;selPoi=null;cat='all';render();};
+async function loadTodayWx(){
+  const el=document.getElementById('tdwx2');
+  if(!el)return;
+  const wx=TD.wx||{}; const k=Object.keys(wx)[0];
+  if(!k){el.parentElement.style.display='none';return;}
+  const key=tripKey();
+  try{
+    window._wx2=window._wx2||{};
+    if(!window._wx2[key]){
+      const w=wx[k];
+      const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`);
+      if(!r.ok)throw new Error('wx');
+      window._wx2[key]=(await r.json()).daily;
+    }
+    const d=window._wx2[key];
+    const dow=iso=>['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date(iso+'T00:00:00').getDay()];
+    el.innerHTML=d.time.map((iso,i)=>`<span class="wx2-d">
+      <b>${i===0?'TODAY':dow(iso)}</b>
+      <i>${WX_ICON(d.weather_code[i])}</i>
+      <em>${Math.round(d.temperature_2m_max[i])}°</em>
+      <u>${Math.round(d.temperature_2m_min[i])}°</u>
+    </span>`).join('');
+  }catch(e){ el.innerHTML='<span class="td-empty" style="padding:10px 4px;display:block">Forecast unavailable right now.</span>'; }
+}
 let _tdCalRef=null;
 function tdCalHtml(dep,fin,t){
   const [y,m]=window._tdCalYm;
@@ -106,6 +130,8 @@ function renderToday(){
       </div>
       <div class="td2-side">
         <div class="card"><div class="td2-h"><span>Calendar</span></div>${tdCalHtml(dep,fin,t)}</div>
+        <div class="card"><div class="td2-h"><span>Weather</span><span class="ov-l" style="margin:0">${esc((CITIES.find(c=>c.id===Object.keys(TD.wx||{})[0])||{}).city||Object.keys(TD.wx||{})[0]||'')}</span></div>
+          <div id="tdwx2" class="wx2"><span class="td-empty" style="padding:10px 4px;display:block">Loading forecast…</span></div></div>
       </div>
     </div>`;
   } else if(inTrip){
@@ -152,6 +178,7 @@ function renderToday(){
   }
   html+=`</div>`;
   panel.innerHTML=html;
+  if(pre&&document.getElementById('tdwx2'))loadTodayWx();
   const cidNow=inTrip?TODAY_CITY[t.d]:null;
   if(cidNow&&document.getElementById('wxbody'))loadWeather(cidNow);
 }

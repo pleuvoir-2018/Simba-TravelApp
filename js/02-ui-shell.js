@@ -97,7 +97,7 @@ function buildMap(c){
   // meals
   stopsFor(c).forEach(s=>{
     const e=eff(s);
-    const m=L.marker([s.lat,s.lng],{icon:icon(s.id,sel===s.id?28:22,sel===s.id?'on':'')}).addTo(map);
+    const m=L.marker([s.lat,s.lng],{icon:icon(stopNo(c,s.id),sel===s.id?28:22,sel===s.id?'on':'')}).addTo(map);
 
     // Dynamically appends booking time and platform if they exist
     let popupContent = `<b>${s.name}</b><br>${s.d} · ${s.m} — ${s.dish}<br>${s.hrs}<br>${RES_LABEL[e.res]}${e.pay==='cash'?' · 💴 cash only':''}`;
@@ -153,14 +153,18 @@ function buildMap(c){
   legend.addTo(map);
 }
 function refreshIcons(c){
-  stopsFor(c).forEach(s=>{const m=markers['m'+s.id];if(m)m.setIcon(icon(s.id,sel===s.id?28:22,sel===s.id?'on':''));});
+  stopsFor(c).forEach(s=>{const m=markers['m'+s.id];if(m)m.setIcon(icon(stopNo(c,s.id),sel===s.id?28:22,sel===s.id?'on':''));});
   c.pois.forEach((p,i)=>{const m=markers['p'+i];if(m)m.setIcon(icon(`<span>${p.ic}</span>`,selPoi===i?26:20,'mk-poi'+(selPoi===i?' on':'')));});
 }
 
-function mealCard(p){
+function stopNo(c,id){
+  const st=stopsFor(c); const i=st.findIndex(s=>s.id===id);
+  return i>=0?i+1:id;
+}
+function mealCard(p,c){
   const e=eff(p);
   return `<div class="meal ${sel===p.id?'on':''}" data-n="${p.id}">
-    <div class="num">${p.id}</div>
+    <div class="num">${c?stopNo(c,p.id):p.id}</div>
     <div style="flex:1;min-width:0">
       <div class="m1">${p.d} · ${p.m}</div>
       <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span>${e.pay==='cash'?'<span class="tag cash">💴 cash only</span>':''}</div>

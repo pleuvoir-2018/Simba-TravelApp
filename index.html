@@ -356,6 +356,7 @@
 <script>
 /* ---------------- DATA ---------------- */
 const NRT={n:"Narita Airport (NRT)",lat:35.7719,lng:140.3929};
+var TRIP_TZ='Asia/Tokyo',TRIP_MON=11,CUR={code:'JPY',sym:'¥',key:'jpy',fallback:150};
 var HOTELS = {
  parq:{n:"JW Marriott Parq Vancouver",lat:49.2756,lng:-123.1148,addr:"39 Smithe St, Vancouver, BC V6B 0R3, Canada",tel:"+1 604-676-0888",mail:"— Marriott app chat",stn:"Yaletown–Roundhouse (Canada Line) · 7 min walk — direct train to YVR ~25 min (board a YVR-bound train, not Richmond)",note:"Night of Nov 15 only. ZG021 departs 10:30 — leave the hotel by ~7:45 for a 2-hour international cushion."},
  westin:{n:"The Westin Yokohama",lat:35.4620,lng:139.6300,addr:"4-2-8 Minatomirai, Nishi-ku, Yokohama 220-0012",tel:"+81 45-577-0888",mail:"ays.yokohama@westin.com",stn:"Shin-Takashima (Minatomirai line) · 5 min walk — Yokohama Stn · 10 min walk",note:"Check-in 23F. Reservations: reservations.yokohama@westin.com"},
@@ -974,7 +975,7 @@ function mealCard(p){
       <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span>${e.pay==='cash'?'<span class="tag cash">💴 cash only</span>':''}</div>
 
       ${!editMode && e.res==='ok' && (e.btime || e.bplat) ? `<div style="display:inline-block; margin-top:4px; margin-bottom:2px; padding:3px 6px; background:rgba(94,127,76,.1); color:var(--moss); font:600 10px var(--mono); text-transform:uppercase; letter-spacing:0.05em; border-radius:2px;">✓ Reserved ${e.btime ? 'at ' + e.btime : ''} ${e.bplat ? 'via ' + e.bplat : ''}</div>` : ''}
-      ${!editMode && e.actualJpy ? (()=>{const aU=Number(e.actualJpy)/liveJpyRate;const diff=Number(e.actualJpy)-Number(e.jpy);return `<div style="display:inline-block;margin:4px 0 2px 4px;padding:3px 6px;background:${diff>0?'rgba(184,85,42,.1)':'rgba(94,127,76,.1)'};color:${diff>0?'var(--clay)':'var(--moss)'};font:600 10px var(--mono);border-radius:2px;">¥${Number(e.actualJpy).toLocaleString()} · $${aU.toFixed(2)}${diff!==0?` ${diff>0?'▲':'▼'}¥${Math.abs(diff).toLocaleString()}`:''}</div>`})():''}
+      ${!editMode && e.actualJpy ? (()=>{const aU=Number(e.actualJpy)/liveRate;const diff=Number(e.actualJpy)-Number(e.jpy);return `<div style="display:inline-block;margin:4px 0 2px 4px;padding:3px 6px;background:${diff>0?'rgba(184,85,42,.1)':'rgba(94,127,76,.1)'};color:${diff>0?'var(--clay)':'var(--moss)'};font:600 10px var(--mono);border-radius:2px;">¥${Number(e.actualJpy).toLocaleString()} · $${aU.toFixed(2)}${diff!==0?` ${diff>0?'▲':'▼'}¥${Math.abs(diff).toLocaleString()}`:''}</div>`})():''}
 
       <div class="m3">${p.dish}</div>
       <div class="m4">${p.hrs}${e.jpy?` · ¥${Number(e.jpy).toLocaleString()}`:(e.cost?` · ${esc(e.cost)}`:"")}</div>
@@ -1057,7 +1058,7 @@ async function loadWeather(cityId){
           </div>`;}).join('')}
       </div>
       <div style="font:9px var(--mono);color:var(--grey);margin-top:6px;">
-        ${onTrip?'Your dates in this city · °C · Asia/Tokyo':'Trip dates not yet in forecast range — showing next 5 days · °C'}
+        ${onTrip?`Your dates in this city · °C · ${TRIP_TZ}`:'Trip dates not yet in forecast range — showing next 5 days · °C'}
       </div>`;
   }catch(e){
     el.innerHTML = `<div class="note">Weather unavailable right now — check again when online.</div>`;
@@ -1122,17 +1123,18 @@ window.backToTrips=function(){
 /* ---------------- TO-DO / PREP TRACKER ---------------- */
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
 const TODO_ICO={ticket:'🎟',booking:'📞',transport:'🚄',concierge:'🛎',shop:'🛍',admin:'📋',other:'📍'};
-const DEFAULT_TODOS=[
- {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
- {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. All-reserved and sells out in foliage season; window-facing twins.'}
-];
-const TODO_SEED_VERSION=2;
+const TODO_SEED_VERSION=3;   // bumped: seeds are per-trip now
+
 let todoView='list', todoMonth='2026-08', todoDaySel=null;
 window._editTid=null;
-function tokyoISO(){return new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Tokyo'});}
+function tokyoISO(){return new Date().toLocaleDateString('en-CA',{timeZone:TRIP_TZ});}
+function tripSeedTodos(){
+  const t=(typeof TRIP_DATA!=='undefined'&&TRIP_DATA[tripKey()])||null;
+  return (t&&t.seedTodos)||[];
+}
 function ensureTodos(){
   if(!overrides.todos){
-    overrides.todos=DEFAULT_TODOS.map(t=>({...t,done:false}));
+    overrides.todos=tripSeedTodos().map(t=>({...t,done:false}));
     overrides.todoSeed=TODO_SEED_VERSION;
     saveOverrides();
     return;
@@ -1140,7 +1142,7 @@ function ensureTodos(){
   // One-time cleanup: drop the v1 seed items that are no longer defaults.
   // User-added ids are 't'+Date.now() (13 digits) so they can never match.
   if(overrides.todoSeed!==TODO_SEED_VERSION){
-    const keep=DEFAULT_TODOS.map(t=>t.id);
+    const keep=tripSeedTodos().map(t=>t.id);
     overrides.todos=overrides.todos.filter(t=>!(/^t([1-9]|1[0-4])$/.test(t.id)&&!keep.includes(t.id)));
     overrides.todoSeed=TODO_SEED_VERSION;
     saveOverrides();
@@ -1332,7 +1334,7 @@ function renderPlansCard(c){
       <input id="pl_name" placeholder="Place / activity name" maxlength="80">
       <input id="pl_url" placeholder="Google Maps link (optional — auto-generated from name if blank)">
       <div class="plrow1">
-        <input id="pl_jpy" type="number" min="0" placeholder="¥ cost (optional)">
+        <input id="pl_jpy" type="number" min="0" placeholder="${CUR.sym} cost (optional)">
         <select id="pl_card"><option value="">Card?</option>${EXP_CARDS.map(cd=>`<option>${cd}</option>`).join('')}</select>
         <button class="pladd" id="pl_btn" type="button" onclick="savePlan('${c.id}')">+ Add</button>
       </div>
@@ -1352,7 +1354,7 @@ function syncPlanExpense(p){
     Object.assign(prev,{date:'2026-'+p.d.replace('/','-'),cat:PLAN_CAT_TO_EXP[p.cat]||'Other',desc:p.name});
     return;
   }
-  const usdVal=Number((Number(p.jpy)/liveJpyRate).toFixed(2));
+  const usdVal=Number((Number(p.jpy)/liveRate).toFixed(2));
   const card=p.card||'AMEX Platinum';
   const exp={pid:p.id,date:'2026-'+p.d.replace('/','-'),usd:usdVal.toFixed(2),cat:PLAN_CAT_TO_EXP[p.cat]||'Other',card,desc:p.name,planned:true,paidUsd:0,paid:false};
   if(i>-1)overrides.expenses[i]=exp;else overrides.expenses.push(exp);
@@ -1486,7 +1488,7 @@ function syncMealExpense(id){
   if(!o.actualJpy){ if(i>-1) overrides.expenses.splice(i,1); saveOverrides(); return; }
 
   const card = o.actualCard || 'AMEX Platinum';
-  const usdVal = Number((Number(o.actualJpy)/liveJpyRate).toFixed(2));
+  const usdVal = Number((Number(o.actualJpy)/liveRate).toFixed(2));
   const prev = i>-1 ? overrides.expenses[i] : null;
   const prevPaid = prev ? (prev.paidUsd!==undefined ? Number(prev.paidUsd) : (prev.paid ? Number(prev.usd) : 0)) : 0;
   const paidUsd = card==='Cash' ? usdVal : Math.min(prevPaid, usdVal);
@@ -1555,20 +1557,7 @@ function renderVault(){
   panel.innerHTML=`<div class="card" style="max-width:850px;margin:0 auto;">
     <div class="chead"><span>Reservation Vault</span><span>saves on blur · syncs to cloud</span></div>
     <div style="padding:8px 16px 16px;">
-      ${sec('Flights')}
-      ${vaultRow('f_dl1015','Delta 1015 · IAD→SEA','Nov 15 · 07:00 · conf / seats')}
-      ${vaultRow('f_dl3748','Delta 3748 · SEA→YVR','Nov 15 · 13:30 · conf / seats · codeshare')}
-      ${vaultRow('f_zg021','Zip Air ZG021 · YVR→NRT','Nov 16 · booking ref / seats')}
-      ${vaultRow('f_zg022','Zip Air ZG022 · NRT→YVR','Nov 27 · booking ref / seats')}
-      ${vaultRow('f_ua2470','United UA2470 · YVR→DEN','Nov 27 · booking ref / seats')}
-      ${vaultRow('f_ua2408','United UA2408 · DEN→IAD','Nov 27 · booking ref / seats')}
-      ${sec('Trains')}
-      ${vaultRow('t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats')}
-      ${vaultRow('t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats')}
-      ${vaultRow('t_aoni','Aoniyoshi · Kintetsu-Nara→Ōsaka-Namba','Nov 21 · 17:34 · Kintetsu res # / seats')}
-      ${vaultRow('t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats')}
-      ${vaultRow('t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats')}
-      ${vaultRow('t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats')}
+      ${(((typeof TRIP_DATA!=='undefined'&&TRIP_DATA[tripKey()])||{}).vault||[]).map(([title,rows])=>sec(title)+rows.map(r=>vaultRow(r[0],r[1],r[2])).join('')).join('')}
       ${sec('Hotels')}
       ${Object.entries(HOTELS).map(([k,h])=>vaultRow('h_'+k,h.n,'confirmation # · Bonvoy/Hyatt member #')).join('')}
       ${sec('Restaurants')}
@@ -1607,7 +1596,7 @@ function renderExpenses() {
   // Budget vs. actual — meal plan (live, respects your edits) vs. logged Food + POI & Cafe spend
   const mealBudgetJpy = CITIES.filter(c=>c.stops).flatMap(c=>c.stops)
       .reduce((a,s)=>a+Number(eff(s).jpy),0);
-  const mealBudgetUsd = mealBudgetJpy / liveJpyRate;
+  const mealBudgetUsd = mealBudgetJpy / liveRate;
   const foodSpentUsd  = actuals.filter(e=>e.cat==="Food"||e.cat==="POI & Cafe")
       .reduce((a,e)=>a+Number(e.usd),0);
   const foodPct  = mealBudgetUsd>0 ? Math.min(100,(foodSpentUsd/mealBudgetUsd)*100) : 0;
@@ -1696,7 +1685,7 @@ function renderExpenses() {
         </label>
 
         <div style="flex:1.5; min-width:160px; display:flex; gap:6px;">
-          <label style="flex:1; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">¥ JPY<br>
+          <label style="flex:1; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">${CUR.sym} ${CUR.code}<br>
             <input type="number" id="exJpy" style="width:100%; font:inherit; font-size:12px; border:1px solid var(--rule); border-radius:2px; padding:6px; margin-top:4px; background:#fff;" placeholder="0">
           </label>
           <label style="flex:1; font:600 10px var(--mono); color:var(--indigo); text-transform:uppercase;">$ USD<br>
@@ -1784,7 +1773,7 @@ function renderExpenses() {
   // Auto-calculate JPY to USD at the live rate
   document.getElementById('exJpy').addEventListener('input', (e) => {
     if(e.target.value) {
-      document.getElementById('exUsd').value = (Number(e.target.value) / liveJpyRate).toFixed(2);
+      document.getElementById('exUsd').value = (Number(e.target.value) / liveRate).toFixed(2);
     } else {
       document.getElementById('exUsd').value = '';
     }
@@ -1969,12 +1958,24 @@ const TRIP_DATA={
    title:"Japan, November 2026",kicker:"Anniversary trip · 15–27 Nov 2026",depart:[2026,10,15],arrive:[2026,10,17],end:[2026,10,27],
    navIcons:{today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'},
    navSecs:{yokohama:'Itinerary',flights:'Tools'},
+   tz:'Asia/Tokyo',mon:11,cur:{code:'JPY',sym:'¥',key:'jpy',fallback:150},
+   seedTodos:[
+     {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
+     {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. Booking opens 10:30 JST, one month out.'}],
+   vault:[['Flights',[['f_dl1015','Delta 1015 · IAD→SEA','Nov 15 · 07:00 · conf / seats'],['f_dl3748','Delta 3748 · SEA→YVR','Nov 15 · 13:30 · conf / seats · codeshare'],['f_zg021','Zip Air ZG021 · YVR→NRT','Nov 16 · booking ref / seats'],['f_zg022','Zip Air ZG022 · NRT→YVR','Nov 27 · booking ref / seats'],['f_ua2470','United UA2470 · YVR→DEN','Nov 27 · booking ref / seats'],['f_ua2408','United UA2408 · DEN→IAD','Nov 27 · booking ref / seats']]],
+          ['Trains',[['t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats'],['t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats'],['t_aoni','Aoniyoshi · Kintetsu-Nara→Ōsaka-Namba','Nov 21 · 17:34 · Kintetsu res # / seats'],['t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats'],['t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats'],['t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats']]]],
    flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="180" fill="#bc002d"/></svg>'},
  'korea-2027':{cities:KR_CITIES,hotels:KR_HOTELS,flights:KR_FLIGHTS,wx:KR_WX,todayCity:KR_TODAY_CITY,tonight:KR_TONIGHT,
    brand:"Korea · May '27",foot:"7–18 May · Seoul & Jeju",
    title:"Korea, May 2027",kicker:"7–18 May 2027",depart:[2027,4,7],arrive:[2027,4,7],end:[2027,4,18],
    navIcons:{today:'🗓️',todo:'✅',seoul:'🏯',jeju:'🍊',flights:'✈️',vault:'🗂️',expenses:'💳',calc:'💱'},
    navSecs:{seoul:'Itinerary',flights:'Tools'},
+   tz:'Asia/Seoul',mon:5,cur:{code:'KRW',sym:'₩',key:'krw',fallback:1350},
+   seedTodos:[
+     {id:'k1',d:'2027-02-07',cat:'transport',title:'Book IAD → ICN',desc:'Award space opens ~360 days out. Aeroplan/Asiana or Virgin Atlantic → Korean Air from Dulles.'},
+     {id:'k2',d:'2027-03-01',cat:'admin',title:'International Driving Permit for Jeju',desc:'AAA issues it; required to rent a car on Jeju. Bring the IDP and your US licence.'},
+     {id:'k3',d:'2027-04-07',cat:'transport',title:'Book the Gimpo ⇄ Jeju flights',desc:'One month out is plenty; Line 9 runs express from Bongeunsa to Gimpo.'}],
+   vault:[['Flights',[['kf_out','IAD → ICN','May 7 · conf / seats'],['kf_cju1','Seoul → CJU','May 10 · conf / seats'],['kf_cju2','CJU → Seoul','May 14 · conf / seats'],['kf_home','ICN → IAD','May 18 · conf / seats']]]],
    flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="120" fill="#cd2e3a"/><path d="M330 300a120 120 0 0 1 240 0a60 60 0 0 0-120 0a60 60 0 0 1-120 0" fill="#0047a0"/></svg>'}
 };
 function applyTripData(id){
@@ -1982,6 +1983,8 @@ function applyTripData(id){
   if(!t)return;                       // unknown trip: leave the current data alone
   CITIES=t.cities;HOTELS=t.hotels;FLIGHTS=t.flights;
   WX_CFG=t.wx;TODAY_CITY=t.todayCity;TONIGHT=t.tonight;
+  TRIP_TZ=t.tz||'Asia/Tokyo'; TRIP_MON=t.mon||11; CUR=t.cur||{code:'JPY',sym:'¥',key:'jpy',fallback:150};
+  liveRate=CUR.fallback; fetchExchangeRate&&fetchExchangeRate();
   ci=0;sel=null;selPoi=null;cat='all';
   const b=document.querySelector('.nb-t');if(b)b.textContent=t.brand;
   const f=document.querySelector('.nav-foot');if(f)f.textContent=t.foot;
@@ -1995,7 +1998,7 @@ function applyTripData(id){
 function applyRememberedTrip(){ if(tripSel&&TRIP_DATA[tripSel])applyTripData(tripSel); }
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function tokyoToday(){
-  const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',weekday:'long'}).formatToParts(new Date());
+  const parts=new Intl.DateTimeFormat('en-US',{timeZone:TRIP_TZ,year:'numeric',month:'numeric',day:'numeric',weekday:'long'}).formatToParts(new Date());
   const o={};parts.forEach(x=>o[x.type]=x.value);
   return{y:+o.year,m:+o.month,d:+o.day,w:o.weekday};
 }
@@ -2005,7 +2008,7 @@ function renderToday(){
   const t=tokyoToday();
   const key=t.y*10000+t.m*100+t.d;
   const pre=key<20261115, post=key>20261127, inTrip=!pre&&!post;
-  const dateLine=`${t.w} · ${MONTH_NAMES[t.m-1]} ${t.d} · Asia/Tokyo`;
+  const dateLine=`${t.w} · ${MONTH_NAMES[t.m-1]} ${t.d} · ${TRIP_TZ.split('/')[1].replace('_',' ')}`;
   const allStops=CITIES.map((c,i)=>c.stops?c.stops.map(x=>({...eff(x),cityName:c.city,ci:i})):[]).flat();
   let html=`<div class="td-stack"><div class="card td-hero"><div class="td-date">${dateLine}</div>`;
   if(pre){
@@ -2023,12 +2026,12 @@ function renderToday(){
     const where=cityIdx>-1?CITIES[cityIdx].city:(day===15?'IAD → SEA → YVR':'YVR → NRT');
     html+=`<div class="td-big">${headline}</div><div class="td-sub">${where}</div>`+
       (cityIdx>-1?`<button class="td-go" onclick="gotoCity(${cityIdx})">Open the ${CITIES[cityIdx].city} tab →</button>`:'')+`</div>`;
-    const meals=allStops.filter(x=>x.d.startsWith('11/'+day));
+    const meals=allStops.filter(x=>x.d.startsWith(TRIP_MON+'/'+day));
     const order={Breakfast:0,Lunch:1,Dinner:2};
     meals.sort((a,b)=>(order[a.m]??9)-(order[b.m]??9));
     html+=`<div class="card"><div class="chead"><span>Today's meals</span></div>`+
       (meals.map(x=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${x.id}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span> <span class="tag ${x.res}">${RES_LABEL[x.res]||x.res}</span>${x.pay==='cash'?'<span class="tag cash">💴 cash</span>':''}<span class="td-meta">${x.m} · ${x.dish} · ${x.hrs} · ${x.area}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}${x.note?`<span class="td-note">${esc(x.note)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">No planned meals today — graze free.</div>')+`</div>`;
-    const dayPlans=(overrides.plans||[]).filter(p=>p.d==='11/'+day).sort((a,b)=>(a.t||'99:99').localeCompare(b.t||'99:99'));
+    const dayPlans=(overrides.plans||[]).filter(p=>p.d===TRIP_MON+'/'+day).sort((a,b)=>(a.t||'99:99').localeCompare(b.t||'99:99'));
     if(dayPlans.length){
       html+=`<div class="card"><div class="chead"><span>Today's plan</span><span>${dayPlans.filter(p=>p.done).length}/${dayPlans.length} done</span></div>`+
         dayPlans.map(p=>{const pc=CITIES.find(c=>c.id===p.city);return planRow(p,pc?pc.city:'',true);}).join('')+`</div>`;
@@ -2078,10 +2081,10 @@ async function loadFx(range){
       let pts=null;
       // Primary: Frankfurter v1 time series (ECB, single request)
       try{
-        const r=await fetch(`https://api.frankfurter.dev/v1/${fmt(start)}..${fmt(end)}?base=USD&symbols=JPY`);
+        const r=await fetch(`https://api.frankfurter.dev/v1/${fmt(start)}..${fmt(end)}?base=USD&symbols=${CUR.code}`);
         if(r.ok){
           const d=await r.json();
-          const arr=Object.keys(d.rates||{}).sort().map(k=>({d:k,v:d.rates[k].JPY})).filter(x=>x.v);
+          const arr=Object.keys(d.rates||{}).sort().map(k=>({d:k,v:d.rates[k][CUR.code]})).filter(x=>x.v);
           if(arr.length>=2)pts=arr;
         }
       }catch(e){}
@@ -2092,7 +2095,7 @@ async function loadFx(range){
         const got=await Promise.all(dates.map(dt=>
           fetch(`https://${dt}.currency-api.pages.dev/v1/currencies/usd.min.json`)
             .then(r=>r.ok?r.json():null)
-            .then(j=>j&&j.usd&&j.usd.jpy?{d:dt,v:j.usd.jpy}:null)
+            .then(j=>j&&j.usd&&j.usd[CUR.key]?{d:dt,v:j.usd[CUR.key]}:null)
             .catch(()=>null)
         ));
         const arr=got.filter(Boolean);
@@ -2112,10 +2115,10 @@ async function loadFx(range){
     const md=k=>k.slice(5).replace('-','/');
     el.innerHTML=`
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
-        <span style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--indigo);">¥${last.toFixed(2)}</span>
+        <span style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--indigo);">${CUR.sym}${last.toFixed(2)}</span>
         <span style="font:600 10px var(--mono);color:${chg>=0?'var(--moss)':'var(--clay)'};">${chg>=0?'▲':'▼'} ${Math.abs(chg).toFixed(2)}% over ${range==='1w'?'1 week':'1 month'}</span>
       </div>
-      <svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block;" role="img" aria-label="USD to JPY trend">
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block;" role="img" aria-label="USD trend">
         <line x1="${L}" y1="${Y(max)}" x2="${W-R}" y2="${Y(max)}" stroke="rgba(20,22,27,.1)" stroke-dasharray="2 4"/>
         <line x1="${L}" y1="${Y(min)}" x2="${W-R}" y2="${Y(min)}" stroke="rgba(20,22,27,.1)" stroke-dasharray="2 4"/>
         <path d="${area}" fill="rgba(34,64,107,.08)"/>
@@ -2124,7 +2127,7 @@ async function loadFx(range){
       </svg>
       <div style="display:flex;justify-content:space-between;font:9px var(--mono);color:var(--grey);margin-top:4px;">
         <span>${md(pts[0].d)}</span>
-        <span>L ¥${min.toFixed(2)} · H ¥${max.toFixed(2)} · ECB daily</span>
+        <span>L ${CUR.sym}${min.toFixed(2)} · H ${CUR.sym}${max.toFixed(2)} · ECB daily</span>
         <span>${md(pts[pts.length-1].d)}</span>
       </div>`;
   }catch(e){
@@ -2137,7 +2140,7 @@ function renderCalc() {
   <div class="card" style="max-width:500px; margin: 40px auto; padding:32px 24px; text-align:center;">
     <div style="font-family:var(--serif); font-size:24px; color:var(--indigo); margin-bottom:8px;">Quick Converter</div>
     <div style="font-family:var(--mono); font-size:11px; color:var(--moss); margin-bottom:32px; letter-spacing:0.05em; text-transform:uppercase;">
-      Live Rate: ¥${liveJpyRate.toFixed(2)} = $1.00
+      Live Rate: ${CUR.sym}${liveRate.toFixed(2)} = $1.00
     </div>
     
     <div style="margin-bottom:24px; position:relative;">
@@ -2152,7 +2155,7 @@ function renderCalc() {
   </div>
 
   <div class="card" style="max-width:500px; margin:14px auto 0;">
-    <div class="chead"><span>USD → JPY trend</span>
+    <div class="chead"><span>USD → ${CUR.code} trend</span>
       <span style="display:flex;gap:5px;">
         <button class="chip fx-r ${fxRange==='1w'?'on':''}" data-r="1w" type="button">1W</button>
         <button class="chip fx-r ${fxRange==='1m'?'on':''}" data-r="1m" type="button">1M</button>
@@ -2166,7 +2169,7 @@ function renderCalc() {
     const jpy = Number(e.target.value);
     const usdDisplay = document.getElementById('quickUsd');
     if (jpy > 0) {
-      usdDisplay.textContent = '$' + (jpy / liveJpyRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      usdDisplay.textContent = '$' + (jpy / liveRate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     } else {
       usdDisplay.textContent = '$0.00';
     }
@@ -2249,7 +2252,8 @@ function drawCountdown(){
 }
   
 /* ---------------- LIVE EXCHANGE RATE ---------------- */
-let liveJpyRate = 150.00; // Fallback offline rate
+var liveRate = 150.00; // fallback until the live fetch lands
+
 
 async function fetchExchangeRate() {
   try {
@@ -2257,7 +2261,7 @@ async function fetchExchangeRate() {
     if (res.ok) {
       const data = await res.json();
       if (data && data.usd && data.usd.jpy) {
-        liveJpyRate = data.usd.jpy;
+        if(data.usd[CUR.key])liveRate = data.usd[CUR.key];
         // If the user is already looking at the Calc or Expense tab, refresh it to show the live rate
         if (CITIES[ci].calc || CITIES[ci].expenses) render();
       }

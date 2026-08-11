@@ -294,12 +294,12 @@
 <div class="wrap">
   <header>
     <div>
-      <div class="kicker">Anniversary trip · 17–27 Nov 2026 · <span id="countdown"></span></div>
+      <div class="kicker"><span id="kickerTxt">Anniversary trip · 17–27 Nov 2026</span> · <span id="countdown"></span></div>
       <h1>
-        <svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+        <span id="tripFlag"><svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
           <rect width="900" height="600" fill="#ffffff"/>
           <circle cx="450" cy="300" r="180" fill="#bc002d"/>
-        </svg>Japan, November 2026
+        </svg></span><span id="tripTitle">Japan, November 2026</span>
       </h1>
     </div>
     <span style="display:flex;gap:8px;align-items:center">
@@ -836,14 +836,18 @@ const RES_LABEL={ok:'Booked',book:'To book',walk:'Walk-in'};
 
 /* ---- Left nav (collapsible sidebar) ---- */
 const shell=document.getElementById('shell'),navlist=document.getElementById('navlist');
-const NAV_ICO={today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'};
-navlist.innerHTML=CITIES.map((c,i)=>
-  (i===0?'<div class="nvsec">Now</div>':'')+
-  (c.id==='yokohama'?'<div class="nvsec">Itinerary</div>':'')+
-  (c.id==='flights'?'<div class="nvsec">Tools</div>':'')+
-  `<button class="nvi" data-i="${i}" title="${c.city}"><span class="nvic">${NAV_ICO[c.id]||'•'}</span><span class="nvtx"><span class="nv1">${c.city}</span><span class="nv2">${c.sub}</span></span></button>`
-).join('');
-navlist.querySelectorAll('.nvi').forEach(b=>b.onclick=()=>{ci=+b.dataset.i;sel=null;selPoi=null;cat='all';shell.classList.remove('drawer');render();});
+/* Rebuilt on every trip switch — a nav built once from Japan would index
+   into Korea's array and open the wrong tab. */
+function buildNav(){
+  const t=(typeof TRIP_DATA!=='undefined'&&TRIP_DATA[tripKey()])||null;
+  const ico=(t&&t.navIcons)||{}, secs=(t&&t.navSecs)||{};
+  navlist.innerHTML=CITIES.map((c,i)=>
+    (i===0?'<div class="nvsec">Now</div>':'')+
+    (secs[c.id]?`<div class="nvsec">${secs[c.id]}</div>`:'')+
+    `<button class="nvi" data-i="${i}" title="${c.city}"><span class="nvic">${ico[c.id]||'•'}</span><span class="nvtx"><span class="nv1">${c.city}</span><span class="nv2">${c.sub}</span></span></button>`
+  ).join('');
+  navlist.querySelectorAll('.nvi').forEach(b=>b.onclick=()=>{ci=+b.dataset.i;sel=null;selPoi=null;cat='all';shell.classList.remove('drawer');render();});
+}
 function refreshNav(){navlist.querySelectorAll('.nvi').forEach(b=>{const on=+b.dataset.i===ci;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}
 // collapsed state is a device preference — kept in this browser, not synced
 try{if(localStorage.getItem('jt_nav_mini')==='1')shell.classList.add('mini');}catch(e){}
@@ -1961,18 +1965,32 @@ var KR_CITIES=[
 
 const TRIP_DATA={
  'japan-2026':{cities:CITIES,hotels:HOTELS,flights:FLIGHTS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
-   brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals"},
+   brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals",
+   title:"Japan, November 2026",kicker:"Anniversary trip · 15–27 Nov 2026",depart:[2026,10,15],arrive:[2026,10,17],end:[2026,10,27],
+   navIcons:{today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'},
+   navSecs:{yokohama:'Itinerary',flights:'Tools'},
+   flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="180" fill="#bc002d"/></svg>'},
  'korea-2027':{cities:KR_CITIES,hotels:KR_HOTELS,flights:KR_FLIGHTS,wx:KR_WX,todayCity:KR_TODAY_CITY,tonight:KR_TONIGHT,
-   brand:"Korea · May '27",foot:"7–18 May · Seoul & Jeju"}
+   brand:"Korea · May '27",foot:"7–18 May · Seoul & Jeju",
+   title:"Korea, May 2027",kicker:"7–18 May 2027",depart:[2027,4,7],arrive:[2027,4,7],end:[2027,4,18],
+   navIcons:{today:'🗓️',todo:'✅',seoul:'🏯',jeju:'🍊',flights:'✈️',vault:'🗂️',expenses:'💳',calc:'💱'},
+   navSecs:{seoul:'Itinerary',flights:'Tools'},
+   flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="120" fill="#cd2e3a"/><path d="M330 300a120 120 0 0 1 240 0a60 60 0 0 0-120 0a60 60 0 0 1-120 0" fill="#0047a0"/></svg>'}
 };
 function applyTripData(id){
   const t=TRIP_DATA[id];
   if(!t)return;                       // unknown trip: leave the current data alone
   CITIES=t.cities;HOTELS=t.hotels;FLIGHTS=t.flights;
   WX_CFG=t.wx;TODAY_CITY=t.todayCity;TONIGHT=t.tonight;
-  ci=0;sel=null;selPoi=null;
+  ci=0;sel=null;selPoi=null;cat='all';
   const b=document.querySelector('.nb-t');if(b)b.textContent=t.brand;
   const f=document.querySelector('.nav-foot');if(f)f.textContent=t.foot;
+  const ti=document.getElementById('tripTitle');if(ti)ti.textContent=t.title;
+  const kk=document.getElementById('kickerTxt');if(kk)kk.textContent=t.kicker;
+  const fl=document.getElementById('tripFlag');if(fl&&t.flag)fl.innerHTML=t.flag;
+  document.title=t.title;
+  buildNav();
+  drawCountdown();
 }
 function applyRememberedTrip(){ if(tripSel&&TRIP_DATA[tripSel])applyTripData(tripSel); }
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -2209,24 +2227,26 @@ function render(){
   buildMap(c);
   renderSide(c);
 }
-loadOverrides().then(()=>{applyRememberedTrip();render();});
+loadOverrides().then(()=>{applyRememberedTrip();buildNav();drawCountdown();render();});
 
 /* ---------------- COUNTDOWN ---------------- */
-(function(){
+function drawCountdown(){
   const el=document.getElementById('countdown');
   if(!el) return;
+  const t=(typeof TRIP_DATA!=='undefined'&&TRIP_DATA[tripKey()])||null;
+  const D=(a,f)=>a?new Date(a[0],a[1],a[2]):f;
   const MS=86400000;
   const today=new Date(); today.setHours(0,0,0,0);
-  const dep=new Date(2026,10,15);   // Nov 15 — IAD departure (Delta positioning day)
-  const arr=new Date(2026,10,17);   // Nov 17 — Day 1 in Japan
-  const end=new Date(2026,10,27);   // Nov 27 — fly home
+  const dep=D(t&&t.depart,new Date(2026,10,15));
+  const arr=D(t&&t.arrive,new Date(2026,10,17));
+  const end=D(t&&t.end,new Date(2026,10,27));
   const d=Math.round((dep-today)/MS);
   if(d>1)            el.textContent=`${d} days to go ✈`;
   else if(d===1)     el.textContent=`Tomorrow ✈`;
   else if(d===0)     el.textContent=`Departure day ✈`;
-  else if(today<=end)el.textContent=`Day ${Math.round((today-arr)/MS)+1} of 11 🇯🇵`;
-  else               el.textContent=`Okaeri — trip complete`;
-})();
+  else if(today<=end)el.textContent=`Day ${Math.round((today-arr)/MS)+1} of ${Math.round((end-arr)/MS)+1}`;
+  else               el.textContent=`Trip complete`;
+}
   
 /* ---------------- LIVE EXCHANGE RATE ---------------- */
 let liveJpyRate = 150.00; // Fallback offline rate

@@ -32,6 +32,27 @@ function tokyoToday(){
 }
 window.gotoCity=function(i){ci=i;sel=null;selPoi=null;cat='all';render();};
 window.gotoMeal=function(i,id){ci=i;sel=id;selPoi=null;cat='all';render();};
+let _tdCalRef=null;
+function tdCalHtml(dep,fin,t){
+  const [y,m]=window._tdCalYm;
+  _tdCalRef={dep,fin,t};
+  const first=new Date(Date.UTC(y,m,1)), startDow=first.getUTCDay();
+  const dim=new Date(Date.UTC(y,m+1,0)).getUTCDate();
+  const inTripD=d=>{const k=Date.UTC(y,m,d);return k>=Date.UTC(dep[0],dep[1],dep[2])&&k<=Date.UTC(fin[0],fin[1],fin[2]);};
+  const isToday=d=>(y===t.y&&m===t.m-1&&d===t.d);
+  let cells='';
+  for(let i=0;i<startDow;i++)cells+='<span></span>';
+  for(let d=1;d<=dim;d++)cells+=`<span class="cal2-d ${isToday(d)?'cal2-today':''}">${d}${inTripD(d)?'<i class="cal2-dot"></i>':''}</span>`;
+  return `<div class="cal2">
+    <div class="cal2-nav"><button type="button" onclick="tdCalShift(-1)">‹</button><span>${MONTH_NAMES[m]} ${y}</span><button type="button" onclick="tdCalShift(1)">›</button></div>
+    <div class="cal2-grid cal2-dow">${['SUN','MON','TUE','WED','THU','FRI','SAT'].map(x=>`<span>${x}</span>`).join('')}</div>
+    <div class="cal2-grid">${cells}</div>
+  </div>`;
+}
+window.tdCalShift=function(n){
+  let [y,m]=window._tdCalYm; m+=n; if(m<0){m=11;y--;} if(m>11){m=0;y++;}
+  window._tdCalYm=[y,m]; render();
+};
 function renderToday(){
   const t=tokyoToday();
   const key=t.y*10000+t.m*100+t.d;
@@ -42,24 +63,53 @@ function renderToday(){
   const tripDays=Math.round((Date.UTC(fin[0],fin[1],fin[2])-Date.UTC(arr[0],arr[1],arr[2]))/86400000)+1;
   const dateLine=`${t.w} · ${MONTH_NAMES[t.m-1]} ${t.d} · ${TRIP_TZ.split('/')[1].replace('_',' ')}`;
   const allStops=CITIES.map((c,i)=>c.stops?stopsFor(c).map(x=>({...eff(x),cityName:c.city,ci:i})):[]).flat();
-  let html=`<div class="td-stack"><div class="card td-hero">`;
+  let html=`<div class="td-stack">`;
   if(pre){
     const days=Math.round((Date.UTC(dep[0],dep[1],dep[2])-Date.UTC(t.y,t.m-1,t.d))/86400000);
-    html+=`<div class="th-split">
-      <div class="th-count"><span class="th-num">${days}</span><span class="th-days">days<br>to go</span></div>
-      <div class="th-sep"></div>
-      <div class="th-meta">
-        <div class="th-today">${dateLine}</div>
-        <div class="th-flight">${TD.departNote||''}</div>
-      </div>
-    </div></div>`;
-    html+=todoCard(21,'Prep — due in the next 3 weeks');
+    const card=(typeof TRIPS!=='undefined'?TRIPS.find(x=>x.id===tripKey()):null)||{};
+    const chips=(TD.departNote||'').split('·').map(s=>s.trim()).filter(Boolean);
+    const chipIco=['✈','⏱','📅'];
+    const fmtD=a=>`${MONTH_NAMES[a[1]].slice(0,3)} ${a[2]}`;
+    if(!window._tdCalYm)window._tdCalYm=[dep[0],dep[1]];
     const toBook=allStops.filter(x=>x.res==='book');
-    html+=`<div class="card"><div class="chead"><span>Still to book</span><span>${toBook.length} open</span></div>`+
-      (toBook.map((x,i)=>`<div class="td-row" onclick="gotoMeal(${x.ci},${x.id})"><span class="num">${i+1}</span><span style="flex:1;min-width:0"><span class="td-name">${x.name}</span><span class="td-meta">${x.cityName} · ${x.d} · ${x.m}</span>${x.warn?`<span class="td-warn">${esc(x.warn)}</span>`:''}</span></div>`).join('')||'<div class="td-empty">Everything is booked ✓</div>')+`</div>`;
     const walkIns=allStops.filter(x=>x.res==='walk');
-    html+=`<div class="card"><div class="chead"><span>Walk-ins — no action needed</span></div><div style="padding:9px 12px;font-size:12px;color:var(--grey)">${walkIns.map(x=>x.name).join(' · ')||'—'}</div></div>`;
+    html+=`<div class="td2-grid">
+      <div class="td2-main">
+        <div class="card td2-hero">
+          ${card.photo?`<img class="td2-art" src="${card.photo}" alt="" onerror="this.style.display='none'">`:''}
+          <div class="td2-hero-mid">
+            <div class="th-today">${dateLine}</div>
+            <div class="td2-num">${days}</div>
+            <div class="th-lbl" style="letter-spacing:.18em">Days until wheels-up</div>
+            ${chips.length?`<div class="td2-chips">${chips.map((c,i)=>`<span class="td2-chip">${chipIco[i]||'·'} ${esc(c)}</span>`).join('')}</div>`:''}
+          </div>
+        </div>
+        <div class="card"><div class="td2-h"><span>To Book</span><span class="td2-pill">${toBook.length} open</span></div>
+          ${toBook.map((x,i)=>`<div class="tb-row" onclick="gotoMeal(${x.ci},${x.id})">
+            <span class="tb-main"><span class="tb-name">${esc(x.name)}</span>
+              <span class="tb-meta">${esc(x.cityName)} · ${x.d} · ${x.m}</span>
+              ${x.warn?`<span class="tb-warn">${esc(x.warn)}</span>`:''}</span>
+            <span class="tb-chev">›</span>
+          </div>`).join('')||'<div class="td-empty">Everything is booked ✓</div>'}
+        </div>
+        ${todoCard(21,'Prep — due in the next 3 weeks')}
+        <div class="card"><div class="td2-h"><span>Walk-ins</span><span style="font:600 9px var(--mono);color:var(--grey)">NO ACTION NEEDED</span></div>
+          <div style="padding:4px 16px 13px;font-size:12px;color:var(--grey)">${walkIns.map(x=>esc(x.name)).join(' · ')||'—'}</div></div>
+      </div>
+      <div class="td2-side">
+        <div class="card"><div class="td2-h"><span>Trip Overview</span></div>
+          <div class="td2-ov">
+            <div class="ov-row"><span class="ov-ic">📍</span><span><span class="ov-l">Destination</span><span class="ov-v">${esc(card.country||TD.brand||'')}</span></span></div>
+            <div class="ov-row"><span class="ov-ic">⏳</span><span><span class="ov-l">Duration</span><span class="ov-v">${tripDays} days</span></span></div>
+            <div class="ov-row"><span class="ov-ic">🗓</span><span><span class="ov-l">Dates</span><span class="ov-v">${fmtD(dep)} – ${fmtD(fin)}, ${fin[0]}</span></span></div>
+            <div class="ov-row"><span class="ov-ic">👥</span><span><span class="ov-l">Travelers</span><span class="ov-v">${TD.travelers||2}</span></span></div>
+          </div>
+        </div>
+        <div class="card"><div class="td2-h"><span>Calendar</span></div>${tdCalHtml(dep,fin,t)}</div>
+      </div>
+    </div>`;
   } else if(inTrip){
+    html+=`<div class="card td-hero">`;
     const day=t.d, cid=TODAY_CITY[day], cityIdx=cid?CITIES.findIndex(c=>c.id===cid):-1;
     const dayNo=Math.round((Date.UTC(t.y,t.m-1,t.d)-Date.UTC(arr[0],arr[1],arr[2]))/86400000)+1;
     const headline=dayNo<1?(TD.preLabel||'Positioning day'):(`Day ${dayNo} of ${tripDays}`);
@@ -98,7 +148,7 @@ function renderToday(){
     }
   } else {
     const spentUsd=(overrides.expenses||[]).reduce((a,e)=>a+Number(e.usd),0);
-    html+=`<div class="td-date">${dateLine}</div><div class="td-big">Okaeri 🏠</div><div class="td-sub">Trip complete${spentUsd?` · $${spentUsd.toLocaleString('en-US',{minimumFractionDigits:2})} logged`:''}</div></div>`;
+    html+=`<div class="card td-hero"><div class="td-date">${dateLine}</div><div class="td-big">Okaeri 🏠</div><div class="td-sub">Trip complete${spentUsd?` · $${spentUsd.toLocaleString('en-US',{minimumFractionDigits:2})} logged`:''}</div></div>`;
   }
   html+=`</div>`;
   panel.innerHTML=html;

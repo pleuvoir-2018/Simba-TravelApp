@@ -1399,18 +1399,18 @@ function renderJeju(c){
           <div class="plhint">Share → Copy link in Google Maps works; so does the browser URL with @lat,lng in it.</div>
         </div>
       </div>
-      ${(T.pois&&T.pois.length)?`<div class="card"><div class="chead"><span>🍊 Starter ideas</span><span>on the map in grey — pin to schedule</span></div>
-        ${T.pois.map(p=>`<div class="tdo-row">
+      ${(T.pois&&T.pois.length)?`<div class="card"><div class="chead"><span>🍊 Starter ideas</span><span>tap a row to find it on the map</span></div>
+        ${T.pois.map((p,i)=>`<div class="tdo-row jj-idea" data-jidea="${i}" onclick="jjIdeaFocus(${i})" style="cursor:pointer">
           <span style="flex:0 0 26px;text-align:center;opacity:.75">${p.ic||'📍'}</span>
           <span class="tdo-main"><span class="tdo-t">${esc(p.n)}</span>
-            <span class="tdo-desc" style="margin-left:10px">${esc(p.d||'')} · <a href="https://www.google.com/maps/search/${encodeURIComponent(p.n+' Jeju')}" target="_blank" rel="noopener">map</a></span></span>
+            <span class="tdo-desc" style="margin-left:10px">${esc(p.d||'')}</span></span>
         </div>`).join('')}
       </div>`:''}
       ${['',...dates].map(day=>{
         const list=pins.filter(p=>String(p.day||'')===day).sort((a,b)=>String(a.time||'').localeCompare(String(b.time||'')));
         if(!list.length)return '';
         return `<div class="card"><div class="chead"><span>${day?('5/'===day.slice(0,2)?day:day):'📍 Unscheduled ideas'}${day?' · '+({'5/10':'Wed — arrive','5/11':'Thu','5/12':'Fri','5/13':'Sat','5/14':'Sun — depart'}[day]||''):''}</span><span>${list.length}</span></div>
-          ${list.map(p=>`<div class="tdo-row">
+          ${list.map(p=>`<div class="tdo-row jj-pin" data-jpin="${p.id}" onclick="jjPinFocus('${p.id}')" style="cursor:pointer">
             <span style="flex:0 0 26px;text-align:center">${({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍'}</span>
             <span class="tdo-main"><span class="tdo-t">${esc(p.n)}</span>
               <span class="tdo-desc" style="margin-left:10px">${p.time?esc(p.time)+' · ':''}${p.note?esc(p.note)+' · ':''}by ${esc(jjName(p.by))} · <a href="${esc(p.url)}" target="_blank" rel="noopener">map</a></span></span>
@@ -1532,16 +1532,21 @@ function drawJejuMap(T){
   const st=T.stay;
   if(st&&st.lat){ L.marker([st.lat,st.lng],{icon:pin('🏨',22)}).addTo(map).bindPopup(
     `<b>${esc(st.n)}</b><br>${esc(st.sub||'')}${st.tel?`<br>${esc(st.tel)}`:''}`+mapsLinkHtml(st.n+' Jeju')); bounds.push([st.lat,st.lng]); }
-  // curated island ideas — muted, always on the map
-  (T.pois||[]).forEach(p=>{
-    L.marker([p.lat,p.lng],{icon:pin(`<span style="opacity:.62">${p.ic||'📍'}</span>`,16),zIndexOffset:-100}).addTo(map)
+  // curated island ideas — muted, always on the map; two-way linked to the list
+  window._jjIdeaMk=[]; window._jjPinMk={};
+  (T.pois||[]).forEach((p,i)=>{
+    const m=L.marker([p.lat,p.lng],{icon:pin(`<span style="opacity:.62">${p.ic||'📍'}</span>`,16),zIndexOffset:-100}).addTo(map)
       .bindPopup(`<b>${esc(p.n)}</b><br>${esc(p.d||'')}<br><i>idea — pin it with a day to schedule it</i>`+mapsLinkHtml(p.n+' Jeju'));
+    m.on('click',()=>jjHiRow('.jj-idea','jidea',String(i)));
+    window._jjIdeaMk[i]=m;
     bounds.push([p.lat,p.lng]);
   });
   (overrides.pins||[]).forEach(p=>{
     if(typeof p.lat!=='number')return;
-    L.marker([p.lat,p.lng],{icon:pin(({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍',19)}).addTo(map)
+    const m=L.marker([p.lat,p.lng],{icon:pin(({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍',19)}).addTo(map)
       .bindPopup(`<b>${esc(p.n)}</b><br>${p.day?esc(p.day)+' · ':''}${p.time?esc(p.time)+' · ':''}by ${esc(jjName(p.by))}`+mapsLinkHtml(p.n+' Jeju',p.url));
+    m.on('click',()=>jjHiRow('.jj-pin','jpin',String(p.id)));
+    window._jjPinMk[p.id]=m;
     bounds.push([p.lat,p.lng]);
   });
   // Esri street tiles run out around z13-14 on Jeju: cap the fit so the map
@@ -1550,6 +1555,19 @@ function drawJejuMap(T){
   else map.setView(bounds[0]||[33.38,126.53],10);
 }
 
+function jjHiRow(selCls,attr,val){
+  document.querySelectorAll(selCls).forEach(r=>r.classList.toggle('jrow-on',r.dataset[attr]===val));
+}
+window.jjIdeaFocus=function(i){
+  const m=(window._jjIdeaMk||[])[i];
+  if(m&&map){map.panTo(m.getLatLng());m.openPopup();}
+  jjHiRow('.jj-idea','jidea',String(i));
+};
+window.jjPinFocus=function(id){
+  const m=(window._jjPinMk||{})[id];
+  if(m&&map){map.panTo(m.getLatLng());m.openPopup();}
+  jjHiRow('.jj-pin','jpin',String(id));
+};
 window.gotoJjTab=function(tab){
   const i=navCities().findIndex(x=>x.jjTab===tab);
   if(i>=0){ci=i;render();}

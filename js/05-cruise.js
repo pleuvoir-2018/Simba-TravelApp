@@ -263,7 +263,7 @@ function renderCruise(c){
           <button class="pladd" type="button" onclick="addRoom()" style="padding:8px 14px;${window._editRoom?'background:var(--moss)':''}">${window._editRoom?'✓ Save cabin':'+ Add cabin'}</button>
           ${window._editRoom?'<button type="button" onclick="window._editRoom=null;render()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);padding:7px 11px;cursor:pointer;color:var(--grey)">Cancel</button>':''}
         </div>
-      </div></div>`+quoteAdmin+reqAdmin:quoteShow)+
+      </div></div>`+quoteAdmin+reqAdmin:quoteShow)+feesCard+
       `<div class="card"><div class="chead"><span>🛏 Cabins</span><span>${placed.size}/${rooms.reduce((a,r)=>a+(Number(r.cap)||((r.slots||[]).length)||2),0)} slots taken</span></div>
       ${rooms.length?rooms.map((r,ri)=>{
         const k=cats.find(x=>x.id===r.cat)||{n:r.cat,d:'',sq:'',tone:'#5B7185'};

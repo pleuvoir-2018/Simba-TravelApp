@@ -186,6 +186,25 @@
   .chip:not(.on):hover{border-color:var(--moss);color:var(--moss)}
   button{-webkit-tap-highlight-color:transparent}
 
+  /* Cruise theme — matches the ocean card on the picker */
+  body.cruise{
+    --washi:#F0F5FA; --washi2:#E1EBF5; --ink:#0D2033; --grey:#5B7185;
+    --indigo:#0B2545; --indigo2:#1D5C8F; --clay:#0E7C86; --moss:#2F7D6B;
+    --plum:#3F5E8C; --rule:#C4D6E6;
+  }
+  body.cruise .sidenav{background:#0B2545;border-right-color:#0A1E3A}
+  body.cruise .nav-brand,body.cruise .nvsec,body.cruise .nav-foot{color:#8FB3D9}
+  body.cruise .nvi .nv1{color:#EAF3FF}
+  body.cruise .nvi .nv2{color:#7E9CC0}
+  body.cruise .nvi.on{background:#123A63}
+  body.cruise .nvi:hover{background:#102F4F}
+  body.cruise .nav-head{border-bottom-color:#12365C}
+  body.cruise header h1{letter-spacing:-.01em}
+  body.cruise .card{background:#fff}
+  body.cruise .chead{background:#0B2545;color:#DCEAF9;border-bottom-color:#0B2545}
+  body.cruise .chead span{color:#DCEAF9}
+  body.cruise .kicker{color:#0E7C86}
+
   /* Landing / trip picker */
   body.home .shell{display:block}
   body.home #sidenav,body.home .backdrop,body.home header,body.home footer{display:none}
@@ -880,7 +899,7 @@ window.openTrip=function(id){
   document.body.classList.remove('home');
   render();
 };
-window.backToTrips=function(){ tripSel=null; renderHome(); };
+window.backToTrips=function(){ tripSel=null; document.body.classList.remove('cruise'); renderHome(); };
 
 /* ---------------- TO-DO / PREP TRACKER ---------------- */
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
@@ -1373,9 +1392,51 @@ function renderCruise(c){
       </div>`;
     }).join('');
   }
-  if(c.cruiseTab==='rooms'||c.cruiseTab==='cexp'||c.cruiseTab==='clog'){
-    const what={rooms:'Room picker — cabins, categories and two slots each, airline-seat style',
-      cexp:'Per-person expenses, the itemized cruise invoice, and paid-vs-unpaid tracking',
+  if(c.cruiseTab==='rooms'){
+    const cats=T.cats||[], rooms=(overrides.rooms||[]);
+    const users=(overrides.users||[]);
+    const nameOf=uid=>uid==='admin'?'Organizer':((users.find(u=>u.uid===uid)||{}).name||'—');
+    const me=(window._cru||{}).uid;
+    const mine=rooms.find(r=>(r.slots||[]).includes(me));
+    const placed=new Set(rooms.flatMap(r=>(r.slots||[]).filter(Boolean)));
+    const unplaced=users.filter(u=>!placed.has(u.uid));
+    body=(admin?`<div class="card"><div class="chead"><span>Add a cabin</span></div>
+      <div class="plform">
+        <div class="plrow1">
+          <input id="rm_num" placeholder="Cabin no. (e.g. 10254)" maxlength="10">
+          <select id="rm_cat">${cats.map(k=>`<option value="${k.id}">${k.n}</option>`).join('')}</select>
+        </div>
+        <input id="rm_note" placeholder="Deck / note (optional)" maxlength="60">
+        <button class="pladd" type="button" onclick="addRoom()" style="align-self:flex-start;padding:8px 14px">+ Add cabin</button>
+      </div></div>`:'')+
+      `<div class="card"><div class="chead"><span>🛏 Cabins</span><span>${placed.size}/${rooms.length*2} slots taken</span></div>
+      ${rooms.length?rooms.map(r=>{
+        const k=cats.find(x=>x.id===r.cat)||{n:r.cat,d:'',sq:'',tone:'#5B7185'};
+        const slots=(r.slots||[null,null]);
+        return `<div style="display:flex;gap:11px;padding:11px 13px;border-bottom:1px dotted var(--rule);align-items:flex-start">
+          <span style="flex:0 0 42px;height:42px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 9px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>
+          <span style="flex:1;min-width:0">
+            <span style="font-size:13.5px;font-weight:600;color:var(--ink)">${esc(r.num||'Cabin')}</span>
+            <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--indigo2);margin-top:1px">${esc(k.n)}${k.sq?' · '+esc(k.sq):''}</span>
+            ${k.d?`<span style="display:block;font-size:11px;color:var(--grey);margin-top:2px">${esc(k.d)}</span>`:''}
+            ${r.note?`<span style="display:block;font-size:11px;color:var(--grey);margin-top:2px">${esc(r.note)}</span>`:''}
+            <span style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap">
+              ${slots.map((uid,i)=>{
+                if(uid) return `<span style="flex:1 1 120px;border:1.5px solid ${uid===me?'var(--moss)':'var(--rule)'};background:${uid===me?'rgba(47,125,107,.09)':'var(--washi2)'};border-radius:2px;padding:6px 9px;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:6px">
+                  <b>${esc(nameOf(uid))}</b>${(uid===me||admin)?`<button onclick="leaveSlot('${r.id}',${i})" style="background:none;border:none;color:var(--clay);cursor:pointer;font:600 9px var(--mono);text-transform:uppercase">${uid===me?'Release':'Clear'}</button>`:''}</span>`;
+                return `<button onclick="takeSlot('${r.id}',${i})" style="flex:1 1 120px;border:1.5px dashed var(--indigo2);background:none;border-radius:2px;padding:6px 9px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--indigo2);cursor:pointer">${mine&&mine.id===r.id?'Take 2nd slot':'Take this slot'}</button>`;
+              }).join('')}
+            </span>
+          </span>
+          ${admin?`<button class="tdo-x" onclick="delRoom('${r.id}')" style="color:var(--clay);font-size:17px">×</button>`:''}
+        </div>`;
+      }).join(''):'<div style="padding:13px;font-size:12px;color:var(--grey)">No cabins added yet.</div>'}
+      </div>
+      ${unplaced.length?`<div class="card"><div class="chead"><span>Not in a cabin yet</span><span>${unplaced.length}</span></div>
+        <div style="padding:10px 13px;font-size:12.5px;color:var(--grey)">${unplaced.map(u=>esc(u.name)).join(' · ')}</div></div>`:''}`;
+  }
+  if(c.cruiseTab==='cexp'||c.cruiseTab==='clog'){
+    const what={cexp:'Per-person expenses, the itemized cruise invoice, and paid-vs-unpaid tracking',
       clog:'Your flights in, feeding the organizer\'s transport plan'}[c.cruiseTab];
     body=`<div class="card"><div class="chead"><span>Coming in the next build</span></div>
       <div style="padding:14px;font-size:13px;color:var(--grey)">${what}. The tab is here so the shape of the app is testable — say the word and it gets built next.</div></div>`;
@@ -1430,6 +1491,44 @@ window.editSched=function(id){
 window.delSched=function(id){
   if(!confirm('Remove this from the schedule?'))return;
   overrides.sched=(overrides.sched||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.addRoom=function(){
+  const g=i=>document.getElementById(i);
+  const num=g('rm_num').value.trim();
+  if(!num){g('rm_num').focus();return;}
+  overrides.rooms=overrides.rooms||[];
+  overrides.rooms.push({id:'r'+Date.now(),num,cat:g('rm_cat').value,note:g('rm_note').value.trim(),slots:[null,null]});
+  saveOverrides();render();
+};
+window.delRoom=function(id){
+  const r=(overrides.rooms||[]).find(x=>x.id===id);
+  if(!r)return;
+  const occupied=(r.slots||[]).filter(Boolean).length;
+  if(!confirm('Remove cabin '+r.num+(occupied?' and unassign '+occupied+' guest'+(occupied>1?'s':''):'')+'?'))return;
+  overrides.rooms=(overrides.rooms||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.takeSlot=function(rid,i){
+  const me=(window._cru||{}).uid;
+  if(!me)return;
+  overrides.rooms=overrides.rooms||[];
+  const r=overrides.rooms.find(x=>x.id===rid);
+  if(!r)return;
+  r.slots=r.slots||[null,null];
+  if(r.slots[i]){alert('Someone just took that slot.');render();return;}
+  // one slot per person: release anything else held first
+  overrides.rooms.forEach(rr=>{rr.slots=(rr.slots||[null,null]).map(u=>u===me?null:u);});
+  r.slots[i]=me;
+  saveOverrides();render();
+};
+window.leaveSlot=function(rid,i){
+  const me=(window._cru||{}).uid, admin=cruRole()==='admin';
+  const r=(overrides.rooms||[]).find(x=>x.id===rid);
+  if(!r)return;
+  if(r.slots[i]!==me&&!admin)return;
+  if(r.slots[i]!==me&&admin&&!confirm('Clear this slot?'))return;
+  r.slots[i]=null;
   saveOverrides();render();
 };
 window.addUser=function(){
@@ -1943,6 +2042,7 @@ function applyTripData(id){
   const ti=document.getElementById('tripTitle');if(ti)ti.textContent=t.title;
   const kk=document.getElementById('kickerTxt');if(kk)kk.textContent=t.kicker;
   const nbs=document.querySelector('.nb-sun');if(nbs)nbs.textContent=t.emoji||'🧭';
+  document.body.classList.toggle('cruise',!!t.cruise);
   document.title=t.title;
   buildNav();
   drawCountdown();

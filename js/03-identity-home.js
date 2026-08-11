@@ -153,7 +153,7 @@ const AB_TEAM=[
   bio:'Planner-in-chief. Sets the vision, owns the itineraries, negotiates with reservation lines across three time zones, and field-tests every feature on real trips.'},
  {n:'Jayden We',role:'UI/UX Designer',img:'', // paste a photo link here when ready
   bio:'Shaped the design language the app speaks today — the dashboard layout, the card system, the calendar, and the Lora + Inter typography.'},
- {n:'Fable 5 (Claude)',role:'Developer',img:'https://claude.ai/apple-touch-icon.png',
+ {n:'Fable 5 (Claude)',role:'Developer',img:'data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22%23D97757%22/%3E%3Cg%20stroke%3D%22%23FAF6EE%22%20stroke-width%3D%227.5%22%20stroke-linecap%3D%22round%22%3E%3Cline%20x1%3D%2263.9%22%20y1%3D%2251.9%22%20x2%3D%2289.6%22%20y2%3D%2255.6%22/%3E%3Cline%20x1%3D%2261.0%22%20y1%3D%2258.6%22%20x2%3D%2276.8%22%20y2%3D%2270.9%22/%3E%3Cline%20x1%3D%2255.2%22%20y1%3D%2263.0%22%20x2%3D%2262.7%22%20y2%3D%2281.5%22/%3E%3Cline%20x1%3D%2248.1%22%20y1%3D%2263.9%22%20x2%3D%2244.4%22%20y2%3D%2289.6%22/%3E%3Cline%20x1%3D%2241.4%22%20y1%3D%2261.0%22%20x2%3D%2229.1%22%20y2%3D%2276.8%22/%3E%3Cline%20x1%3D%2237.0%22%20y1%3D%2255.2%22%20x2%3D%2218.5%22%20y2%3D%2262.7%22/%3E%3Cline%20x1%3D%2236.1%22%20y1%3D%2248.1%22%20x2%3D%2210.4%22%20y2%3D%2244.4%22/%3E%3Cline%20x1%3D%2239.0%22%20y1%3D%2241.4%22%20x2%3D%2223.2%22%20y2%3D%2229.1%22/%3E%3Cline%20x1%3D%2244.8%22%20y1%3D%2237.0%22%20x2%3D%2237.3%22%20y2%3D%2218.5%22/%3E%3Cline%20x1%3D%2251.9%22%20y1%3D%2236.1%22%20x2%3D%2255.6%22%20y2%3D%2210.4%22/%3E%3Cline%20x1%3D%2258.6%22%20y1%3D%2239.0%22%20x2%3D%2270.9%22%20y2%3D%2223.2%22/%3E%3Cline%20x1%3D%2263.0%22%20y1%3D%2244.8%22%20x2%3D%2281.5%22%20y2%3D%2237.3%22/%3E%3C/g%3E%3C/svg%3E',
   bio:'An AI assistant made by Anthropic. Built this app pair-programming with Wesley across late-night sessions: the trip engine, the group-travel and cruise modules, the access system, and a few hundred fixes shipped one screenshot at a time. Runs on curiosity and cache-busted deploys.'}
 ];
 window.openAbout=function(){
@@ -167,7 +167,7 @@ window.openAbout=function(){
     <h2 class="ab-h">About us</h2>
     <p class="ab-sub">The small team behind the journal.</p>
     ${AB_TEAM.map(p=>`<div class="ab-row">
-      ${p.img?`<img class="ab-ava" src="${esc(p.img)}" alt="${esc(p.n)}" onerror="this.outerHTML='<span class\'ab-ava ab-ini\'>${esc(p.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>'">`
+      ${p.img?`<img class="ab-ava" src="${esc(p.img)}" alt="" data-ini="${esc(p.n.split(' ').map(x=>x[0]).join('').slice(0,2))}" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'ab-ava ab-ini',textContent:this.dataset.ini}))">`
         :`<span class="ab-ava ab-ini">${esc(p.n.split(' ').map(x=>x[0]).join('').slice(0,2))}</span>`}
       <div class="ab-main">
         <div class="ab-name">${esc(p.n)}<span class="ab-role">${esc(p.role)}</span></div>

@@ -320,3 +320,12 @@
   .f-logos svg { height: 20px; width: auto; }
   .f-logos a { display:flex; align-items:center; opacity:.9; transition:opacity .15s }
   .f-logos a:hover { opacity:1 }
+
+/* ---- Large-display scaling ----------------------------------------------
+   The layout is tuned for laptop/iPad widths; on 2K/4K monitors it rendered
+   tiny with acres of margin. Zoom scales type, spacing and cards together
+   (supported in all Chromium/WebKit and Firefox 126+). Untouched below
+   1800px, so iPad/laptop stay exactly as they are. */
+@media (min-width:1800px){ body{zoom:1.22} }
+@media (min-width:2400px){ body{zoom:1.5} }
+@media (min-width:3400px){ body{zoom:1.85} }

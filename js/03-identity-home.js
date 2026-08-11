@@ -15,9 +15,9 @@ const TRIPS=[
   photo:wm('Seongsan_Ilchulbong_from_the_air.jpg'),credit:'Seongsan Ilchulbong · KOCIS, CC BY-SA 2.0',status:'group'},
  {id:'cruise-2028',country:'Caribbean',title:'Icon Class Cruise, January 2028',dates:'9–16 January 2028 · Star of the Seas',emoji:'🚢',
   photo:wm('Icon_of_the_Seas.jpg'),credit:'Icon of the Seas · Wikimedia Commons',status:'group',theme:'ocean'},
- {id:'hawaii-2028',country:'Hawaii',title:'Hawaii, December 2028',dates:'10–19 December · 10th anniversary',emoji:'🌺',
+ {id:'hawaii-2028',country:'The 10th Anniversary',title:'Hawaii, December 2028',dates:'10–19 December 2028',emoji:'🌺',
   photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'wip'},
- {id:'hawaii-2029',country:'Hawaii',title:'Hawaii, March 2029',dates:'9–18 March 2029',emoji:'🏝',
+ {id:'hawaii-2029',country:'Spring Break',title:'Hawaii, March 2029',dates:'9–18 March 2029',emoji:'🏝',
   photo:wm('Waikiki_Beach_(2024)-L1004709.jpg'),credit:'Waikīkī & Diamond Head · Frank Schulenburg, CC BY-SA 4.0',status:'wip'}
 ];
 let tripSel=null;                 // never restored from storage: every reload

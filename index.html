@@ -46,7 +46,7 @@
   .sidenav{flex:0 0 236px;width:236px;position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;background:var(--washi2);border-right:1px solid var(--rule);display:flex;flex-direction:column;transition:width .22s ease,flex-basis .22s ease;z-index:1400;scrollbar-width:thin}
   .nav-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 12px;border-bottom:2px solid var(--ink)}
   .nav-brand{display:flex;align-items:center;gap:8px;min-width:0}
-  .nav-brand .nb-sun{width:20px;height:20px;border-radius:50%;background:#bc002d;flex:0 0 20px;box-shadow:inset 0 0 0 1.5px var(--washi)}
+  .nav-brand .nb-sun{font-size:15px;line-height:1;margin-right:2px}
   .nav-brand .nb-t{font-family:var(--serif);font-size:15px;color:var(--indigo);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .nav-collapse{border:1.5px solid var(--rule);background:none;color:var(--grey);border-radius:2px;width:24px;height:24px;cursor:pointer;font:700 11px var(--mono);line-height:1;flex:0 0 24px}
   .nav-collapse:hover{border-color:var(--indigo);color:var(--indigo)}
@@ -284,7 +284,7 @@
 <div class="shell" id="shell">
 <aside class="sidenav" id="sidenav" aria-label="Trip navigation">
   <div class="nav-head">
-    <span class="nav-brand"><span class="nb-sun"></span><span class="nb-t">Japan · Nov '26</span></span>
+    <span class="nav-brand"><span class="nb-sun">🇯🇵</span><span class="nb-t">Japan · Nov '26</span></span>
     <button class="nav-collapse" id="navCollapse" type="button" title="Collapse menu" aria-label="Collapse menu">«</button>
   </div>
   <nav id="navlist"></nav>
@@ -296,10 +296,7 @@
     <div>
       <div class="kicker"><span id="kickerTxt">Anniversary trip · 17–27 Nov 2026</span> · <span id="countdown"></span></div>
       <h1>
-        <span id="tripFlag"><svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
-          <rect width="900" height="600" fill="#ffffff"/>
-          <circle cx="450" cy="300" r="180" fill="#bc002d"/>
-        </svg></span><span id="tripTitle">Japan, November 2026</span>
+<span id="tripTitle">Japan, November 2026</span>
       </h1>
     </div>
     <span style="display:flex;gap:8px;align-items:center">
@@ -540,14 +537,29 @@ var TRIP_TZ='Asia/Tokyo',TRIP_MON=11,CUR={code:'JPY',sym:'¥',key:'jpy',fallback
 const shell=document.getElementById('shell'),navlist=document.getElementById('navlist');
 /* Rebuilt on every trip switch — a nav built once from Japan would index
    into Korea's array and open the wrong tab. */
+let devMode=false;
+try{devMode=localStorage.getItem('jt_dev')==='1';}catch(e){}
+const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'developer mode',addrest:true};
+function navCities(){
+  const list=CITIES.slice();
+  if(devMode&&!list.some(c=>c.addrest))list.push(DEV_TAB);
+  return list;
+}
+window.toggleDev=function(on){
+  devMode=on;
+  try{localStorage.setItem('jt_dev',on?'1':'0');}catch(e){}
+  if(!on)ci=0;
+  buildNav();render();
+};
 function buildNav(){
   const t=(typeof TRIP_DATA!=='undefined'&&TRIP_DATA[tripKey()])||null;
   const ico=(t&&t.navIcons)||{}, secs=(t&&t.navSecs)||{};
-  navlist.innerHTML=CITIES.map((c,i)=>
+  navlist.innerHTML=navCities().map((c,i)=>
     (i===0?'<div class="nvsec">Now</div>':'')+
     (secs[c.id]?`<div class="nvsec">${secs[c.id]}</div>`:'')+
     `<button class="nvi" data-i="${i}" title="${c.city}"><span class="nvic">${ico[c.id]||'•'}</span><span class="nvtx"><span class="nv1">${c.city}</span><span class="nv2">${c.sub}</span></span></button>`
-  ).join('');
+  ).join('')+`<label style="display:flex;align-items:center;gap:7px;padding:13px 14px 6px;font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);cursor:pointer">
+      <input type="checkbox" ${devMode?'checked':''} onchange="toggleDev(this.checked)" style="width:13px;height:13px;accent-color:var(--clay)"> Developer mode</label>`;
   navlist.querySelectorAll('.nvi').forEach(b=>b.onclick=()=>{ci=+b.dataset.i;sel=null;selPoi=null;cat='all';shell.classList.remove('drawer');render();});
 }
 function refreshNav(){navlist.querySelectorAll('.nvi').forEach(b=>{const on=+b.dataset.i===ci;b.classList.toggle('on',on);if(on)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});}
@@ -589,7 +601,7 @@ function buildMap(c){
   const bounds=[[hotel.lat,hotel.lng]];
 
   // day loops: hotel → meals(in day order) → hotel
-  const byDay={};c.stops.forEach(st=>{(byDay[st.d]=byDay[st.d]||[]).push(st);});
+  const byDay={};stopsFor(c).forEach(st=>{(byDay[st.d]=byDay[st.d]||[]).push(st);});
   Object.values(byDay).forEach(ms=>{
     const pts=[[hotel.lat,hotel.lng],...ms.map(s=>[s.lat,s.lng]),[hotel.lat,hotel.lng]];
     const far=ms.some(s=>Math.hypot(s.lat-hotel.lat,(s.lng-hotel.lng)*0.82)*111>15);
@@ -605,7 +617,7 @@ function buildMap(c){
   }
 
   // meals
-  c.stops.forEach(s=>{
+  stopsFor(c).forEach(s=>{
     const e=eff(s);
     const m=L.marker([s.lat,s.lng],{icon:icon(s.id,sel===s.id?28:22,sel===s.id?'on':'')}).addTo(map);
 
@@ -663,7 +675,7 @@ function buildMap(c){
   legend.addTo(map);
 }
 function refreshIcons(c){
-  c.stops.forEach(s=>{const m=markers['m'+s.id];if(m)m.setIcon(icon(s.id,sel===s.id?28:22,sel===s.id?'on':''));});
+  stopsFor(c).forEach(s=>{const m=markers['m'+s.id];if(m)m.setIcon(icon(s.id,sel===s.id?28:22,sel===s.id?'on':''));});
   c.pois.forEach((p,i)=>{const m=markers['p'+i];if(m)m.setIcon(icon(`<span>${p.ic}</span>`,selPoi===i?26:20,'mk-poi'+(selPoi===i?' on':'')));});
 }
 
@@ -768,10 +780,14 @@ const TRIPS=[
  {id:'korea-2027',country:'South Korea',title:'Korea, May 2027',dates:'7–18 May 2027',
   blurb:'Planning starts later — Seoul and beyond',
   photo:wm('Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg'),
-  credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'}
+  credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'},
+ {id:'cruise-2028',country:'Caribbean',title:'Icon Class Cruise, January 2028',dates:'January 2028',emoji:'🚢',
+  photo:wm('Icon_of_the_Seas.jpg'),credit:'Icon of the Seas · Wikimedia Commons',status:'idea'},
+ {id:'hawaii-2028',country:'Hawaii',title:'Hawaii, December 2028',dates:'December 2028',emoji:'🌺',
+  photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'idea'}
 ];
-let tripSel=null;
-try{tripSel=localStorage.getItem('jt_trip');}catch(e){}
+let tripSel=null;                 // never restored from storage: every reload
+const _unlocked={};               // starts at the picker, and coded trips relock
 function renderHome(){
   document.body.classList.add('home');
   panel.innerHTML=`
@@ -782,27 +798,24 @@ function renderHome(){
   </div>
   <div class="trips">
     ${TRIPS.map(t=>`
-      <button class="trip ${(t.code&&!tripUnlocked(t))||tripArchived(t)?'soon':''}" type="button" onclick="openTrip('${t.id}')">
-        ${t.status==='wip'?`<span class="ribbon">${tripUnlocked(t)?'Work in progress':'🔒 Work in progress'}</span>`:(tripArchived(t)?'<span class="ribbon" style="background:var(--grey)">Archived</span>':'')}
+      <button class="trip ${t.status==='idea'||(t.code&&!tripUnlocked(t))||tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
+        ${t.status==='idea'?'<span class="ribbon" style="background:var(--plum)">Someday</span>':(t.status==='wip'?`<span class="ribbon">${tripUnlocked(t)?'Work in progress':'🔒 Work in progress'}</span>`:(tripArchived(t)?'<span class="ribbon" style="background:var(--grey)">Archived</span>':''))}
         <div class="ph">
           <img src="${t.photo}" alt="${esc(t.country)}" loading="lazy"
                onerror="this.style.display='none'">
           <div class="cap">
-            <div class="cn">${esc(t.country)}</div>
+            <div class="cn">${t.emoji?t.emoji+' ':''}${esc(t.country)}</div>
             <div class="ct">${esc(t.title)}</div>
             <div class="cd">${esc(t.dates)}</div>
           </div>
         </div>
-        <div class="bar"><span>${t.code&&!tripUnlocked(t)?'🔒 Access code':(tripArchived(t)?'Open · read-only →':'Open trip →')}</span>
+        <div class="bar"><span>${t.status==='idea'?'Not planned yet':(t.code&&!tripUnlocked(t)?'🔒 Access code':(tripArchived(t)?'Open · read-only →':'Open trip →'))}</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>
-  <div class="home-foot">${esc(TRIPS.find(t=>t.id==='japan-2026').blurb)}<br>Photos via Wikimedia Commons under their stated licences.</div>`;
+  <div class="home-foot">Photos via Wikimedia Commons under their stated licences.</div>`;
 }
-function tripUnlocked(t){
-  if(!t||!t.code)return true;
-  try{return localStorage.getItem('jt_unlock_'+t.id)==='1';}catch(e){return false;}
-}
+function tripUnlocked(t){ return !t||!t.code||_unlocked[t.id]===true; }
 /* A trip becomes read-only once its own end date has passed. Purely per trip:
    an archived trip never affects a live one. */
 function tripArchived(t){
@@ -820,20 +833,15 @@ window.openTrip=function(id){
     const v=prompt(tr.title+' is still being built.\nEnter the access code:');
     if(v===null)return;
     if(String(v).trim()!==tr.code){alert('That code is not right.');return;}
-    try{localStorage.setItem('jt_unlock_'+id,'1');}catch(e){}
+    _unlocked[id]=true;
   }
   tripSel=id;
-  try{localStorage.setItem('jt_trip',id);}catch(e){}
   applyTripData(id);
   bindTrip();
   document.body.classList.remove('home');
   render();
 };
-window.backToTrips=function(){
-  tripSel=null;
-  try{localStorage.removeItem('jt_trip');}catch(e){}
-  renderHome();
-};
+window.backToTrips=function(){ tripSel=null; renderHome(); };
 
 /* ---------------- TO-DO / PREP TRACKER ---------------- */
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
@@ -1013,7 +1021,7 @@ function cityDefaultDate(c){
   return '11/17';
 }
 function refreshPanel(){
-  const c=CITIES[ci];
+  const c=navCities()[ci]||CITIES[0];
   if(c.today){renderToday();}
   else if(c.stops){renderSide(c);}
   else{render();}
@@ -1136,14 +1144,110 @@ function placeLeftCards(){
 }
 if(LC_MQ.addEventListener)LC_MQ.addEventListener('change',()=>render());
 
+/* ---------------- ADD RESTAURANT (developer mode) ---------------- */
+/* Pulls lat/lng out of a pasted Google Maps URL: @lat,lng / !3d..!4d.. / q=lat,lng */
+function parseLatLng(u){
+  if(!u)return null;
+  let m=u.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/); if(m)return [+m[1],+m[2]];
+  m=u.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/); if(m)return [+m[1],+m[2]];
+  m=u.match(/[?&]q=(-?\d+\.\d+),\s*(-?\d+\.\d+)/); if(m)return [+m[1],+m[2]];
+  m=u.match(/^\s*(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)\s*$/); if(m)return [+m[1],+m[2]];
+  return null;
+}
+function nextStopId(){
+  const ids=allCityStops().map(s=>Number(s.id)||0);
+  return Math.max(100,...ids)+1;
+}
+function renderAddRestaurant(){
+  const cities=CITIES.filter(c=>c.stops);
+  const mine=(overrides.stops||[]);
+  const F=(id,label,ph,type)=>`<label style="display:block;margin-bottom:9px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">${label}</span>
+    <input id="${id}" type="${type||'text'}" placeholder="${ph||''}" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"></label>`;
+  panel.innerHTML=`<div class="stack" style="max-width:720px;margin:0 auto">
+    <div class="card">
+      <div class="chead"><span>🛠 Add a restaurant</span><span>${mine.length} added</span></div>
+      <div style="padding:13px 15px">
+        <div class="note" style="margin-bottom:11px">Everything you add here is saved with this trip and behaves exactly like a built-in stop — map pin, meal card, budget, Still-to-book and the Vault.</div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <label style="flex:1 1 150px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">City</span>
+            <select id="ar_city" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff">${cities.map(c=>`<option value="${c.id}">${c.city}</option>`).join('')}</select></label>
+          <label style="flex:1 1 110px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Day</span>
+            <select id="ar_day" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff">${tripDates().map(d=>`<option>${d}</option>`).join('')}</select></label>
+          <label style="flex:1 1 110px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Meal</span>
+            <select id="ar_meal" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"><option>Breakfast</option><option selected>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
+        </div>
+        <div style="height:9px"></div>
+        ${F('ar_name','Name','e.g. Tousuiro Gion')}
+        ${F('ar_q','Local-language name (for the map link)','豆水楼 祇園店 — optional but makes Maps resolve')}
+        ${F('ar_dish','Dish / what it is','Yudōfu & tofu kaiseki')}
+        ${F('ar_hrs','Hours','11:30–14:00 · 17:00–21:00 daily')}
+        ${F('ar_area','Area / address line','Bishamonchō, Higashiyama-ku · Gion')}
+        ${F('ar_url','Google Maps link','paste the URL — the pin is read from it')}
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <label style="flex:1 1 120px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Booking</span>
+            <select id="ar_res" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"><option value="book">To book</option><option value="ok">Booked</option><option value="walk">Walk-in</option></select></label>
+          <label style="flex:1 1 120px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Payment</span>
+            <select id="ar_pay" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"><option value="">—</option><option value="cash">Cash only</option><option value="card">Cards OK</option></select></label>
+          <label style="flex:1 1 120px"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">Budget (${CUR.sym}, for two)</span>
+            <input id="ar_jpy" type="number" min="0" placeholder="12000" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"></label>
+        </div>
+        <div style="height:2px"></div>
+        ${F('ar_note','Note (blue box on the card)','')}
+        ${F('ar_warn','Warning (red box — booking deadlines, closures)','')}
+        <div style="display:flex;gap:9px;align-items:center;margin-top:11px">
+          <button class="pladd" type="button" onclick="saveRestaurant()" style="padding:9px 16px">+ Add restaurant</button>
+          <span id="ar_msg" style="font:10px var(--mono);color:var(--grey)"></span>
+        </div>
+      </div>
+    </div>
+    ${mine.length?`<div class="card"><div class="chead"><span>Added on this trip</span></div>
+      ${mine.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.name)}</span><span class="tdo-desc">${esc(x.d)} · ${esc(x.m)} · ${esc((CITIES.find(c=>c.id===x.city)||{}).city||x.city)}${x.lat?'':' · no map pin'}</span></span>
+        <button class="tdo-x" onclick="delRestaurant(${x.id})" style="color:var(--clay);font-size:17px">×</button></div>`).join('')}</div>`:''}
+  </div>`;
+}
+window.saveRestaurant=function(){
+  const g=i=>document.getElementById(i), v=i=>(g(i)?g(i).value.trim():'');
+  const msg=g('ar_msg');
+  if(!v('ar_name')){msg.textContent='Name is required.';return;}
+  const ll=parseLatLng(v('ar_url'));
+  const rec={id:nextStopId(),city:v('ar_city'),d:v('ar_day'),m:v('ar_meal'),name:v('ar_name'),
+    dish:v('ar_dish')||'—',hrs:v('ar_hrs')||'—',area:v('ar_area')||'',res:v('ar_res'),
+    jpy:Number(v('ar_jpy'))||0,custom:true};
+  if(v('ar_q'))rec.q=v('ar_q');
+  if(v('ar_pay'))rec.pay=v('ar_pay');
+  if(v('ar_note'))rec.note=v('ar_note');
+  if(v('ar_warn'))rec.warn=v('ar_warn');
+  if(v('ar_url'))rec.url=v('ar_url');
+  if(ll){rec.lat=ll[0];rec.lng=ll[1];}
+  overrides.stops=overrides.stops||[];
+  overrides.stops.push(rec);
+  saveOverrides();
+  renderAddRestaurant();
+  const m2=document.getElementById('ar_msg');
+  if(m2)m2.textContent=ll?'Added with a map pin ✓':'Added — no coordinates found in that link, so it has no map pin.';
+};
+window.delRestaurant=function(id){
+  if(!confirm('Remove this restaurant?'))return;
+  overrides.stops=(overrides.stops||[]).filter(x=>x.id!==id);
+  saveOverrides();renderAddRestaurant();
+};
+
+/* Static stops from the trip file + anything added in the app. */
+function stopsFor(c){
+  if(!c||!c.stops)return (c&&c.stops)||[];
+  const extra=(overrides.stops||[]).filter(x=>x.city===c.id);
+  return extra.length?c.stops.concat(extra):c.stops;
+}
+function allCityStops(){ return CITIES.filter(c=>c.stops).flatMap(c=>stopsFor(c)); }
+
 function renderSide(c){
   const hotel=HOTELS[c.hotel];
-  const total=c.stops.reduce((a,s)=>a+Number(eff(s).jpy),0);
-  const spent=c.stops.reduce((a,s)=>a+(Number(eff(s).actualJpy)||0),0);
+  const total=stopsFor(c).reduce((a,s)=>a+(Number(eff(s).jpy)||0),0);
+  const spent=stopsFor(c).reduce((a,s)=>a+(Number(eff(s).actualJpy)||0),0);
   const visPois=c.pois.map((p,i)=>({...p,i})).filter(p=>cat==='all'||p.c===cat);
   document.getElementById('side').innerHTML=`
     ${renderPlansCard(c)}
-    <div class="card"><div class="chead"><span>Meals</span><span>Plan ¥${total.toLocaleString()}${spent?` · Spent ¥${spent.toLocaleString()}`:''}</span></div>${c.stops.map(mealCard).join('')}</div>
+    <div class="card"><div class="chead"><span>Meals</span><span>Plan ¥${total.toLocaleString()}${spent?` · Spent ¥${spent.toLocaleString()}`:''}</span></div>${stopsFor(c).map(mealCard).join('')||`<div style="padding:11px 13px;font-size:12px;color:var(--grey)">No restaurants yet — turn on Developer mode in the sidebar and use the Add restaurant tab.</div>`}</div>
     <div class="card"><div class="chead"><span>Getting there & away</span></div>
       ${c.legs.map(l=>`<div class="leg"><div class="lr">${l.r}</div><div class="lm">${l.m}</div><div class="note">${l.n}</div></div>`).join('')}</div>
     ${c.lounges?`<div class="card"><div class="chead"><span>Airport lounges</span><span>with Amex Plat / Priority Pass</span></div>
@@ -1193,7 +1297,7 @@ function renderSide(c){
 }
 
 function syncMealExpense(id){
-  const stop = CITIES.filter(c=>c.stops).flatMap(c=>c.stops).find(s=>s.id===id);
+  const stop = allCityStops().find(s=>s.id===id);
   if(!stop) return;
   const o = overrides[id]||{};
   overrides.expenses = overrides.expenses||[];
@@ -1267,7 +1371,7 @@ window.tryUnlock=function(){
 
 function renderVault(){
   if(!window._privUnlocked){renderLock();return;}
-  const meals=CITIES.filter(c=>c.stops).flatMap(c=>c.stops.map(s=>({...s,cityName:c.city})));
+  const meals=CITIES.filter(c=>c.stops).flatMap(c=>stopsFor(c).map(s=>({...s,cityName:c.city})));
   const sec=t=>`<div style="font:600 10px var(--mono);color:var(--indigo);text-transform:uppercase;margin:14px 0 4px;">${t}</div>`;
   panel.innerHTML=`<div class="card" style="max-width:850px;margin:0 auto;">
     <div class="chead"><span>Reservation Vault</span><span>saves on blur · syncs to cloud</span></div>
@@ -1309,7 +1413,7 @@ function renderExpenses() {
   const paidPct = total > 0 ? Math.min(100, (totalPaid / total) * 100) : 0;
 
   // Budget vs. actual — meal plan (live, respects your edits) vs. logged Food + POI & Cafe spend
-  const mealBudgetJpy = CITIES.filter(c=>c.stops).flatMap(c=>c.stops)
+  const mealBudgetJpy = allCityStops()
       .reduce((a,s)=>a+Number(eff(s).jpy),0);
   const mealBudgetUsd = mealBudgetJpy / liveRate;
   const foodSpentUsd  = actuals.filter(e=>e.cat==="Food"||e.cat==="POI & Cafe")
@@ -1365,7 +1469,7 @@ function renderExpenses() {
         <div style="height:100%; width:${foodPct}%; background:${foodOver?'var(--clay)':foodPct>80?'#C9A227':'var(--moss)'}; transition:width .3s;"></div>
       </div>
       <div style="font:9px var(--mono); color:var(--grey); margin-top:5px;">
-        Budget = your ${CITIES.filter(c=>c.stops).flatMap(c=>c.stops).length} planned meals (¥${mealBudgetJpy.toLocaleString()}) at today's rate · counts Food + POI & Cafe expenses
+        Budget = your ${allCityStops().length} planned meals (¥${mealBudgetJpy.toLocaleString()}) at today's rate · counts Food + POI & Cafe expenses
       </div>
     </div>
     
@@ -1607,12 +1711,12 @@ function applyTripData(id){
   const f=document.querySelector('.nav-foot');if(f)f.textContent=t.foot;
   const ti=document.getElementById('tripTitle');if(ti)ti.textContent=t.title;
   const kk=document.getElementById('kickerTxt');if(kk)kk.textContent=t.kicker;
-  const fl=document.getElementById('tripFlag');if(fl&&t.flag)fl.innerHTML=t.flag;
+  const nbs=document.querySelector('.nb-sun');if(nbs)nbs.textContent=t.emoji||'🧭';
   document.title=t.title;
   buildNav();
   drawCountdown();
 }
-function applyRememberedTrip(){ if(tripSel&&TRIP_DATA[tripSel])applyTripData(tripSel); }
+
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function tokyoToday(){
   const parts=new Intl.DateTimeFormat('en-US',{timeZone:TRIP_TZ,year:'numeric',month:'numeric',day:'numeric',weekday:'long'}).formatToParts(new Date());
@@ -1630,7 +1734,7 @@ function renderToday(){
   const pre=key<ymd(dep), post=key>ymd(fin), inTrip=!pre&&!post;
   const tripDays=Math.round((Date.UTC(fin[0],fin[1],fin[2])-Date.UTC(arr[0],arr[1],arr[2]))/86400000)+1;
   const dateLine=`${t.w} · ${MONTH_NAMES[t.m-1]} ${t.d} · ${TRIP_TZ.split('/')[1].replace('_',' ')}`;
-  const allStops=CITIES.map((c,i)=>c.stops?c.stops.map(x=>({...eff(x),cityName:c.city,ci:i})):[]).flat();
+  const allStops=CITIES.map((c,i)=>c.stops?stopsFor(c).map(x=>({...eff(x),cityName:c.city,ci:i})):[]).flat();
   let html=`<div class="td-stack"><div class="card td-hero"><div class="td-date">${dateLine}</div>`;
   if(pre){
     const days=Math.round((Date.UTC(dep[0],dep[1],dep[2])-Date.UTC(t.y,t.m-1,t.d))/86400000);
@@ -1808,7 +1912,10 @@ function renderCalc() {
 function render(){
   if(!tripSel){renderHome();return;}
   refreshNav();
-  const c=CITIES[ci];
+  const NAVC=navCities(); if(ci>=NAVC.length)ci=0;
+  const c=NAVC[ci];
+
+  if(c.addrest){ if(map){map.remove();map=null;} renderAddRestaurant(); return; }
 
   if(c.today){
     if(map){map.remove();map=null;}
@@ -1852,7 +1959,7 @@ function render(){
   buildMap(c);
   renderSide(c);
 }
-loadOverrides().then(()=>{applyRememberedTrip();buildNav();drawCountdown();render();});
+loadOverrides().then(()=>{buildNav();drawCountdown();render();});
 
 /* ---------------- COUNTDOWN ---------------- */
 function drawCountdown(){

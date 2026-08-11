@@ -316,7 +316,7 @@ var HOTELS = {
 var TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
 
 window.TRIPS_REGISTRY['japan-2026']={cities:CITIES,hotels:HOTELS,flights:FLIGHTS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
-   brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals",
+   emoji:'🇯🇵',brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals",
    title:"Japan, November 2026",kicker:"Anniversary trip · 15–27 Nov 2026",depart:[2026,10,15],arrive:[2026,10,17],end:[2026,10,27],
    navIcons:{today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'},
    navSecs:{yokohama:'Itinerary',flights:'Tools'},

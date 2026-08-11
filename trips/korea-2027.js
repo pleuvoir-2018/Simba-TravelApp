@@ -76,7 +76,7 @@ var KR_CITIES=[
 ];
 
 window.TRIPS_REGISTRY['korea-2027']={cities:KR_CITIES,hotels:KR_HOTELS,flights:KR_FLIGHTS,wx:KR_WX,todayCity:KR_TODAY_CITY,tonight:KR_TONIGHT,
-   brand:"Korea · May '27",foot:"7–18 May · Seoul & Jeju",
+   emoji:'🇰🇷',brand:"Korea · May '27",foot:"7–18 May · Seoul & Jeju",
    title:"Korea, May 2027",kicker:"7–18 May 2027",depart:[2027,4,7],arrive:[2027,4,7],end:[2027,4,18],
    navIcons:{today:'🗓️',todo:'✅',seoul:'🏯',jeju:'🍊',flights:'✈️',vault:'🗂️',expenses:'💳',calc:'💱'},
    navSecs:{seoul:'Itinerary',flights:'Tools'},

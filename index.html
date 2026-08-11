@@ -211,6 +211,11 @@
   .trip.soon:hover{transform:none;box-shadow:none}
   .trip.soon .ph img{filter:grayscale(1) brightness(.72)}
   .trip.soon .bar{color:var(--grey)}
+  .trip.ocean{border-color:#0B2545}
+  .trip.ocean .ph{background:linear-gradient(135deg,#0B2545,#13315C 55%,#1D5C8F)}
+  .trip.ocean .bar{background:#0B2545;color:#CFE4FF}
+  .trip.ocean .credit{color:#8FB3D9}
+  .trip.ocean.soon .ph img{filter:none}
   .ribbon{position:absolute;top:14px;left:0;z-index:3;background:var(--clay);color:#fff;
     font:600 9.5px var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:5px 13px 5px 16px;border-radius:0 2px 2px 0;box-shadow:0 2px 8px rgba(20,22,27,.3)}
   .home-foot{text-align:center;padding:0 0 40px;font:9.5px var(--mono);color:var(--grey);line-height:1.7}
@@ -352,6 +357,7 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="trips/japan-2026.js"></script>
 <script src="trips/korea-2027.js"></script>
+<script src="trips/cruise-2028.js"></script>
 <script>
 /* ---------------- DATA ---------------- */
 const NRT={n:"Narita Airport (NRT)",lat:35.7719,lng:140.3929};
@@ -541,8 +547,9 @@ let devMode=false;
 try{devMode=localStorage.getItem('jt_dev')==='1';}catch(e){}
 const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'developer mode',addrest:true};
 function navCities(){
-  const list=CITIES.slice();
-  if(devMode&&!list.some(c=>c.addrest))list.push(DEV_TAB);
+  let list=CITIES.slice();
+  if(list.some(c=>c.adminOnly)&&cruRole()!=='admin')list=list.filter(c=>!c.adminOnly);
+  if(devMode&&list.some(c=>c.stops)&&!list.some(c=>c.addrest))list.push(DEV_TAB);
   return list;
 }
 window.toggleDev=function(on){
@@ -781,8 +788,8 @@ const TRIPS=[
   blurb:'Planning starts later — Seoul and beyond',
   photo:wm('Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg'),
   credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'},
- {id:'cruise-2028',country:'Caribbean',title:'Icon Class Cruise, January 2028',dates:'January 2028',emoji:'🚢',
-  photo:wm('Icon_of_the_Seas.jpg'),credit:'Icon of the Seas · Wikimedia Commons',status:'idea'},
+ {id:'cruise-2028',country:'Caribbean',title:'Icon Class Cruise, January 2028',dates:'9–16 January 2028 · Star of the Seas',emoji:'🚢',
+  photo:wm('Icon_of_the_Seas.jpg'),credit:'Icon of the Seas · Wikimedia Commons',status:'group',theme:'ocean'},
  {id:'hawaii-2028',country:'Hawaii',title:'Hawaii, December 2028',dates:'December 2028',emoji:'🌺',
   photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'idea'}
 ];
@@ -798,8 +805,8 @@ function renderHome(){
   </div>
   <div class="trips">
     ${TRIPS.map(t=>`
-      <button class="trip ${t.status==='idea'||(t.code&&!tripUnlocked(t))||tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
-        ${t.status==='idea'?'<span class="ribbon" style="background:var(--plum)">Someday</span>':(t.status==='wip'?`<span class="ribbon">${tripUnlocked(t)?'Work in progress':'🔒 Work in progress'}</span>`:(tripArchived(t)?'<span class="ribbon" style="background:var(--grey)">Archived</span>':''))}
+      <button class="trip ${t.theme==='ocean'?'ocean':''} ${t.status==='idea'||(t.code&&!tripUnlocked(t))?'soon':''} ${tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
+        ${t.status==='idea'?'<span class="ribbon" style="background:var(--plum)">Someday</span>':(t.status==='group'?'<span class="ribbon" style="background:#0B2545">🔒 Group trip</span>':(t.status==='wip'?`<span class="ribbon">${tripUnlocked(t)?'Work in progress':'🔒 Work in progress'}</span>`:(tripArchived(t)?'<span class="ribbon" style="background:var(--grey)">Archived</span>':'')))}
         <div class="ph">
           <img src="${t.photo}" alt="${esc(t.country)}" loading="lazy"
                onerror="this.style.display='none'">
@@ -809,7 +816,7 @@ function renderHome(){
             <div class="cd">${esc(t.dates)}</div>
           </div>
         </div>
-        <div class="bar"><span>${t.status==='idea'?'Not planned yet':(t.code&&!tripUnlocked(t)?'🔒 Access code':(tripArchived(t)?'Open · read-only →':'Open trip →'))}</span>
+        <div class="bar"><span>${t.status==='idea'?'Not planned yet':(t.status==='group'?'🔒 Sign in with your code':(t.code&&!tripUnlocked(t)?'🔒 Access code':(tripArchived(t)?'Open · read-only →':'Open trip →')))}</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>
@@ -827,7 +834,39 @@ function currentArchived(){
   const t=(typeof TRIPS!=='undefined')&&TRIPS.find(x=>x.id===tripKey());
   return t?tripArchived(t):false;
 }
+const CRUISE_MASTER='THEO1218';
+window._cru=null;
+try{const raw=localStorage.getItem('jt_cru');if(raw)window._cru=JSON.parse(raw);}catch(e){}
+function cruRole(){return window._cru&&window._cru.role;}
+function cruName(){return (window._cru&&window._cru.name)||'';}
+function cruiseSignIn(id){
+  // a remembered session still valid?
+  const users=((store.trips&&store.trips[id])||{}).users||[];
+  if(window._cru){
+    if(window._cru.role==='admin')return true;
+    if(users.some(u=>u.uid===window._cru.uid))return true;
+    window._cru=null;
+  }
+  const v=prompt('This is a group trip.\nEnter YOUR access code:');
+  if(v===null)return false;
+  const code=String(v).trim().toUpperCase();
+  if(code===CRUISE_MASTER){window._cru={role:'admin',name:'Admin',uid:'admin'};}
+  else{
+    const u=users.find(u=>String(u.code).toUpperCase()===code);
+    if(!u){alert('Code not recognized — ask the organizer for yours.');return false;}
+    window._cru={role:'participant',name:u.name,uid:u.uid};
+  }
+  try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+  return true;
+}
+window.cruSignOut=function(){
+  window._cru=null;
+  try{localStorage.removeItem('jt_cru');}catch(e){}
+  backToTrips();
+};
 window.openTrip=function(id){
+  const td=TRIP_DATA[id];
+  if(td&&td.cruise){ if(!cruiseSignIn(id))return; tripSel=id; applyTripData(id); bindTrip(); document.body.classList.remove('home'); render(); return; }
   const tr=TRIPS.find(x=>x.id===id);
   if(tr&&tr.code&&!tripUnlocked(tr)){
     const v=prompt(tr.title+' is still being built.\nEnter the access code:');
@@ -1283,6 +1322,135 @@ window.restoreStop=function(id){
   saveOverrides();renderAddRestaurant();
 };
 
+
+/* ---------------- CRUISE (group trip) ---------------- */
+function cruStrip(){
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey)">
+    <span>Signed in as <span style="color:var(--indigo)">${esc(cruName())}</span> · ${cruRole()==='admin'?'organizer':'guest'}</span>
+    <button onclick="cruSignOut()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:inherit;color:var(--grey);padding:4px 8px;cursor:pointer">Sign out</button></div>`;
+}
+function genCode(){
+  const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  let c='';for(let i=0;i<6;i++)c+=A[Math.floor(Math.random()*A.length)];
+  return c;
+}
+window._editSched=null;
+function renderCruise(c){
+  const T=TRIP_DATA[tripKey()]||{};
+  const admin=cruRole()==='admin';
+  let body='';
+  if(c.cruiseTab==='board'){
+    const ann=(overrides.ann||[]).slice().sort((a,b)=>b.ts-a.ts);
+    body=`<div class="card"><div class="chead"><span>📣 Announcements</span><span>${ann.length}</span></div>
+      ${admin?`<div class="plform"><textarea id="an_txt" rows="3" placeholder="Post to everyone…" style="font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:8px 10px;resize:vertical"></textarea>
+        <button class="pladd" type="button" onclick="postAnn()" style="align-self:flex-start;padding:8px 14px">Post</button></div>`:''}
+      ${ann.map(a=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-desc" style="color:var(--grey)">${new Date(a.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span><span style="display:block;font-size:13px;margin-top:2px">${esc(a.txt)}</span></span>
+        ${admin?`<button class="tdo-x" onclick="delAnn('${a.id}')" style="color:var(--clay);font-size:17px">×</button>`:''}</div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing posted yet.</div>'}
+    </div>`;
+  }
+  if(c.cruiseTab==='sched'){
+    const plans=(overrides.sched||[]);
+    body=(admin?`<div class="card"><div class="chead"><span>${window._editSched?'Edit plan':'Add to the schedule'}</span></div>
+      <div class="plform">
+        <div class="plrow1">
+          <select id="sc_day">${(T.itinerary||[]).map(d=>`<option value="${d.day}">Day ${d.day} · ${d.port.split('—')[0].split(',')[0]}</option>`).join('')}</select>
+          <input id="sc_t" type="time">
+        </div>
+        <input id="sc_txt" placeholder="What's happening — dinner at Izumi, AquaDome show, meet at Royal Promenade…" maxlength="120">
+        <input id="sc_loc" placeholder="Where on the ship / ashore (optional)" maxlength="80">
+        <div style="display:flex;gap:8px">
+          <button class="pladd" type="button" onclick="saveSched()" style="padding:8px 14px;${window._editSched?'background:var(--moss)':''}">${window._editSched?'✓ Save':'+ Add'}</button>
+          ${window._editSched?'<button type="button" onclick="window._editSched=null;render()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);padding:7px 11px;cursor:pointer;color:var(--grey)">Cancel</button>':''}
+        </div>
+      </div></div>`:'')+
+    (T.itinerary||[]).map(d=>{
+      const its=plans.filter(p=>+p.day===d.day).sort((a,b)=>(a.t||'99:99').localeCompare(b.t||'99:99'));
+      return `<div class="card"><div class="chead"><span>Day ${d.day} · ${esc(d.date)}</span><span>${esc(d.hrs)}</span></div>
+        <div style="padding:9px 12px;font-size:13px;font-weight:600;color:var(--indigo)">${esc(d.port)}</div>
+        ${its.map(p=>`<div class="tdo-row"><span class="tdo-time" style="flex:0 0 44px;font:600 10px var(--mono);color:var(--grey)">${p.t||'—'}</span>
+          <span class="tdo-main"><span style="font-size:13px">${esc(p.txt)}</span>${p.loc?`<span class="tdo-desc">${esc(p.loc)}</span>`:''}</span>
+          ${admin?`<button class="tdo-x" onclick="editSched('${p.id}')" style="color:var(--indigo)">✎</button><button class="tdo-x" onclick="delSched('${p.id}')" style="color:var(--clay);font-size:17px">×</button>`:''}</div>`).join('')||'<div style="padding:6px 12px 10px;font-size:11.5px;color:var(--grey)">Free day so far.</div>'}
+      </div>`;
+    }).join('');
+  }
+  if(c.cruiseTab==='rooms'||c.cruiseTab==='cexp'||c.cruiseTab==='clog'){
+    const what={rooms:'Room picker — cabins, categories and two slots each, airline-seat style',
+      cexp:'Per-person expenses, the itemized cruise invoice, and paid-vs-unpaid tracking',
+      clog:'Your flights in, feeding the organizer\'s transport plan'}[c.cruiseTab];
+    body=`<div class="card"><div class="chead"><span>Coming in the next build</span></div>
+      <div style="padding:14px;font-size:13px;color:var(--grey)">${what}. The tab is here so the shape of the app is testable — say the word and it gets built next.</div></div>`;
+  }
+  if(c.cruiseTab==='cadmin'){
+    const users=(overrides.users||[]);
+    body=`<div class="card"><div class="chead"><span>🛠 Guests & access codes</span><span>${users.length} guest${users.length===1?'':'s'}</span></div>
+      <div class="plform">
+        <div class="plrow1">
+          <input id="us_name" placeholder="Guest name" maxlength="40">
+          <button class="pladd" type="button" onclick="addUser()" style="flex:0 0 auto;padding:8px 14px">+ Add & generate code</button>
+        </div>
+        <div class="plhint">Each guest signs in with their own code from the landing page. Your organizer code stays ${CRUISE_MASTER}.</div>
+      </div>
+      ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span><span class="tdo-desc">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
+        <button class="tdo-x" onclick="regenUser('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
+        <button class="tdo-x" onclick="delUser('${u.uid}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No guests yet — add the first one above.</div>'}
+    </div>`;
+  }
+  panel.innerHTML=`<div class="stack" style="max-width:760px;margin:0 auto">${cruStrip()}${body}</div>`;
+}
+window.postAnn=function(){
+  const el=document.getElementById('an_txt');
+  if(!el||!el.value.trim())return;
+  overrides.ann=overrides.ann||[];
+  overrides.ann.push({id:'a'+Date.now(),ts:Date.now(),txt:el.value.trim()});
+  saveOverrides();render();
+};
+window.delAnn=function(id){
+  overrides.ann=(overrides.ann||[]).filter(a=>a.id!==id);
+  saveOverrides();render();
+};
+window.saveSched=function(){
+  const g=i=>document.getElementById(i);
+  const txt=g('sc_txt').value.trim();
+  if(!txt){g('sc_txt').focus();return;}
+  overrides.sched=overrides.sched||[];
+  let p;
+  if(window._editSched){p=overrides.sched.find(x=>x.id===window._editSched);window._editSched=null;}
+  if(!p){p={id:'s'+Date.now()};overrides.sched.push(p);}
+  Object.assign(p,{day:g('sc_day').value,t:g('sc_t').value,txt,loc:g('sc_loc').value.trim()});
+  saveOverrides();render();
+};
+window.editSched=function(id){
+  const p=(overrides.sched||[]).find(x=>x.id===id);
+  if(!p)return;
+  window._editSched=id;render();
+  const g=i=>document.getElementById(i);
+  g('sc_day').value=p.day;g('sc_t').value=p.t||'';g('sc_txt').value=p.txt;g('sc_loc').value=p.loc||'';
+  g('sc_txt').scrollIntoView({behavior:'smooth',block:'center'});
+};
+window.delSched=function(id){
+  if(!confirm('Remove this from the schedule?'))return;
+  overrides.sched=(overrides.sched||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.addUser=function(){
+  const el=document.getElementById('us_name');
+  const name=el?el.value.trim():'';
+  if(!name){el&&el.focus();return;}
+  overrides.users=overrides.users||[];
+  overrides.users.push({uid:'u'+Date.now(),name,code:genCode(),role:'participant'});
+  saveOverrides();render();
+};
+window.regenUser=function(uid){
+  const u=(overrides.users||[]).find(x=>x.uid===uid);
+  if(u&&confirm('Issue a new code for '+u.name+'? The old one stops working.')){u.code=genCode();saveOverrides();render();}
+};
+window.delUser=function(uid){
+  const u=(overrides.users||[]).find(x=>x.uid===uid);
+  if(u&&confirm('Remove '+u.name+'? Their code stops working.')){
+    overrides.users=(overrides.users||[]).filter(x=>x.uid!==uid);
+    saveOverrides();render();
+  }
+};
 
 /* Static stops from the trip file + anything added in the app. */
 function stopsFor(c){
@@ -1977,6 +2145,8 @@ function render(){
   refreshNav();
   const NAVC=navCities(); if(ci>=NAVC.length)ci=0;
   const c=NAVC[ci];
+
+  if(c.cruiseTab){ if(map){map.remove();map=null;} renderCruise(c); return; }
 
   if(c.addrest){ if(map){map.remove();map=null;} renderAddRestaurant(); return; }
 

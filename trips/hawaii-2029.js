@@ -45,7 +45,7 @@ var HI29_CITIES=[
 {id:"expenses",city:"Expenses",sub:"budget tracker",expenses:true}
 ];
 
-window.TRIPS_REGISTRY['hawaii-2029']={cities:HI29_CITIES,hotels:HI29_HOTELS,flights:HI29_FLIGHTS,wx:HI29_WX,todayCity:HI29_TODAY_CITY,tonight:HI29_TONIGHT,
+window.TRIPS_REGISTRY['hawaii-2029']={accent:'#2E7D5B',cities:HI29_CITIES,hotels:HI29_HOTELS,flights:HI29_FLIGHTS,wx:HI29_WX,todayCity:HI29_TODAY_CITY,tonight:HI29_TONIGHT,
    emoji:'🏝',brand:"Hawaii · Mar '29",foot:"March 2029 · Oʻahu (TBD)",
    title:"Hawaii, March 2029",kicker:"March 2029 · spring trip · dates TBD",depart:[2029,2,16],arrive:[2029,2,16],end:[2029,2,23],
    navIcons:{today:'🗓️',todo:'✅',oahu:'🌺',flights:'✈️',vault:'🗂️',expenses:'💳'},

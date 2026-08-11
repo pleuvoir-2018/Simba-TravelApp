@@ -60,7 +60,7 @@ var CR_SHIP={
   ["Suite Neighborhood","Dedicated decks with Coastal Kitchen and the suite sun deck"]],
  note:"Details worth confirming on Royal's site once your sailing's brochure is out — venues occasionally differ between sisters."};
 
-window.TRIPS_REGISTRY['cruise-2028']={cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
+window.TRIPS_REGISTRY['cruise-2028']={accent:'#0E7C86',cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
  itinerary:CR_ITIN,cats:CR_CATS,ship:'Star of the Seas',shipInfo:CR_SHIP,
  airport:{n:'Orlando International (MCO)',lat:28.4312,lng:-81.3081,note:'~45 min drive to the port'},
  emoji:'🚢',brand:"Icon Cruise · Jan '28",foot:'Jan 9–16 2028 · Star of the Seas',

@@ -45,7 +45,7 @@ var HI28_CITIES=[
 {id:"expenses",city:"Expenses",sub:"budget tracker",expenses:true}
 ];
 
-window.TRIPS_REGISTRY['hawaii-2028']={cities:HI28_CITIES,hotels:HI28_HOTELS,flights:HI28_FLIGHTS,wx:HI28_WX,todayCity:HI28_TODAY_CITY,tonight:HI28_TONIGHT,
+window.TRIPS_REGISTRY['hawaii-2028']={accent:'#C2497B',cities:HI28_CITIES,hotels:HI28_HOTELS,flights:HI28_FLIGHTS,wx:HI28_WX,todayCity:HI28_TODAY_CITY,tonight:HI28_TONIGHT,
    emoji:'🌺',brand:"Hawaii · NYE '29",foot:"Dec 29 – Jan 5 · Oʻahu (TBD)",
    title:"Hawaii, December 2028",kicker:"Dec 29 – Jan 5 · New Year in the islands · dates TBD",depart:[2028,11,29],arrive:[2028,11,29],end:[2029,0,5],
    navIcons:{today:'🗓️',todo:'✅',oahu:'🌺',flights:'✈️',vault:'🗂️',expenses:'💳'},

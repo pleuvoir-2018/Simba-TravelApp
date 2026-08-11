@@ -11,6 +11,7 @@
     --ink:#14161B; --indigo:#22406B; --indigo2:#4A6E9E; --moss:#5E7F4C;
     --plum:#8E4B62; --clay:#B8552A; --washi:#F1ECE2; --washi2:#E4DCCA;
     --grey:#8B9098; --rule:rgba(20,22,27,.13);
+    --tripac:#22406B; --card:#FBF8F1;
     --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
     --sans:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",sans-serif;
     --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -23,7 +24,7 @@
   body{background:var(--washi);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 70px}
   header{border-bottom:2px solid var(--ink);padding-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
-  h1{font-family:var(--mono);font-size:clamp(20px,4.6vw,31px);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.16;color:var(--indigo);margin-top:4px}
+  h1{font-family:var(--mono);font-size:clamp(20px,4.6vw,31px);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.16;color:var(--tripac,var(--indigo));margin-top:4px}
   h1 .flag { height: 0.7em; width: auto; border: 1px solid var(--rule); border-radius: 2px; margin-right: 14px; vertical-align: -0.05em; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
   .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);margin-bottom:7px}
   .editbtn{font:600 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--ink);background:none;color:var(--ink);padding:8px 14px;border-radius:2px;cursor:pointer}
@@ -47,7 +48,7 @@
   .nav-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 12px 12px;border-bottom:2px solid var(--ink)}
   .nav-brand{display:flex;align-items:center;gap:8px;min-width:0}
   .nav-brand .nb-sun{font-size:15px;line-height:1;margin-right:2px}
-  .nav-brand .nb-t{font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--indigo);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav-brand .nb-t{font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tripac,var(--indigo));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .nav-collapse{border:1.5px solid var(--rule);background:none;color:var(--grey);border-radius:2px;width:24px;height:24px;cursor:pointer;font:700 11px var(--mono);line-height:1;flex:0 0 24px}
   .nav-collapse:hover{border-color:var(--indigo);color:var(--indigo)}
   .nvsec{font:600 9px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--grey);padding:14px 14px 5px;white-space:nowrap}
@@ -241,6 +242,19 @@
   #cruPop input{width:100%;box-sizing:border-box;min-width:0;font:13.5px var(--sans);border:1px solid #C4D6E6;border-radius:3px;padding:7px 9px;margin-top:3px;-webkit-appearance:none;appearance:none;background:#fff}
   #cruPop input[type=date]{text-align:left}
   #cruPop .ro{font:12.5px var(--mono);color:#0D2033;background:#F0F5FA;border-radius:3px;padding:7px 9px;margin-top:3px;letter-spacing:.08em}
+  body.dark{
+    --ink:#E7E2D6; --indigo:#A9C6E8; --indigo2:#7FA8D0; --moss:#8FB878;
+    --plum:#C489A0; --clay:#D98B5F; --washi:#15181E; --washi2:#20242D;
+    --grey:#98A1AC; --rule:rgba(231,226,214,.16); --card:#1C2027;
+  }
+  body.dark .card,body.dark .cruPopCard{background:var(--card)}
+  body.dark input,body.dark select,body.dark textarea{background:#262B34;color:var(--ink);border-color:var(--rule)}
+  body.dark #cruPop .ro{background:#262B34;color:var(--ink)}
+  body.dark .chead{background:#252A33;color:var(--ink);border-bottom-color:var(--rule)}
+  body.dark.cruise .chead{background:#0B2545;color:#DCEAF9}
+  body.dark .trip{background:var(--card)}
+  body.dark img{filter:brightness(.92)}
+  .themebtn{width:34px;height:34px;border-radius:50%;background:none;border:1.5px solid var(--ink);color:var(--ink);font-size:15px;cursor:pointer;padding:0;flex:0 0 auto}
   .trip.ocean{border-color:#0B2545}
   .trip.ocean .ph{background:linear-gradient(135deg,#0B2545,#13315C 55%,#1D5C8F)}
   .trip.ocean .bar{background:#0B2545;color:#CFE4FF;border-top-color:#0B2545}
@@ -338,6 +352,7 @@
       <button class="backtrips" type="button" onclick="backToTrips()" title="All trips">← Trips</button>
       <button class="navburger" id="navBurger" type="button" aria-label="Open menu">☰</button>
       <button class="editbtn" id="editToggle" type="button">✎ Edit mode</button>
+      <button type="button" class="themebtn" onclick="toggleTheme()" title="Light / dark">🌙</button>
       <button id="cruAvatar" type="button" title="Your profile" onclick="cruProfile()" style="display:none"></button>
     </span>
   </header>
@@ -1013,6 +1028,7 @@ function renderHome(){
   panel.innerHTML=`
   <div class="home-hero" style="position:relative">
     <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">
+      ${themeBtn()}
       ${appRole()==='admin'?'<button type="button" onclick="openAdmin()" title="Access & labels" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;cursor:pointer;color:var(--ink)">⚙ Admin</button>':''}
       <button type="button" onclick="cruProfile()" title="Your profile" style="width:34px;height:34px;border-radius:50%;background:#0E7C86;color:#fff;font:700 14px var(--sans);border:2px solid #fff;box-shadow:0 1px 5px rgba(11,37,69,.35);cursor:pointer">${esc(((window._app||{}).name||'?').slice(0,1))}</button>
     </div>
@@ -1023,7 +1039,7 @@ function renderHome(){
   <div class="trips">
     ${TRIPS.map(t=>`
       <button class="trip ${t.theme==='ocean'?'ocean':''} ${t.status==='idea'||!canOpen(t.id)?'soon':''} ${tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
-        ${(()=>{const L=tripLabelOf(t);return tripArchived(t)?'<span class="ribbon" style="background:var(--grey)">Archived</span>':`<span class="ribbon" style="background:${TRIP_LABELS[L][1]}">${TRIP_LABELS[L][0]}</span>`;})()}
+        ${(()=>{const L=tripLabelOf(t);return `<span class="ribbon" style="background:${TRIP_LABELS[L][1]}">${TRIP_LABELS[L][0]}</span>`;})()}
         ${t.status!=='idea'&&canOpen(t.id)?'<span class="ribbon" style="top:34px;background:var(--moss)">✓ Access granted</span>':''}
         <div class="ph">
           <img src="${t.photo}" alt="${esc(t.country)}" loading="lazy"
@@ -1040,18 +1056,22 @@ function renderHome(){
   </div>
   <div class="home-foot">Photos via Wikimedia Commons under their stated licences.</div>`;
 }
-const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)']};
+const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)'],done:['Trip completed','var(--grey)']};
+function tripPastEnd(t){
+  const d=t&&typeof TRIP_DATA!=='undefined'&&TRIP_DATA[t.id]&&TRIP_DATA[t.id].end;
+  if(!d)return false;
+  return Date.now()>Date.UTC(d[0],d[1],d[2])+86400000*2;
+}
 function tripLabelOf(t){
   const ov=(store.app&&store.app.tripLabels)||{};
-  if(ov[t.id]&&TRIP_LABELS[ov[t.id]])return ov[t.id];
+  if(ov[t.id]&&TRIP_LABELS[ov[t.id]])return ov[t.id];   // the admin's word is final
+  if(tripPastEnd(t))return 'done';                       // default only — override to reopen
   return t.status==='group'?'group':(t.status==='wip'?'wip':(t.status==='idea'?'soon':'live'));
 }
 /* A trip becomes read-only once its own end date has passed. Purely per trip:
    an archived trip never affects a live one. */
 function tripArchived(t){
-  const d=t&&typeof TRIP_DATA!=='undefined'&&TRIP_DATA[t.id]&&TRIP_DATA[t.id].end;
-  if(!d)return false;
-  return Date.now()>Date.UTC(d[0],d[1],d[2])+86400000*2;
+  return tripLabelOf(t)==='done';    // 'Trip completed' IS the edit lock now
 }
 function currentArchived(){
   const t=(typeof TRIPS!=='undefined')&&TRIPS.find(x=>x.id===tripKey());
@@ -1061,6 +1081,14 @@ const CRUISE_MASTER='THEO1218';   // now the APP master code
 window._cru=null;                  // cruise-scope session, derived from the app session
 window._app=null;                  // app-wide session
 try{const raw=localStorage.getItem('jt_app');if(raw)window._app=JSON.parse(raw);}catch(e){}
+window.toggleTheme=function(){
+  const dark=!document.body.classList.contains('dark');
+  document.body.classList.toggle('dark',dark);
+  try{localStorage.setItem('jt_theme',dark?'dark':'light');}catch(e){}
+  document.querySelectorAll('.themebtn').forEach(b=>b.textContent=dark?'☀️':'🌙');
+};
+(function(){try{if(localStorage.getItem('jt_theme')==='dark')document.body.classList.add('dark');}catch(e){}})();
+function themeBtn(){return `<button type="button" class="themebtn" onclick="toggleTheme()" title="Light / dark">${document.body.classList.contains('dark')?'☀️':'🌙'}</button>`;}
 function APP(){ if(!store.app||typeof store.app!=='object')store.app={}; return store.app; }
 function appUsers(){ return (store.app&&store.app.users)||[]; }
 function appAdminName(){ return (store.app&&store.app.adminName)||'조상연'; }
@@ -1113,7 +1141,8 @@ window.appSignOut=function(){
 function renderLogin(){
   document.body.classList.add('home');
   if(typeof updateAvatar==='function')updateAvatar();
-  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:40px auto 0">
+  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:40px auto 0;position:relative">
+    <div style="position:absolute;top:-8px;right:0">${themeBtn()}</div>
     <div class="home-hero" style="text-align:center;margin-bottom:14px">
       <div class="hk">Trip journal</div>
       <h1 style="margin-top:6px">Sign in</h1>
@@ -1141,7 +1170,11 @@ function renderPendingApp(){
   document.body.classList.add('home');
   const me=window._app||{};
   const u=appUsers().find(x=>x.uid===me.uid);
-  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:40px auto 0">
+  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:40px auto 0;position:relative">
+    <div style="position:absolute;top:-8px;right:0;display:flex;gap:8px;align-items:center">
+      ${themeBtn()}
+      <button type="button" onclick="cruProfile()" title="Your profile" style="width:34px;height:34px;border-radius:50%;background:#0E7C86;color:#fff;font:700 14px var(--sans);border:2px solid #fff;box-shadow:0 1px 5px rgba(11,37,69,.35);cursor:pointer;padding:0">${esc((me.name||'?').slice(0,1))}</button>
+    </div>
     <div class="card"><div class="chead"><span>⏳ Access pending</span></div>
       <div style="padding:16px 15px">
         <div style="font-size:14px;font-weight:600;margin-bottom:6px">${esc(me.name||'')}, your access request is being reviewed.</div>
@@ -3059,6 +3092,7 @@ function applyTripData(id){
   const ti=document.getElementById('tripTitle');if(ti)ti.textContent=t.title;
   const kk=document.getElementById('kickerTxt');if(kk)kk.textContent=t.kicker;
   const nbs=document.querySelector('.nb-sun');if(nbs)nbs.textContent=t.emoji||'🧭';
+  document.body.style.setProperty('--tripac',t.accent||'#22406B');
   document.body.classList.toggle('cruise',!!t.cruise);
   if(typeof updateAvatar==='function')updateAvatar();
   const eb=document.getElementById('editToggle');

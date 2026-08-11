@@ -85,7 +85,19 @@ function renderCruise(c){
       <div class="card"><div class="chead"><span>The eight neighborhoods</span></div>
         ${SI.hoods.map(h=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(h[0])}</span><span class="tdo-desc">${esc(h[1])}</span></span></div>`).join('')}
         ${SI.note?`<div style="padding:9px 13px;font-size:11px;color:var(--grey);border-top:1px solid var(--rule)">${esc(SI.note)}</div>`:''}
-      </div>`;
+      </div>
+      ${T.deckPlans?(()=>{
+        const decks=Object.keys(T.deckPlans).map(Number).sort((a,b)=>b-a);
+        const sel=window._deckSel||10;
+        const note=(T.deckNotes||{})[sel]||'';
+        return `<div class="card"><div class="chead"><span>🗺 Deck plans</span><span>official · tap a deck</span></div>
+          <div class="deckchips">${decks.map(d=>`<button type="button" class="deckchip ${d===sel?'on':''}" onclick="window._deckSel=${d};render()">${d}${d===10?' 🛏':''}</button>`).join('')}</div>
+          ${note?`<div class="decknote">${esc(note)}</div>`:''}
+          <div class="deckview"><img src="${T.deckPlans[sel]}" alt="Deck ${sel} plan" loading="lazy"
+            onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'decknote',textContent:'Deck plan couldn\u2019t load — check your connection.'}))"></div>
+          <div class="decknote" style="border-top:1px solid var(--rule)">Deck ${sel} · swipe the plan to walk bow → stern</div>
+        </div>`;
+      })():''}`;
   }
   if(c.cruiseTab==='board'){
     const ann=(overrides.ann||[]).slice().sort((a,b)=>b.ts-a.ts);
@@ -186,7 +198,7 @@ function renderCruise(c){
           <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--indigo2);margin-top:2px">${esc(k.sq)}</span>
           <span style="display:block;font-size:11.5px;color:var(--grey);margin-top:2px">${esc(k.d)}</span></span>
         <span style="flex:0 0 auto;text-align:right"><span style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--indigo)">${money(q.q)}</span>
-          <span style="display:block;font:600 8.5px var(--mono);color:var(--grey)">for ${q.ppl}</span></span>
+          <span style="display:block;font:600 8.5px var(--mono);color:var(--grey)">for ${q.ppl} · ${money(Math.round(q.q/q.ppl))}/person</span></span>
       </div>`;}).join('')}
     </div>`:'';
     const myPendReq=reqs.find(r=>r.uid===me&&r.status==='pending');

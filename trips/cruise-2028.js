@@ -62,6 +62,41 @@ var CR_SHIP={
 
 window.TRIPS_REGISTRY['cruise-2028']={accent:'#0E7C86',cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
  itinerary:CR_ITIN,cats:CR_CATS,ship:'Star of the Seas',shipInfo:CR_SHIP,
+ deckPlans:(()=>{const W='https://assets.widgety.co.uk';const F=n=>`/Royal%20Caribbean%20International%20Star%20of%20the%20Seas%20Deck%20${n}.png`;return{
+  2:W+'/2026/04/19/20/21/56/5cdf7c88-c93e-4455-a81a-ac118a172591'+F(2),
+  3:W+'/2025/04/29/15/12/32/5cca3c96-79de-41bf-b7e0-78450a55bebb'+F(3),
+  4:W+'/2026/04/18/08/46/20/a9518b49-671c-43d1-b4ce-ef696f409baa'+F(4),
+  5:W+'/2025/06/14/12/35/41/ea7a9be1-dbd2-4d47-b453-c1e615c5d813'+F(5),
+  6:W+'/2026/03/22/02/19/44/e7016605-4a00-464e-b40d-cdc84baa2e29'+F(6),
+  7:W+'/2025/06/23/20/18/53/32a2dec8-0b7c-49c0-aeab-f9ca0c434a98'+F(7),
+  8:W+'/2026/01/14/02/51/36/f9789083-c85d-4f49-949e-45fa2d314709'+F(8),
+  9:W+'/2026/01/19/20/30/09/54fc339a-8161-48f4-848a-485e0c5c49e6'+F(9),
+  10:W+'/2025/06/16/14/34/56/0ed296be-8a33-43d6-91a4-744035acc2ae'+F(10),
+  11:W+'/2026/04/08/00/13/35/e9072095-d2e8-4bbb-b738-1150b9f8f90b'+F(11),
+  12:W+'/2025/06/22/11/09/49/b3e048f7-ba87-4f28-b7f7-549ca1f887c2'+F(12),
+  14:W+'/2026/03/07/09/30/17/b164aa99-5630-418a-91f4-e59ff00847e0'+F(14),
+  15:W+'/2025/06/14/21/50/15/c4aa5533-3c3d-4722-98f6-5cf81d879080'+F(15),
+  16:W+'/2026/01/20/22/46/03/9bb2d490-b411-4bc4-9f57-f7db152676a3'+F(16),
+  17:W+'/2025/06/19/16/47/05/f204100e-10c5-40d8-9e93-0894e6bfedfe'+F(17),
+  18:W+'/2026/01/23/12/09/57/40ed9fd3-6300-4a1f-b854-22b6a10fa217'+F(18),
+  19:W+'/2025/06/17/03/08/56/e8a7ba82-4ec8-47a1-a34f-e94668c39cc8'+F(19),
+  20:W+'/2025/06/20/12/45/39/a1020ccb-2e99-49c0-b322-1de5dc23826d'+F(20)
+ };})(),
+ deckNotes:{
+  2:'Crew and logistics — embarkation sometimes routes through here.',
+  4:'Absolute Zero ice arena · Music Hall',
+  5:'Royal Promenade — 1400 Lobby Bar, Dueling Pianos, Sorrento\'s',
+  6:'AquaDome base · main dining',
+  7:'Central Park + Surfside — your outdoor neighborhoods',
+  8:'Central Park staterooms and Trellis Bar',
+  10:'🛏 Your cabin deck — 10254, forward · starboard',
+  14:'Sky Junior Suites territory',
+  15:'Chill Island pools begin · Royal Bay',
+  16:'Thrill Island — waterslides, Crown\'s Edge',
+  17:'The Hideaway · Cloud 17 · suite sun deck',
+  18:'The Grove suite neighborhood',
+  20:'Adrenaline Peak — highest point on the ship'
+ },
  // Royal Caribbean live pricing pulled Aug 2026 — 4-adult total per room
  seedQuotes:[
   {cat:'interior',ppl:4,q:4385},

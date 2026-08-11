@@ -1360,7 +1360,7 @@ function renderJeju(c){
           <button class="pladd" type="button" onclick="jjAddOpt('${kind}')" style="align-self:flex-start;padding:8px 14px">+ Add option</button>
         </div>
       </div>`;}).join('')+`
-      <div style="font:10.5px var(--mono);color:var(--grey);padding:2px 4px">Anyone adds options and votes; the organizer picks. The chosen car and flights feed the Money tab as group costs.</div>`;
+      <div style="font:10.5px var(--mono);color:var(--grey);padding:2px 4px">Anyone adds options and votes; the organizer picks. The chosen CAR feeds the group pot; the chosen FLIGHT is individual — everyone books and pays their own, and it shows as a guide price under 'My own spending'.</div>`;
   }
 
   if(c.jjTab==='jsched'){
@@ -1398,7 +1398,9 @@ function renderJeju(c){
   if(c.jjTab==='jexp'){
     const opts=overrides.options||[];
     const N=Math.max(1,Number(overrides.headcount)||Number(T.headcount)||jjEveryone().length);
-    const chosenCosts=opts.filter(o=>o.chosen).map(o=>({desc:(o.kind==='car'?'🚗 ':'✈️ ')+o.title,amt:o.per==='pp'?Number(o.cost)*N:Number(o.cost),by:'—',fromVote:true}));
+    const chosenCosts=opts.filter(o=>o.chosen&&o.kind==='car').map(o=>({desc:'🚗 '+o.title,amt:o.per==='pp'?Number(o.cost)*N:Number(o.cost)}));
+    const flightPick=opts.find(o=>o.chosen&&o.kind==='flight');
+    const flightEach=flightPick?(flightPick.per==='pp'?Number(flightPick.cost):Number(flightPick.cost)/N):0;
     const gexp=(overrides.gexp||[]);
     const groupTotal=chosenCosts.reduce((a,x)=>a+x.amt,0)+gexp.reduce((a,x)=>a+Number(x.amt),0);
     const share=N?groupTotal/N:0;
@@ -1428,6 +1430,9 @@ function renderJeju(c){
         <div style="padding:8px 13px;font:10px var(--mono);color:var(--grey)">Split across ${N} people${N!==jjEveryone().length?` (${jjEveryone().length} with app accounts — people without accounts settle in cash with whoever fronted)`:''}. Positive = the group owes them; negative = they owe the pot. Chosen car/flight costs count into the pot but aren't assigned a payer until you log who actually paid, as a group expense.</div>
       </div>
       <div class="card"><div class="chead"><span>💳 My own spending</span><span>${jjMoney(myPersonal)}</span></div>
+        ${flightPick?`<div class="tdo-row" style="background:rgba(74,110,158,.08)"><span style="flex:0 0 26px;text-align:center">✈️</span>
+          <span class="tdo-main"><span class="tdo-t">${esc(flightPick.title)} — the chosen flight</span>
+          <span class="tdo-desc" style="margin-left:10px">≈ ${jjMoney(flightEach)} each · book your own and log it here once paid</span></span></div>`:''}
         ${mine.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))}</span><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
           <button class="tdo-x" onclick="jjDelMy('${x.id}')" style="color:var(--clay);font-size:16px">×</button></div>`).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing yet — souvenirs, coffees, your own meals.</div>'}
         <div class="plform" style="border-top:1px solid var(--rule)">

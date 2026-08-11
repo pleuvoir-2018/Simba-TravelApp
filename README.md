@@ -46,25 +46,6 @@ and the local weather. After the trip, a welcome-home card with total spend.
   hotel card, and a live weather strip (Open-Meteo) that shows your actual
   trip dates once they enter the 16-day forecast window.
 
-## Multiple trips
-
-The app opens on a trip picker. Static trip content (cities, hotels, flights,
-weather config, day→city maps) lives in `TRIP_DATA[<tripId>]`; opening a trip
-points the live `CITIES` / `HOTELS` / `FLIGHTS` / `WX_CFG` / `TODAY_CITY` /
-`TONIGHT` bindings at that trip's data.
-
-Saved data is namespaced the same way. The blob is now
-`{ _ts, trips: { "japan-2026": {...}, "korea-2027": {...} } }`, and
-`overrides` is a live reference into `store.trips[current]` — so every
-`overrides.expenses` / `.plans` / `.todos` / `.vault` call site works
-unchanged while the two trips can never see or overwrite each other. A blob
-written by an older version is migrated on load: its top-level keys become
-the `japan-2026` namespace. Cloud merges happen per trip id, so saving from
-one trip cannot clobber the other.
-
-Trips can carry an `code` field; the landing card then asks for it before
-opening, and the unlock is remembered per browser.
-
 **Things to do** — a prep tracker on its own tab, with **list** and
 **calendar** views. Each item has a date, category (entry ticket / booking /
 transportation / hotel-concierge / shopping / admin / other), title, optional

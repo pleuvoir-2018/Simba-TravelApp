@@ -18,7 +18,8 @@
   .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 70px}
   header{border-bottom:2px solid var(--ink);padding-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
   .hdr-actions{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}
-  .hdr-actions button{height:38px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+  .hdr-actions button{height:34px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+  @media (min-width:1800px){ .hdr-actions button{height:30px} .hdr-actions .themebtn,.hdr-actions #cruAvatar{width:30px} }
   .hdr-actions .backtrips,.hdr-actions .editbtn{padding:0 13px;margin-right:0}
   .hdr-actions .navburger{width:40px;padding:0}
   @media(max-width:640px){
@@ -56,7 +57,7 @@
   .nav-brand{display:flex;align-items:center;gap:8px;min-width:0}
   .nav-brand .nb-sun{font-size:15px;line-height:1;margin-right:2px}
   .nav-brand .nb-t{font-family:var(--mono);font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tripac,var(--indigo));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .nav-collapse{border:1px solid var(--ink);background:var(--card,#FBF8F1);color:var(--ink);border-radius:6px;width:32px;height:32px;cursor:pointer;font:700 15px var(--mono);line-height:1;flex:0 0 32px;box-shadow:0 1px 3px rgba(20,22,27,.12)}
+  .nav-collapse{border:1px solid var(--ink);background:var(--card,#FBF8F1);color:var(--ink);border-radius:6px;width:32px;height:32px;cursor:pointer;font:700 19px var(--mono);line-height:1;flex:0 0 32px;box-shadow:0 1px 3px rgba(20,22,27,.12)}
   .nav-collapse:hover{background:var(--ink);color:var(--washi);border-color:var(--ink)}
   .nvsec{font:600 9px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--grey);padding:14px 14px 5px;white-space:nowrap}
   .nvi{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border:0;background:none;cursor:pointer;font:inherit;text-align:left;border-left:3px solid transparent}
@@ -225,7 +226,7 @@
   .home-hero h1{font-family:var(--mono);font-size:clamp(22px,5vw,33px);font-weight:700;color:var(--indigo);margin:8px 0 6px;letter-spacing:.05em;text-transform:uppercase}
   .home-hero p{font-size:13px;color:var(--grey);max-width:460px;margin:0 auto}
   .trips{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;padding:4px 0 40px}
-  .trip{position:relative;display:flex;flex-direction:column;border:1px solid var(--rule);border-radius:7px;overflow:hidden;background:var(--washi2);
+  .trip{position:relative;display:flex;flex-direction:column;border:none;box-shadow:0 0 0 1px var(--rule);border-radius:7px;overflow:hidden;background:var(--washi2);
     text-align:left;padding:0;cursor:pointer;font-family:inherit;transition:transform .18s ease,box-shadow .18s ease}
   .trip:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(20,22,27,.14)}
   .trip .ph{position:relative;flex:1 1 auto;min-height:210px;background:linear-gradient(135deg,#22406B,#4A6B8A 55%,#B8552A)}
@@ -235,9 +236,9 @@
   .trip .cap .cn{font:600 9.5px var(--mono);letter-spacing:.18em;text-transform:uppercase;opacity:.9}
   .trip .cap .ct{font-family:var(--serif);font-size:25px;font-weight:700;line-height:1.15;margin:3px 0 2px}
   .trip .cap .cd{font:11px var(--mono);opacity:.92}
-  .trip .bar{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 16px;min-height:47px;box-sizing:border-box;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--indigo);border-top:1px solid var(--rule)}
+  .trip .bar{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 14px;min-height:38px;box-sizing:border-box;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--indigo);border-top:1px solid var(--rule)}
   .trip .bar>span:first-child{white-space:nowrap;flex:0 0 auto}
-  .trip .credit{flex:1 1 auto;min-width:0;text-align:right;line-height:1.4;font:8.5px var(--mono);color:var(--grey);text-transform:none;letter-spacing:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .trip .credit{flex:1 1 auto;min-width:0;text-align:right;line-height:1.3;font:8.5px var(--mono);color:var(--grey);text-transform:none;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .trip.soon{cursor:default}
   .trip.soon:hover{transform:none;box-shadow:none}
   .trip.soon .ph img{filter:grayscale(1) brightness(.72)}

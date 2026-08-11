@@ -504,7 +504,7 @@ function mergeApp(rA,lA){
   else if(R!==undefined||L!==undefined){
     const meLocal=(L||[]).find(u=>u.uid===me);
     let list=(R||[]).map(u=>(u.uid===me&&meLocal)
-      ?{...u,name:meLocal.name??u.name,legalFirst:meLocal.legalFirst??u.legalFirst,legalLast:meLocal.legalLast??u.legalLast,dob:meLocal.dob??u.dob}
+      ?{...u,name:meLocal.name??u.name,code:meLocal.code??u.code,legalFirst:meLocal.legalFirst??u.legalFirst,legalLast:meLocal.legalLast??u.legalLast,dob:meLocal.dob??u.dob}
       :u);
     // self-registration lands only ever as pending with NO grants
     if(meLocal&&!list.some(u=>u.uid===me))list=list.concat([{...meLocal,role:'pending',access:{}}]);
@@ -555,7 +555,8 @@ function saveOverrides(){
      remote (admin adds/removes cabins) and each slot merges individually —
      my claim or release stands, anyone else's newer action comes from remote */
 function mergeCruise(rt,lt,base){
-  const me=(window._cru||{}).uid||null, admin=((window._cru||{}).role==='admin');
+  const me=(window._cru||{}).uid||null;
+  const admin=((window._cru||{}).role==='admin')||((window._app||{}).role==='admin');  // the app master is a cruise organizer wherever they act from
   const out={...base};
   ['cexp','logi'].forEach(key=>{
     const R=rt[key]||{}, L=lt[key]||{};
@@ -591,6 +592,16 @@ function mergeCruise(rt,lt,base){
         return {...l,...r,slots};   // remote (admin) wins on fields; slots merged above
       });
     }
+  }
+  // Tombstones: a removed person stays removed on every device, no matter
+  // whose stale copy merges later. Union the lists, then scrub every store.
+  const dead=new Set([...(rt.removedUids||[]),...(lt.removedUids||[])]);
+  if(dead.size){
+    out.removedUids=[...dead];
+    if(out.charges)out.charges=out.charges.filter(c=>!dead.has(c.uid));
+    if(out.reqs)out.reqs=out.reqs.filter(r=>!dead.has(r.uid));
+    ['cexp','logi'].forEach(k=>{ if(out[k])dead.forEach(uid=>{ delete out[k][uid]; }); });
+    if(out.rooms)out.rooms=out.rooms.map(r=>({...r,slots:(r.slots||[]).map(u=>dead.has(u)?null:u)}));
   }
   return out;
 }
@@ -1019,10 +1030,21 @@ window.appRegen=function(uid){
 };
 window.appDel=function(uid){
   const u=appUsers().find(x=>x.uid===uid);
-  if(u&&confirm('Remove '+u.name+'? Their code and all access stop working.')){
-    APP().users=appUsers().filter(x=>x.uid!==uid);
-    saveOverrides();renderAdminPage();
+  if(!u)return;
+  if(!confirm('Remove '+u.name+'? Their code stops working, and on the cruise they are pulled out of their cabin and their billing, travel plans and requests are deleted.'))return;
+  APP().users=appUsers().filter(x=>x.uid!==uid);
+  // cascade through the cruise slice
+  store.trips=store.trips||{};
+  const c=store.trips['cruise-2028'];
+  if(c){
+    (c.rooms||[]).forEach(r=>{ r.slots=(r.slots||[]).map(x=>x===uid?null:x); });
+    if(c.charges)c.charges=c.charges.filter(x=>x.uid!==uid);
+    if(c.reqs)c.reqs=c.reqs.filter(x=>x.uid!==uid);
+    if(c.cexp)delete c.cexp[uid];
+    if(c.logi)delete c.logi[uid];
+    c.removedUids=[...new Set([...(c.removedUids||[]),uid])];
   }
+  saveOverrides();renderAdminPage();
 };
 function renderHome(){
   document.body.classList.add('home');
@@ -1727,7 +1749,9 @@ window.cruProfile=function(){
         <label style="flex:1">Legal last (EN)<input id="pf_last" value="${esc(lg.last||'')}" maxlength="40"></label>
       </div>
       <label>Date of birth<input id="pf_dob" type="date" value="${esc(lg.dob||'')}"></label>
-      <label>Login code<div class="ro">${esc(code)}</div></label>
+      ${isMaster?`<label>Login code<div class="ro">${esc(code)}</div></label>`
+        :`<label>Login code — make it yours<input id="pf_code" value="${esc(code)}" maxlength="12" autocomplete="off" style="letter-spacing:.18em;font-family:var(--mono);text-transform:uppercase"></label>
+          <div id="pf_code_err" style="font:10px var(--mono);color:var(--clay);margin:-4px 0 6px"></div>`}
       <label>Role<div class="ro">${me.role==='admin'?'App admin':(me.role==='pending'?'Pending approval':'Member')}</div></label>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="pladd" type="button" onclick="saveProfile()" style="flex:1;padding:8px 0">Save</button>
@@ -1744,6 +1768,16 @@ window.saveProfile=function(){
   if(!v)return;
   const gf=i=>{const e=document.getElementById(i);return e?e.value.trim():'';};
   const first=gf('pf_first'), last=gf('pf_last'), dob=gf('pf_dob');
+  const codeEl=document.getElementById('pf_code');
+  if(codeEl){
+    const nc=codeEl.value.trim().toUpperCase();
+    const errEl=document.getElementById('pf_code_err');
+    const taken=appUsers().some(u=>u.uid!==window._app.uid&&String(u.code).toUpperCase()===nc);
+    if(!/^[A-Z0-9]{4,12}$/.test(nc)){if(errEl)errEl.textContent='Code: 4–12 letters/numbers.';codeEl.focus();return;}
+    if(nc===CRUISE_MASTER||taken){if(errEl)errEl.textContent='That code is taken — pick another.';codeEl.focus();return;}
+    const u=appUsers().find(x=>x.uid===window._app.uid);
+    if(u)u.code=nc;
+  }
   if(window._app.uid==='admin'){
     APP().adminName=v;
     APP().adminLegal={first,last,dob};

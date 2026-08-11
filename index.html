@@ -497,7 +497,7 @@ function saveOverrides(){
      remote (admin adds/removes cabins) and each slot merges individually —
      my claim or release stands, anyone else's newer action comes from remote */
 function mergeCruise(rt,lt,base){
-  const me=(window._cru||{}).uid||null, admin=me==='admin';
+  const me=(window._cru||{}).uid||null, admin=((window._cru||{}).role==='admin');
   const out={...base};
   ['cexp','logi'].forEach(key=>{
     const R=rt[key]||{}, L=lt[key]||{};
@@ -910,8 +910,14 @@ function cruiseSignIn(id){
   // a remembered session still valid?
   const users=((store.trips&&store.trips[id])||{}).users||[];
   if(window._cru){
-    if(window._cru.role==='admin')return true;
-    if(users.some(u=>u.uid===window._cru.uid))return true;
+    if(window._cru.uid==='admin')return true;              // master code
+    const u=users.find(x=>x.uid===window._cru.uid);
+    if(u){                                                 // refresh name/role — demotions and promotions take effect on next open
+      window._cru.name=u.name;
+      window._cru.role=(u.role==='admin')?'admin':'participant';
+      try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+      return true;
+    }
     window._cru=null;
   }
   const v=prompt('This is a group trip.\nEnter YOUR access code:');
@@ -921,7 +927,7 @@ function cruiseSignIn(id){
   else{
     const u=users.find(u=>String(u.code).toUpperCase()===code);
     if(!u){alert('Code not recognized — ask the organizer for yours.');return false;}
-    window._cru={role:'participant',name:u.name,uid:u.uid};
+    window._cru={role:(u.role==='admin')?'admin':'participant',name:u.name,uid:u.uid};
   }
   try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
   return true;
@@ -1730,12 +1736,14 @@ function renderCruise(c){
     body=`<div class="card"><div class="chead"><span>🛠 Guests & access codes</span><span>${users.length} guest${users.length===1?'':'s'}</span></div>
       <div class="plform">
         <div class="plrow1">
-          <input id="us_name" placeholder="Guest name" maxlength="40">
+          <input id="us_name" placeholder="Name" maxlength="40">
+          <select id="us_role" style="flex:0 1 150px"><option value="participant">Guest</option><option value="admin">Organizer</option></select>
           <button class="pladd" type="button" onclick="addUser()" style="flex:0 0 auto;padding:8px 14px">+ Add & generate code</button>
         </div>
-        <div class="plhint">Each guest signs in with their own code from the landing page. Your organizer code stays ${CRUISE_MASTER}.</div>
+        <div class="plhint">Everyone signs in with their own code from the landing page. Organizers get the Admin tab and full control; your master code stays ${CRUISE_MASTER}. Role changes take effect the next time that person opens the trip.</div>
       </div>
-      ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span><span class="tdo-desc" style="margin-left:10px">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
+      ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span>${u.role==='admin'?'<span style="margin-left:8px;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;vertical-align:1px">organizer</span>':''}<span class="tdo-desc" style="margin-left:10px">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
+        <button class="tdo-x" onclick="roleUser('${u.uid}')" title="${u.role==='admin'?'Make guest':'Make organizer'}" style="color:var(--indigo2);font:700 9px var(--mono)">${u.role==='admin'?'⬇︎':'⬆︎'}</button>
         <button class="tdo-x" onclick="renameUser('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
         <button class="tdo-x" onclick="regenUser('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
         <button class="tdo-x" onclick="delUser('${u.uid}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No guests yet — add the first one above.</div>'}
@@ -2144,10 +2152,21 @@ window.leaveSlot=function(rid,i){
 };
 window.addUser=function(){
   const el=document.getElementById('us_name');
+  const rl=document.getElementById('us_role');
   const name=el?el.value.trim():'';
   if(!name){el&&el.focus();return;}
   overrides.users=overrides.users||[];
-  overrides.users.push({uid:'u'+Date.now(),name,code:genCode(),role:'participant'});
+  overrides.users.push({uid:'u'+Date.now(),name,code:genCode(),role:(rl&&rl.value==='admin')?'admin':'participant'});
+  saveOverrides();render();
+};
+window.roleUser=function(uid){
+  const u=(overrides.users||[]).find(x=>x.uid===uid);
+  if(!u)return;
+  const toAdmin=u.role!=='admin';
+  if(!confirm(toAdmin
+    ?('Make '+u.name+' an organizer? They get the Admin tab, billing, rooms and schedule control.')
+    :('Make '+u.name+' a guest? They lose the Admin tab and organizer controls.')))return;
+  u.role=toAdmin?'admin':'participant';
   saveOverrides();render();
 };
 window.renameUser=function(uid){

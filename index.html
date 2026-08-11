@@ -1165,7 +1165,7 @@ function renderAddRestaurant(){
     <input id="${id}" type="${type||'text'}" placeholder="${ph||''}" style="width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:#fff"></label>`;
   panel.innerHTML=`<div class="stack" style="max-width:720px;margin:0 auto">
     <div class="card">
-      <div class="chead"><span>🛠 Add a restaurant</span><span>${mine.length} added</span></div>
+      <div class="chead"><span>🛠 ${window._editStopId?'Edit restaurant':'Add a restaurant'}</span><span>${mine.length} added here</span></div>
       <div style="padding:13px 15px">
         <div class="note" style="margin-bottom:11px">Everything you add here is saved with this trip and behaves exactly like a built-in stop — map pin, meal card, budget, Still-to-book and the Vault.</div>
         <div style="display:flex;gap:9px;flex-wrap:wrap">
@@ -1195,48 +1195,111 @@ function renderAddRestaurant(){
         ${F('ar_note','Note (blue box on the card)','')}
         ${F('ar_warn','Warning (red box — booking deadlines, closures)','')}
         <div style="display:flex;gap:9px;align-items:center;margin-top:11px">
-          <button class="pladd" type="button" onclick="saveRestaurant()" style="padding:9px 16px">+ Add restaurant</button>
+          <button class="pladd" type="button" id="ar_btn" onclick="saveRestaurant()" style="padding:9px 16px;${window._editStopId?'background:var(--moss)':''}">${window._editStopId?'✓ Save changes':'+ Add restaurant'}</button>
+          ${window._editStopId?`<button type="button" onclick="window._editStopId=null;renderAddRestaurant()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);padding:8px 12px;cursor:pointer;color:var(--grey)">Cancel</button>`:''}
           <span id="ar_msg" style="font:10px var(--mono);color:var(--grey)"></span>
         </div>
       </div>
     </div>
-    ${mine.length?`<div class="card"><div class="chead"><span>Added on this trip</span></div>
-      ${mine.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.name)}</span><span class="tdo-desc">${esc(x.d)} · ${esc(x.m)} · ${esc((CITIES.find(c=>c.id===x.city)||{}).city||x.city)}${x.lat?'':' · no map pin'}</span></span>
-        <button class="tdo-x" onclick="delRestaurant(${x.id})" style="color:var(--clay);font-size:17px">×</button></div>`).join('')}</div>`:''}
+    <div class="card"><div class="chead"><span>All restaurants on this trip</span><span>✎ edit · × remove</span></div>
+      ${CITIES.filter(c=>c.stops).map(c=>{
+        const rows=stopsFor(c);
+        if(!rows.length)return '';
+        return `<div class="pl-day">${esc(c.city)}</div>`+rows.map(x=>{
+          const e=eff(x), isCustom=(overrides.stops||[]).some(o=>o.id===x.id);
+          const edited=!isCustom&&overrides[x.id]&&Object.keys(overrides[x.id]).length;
+          return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(e.name)}</span>${isCustom?'<span class="tdo-cat">added in-app</span>':(edited?'<span class="tdo-cat">edited</span>':'')}<span class="tdo-desc">${esc(e.d)} · ${esc(e.m)} · ${esc(e.dish||'')}</span></span>
+            <button class="tdo-x" onclick="editStopForm(${x.id})" style="color:var(--indigo)">✎</button>
+            <button class="tdo-x" onclick="removeStop(${x.id})" style="color:var(--clay);font-size:17px">×</button></div>`;
+        }).join('');
+      }).join('')}
+    </div>
+    ${(overrides.removedStops||[]).length?`<div class="card"><div class="chead"><span>Removed built-ins</span><span>restorable</span></div>
+      ${(overrides.removedStops||[]).map(id=>{const f=findStop.builtinName?null:null;
+        let nm='#'+id;
+        for(const c of CITIES.filter(c=>c.stops)){const st=c.stops.find(x=>x.id===id);if(st){nm=st.name+' · '+c.city;break;}}
+        return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t" style="text-decoration:line-through;color:var(--grey)">${esc(nm)}</span></span>
+          <button class="tdo-x" onclick="restoreStop(${id})" style="color:var(--moss);font-size:13px" title="Restore">↩︎</button></div>`;
+      }).join('')}</div>`:''}
   </div>`;
 }
+window.editStopForm=function(id){
+  const hit=findStop(id);
+  if(!hit)return;
+  window._editStopId=id;
+  window._editStopCustom=hit.custom;
+  renderAddRestaurant();
+  const e=hit.custom?hit.rec:eff(hit.rec);
+  const g=i=>document.getElementById(i), set=(i,val)=>{if(g(i))g(i).value=val??'';};
+  set('ar_city',e.city);set('ar_day',e.d);set('ar_meal',e.m);set('ar_name',e.name);
+  set('ar_q',e.q);set('ar_dish',e.dish);set('ar_hrs',e.hrs);set('ar_area',e.area);
+  set('ar_url',e.url||(e.lat?e.lat+', '+e.lng:''));set('ar_res',e.res);set('ar_pay',e.pay||'');
+  set('ar_jpy',e.jpy||'');set('ar_note',e.note);set('ar_warn',e.warn);
+  if(!hit.custom&&g('ar_city'))g('ar_city').disabled=true;   // a built-in stays in its city
+  g('ar_name').scrollIntoView({behavior:'smooth',block:'center'});
+};
 window.saveRestaurant=function(){
   const g=i=>document.getElementById(i), v=i=>(g(i)?g(i).value.trim():'');
   const msg=g('ar_msg');
   if(!v('ar_name')){msg.textContent='Name is required.';return;}
   const ll=parseLatLng(v('ar_url'));
-  const rec={id:nextStopId(),city:v('ar_city'),d:v('ar_day'),m:v('ar_meal'),name:v('ar_name'),
-    dish:v('ar_dish')||'—',hrs:v('ar_hrs')||'—',area:v('ar_area')||'',res:v('ar_res'),
-    jpy:Number(v('ar_jpy'))||0,custom:true};
-  if(v('ar_q'))rec.q=v('ar_q');
-  if(v('ar_pay'))rec.pay=v('ar_pay');
-  if(v('ar_note'))rec.note=v('ar_note');
-  if(v('ar_warn'))rec.warn=v('ar_warn');
-  if(v('ar_url'))rec.url=v('ar_url');
-  if(ll){rec.lat=ll[0];rec.lng=ll[1];}
-  overrides.stops=overrides.stops||[];
-  overrides.stops.push(rec);
+  const fields={d:v('ar_day'),m:v('ar_meal'),name:v('ar_name'),dish:v('ar_dish')||'—',hrs:v('ar_hrs')||'—',
+    area:v('ar_area')||'',res:v('ar_res'),jpy:Number(v('ar_jpy'))||0,
+    q:v('ar_q'),pay:v('ar_pay'),note:v('ar_note'),warn:v('ar_warn'),url:v('ar_url')};
+  if(ll){fields.lat=ll[0];fields.lng=ll[1];}
+  const editing=window._editStopId;
+  if(editing&&!window._editStopCustom){
+    // Built-in: every field becomes a per-stop override in the synced data —
+    // the trip file is never touched, and eff() merges these everywhere.
+    overrides[editing]=Object.assign(overrides[editing]||{},fields);
+  }else if(editing){
+    const i=(overrides.stops||[]).findIndex(x=>x.id===editing);
+    if(i>-1)overrides.stops[i]={...overrides.stops[i],...fields,city:v('ar_city')};
+  }else{
+    overrides.stops=overrides.stops||[];
+    overrides.stops.push({id:nextStopId(),city:v('ar_city'),custom:true,...fields});
+  }
+  window._editStopId=null;window._editStopCustom=false;
   saveOverrides();
   renderAddRestaurant();
   const m2=document.getElementById('ar_msg');
-  if(m2)m2.textContent=ll?'Added with a map pin ✓':'Added — no coordinates found in that link, so it has no map pin.';
+  if(m2)m2.textContent=editing?'Saved ✓':(ll?'Added with a map pin ✓':'Added — no coordinates in that link, so no map pin.');
 };
-window.delRestaurant=function(id){
-  if(!confirm('Remove this restaurant?'))return;
-  overrides.stops=(overrides.stops||[]).filter(x=>x.id!==id);
+window.removeStop=function(id){
+  const hit=findStop(id);
+  if(!hit)return;
+  if(hit.custom){
+    if(!confirm('Remove "'+hit.rec.name+'"?'))return;
+    overrides.stops=(overrides.stops||[]).filter(x=>x.id!==id);
+  }else{
+    if(!confirm('Remove "'+hit.rec.name+'" from the trip? It can be restored from the Removed list.'))return;
+    overrides.removedStops=overrides.removedStops||[];
+    if(!overrides.removedStops.includes(id))overrides.removedStops.push(id);
+  }
   saveOverrides();renderAddRestaurant();
 };
+window.restoreStop=function(id){
+  overrides.removedStops=(overrides.removedStops||[]).filter(x=>x!==id);
+  saveOverrides();renderAddRestaurant();
+};
+
 
 /* Static stops from the trip file + anything added in the app. */
 function stopsFor(c){
   if(!c||!c.stops)return (c&&c.stops)||[];
+  const gone=overrides.removedStops||[];
+  const base=gone.length?c.stops.filter(s=>!gone.includes(s.id)):c.stops;
   const extra=(overrides.stops||[]).filter(x=>x.city===c.id);
-  return extra.length?c.stops.concat(extra):c.stops;
+  return extra.length?base.concat(extra):base;
+}
+function findStop(id){
+  const custom=(overrides.stops||[]).find(x=>x.id===id);
+  if(custom)return {rec:custom,custom:true};
+  for(const c of CITIES.filter(c=>c.stops)){
+    const s=c.stops.find(x=>x.id===id);
+    if(s)return {rec:{...s,city:c.id},custom:false};
+  }
+  return null;
 }
 function allCityStops(){ return CITIES.filter(c=>c.stops).flatMap(c=>stopsFor(c)); }
 

@@ -315,7 +315,14 @@ var HOTELS = {
 };var TODAY_CITY={15:'vancouver',16:'vancouver',17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'osaka',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
 var TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
 
-window.TRIPS_REGISTRY['japan-2026']={cities:CITIES,hotels:HOTELS,flights:FLIGHTS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
+var TRAINS=[
+ {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 73 ✓ Smart EX",note:"Arr 16:00 → Kintetsu ltd. exp 16:20 → Nara 16:55 → Shisui → Poku-Poku by 18:00. Seats not finalized — pick them on Smart EX (E side for Fuji)."},
+ {d:"Nov 21",t:"17:34",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Aoniyoshi sightseeing ltd. exp",note:"Sat/hol slot · arr Namba 18:12. All-reserved — booking opens on Kintetsu ~1 month out (Oct 21); window-facing twin seats, onboard sales counter. Then Midōsuji to Tennōji, bags, Ondoriya ~19:30."},
+ {d:"Nov 24",t:"11:30",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 90 ✓ Smart EX",note:"Arr 12:19 — Keitei inside the station. Leave hotel 10:40. Seats not finalized."},
+ {d:"Nov 26",t:"14:36",route:"Nagoya → Tokyo",train:"Nozomi 24 ✓ Smart EX",note:"Arr 16:15, Roppongi ~17:00. SHUHARI ends 14:05 latest. Seats not finalized."}
+];
+
+window.TRIPS_REGISTRY['japan-2026']={cities:CITIES,hotels:HOTELS,flights:FLIGHTS,trains:TRAINS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
    emoji:'🇯🇵',brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals",
    title:"Japan, November 2026",kicker:"Anniversary trip · 15–27 Nov 2026",depart:[2026,10,15],arrive:[2026,10,17],end:[2026,10,27],
    navIcons:{today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'},

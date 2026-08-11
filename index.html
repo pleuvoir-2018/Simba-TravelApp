@@ -523,7 +523,8 @@ function mergeCruise(rt,lt,base){
       out.rooms=R.map(r=>{
         const l=L.find(x=>x.id===r.id);
         if(!l)return r;
-        const slots=[0,1].map(i=>{
+        const n=Math.max((l.slots||[]).length,(r.slots||[]).length,2);
+        const slots=Array.from({length:n},(_,i)=>{
           const lv=(l.slots||[])[i]??null, rv=(r.slots||[])[i]??null;
           if(lv===rv)return lv;
           if(lv===me||rv===me)return lv;   // my own claim or release stands
@@ -1456,16 +1457,30 @@ function renderCruise(c){
     const mine=rooms.find(r=>(r.slots||[]).includes(me));
     const placed=new Set(rooms.flatMap(r=>(r.slots||[]).filter(Boolean)));
     const unplaced=users.filter(u=>!placed.has(u.uid));
-    const quotes=overrides.quotes||{};
+    // Quotes are a list now: same type can be offered at 2, 3 or 4 people.
+    // Old object-form quotes ({cat:{q,img}}) migrate on the fly as 2-person entries.
+    const quotesRaw=overrides.quotes;
+    const quoteList=Array.isArray(quotesRaw)?quotesRaw
+      :(quotesRaw&&typeof quotesRaw==='object'
+        ?Object.entries(quotesRaw).filter(([k,v])=>v&&Number(v.q)>0).map(([k,v])=>({id:'mig_'+k,cat:k,ppl:2,q:Number(v.q),img:v.img||''}))
+        :[]);
     const reqs=overrides.reqs||[];
     const money=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
-    const quotedCats=cats.filter(k=>quotes[k.id]&&Number(quotes[k.id].q)>0);
-    const quoteAdmin=`<div class="card"><div class="chead"><span>💵 Quotes by room type</span><span>guests only see quoted types</span></div>
-      ${cats.map(k=>{const q=quotes[k.id]||{};return `<div class="tdo-row" style="flex-wrap:wrap;gap:6px">
-        <span class="tdo-main" style="flex:1 1 150px"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc">${esc(k.sq)}</span></span>
-        <input type="number" min="0" placeholder="$ quote" value="${q.q||''}" onchange="setQuote('${k.id}','q',this.value)" style="flex:0 1 100px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:5px 7px">
-        <input placeholder="image URL — right-click a photo on Royal's site → Copy Image Address" value="${esc(q.img||'')}" onchange="setQuote('${k.id}','img',this.value)" style="flex:2 1 210px;font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:5px 7px">
-      </div>`;}).join('')}
+    const qFor=cat=>quoteList.filter(x=>x.cat===cat);
+    const qMin=cat=>{const a=qFor(cat).map(x=>Number(x.q)).filter(n=>n>0);return a.length?Math.min(...a):0;};
+    const quoteAdmin=`<div class="card"><div class="chead"><span>💵 Quotes</span><span>${quoteList.length} on offer</span></div>
+      <div class="plform">
+        <div class="plrow1">
+          <select id="qt_cat">${cats.map(k=>`<option value="${k.id}">${esc(k.n)}</option>`).join('')}</select>
+          <select id="qt_ppl"><option value="2">2 people</option><option value="3">3 people</option><option value="4">4 people</option></select>
+          <input id="qt_amt" type="number" min="0" step="0.01" placeholder="$ quote">
+        </div>
+        <input id="qt_img" placeholder="Image link (optional) — right-click a photo on Royal's site → Copy Image Address">
+        <button class="pladd" type="button" onclick="addQuote()" style="align-self:flex-start;padding:8px 14px">+ Add quote</button>
+        <div class="plhint">Guests see each quote as its own card. Quote the same type at different occupancies freely.</div>
+      </div>
+      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat};return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc">${q.ppl} people · ${money(q.q)}${q.img?' · 🖼 image set':''}</span></span>
+        <button class="tdo-x" onclick="delQuote('${q.id}')" style="color:var(--clay);font-size:17px">×</button></div>`;}).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing quoted yet.</div>'}
     </div>`;
     const pend=reqs.filter(r=>r.status==='pending');
     const reqAdmin=`<div class="card"><div class="chead"><span>🔁 Room-type change requests</span><span>${pend.length} pending</span></div>
@@ -1477,13 +1492,15 @@ function renderCruise(c){
           ${r.status==='pending'?`<button class="tdo-x" onclick="decideReq('${r.id}',1)" title="Approve — applies immediately" style="color:var(--moss)">✓</button><button class="tdo-x" onclick="decideReq('${r.id}',0)" title="Deny" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`;
       }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No requests yet.</div>'}
     </div>`;
-    const quoteShow=quotedCats.length?`<div class="card"><div class="chead"><span>💵 Room types on offer</span><span>quotes from 조상연</span></div>
-      ${quotedCats.map(k=>{const q=quotes[k.id];return `<div style="display:flex;gap:12px;padding:12px 13px;border-bottom:1px dotted var(--rule);align-items:center">
-        ${q.img?`<img src="${esc(q.img)}" alt="${esc(k.n)}" loading="lazy" style="flex:0 0 110px;width:110px;height:78px;object-fit:cover;border-radius:3px" onerror="this.style.display='none'">`:`<span style="flex:0 0 110px;height:78px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 10px var(--mono)">${esc(k.n.slice(0,2).toUpperCase())}</span>`}
+    const quoteShow=quoteList.length?`<div class="card"><div class="chead"><span>💵 Rooms on offer</span><span>quotes from 조상연</span></div>
+      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat,sq:'',d:'',tone:'#5B7185'};return `<div style="display:flex;gap:12px;padding:12px 13px;border-bottom:1px dotted var(--rule);align-items:center">
+        ${q.img?`<img src="${esc(q.img)}" alt="${esc(k.n)}" loading="lazy" style="flex:0 0 110px;width:110px;height:78px;object-fit:cover;border-radius:3px" onerror="this.style.display='none'">`:`<span style="flex:0 0 110px;height:78px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 10px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>`}
         <span style="flex:1;min-width:0"><span style="font-size:13.5px;font-weight:600">${esc(k.n)}</span>
-          <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--indigo2);margin-top:1px">${esc(k.sq)}</span>
+          <span style="display:inline-block;margin-left:7px;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 8.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;vertical-align:1px">sleeps ${q.ppl}</span>
+          <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--indigo2);margin-top:2px">${esc(k.sq)}</span>
           <span style="display:block;font-size:11.5px;color:var(--grey);margin-top:2px">${esc(k.d)}</span></span>
-        <span style="flex:0 0 auto;text-align:right;font-family:var(--serif);font-size:19px;font-weight:700;color:var(--indigo)">${money(q.q)}</span>
+        <span style="flex:0 0 auto;text-align:right"><span style="font-family:var(--serif);font-size:19px;font-weight:700;color:var(--indigo)">${money(q.q)}</span>
+          <span style="display:block;font:600 8.5px var(--mono);color:var(--grey)">for ${q.ppl}</span></span>
       </div>`;}).join('')}
     </div>`:'';
     const myPendReq=reqs.find(r=>r.uid===me&&r.status==='pending');
@@ -1495,7 +1512,7 @@ function renderCruise(c){
         <button onclick="cancelReq('${myPendReq.id}')" style="margin-left:10px;background:none;border:1px solid var(--rule);border-radius:2px;font:600 9px var(--mono);text-transform:uppercase;color:var(--clay);padding:4px 8px;cursor:pointer">Cancel</button></div>`
       :`<div class="plform">
         ${myLastReq?`<div class="plhint">Your last request (${esc((cats.find(k=>k.id===myLastReq.to)||{}).n||myLastReq.to)}) was <b>${myLastReq.status}</b>.</div>`:''}
-        <select id="rq_to">${cats.filter(k=>k.id!==mine.cat).map(k=>`<option value="${k.id}">${esc(k.n)}${quotes[k.id]&&quotes[k.id].q?' — '+money(quotes[k.id].q):''}</option>`).join('')}</select>
+        <select id="rq_to">${cats.filter(k=>k.id!==mine.cat).map(k=>`<option value="${k.id}">${esc(k.n)}${qMin(k.id)?' — from '+money(qMin(k.id)):''}</option>`).join('')}</select>
         <input id="rq_note" placeholder="Anything 조상연 should know (optional)" maxlength="80">
         <button class="pladd" type="button" onclick="reqChange()" style="align-self:flex-start;padding:8px 14px">Send request</button>
         <div class="plhint">Once approved, your cabin's type changes automatically — nothing else to do.</div>
@@ -1506,6 +1523,7 @@ function renderCruise(c){
         <div class="plrow1">
           <input id="rm_num" placeholder="Cabin no. (optional — Royal often assigns near sailing)" maxlength="10">
           <select id="rm_cat">${cats.map(k=>`<option value="${k.id}">${k.n}</option>`).join('')}</select>
+          <select id="rm_cap" title="How many this room sleeps"><option value="2">Sleeps 2</option><option value="3">Sleeps 3</option><option value="4">Sleeps 4</option></select>
         </div>
         <input id="rm_note" placeholder="Deck / note (optional)" maxlength="60">
         <div style="display:flex;gap:8px">
@@ -1513,10 +1531,11 @@ function renderCruise(c){
           ${window._editRoom?'<button type="button" onclick="window._editRoom=null;render()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);padding:7px 11px;cursor:pointer;color:var(--grey)">Cancel</button>':''}
         </div>
       </div></div>`+quoteAdmin+reqAdmin:quoteShow)+
-      `<div class="card"><div class="chead"><span>🛏 Cabins</span><span>${placed.size}/${rooms.length*2} slots taken</span></div>
+      `<div class="card"><div class="chead"><span>🛏 Cabins</span><span>${placed.size}/${rooms.reduce((a,r)=>a+(Number(r.cap)||((r.slots||[]).length)||2),0)} slots taken</span></div>
       ${rooms.length?rooms.map((r,ri)=>{
         const k=cats.find(x=>x.id===r.cat)||{n:r.cat,d:'',sq:'',tone:'#5B7185'};
-        const slots=(r.slots||[null,null]);
+        const cap=Number(r.cap)||((r.slots||[]).length)||2;
+        const slots=Array.from({length:cap},(_,i)=>((r.slots||[])[i])??null);
         return `<div style="display:flex;gap:11px;padding:11px 13px;border-bottom:1px dotted var(--rule);align-items:flex-start">
           <span style="flex:0 0 42px;height:42px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 9px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>
           <span style="flex:1;min-width:0">
@@ -1985,12 +2004,23 @@ window.delCharge=function(id){
     saveOverrides();render();
   }
 };
-window.setQuote=function(cat,f,v){
-  overrides.quotes=overrides.quotes||{};
-  overrides.quotes[cat]=overrides.quotes[cat]||{};
-  if(f==='q')overrides.quotes[cat].q=Number(v)||0;
-  else overrides.quotes[cat][f]=String(v).trim();
-  saveOverrides();
+function quoteListNow(){
+  const q=overrides.quotes;
+  if(Array.isArray(q))return q;
+  if(q&&typeof q==='object')return Object.entries(q).filter(([k,v])=>v&&Number(v.q)>0).map(([k,v])=>({id:'mig_'+k,cat:k,ppl:2,q:Number(v.q),img:v.img||''}));
+  return [];
+}
+window.addQuote=function(){
+  const g=i=>document.getElementById(i);
+  const amt=Number(g('qt_amt').value);
+  if(!(amt>0)){g('qt_amt').focus();return;}
+  overrides.quotes=quoteListNow();
+  overrides.quotes.push({id:'qt'+Date.now(),cat:g('qt_cat').value,ppl:Math.min(4,Math.max(2,Number(g('qt_ppl').value)||2)),q:Number(amt.toFixed(2)),img:g('qt_img').value.trim()});
+  saveOverrides();render();
+};
+window.delQuote=function(id){
+  overrides.quotes=quoteListNow().filter(x=>x.id!==id);
+  saveOverrides();render();
 };
 window.reqChange=function(){
   const g=i=>document.getElementById(i);
@@ -2029,13 +2059,23 @@ window._editRoom=null;
 window.addRoom=function(){
   const g=i=>document.getElementById(i);
   const num=g('rm_num').value.trim();   // optional: cabin numbers often come later
+  const cap=Math.min(4,Math.max(2,Number(g('rm_cap')?g('rm_cap').value:2)||2));
   overrides.rooms=overrides.rooms||[];
   if(window._editRoom){
     const r=overrides.rooms.find(x=>x.id===window._editRoom);
+    if(r){
+      const occupants=(r.slots||[]).filter(Boolean);
+      if(occupants.length>cap){alert('This room has '+occupants.length+' people in it — move someone out before shrinking it to sleep '+cap+'.');return;}
+      const slots=Array.from({length:cap},(_,i)=>((r.slots||[])[i])??null);
+      // shrinking must not drop anyone: compact occupants into the remaining slots
+      if(occupants.length&&slots.filter(Boolean).length<occupants.length){
+        for(let i=0;i<cap;i++)slots[i]=occupants[i]??null;
+      }
+      Object.assign(r,{num,cat:g('rm_cat').value,note:g('rm_note').value.trim(),cap,slots});
+    }
     window._editRoom=null;
-    if(r)Object.assign(r,{num,cat:g('rm_cat').value,note:g('rm_note').value.trim()});  // slots untouched
   }else{
-    overrides.rooms.push({id:'r'+Date.now(),num,cat:g('rm_cat').value,note:g('rm_note').value.trim(),slots:[null,null]});
+    overrides.rooms.push({id:'r'+Date.now(),num,cat:g('rm_cat').value,note:g('rm_note').value.trim(),cap,slots:Array.from({length:cap},()=>null)});
   }
   saveOverrides();render();
 };
@@ -2045,6 +2085,7 @@ window.editRoom=function(id){
   window._editRoom=id;render();
   const g=i=>document.getElementById(i);
   g('rm_num').value=r.num||'';g('rm_cat').value=r.cat;g('rm_note').value=r.note||'';
+  if(g('rm_cap'))g('rm_cap').value=String(Number(r.cap)||((r.slots||[]).length)||2);
   g('rm_num').scrollIntoView({behavior:'smooth',block:'center'});
 };
 window.delRoom=function(id){

@@ -12,7 +12,7 @@ const TRIPS=[
   photo:wm('Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg'),
   credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'},
  {id:'jeju-2027',country:'South Korea · Jeju',title:'Jeju, May 2027',dates:'10–14 May 2027 · group trip',emoji:'🍊',
-  photo:wm('Seongsan_Ilchulbong_from_the_air.jpg'),credit:'Seongsan Ilchulbong · KOCIS, CC BY-SA 2.0',status:'group'},
+  photo:wm('Seongsan_Ilchulbong_from_the_air.jpg'),credit:'Seongsan Ilchulbong · KOCIS, CC BY-SA 2.0',status:'group',theme:'ocean'},
  {id:'cruise-2028',country:'Caribbean',title:'Icon Class Cruise, January 2028',dates:'9–16 January 2028 · Star of the Seas',emoji:'🚢',
   photo:wm('Icon_of_the_Seas.jpg'),credit:'Icon of the Seas · Wikimedia Commons',status:'group',theme:'ocean'},
  {id:'hawaii-2028',country:'The 10th Anniversary',title:'Hawaii, December 2028',dates:'10–19 December 2028',emoji:'🌺',

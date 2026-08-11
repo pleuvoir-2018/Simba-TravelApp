@@ -500,3 +500,7 @@ body.dark .deckview{background:#E7E2D6}
 .qfchip.on{background:var(--indigo);border-color:var(--indigo);color:#fff}
 body.dark .qfchip.on{color:#0D1218}
 .qfcount{margin-left:auto;font:600 9px var(--mono);color:var(--grey);letter-spacing:.05em}
+.shipsec{font:600 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--clay);padding:11px 13px 5px}
+.shipchips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 13px 11px}
+.shipchip{font:500 11.5px var(--sans);border:1px solid var(--rule);border-radius:20px;padding:5px 11px;color:var(--ink);background:var(--card,#fff)}
+.shipchip.spec{border-style:dashed;color:var(--grey)}

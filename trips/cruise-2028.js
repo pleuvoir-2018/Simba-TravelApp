@@ -68,6 +68,38 @@ var CR_SHIP={
 
 window.TRIPS_REGISTRY['cruise-2028']={accent:'#0E7C86',cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
  itinerary:CR_ITIN,cats:CR_CATS,ship:'Star of the Seas',shipInfo:CR_SHIP,
+ dining:{
+  inc:['Windjammer','Dining Room (3 decks)','AquaDome Market','Surfside Eatery','Surfside Bites','Basecamp','Pearl Café','Sorrento\'s','Park Café','El Loco Fresh','Pier 7'],
+  spec:['Izumi Hibachi & Sushi','Chops Grille','Giovanni\'s Italian Kitchen & Wine Bar','Hooked Seafood','Empire Supper Club','Celebration Table','Izumi in the Park']
+ },
+ fun:[
+  ['Thrill Island 🎢',[
+   ['Category 6 waterpark','Six record slides — Frightening Bolt (tallest drop at sea), Pressure Drop (first open free-fall), Storm Surge & Hurricane Hunter family rafts'],
+   ['Crown\'s Edge','Part skywalk, part ropes course — the floor drops out 154 ft over the ocean'],
+   ['Adrenaline Peak','Rock wall to the highest point on the ship'],
+   ['FlowRider','The classic surf simulator, 40 ft of rushing water']
+  ]],
+  ['Chill Island & pools 🍹',[
+   ['Royal Bay','Largest pool at sea — in-water loungers, raised whirlpools'],
+   ['Swim & Tonic','First swim-up bar in the fleet, resident DJ'],
+   ['The Hideaway','Suspended adults-only infinity pool, eight stories up'],
+   ['Cloud 17 & The Cove','Adults-up-top quiet deck; mellow disappearing-edge pool'],
+   ['Surfside','Family neighborhood — Splashaway Bay, Water\'s Edge pool, arcade']
+  ]],
+  ['Shows & nights 🎭',[
+   ['AquaTheater','55-ft waterfall, high divers, effects — inside the AquaDome'],
+   ['Absolute Zero','Biggest ice arena at sea, digitally-mapped skating shows'],
+   ['Dueling Pianos','Battle of the baby grands on the Royal Promenade'],
+   ['Lou\'s Jazz \'n Blues & Bubbles','Live jazz and a walk-up champagne bar in Central Park'],
+   ['Music Hall · Spotlight Karaoke · The Attic','Cover bands, private karaoke rooms, adults-only comedy'],
+   ['Point & Feather · Playmakers · Casino Royale','English pub darts, sports bar & arcade, 370+ slots']
+  ]]
+ ],
+ fees:[
+  ['Non-refundable deposit','$250 per room, due at booking'],
+  ['Gratuities','$518 per room of 4 (≈$129.50/person) · ≈$259 for 2'],
+  ['Not included','Specialty dining, Voom wi-fi, drinks packages, shore excursions']
+ ],
  deckPlans:(()=>{const W='https://assets.widgety.co.uk';const F=n=>`/Royal%20Caribbean%20International%20Star%20of%20the%20Seas%20Deck%20${n}.png`;return{
   2:W+'/2026/04/19/20/21/56/5cdf7c88-c93e-4455-a81a-ac118a172591'+F(2),
   3:W+'/2025/04/29/15/12/32/5cca3c96-79de-41bf-b7e0-78450a55bebb'+F(3),

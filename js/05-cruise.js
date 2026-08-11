@@ -86,6 +86,16 @@ function renderCruise(c){
         ${SI.hoods.map(h=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(h[0])}</span><span class="tdo-desc">${esc(h[1])}</span></span></div>`).join('')}
         ${SI.note?`<div style="padding:9px 13px;font-size:11px;color:var(--grey);border-top:1px solid var(--rule)">${esc(SI.note)}</div>`:''}
       </div>
+      ${T.dining?`<div class="card"><div class="chead"><span>🍽 Dining aboard</span><span>${T.dining.inc.length} included · ${T.dining.spec.length} specialty</span></div>
+        <div class="shipsec">Included with the cruise</div>
+        <div class="shipchips">${T.dining.inc.map(n=>`<span class="shipchip">${esc(n)}</span>`).join('')}</div>
+        <div class="shipsec">Specialty — extra charge</div>
+        <div class="shipchips">${T.dining.spec.map(n=>`<span class="shipchip spec">${esc(n)}</span>`).join('')}</div>
+      </div>`:''}
+      ${T.fun?`<div class="card"><div class="chead"><span>🎢 Things to do</span><span>all included unless noted</span></div>
+        ${T.fun.map(([g,items])=>`<div class="shipsec">${esc(g)}</div>
+          ${items.map(([n,d])=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(n)}</span><span class="tdo-desc" style="display:block;margin-top:2px">${esc(d)}</span></span></div>`).join('')}`).join('')}
+      </div>`:''}
       ${T.deckPlans?(()=>{
         const decks=Object.keys(T.deckPlans).map(Number).sort((a,b)=>b-a);
         const sel=window._deckSel||10;
@@ -155,9 +165,12 @@ function renderCruise(c){
     // and edits/deletes persist normally on their next save.
     if(!Array.isArray(overrides.quotes))overrides.quotes=quoteList;
     overrides.quotes=overrides.quotes.filter(q=>!(q.id==='seed_interior_4'&&Number(q.q)===4385));
+    overrides.qSeedSkip=overrides.qSeedSkip||[];
     (T.seedQuotes||[]).forEach(sq=>{
+      const slot=sq.cat+'_'+sq.ppl;
+      if(overrides.qSeedSkip.includes(slot))return;            // organizer removed or rewrote this seed
       if(!overrides.quotes.some(q=>q.cat===sq.cat&&Number(q.ppl)===Number(sq.ppl)))
-        overrides.quotes.push({id:'seed_'+sq.cat+'_'+sq.ppl,cat:sq.cat,ppl:sq.ppl,q:sq.q,img:''});
+        overrides.quotes.push({id:'seed_'+slot,cat:sq.cat,ppl:sq.ppl,q:sq.q,img:''});
     });
     const reqs=overrides.reqs||[];
     const money=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
@@ -193,6 +206,10 @@ function renderCruise(c){
     </div>`;
     const qF=window._qFilter||'all';
     const quoteVis=quoteList.filter(q=>qF==='all'||Number(q.ppl)===qF);
+    const feesCard=(T.fees&&T.fees.length)?`<div class="card"><div class="chead"><span>💳 Fees & extras</span><span>charged by Royal</span></div>
+      ${T.fees.map(f=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(f[0])}</span><span class="tdo-desc" style="display:block;margin-top:2px">${esc(f[1])}</span></span></div>`).join('')}
+      <div style="padding:8px 13px;font-size:10.5px;color:var(--grey);border-top:1px solid var(--rule)">Separate from the room quotes above — everyone pays these regardless of room type.</div>
+    </div>`:'';
     const quoteShow=quoteList.length?`<div class="card"><div class="chead"><span>💵 Rooms on offer</span><span>from the organizer</span></div>
       <div class="qfilter">${[['all','All'],[2,'2 adults'],[4,'4 adults']].map(([v,l])=>`<button type="button" class="qfchip ${qF===v?'on':''}" onclick="window._qFilter=${typeof v==='number'?v:`'all'`};render()">${l}</button>`).join('')}<span class="qfcount">${quoteVis.length} of ${quoteList.length}</span></div>
       ${quoteVis.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat,sq:'',d:'',tone:'#5B7185'};return `<div style="display:flex;gap:12px;padding:12px 13px;border-bottom:1px dotted var(--rule);align-items:center">
@@ -730,7 +747,16 @@ window.addQuote=function(){
   if(window._editQuote){
     const q=overrides.quotes.find(x=>x.id===window._editQuote);
     window._editQuote=null;
-    if(q)Object.assign(q,fields);
+    if(q){
+      if(String(q.id).startsWith('seed_')){
+        // an edited seed becomes the organizer's own quote and its slot never re-seeds
+        overrides.qSeedSkip=overrides.qSeedSkip||[];
+        const slot=q.cat+'_'+q.ppl;
+        if(!overrides.qSeedSkip.includes(slot))overrides.qSeedSkip.push(slot);
+        q.id='qt'+Date.now();
+      }
+      Object.assign(q,fields);
+    }
   }else{
     overrides.quotes.push({id:'qt'+Date.now(),...fields});
   }
@@ -747,7 +773,13 @@ window.editQuote=function(id){
   g('qt_amt').scrollIntoView({behavior:'smooth',block:'center'});
 };
 window.delQuote=function(id){
+  const gone=quoteListNow().find(x=>x.id===id);
   overrides.quotes=quoteListNow().filter(x=>x.id!==id);
+  if(gone&&String(id).startsWith('seed_')){
+    overrides.qSeedSkip=overrides.qSeedSkip||[];
+    const slot=gone.cat+'_'+gone.ppl;
+    if(!overrides.qSeedSkip.includes(slot))overrides.qSeedSkip.push(slot);
+  }
   saveOverrides();render();
 };
 window.reqChange=function(){

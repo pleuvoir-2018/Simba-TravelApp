@@ -161,7 +161,7 @@ function mergeCruise(rt,lt,base){
     Object.keys(R).forEach(uid=>{ if(uid!==me)m[uid]=R[uid]; });
     if(Object.keys(m).length)out[key]=m;
   });
-  ['charges','sched','ann','quotes','headcount'].forEach(key=>{
+  ['charges','sched','ann','quotes','qSeedSkip','headcount'].forEach(key=>{
     const v=admin?(lt[key]!==undefined?lt[key]:rt[key]):(rt[key]!==undefined?rt[key]:lt[key]);
     if(v!==undefined)out[key]=v;
   });

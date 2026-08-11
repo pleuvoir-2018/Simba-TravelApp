@@ -83,7 +83,7 @@ function renderCruise(c){
         <dl style="margin:0;padding:6px 13px 11px">${SI.facts.map(f=>`<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px dotted var(--rule)"><dt style="flex:0 0 118px;font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--grey);padding-top:2px">${esc(f[0])}</dt><dd style="flex:1;margin:0;font-size:12.5px">${esc(f[1])}</dd></div>`).join('')}</dl>
       </div>
       <div class="card"><div class="chead"><span>The eight neighborhoods</span></div>
-        ${SI.hoods.map(h=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(h[0])}</span><span class="tdo-desc">${esc(h[1])}</span></span></div>`).join('')}
+        ${SI.hoods.map(h=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(h[0])}</span><span class="tdo-desc" style="margin-left:10px">${esc(h[1])}</span></span></div>`).join('')}
         ${SI.note?`<div style="padding:9px 13px;font-size:11px;color:var(--grey);border-top:1px solid var(--rule)">${esc(SI.note)}</div>`:''}
       </div>
       ${T.dining?`<div class="card"><div class="chead"><span>🍽 Dining aboard</span><span>${T.dining.inc.length} included · ${T.dining.spec.length} specialty</span></div>

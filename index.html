@@ -1455,12 +1455,7 @@ function renderCruise(c){
       return `<div class="tdo-row"><span class="tdo-main">
         <span class="tdo-t">${esc(x.desc)}</span>
         <span class="tdo-desc">${x.kind==='cruise'?'cruise':x.kind==='transport'?'transport':x.kind}${x.items&&x.items.length?` · <a href="#" onclick="event.preventDefault();toggleInv('${x.id}')" style="color:var(--indigo2)">${window._inv===x.id?'hide invoice':'view itemized invoice'}</a>`:''}</span>
-        ${window._inv===x.id&&x.items?`<span style="display:block;margin-top:7px;border:1px solid var(--rule);border-radius:2px;background:var(--washi2);padding:8px 11px">
-          <span style="display:block;font:600 8.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--indigo2);margin-bottom:5px">Invoice · ${esc(x.desc)}</span>
-          ${x.items.map(it=>`<span style="display:flex;justify-content:space-between;font-size:12px;padding:2px 0"><span>${esc(it.d)}</span><span style="font-family:var(--mono)">${money(it.amt)}</span></span>`).join('')}
-          <span style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;border-top:1px solid var(--rule);margin-top:5px;padding-top:5px"><span>Total</span><span style="font-family:var(--mono)">${money(x.amt)}</span></span>
-          <span style="display:flex;justify-content:space-between;font-size:11px;color:var(--grey);padding-top:2px"><span>Paid so far</span><span style="font-family:var(--mono)">${money(x.paid||0)}</span></span>
-        </span>`:''}
+        ${window._inv===x.id&&x.items?invoiceHTML(x,nameOf(x.uid)):''}
       </span>
       <span style="text-align:right;flex:0 0 auto"><b style="font-family:var(--mono);font-size:13px">${money(x.amt)}</b>
         <span style="display:block;font:600 8.5px var(--mono);letter-spacing:.08em;color:${st[1]}">${st[0]}</span></span></div>`;
@@ -1513,12 +1508,14 @@ function renderCruise(c){
             <select id="ch_kind"><option value="cruise">Cruise fare</option><option value="room">Room</option><option value="transport">Transport</option><option value="other">Other</option></select>
           </div>
           <input id="ch_desc" placeholder="Description — e.g. Star of the Seas · balcony share" maxlength="80">
-          <textarea id="ch_items" rows="3" placeholder="Itemize (optional) — one line each, 'label | amount':&#10;Cruise fare | 1480&#10;Taxes & fees | 195.40&#10;Gratuities | 145.60" style="font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;resize:vertical"></textarea>
+          <span style="font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey)">Line items — optional; leave empty to bill a single amount</span>
+          <div id="ch_items_box"></div>
+          <button type="button" onclick="addChLine()" style="align-self:flex-start;background:none;border:1px dashed var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:6px 11px;cursor:pointer">+ Add line</button>
           <div class="plrow1">
-            <input id="ch_amt" type="number" min="0" step="0.01" placeholder="$ total (auto-summed if itemized)">
-            <button class="pladd" type="button" onclick="addCharge()" style="flex:0 0 auto;padding:8px 14px">+ Bill it</button>
+            <input id="ch_amt" type="number" min="0" step="0.01" placeholder="$ total (ignored when line items are set)" oninput="updateChTotal()">
+            <button class="pladd" type="button" onclick="addCharge()" style="flex:0 0 auto;padding:8px 14px">Bill · <span id="ch_total">$0.00</span></button>
           </div>
-          <div class="plhint">Itemized charges show the guest ONE line on their tracker plus a "view itemized invoice" toggle.</div>
+          <div class="plhint">Guests see ONE line on their tracker; the invoice shows every line with its category.</div>
         </div></div>
       <div class="card"><div class="chead"><span>All charges</span><span>record payments here</span></div>
         ${charges.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(x.uid))} · ${esc(x.desc)}</span>
@@ -1603,6 +1600,7 @@ function renderCruise(c){
     </div>`;
   }
   panel.innerHTML=`<div class="stack" style="max-width:760px;margin:0 auto">${cruStrip()}${body}</div>`;
+  if(c.cruiseTab==='cexp'&&admin)renderChItems();
 }
 window.postAnn=function(){
   const el=document.getElementById('an_txt');
@@ -1678,27 +1676,72 @@ window.delMyExp=function(id){
   overrides.cexp[me]=overrides.cexp[me].filter(x=>x.id!==id);
   saveOverrides();render();
 };
+const CH_CATS={fare:'🚢 Cruise fare',taxes:'🏛 Taxes & fees',grat:'🤵 Gratuities',pkg:'🍹 Drink / dining pkg',excur:'🏝 Excursion',room:'🛏 Room',transport:'🚐 Transport',other:'📦 Other'};
+function chItemIco(c){return (CH_CATS[c]||CH_CATS.other).split(' ')[0];}
+window._chItems=[];
+function renderChItems(){
+  const box=document.getElementById('ch_items_box');
+  if(!box)return;
+  box.innerHTML=window._chItems.map((it,i)=>`
+    <div class="plrow1" style="margin-bottom:6px">
+      <select onchange="syncChItem(${i},'c',this.value)" style="flex:1 1 34%">${Object.entries(CH_CATS).map(([v,l])=>`<option value="${v}" ${it.c===v?'selected':''}>${l}</option>`).join('')}</select>
+      <input placeholder="Detail — e.g. Infinite Balcony · 2 guests" value="${esc(it.d||'')}" oninput="syncChItem(${i},'d',this.value)" style="flex:2 1 40%">
+      <input type="number" min="0" step="0.01" placeholder="$" value="${it.amt||''}" oninput="syncChItem(${i},'amt',this.value)" style="flex:1 1 88px">
+      <button type="button" onclick="delChLine(${i})" style="flex:0 0 auto;background:none;border:none;color:var(--clay);font-size:17px;cursor:pointer;padding:0 4px">×</button>
+    </div>`).join('')||'<div style="font-size:11px;color:var(--grey);padding:2px 0 4px">No lines yet — the single $ total below will be billed as-is.</div>';
+  updateChTotal();
+}
+window.syncChItem=function(i,k,v){ if(window._chItems[i]){window._chItems[i][k]=v; if(k==='amt')updateChTotal();} };
+window.addChLine=function(){
+  window._chItems.push({c:window._chItems.length?'other':'fare',d:'',amt:''});
+  renderChItems();
+};
+window.delChLine=function(i){ window._chItems.splice(i,1); renderChItems(); };
+function updateChTotal(){
+  const t=window._chItems.reduce((a,x)=>a+(Number(x.amt)||0),0);
+  const amtEl=document.getElementById('ch_amt');
+  const el=document.getElementById('ch_total');
+  if(el)el.textContent='$'+(t||(amtEl?Number(amtEl.value)||0:0)).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function invoiceHTML(x,billedTo){
+  const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const bal=Number(x.amt)-Number(x.paid||0);
+  const settled=bal<=0.005;
+  return `<span style="display:block;margin-top:9px;border:1px solid #0B2545;border-radius:3px;overflow:hidden;background:#fff;box-shadow:0 2px 10px rgba(11,37,69,.10)">
+    <span style="display:flex;justify-content:space-between;align-items:center;background:#0B2545;color:#DCEAF9;padding:10px 14px">
+      <span><span style="display:block;font:600 8px var(--mono);letter-spacing:.18em">STAR OF THE SEAS · JAN 9–16, 2028</span>
+        <span style="display:block;font-family:var(--serif);font-size:17px;font-weight:700;margin-top:2px">Invoice</span></span>
+      ${settled
+        ?`<span style="border:1.5px solid #7FD8A4;color:#7FD8A4;border-radius:2px;padding:4px 10px;font:700 10px var(--mono);letter-spacing:.16em;transform:rotate(-4deg)">PAID</span>`
+        :`<span style="border:1.5px solid #F0B45C;color:#F0B45C;border-radius:2px;padding:4px 10px;font:700 9.5px var(--mono);letter-spacing:.12em">BALANCE DUE</span>`}
+    </span>
+    <span style="display:flex;justify-content:space-between;gap:10px;padding:9px 14px 3px;font-size:11px;color:var(--grey)">
+      <span>Billed to <b style="color:var(--ink)">${esc(billedTo)}</b></span><span style="text-align:right">${esc(x.desc)}</span></span>
+    <span style="display:block;padding:5px 14px 12px">
+      ${x.items.map(it=>`<span style="display:flex;align-items:center;gap:9px;font-size:12.5px;padding:6px 0;border-bottom:1px dotted var(--rule)">
+        <span style="flex:0 0 19px;text-align:center">${chItemIco(it.c)}</span>
+        <span style="flex:1;min-width:0">${esc(it.d)}${it.c&&CH_CATS[it.c]?`<span style="display:block;font:600 7.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">${CH_CATS[it.c].slice(2).trim()}</span>`:''}</span>
+        <span style="font-family:var(--mono);font-size:12.5px">${money(it.amt)}</span></span>`).join('')}
+      <span style="display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;padding-top:9px"><span>Total</span><span style="font-family:var(--mono)">${money(x.amt)}</span></span>
+      <span style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--moss);padding-top:2px"><span>Paid to date</span><span style="font-family:var(--mono)">− ${money(x.paid||0)}</span></span>
+      <span style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:${settled?'var(--moss)':'var(--clay)'};border-top:1.5px solid var(--ink);margin-top:6px;padding-top:6px"><span>${settled?'Settled — thank you':'Balance due'}</span><span style="font-family:var(--mono)">${money(Math.max(bal,0))}</span></span>
+    </span>
+  </span>`;
+}
 window.addCharge=function(){
   const g=i=>document.getElementById(i);
   const desc=g('ch_desc').value.trim();
   if(!desc){g('ch_desc').focus();return;}
-  let items=null;
-  const raw=g('ch_items').value.trim();
-  if(raw){
-    items=raw.split('\n').map(l=>{
-      const m=l.split('|');
-      if(m.length<2)return null;
-      const amt=Number(String(m[m.length-1]).replace(/[^0-9.\-]/g,''));
-      return isFinite(amt)&&amt?{d:m.slice(0,-1).join('|').trim(),amt}:null;
-    }).filter(Boolean);
-    if(!items.length)items=null;
-  }
-  const amt=items?items.reduce((a,x)=>a+x.amt,0):Number(g('ch_amt').value);
+  const items=window._chItems
+    .map(x=>({c:x.c||'other',d:String(x.d||'').trim(),amt:Number(x.amt)}))
+    .filter(x=>x.d&&isFinite(x.amt)&&x.amt>0);
+  const amt=items.length?items.reduce((a,x)=>a+x.amt,0):Number(g('ch_amt').value);
   if(!(amt>0)){g('ch_amt').focus();return;}
   overrides.charges=overrides.charges||[];
   const rec={id:'c'+Date.now(),uid:g('ch_uid').value,kind:g('ch_kind').value,desc,amt:Number(amt.toFixed(2)),paid:0};
-  if(items)rec.items=items;
+  if(items.length)rec.items=items;
   overrides.charges.push(rec);
+  window._chItems=[];
   saveOverrides();render();
 };
 window.setChargePaid=function(id,v){

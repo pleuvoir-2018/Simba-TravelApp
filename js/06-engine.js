@@ -50,7 +50,6 @@ function renderToday(){
       <div class="th-sep"></div>
       <div class="th-meta">
         <div class="th-today">${dateLine}</div>
-        <div class="th-lbl">Until wheels-up</div>
         <div class="th-flight">${TD.departNote||''}</div>
       </div>
     </div></div>`;

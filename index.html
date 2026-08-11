@@ -673,7 +673,29 @@ const TRAINS=[
 
 /* ---------------- STORAGE ---------------- */
 const KEY='japan_trip_v2';
-let overrides={},mem=null;
+let store={},overrides={},mem=null;
+
+/* ---- STEP 1: per-trip storage namespaces --------------------------------
+   The blob becomes { _ts, trips: { <tripId>: {...} } } and `overrides` is a
+   LIVE REFERENCE into store.trips[current], so every existing overrides.*
+   call site keeps working untouched. Nothing else changes in this commit.
+   tripKey() is defensive because `tripSel` is declared further down the
+   file; a temporal-dead-zone read must not take the app down. */
+function tripKey(){ try{ return tripSel||'japan-2026'; }catch(e){ return 'japan-2026'; } }
+function normalizeStore(o){
+  if(!o||typeof o!=='object')return {trips:{}};
+  if(o.trips&&typeof o.trips==='object')return o;
+  const legacy={};                       // pre-namespacing blob: all of it is Japan
+  Object.keys(o).forEach(k=>{ if(k!=='trips'&&k!=='_ts')legacy[k]=o[k]; });
+  return {_ts:o._ts,trips:{'japan-2026':legacy}};
+}
+function bindTrip(){
+  if(!store||typeof store!=='object')store={};
+  store.trips=store.trips||{};
+  const k=tripKey();
+  store.trips[k]=store.trips[k]||{};
+  overrides=store.trips[k];
+}
 async function sGet(){
   // Read BOTH copies and keep whichever was written last (_ts). Taking the
   // cloud copy unconditionally would discard a local edit whose upload never
@@ -727,16 +749,9 @@ async function sDel(){
 }
 
 async function loadOverrides(){
-  try{
-    const v=await sGet();
-    if(v){
-      let o=JSON.parse(v);
-      // Compatibility: a namespaced blob written by the multi-trip build
-      // ({_ts, trips:{'japan-2026':{...}}}) flattens back to this shape.
-      if(o&&o.trips&&o.trips['japan-2026'])o={...o.trips['japan-2026'],_ts:o._ts};
-      overrides=o;
-    }
-  }catch(e){}
+  try{ const v=await sGet(); if(v)store=JSON.parse(v); }catch(e){ store={}; }
+  store=normalizeStore(store);
+  bindTrip();
 }
 
 /* Saving is two-stage: the local copy is written synchronously so a refresh
@@ -744,8 +759,10 @@ async function loadOverrides(){
    debounced so a burst of edits costs one trip instead of one each. */
 let _saveTimer=null,_savePending=false,_saveInFlight=false;
 function saveOverrides(){
-  overrides._ts=Date.now();
-  try{localStorage.setItem(KEY,JSON.stringify(overrides));}catch(e){}
+  store.trips=store.trips||{};
+  store.trips[tripKey()]=overrides;
+  store._ts=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}
   flash('Saving…');
   _savePending=true;
   clearTimeout(_saveTimer);
@@ -758,11 +775,18 @@ async function flushSave(){
   try{
     try{ const r=await fetch('/api/sync'); const d=await r.json();
       if(d&&d.value){
-        const remote=d.value;   // remote first, my edits win conflicts; vault merged per-key
-        overrides={...remote,...overrides,vault:{...(remote.vault||{}),...(overrides.vault||{})}};
+        // Merge per trip id so a save in one trip can never touch another.
+        const remote=normalizeStore(d.value);
+        const trips={...(remote.trips||{})};
+        Object.keys(store.trips||{}).forEach(k=>{
+          const rt=trips[k]||{}, lt=(store.trips||{})[k]||{};
+          trips[k]={...rt,...lt,vault:{...(rt.vault||{}),...(lt.vault||{})}};
+        });
+        store={...store,trips};
+        bindTrip();
       }
     }catch(e){}
-    mode=await sSet(JSON.stringify(overrides));
+    mode=await sSet(JSON.stringify(store));
   }finally{ _saveInFlight=false; }
   flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist',
         mode==='cloud'?'ok':'err');
@@ -772,8 +796,10 @@ async function flushSave(){
 window.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&_savePending){clearTimeout(_saveTimer);flushSave();}});
 
 async function resetAll(){
-  if(!confirm('Discard all edits and expenses?'))return;
-  overrides={};
+  if(!confirm('Discard all edits and expenses for this trip?'))return;
+  store.trips=store.trips||{};
+  store.trips[tripKey()]={};
+  bindTrip();
   await sDel();
   render();
   flash('Reset ✓');

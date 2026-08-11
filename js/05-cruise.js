@@ -1382,6 +1382,13 @@ function renderJeju(c){
           <div class="plhint">Share → Copy link in Google Maps works; so does the browser URL with @lat,lng in it.</div>
         </div>
       </div>
+      ${(T.pois&&T.pois.length)?`<div class="card"><div class="chead"><span>🍊 Starter ideas</span><span>on the map in grey — pin to schedule</span></div>
+        ${T.pois.map(p=>`<div class="tdo-row">
+          <span style="flex:0 0 26px;text-align:center;opacity:.75">${p.ic||'📍'}</span>
+          <span class="tdo-main"><span class="tdo-t">${esc(p.n)}</span>
+            <span class="tdo-desc" style="margin-left:10px">${esc(p.d||'')} · <a href="https://www.google.com/maps/search/${encodeURIComponent(p.n+' Jeju')}" target="_blank" rel="noopener">map</a></span></span>
+        </div>`).join('')}
+      </div>`:''}
       ${['',...dates].map(day=>{
         const list=pins.filter(p=>String(p.day||'')===day).sort((a,b)=>String(a.time||'').localeCompare(String(b.time||'')));
         if(!list.length)return '';
@@ -1477,13 +1484,22 @@ function drawJejuMap(T){
   const bounds=[];
   const st=T.stay;
   if(st&&st.lat){ L.marker([st.lat,st.lng],{icon:pin('🏨',22)}).addTo(map).bindPopup(`<b>${esc(st.n)}</b><br>home base`); bounds.push([st.lat,st.lng]); }
+  // curated island ideas — muted, always on the map
+  (T.pois||[]).forEach(p=>{
+    L.marker([p.lat,p.lng],{icon:pin(`<span style="opacity:.62">${p.ic||'📍'}</span>`,16),zIndexOffset:-100}).addTo(map)
+      .bindPopup(`<b>${esc(p.n)}</b><br>${esc(p.d||'')}<br><i>idea — pin it with a day to schedule it</i>`);
+    bounds.push([p.lat,p.lng]);
+  });
   (overrides.pins||[]).forEach(p=>{
     if(typeof p.lat!=='number')return;
-    L.marker([p.lat,p.lng],{icon:pin(({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍',18)}).addTo(map)
+    L.marker([p.lat,p.lng],{icon:pin(({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍',19)}).addTo(map)
       .bindPopup(`<b>${esc(p.n)}</b><br>${p.day?esc(p.day)+' · ':''}${p.time?esc(p.time)+' · ':''}by ${esc(jjName(p.by))}`);
     bounds.push([p.lat,p.lng]);
   });
-  if(bounds.length)map.fitBounds(bounds,{padding:[30,30]}); else map.setView([33.38,126.53],10);
+  // Esri street tiles run out around z13-14 on Jeju: cap the fit so the map
+  // never zooms into 'Map data not yet available' grey.
+  if(bounds.length>1)map.fitBounds(bounds,{padding:[30,30],maxZoom:12});
+  else map.setView(bounds[0]||[33.38,126.53],10);
 }
 
 window.gotoJjTab=function(tab){

@@ -504,3 +504,14 @@ body.dark .qfchip.on{color:#0D1218}
 .shipchips{display:flex;flex-wrap:wrap;gap:6px;padding:2px 13px 11px}
 .shipchip{font:500 11.5px var(--sans);border:1px solid var(--rule);border-radius:20px;padding:5px 11px;color:var(--ink);background:var(--card,#fff)}
 .shipchip.spec{border-style:dashed;color:var(--grey)}
+.cal2{position:relative}
+.cal2-has{cursor:pointer}
+.cal2-has:hover{background:rgba(34,64,107,.08)}
+.cal2-pop{position:absolute;transform:translate(-50%,-100%);min-width:172px;max-width:210px;background:var(--washi);border-radius:7px;box-shadow:0 8px 26px rgba(0,0,0,.18);padding:10px 13px;z-index:30;text-align:left}
+body.dark .cal2-pop{background:#2A313B;box-shadow:0 8px 26px rgba(0,0,0,.5)}
+.cal2-pop::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:-7px;border:7px solid transparent;border-bottom:none;border-top-color:var(--washi)}
+body.dark .cal2-pop::after{border-top-color:#2A313B}
+.cal2-pop-h{font:600 8.5px var(--mono);letter-spacing:.12em;color:var(--grey);margin-bottom:6px}
+.cal2-pop ul{margin:0;padding-left:15px;display:flex;flex-direction:column;gap:4px}
+.cal2-pop li{font:500 11.5px var(--sans);color:var(--ink);line-height:1.35}
+.cal2-pop-none{font:500 11px var(--sans);color:var(--grey)}

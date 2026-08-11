@@ -81,13 +81,37 @@ function tdCalHtml(dep,fin,t){
   const isToday=d=>(y===t.y&&m===t.m-1&&d===t.d);
   let cells='';
   for(let i=0;i<startDow;i++)cells+='<span></span>';
-  for(let d=1;d<=dim;d++)cells+=`<span class="cal2-d ${isToday(d)?'cal2-today':''}">${d}${inTripD(d)?'<i class="cal2-dot"></i>':''}</span>`;
+  const tripMonth=(y===dep[0]&&m===dep[1]);
+  for(let d=1;d<=dim;d++){
+    const tappable=tripMonth&&inTripD(d)&&window._tdCalInfo&&window._tdCalInfo[d];
+    cells+=`<span class="cal2-d ${isToday(d)?'cal2-today':''} ${tappable?'cal2-has':''}" ${tappable?`onclick="tdCalPop(this,${d},event)"`:''}>${d}${inTripD(d)?'<i class="cal2-dot"></i>':''}</span>`;
+  }
   return `<div class="cal2">
     <div class="cal2-nav"><button type="button" onclick="tdCalShift(-1)">‹</button><span>${MONTH_NAMES[m]} ${y}</span><button type="button" onclick="tdCalShift(1)">›</button></div>
     <div class="cal2-grid cal2-dow">${['SUN','MON','TUE','WED','THU','FRI','SAT'].map(x=>`<span>${x}</span>`).join('')}</div>
     <div class="cal2-grid">${cells}</div>
   </div>`;
 }
+window.tdCalPop=function(el,d,ev){
+  if(ev)ev.stopPropagation();
+  const wrap=el.closest('.cal2'); if(!wrap)return;
+  const old=wrap.querySelector('.cal2-pop');
+  const was=old&&old.dataset.d===String(d);
+  if(old)old.remove();
+  if(was)return; // second tap on the same day closes
+  const info=(window._tdCalInfo||{})[d]; if(!info)return;
+  const ref=_tdCalRef||{}; const dep=ref.dep||[2026,0,1];
+  const dow=['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date(Date.UTC(dep[0],dep[1],d)).getUTCDay()];
+  const pop=document.createElement('div');
+  pop.className='cal2-pop'; pop.dataset.d=String(d);
+  pop.innerHTML=`<div class="cal2-pop-h">${info.c?esc(info.c).toUpperCase()+' · ':''}${TRIP_MON}/${d} ${dow}</div>`+
+    (info.items.length?`<ul>${info.items.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`:'<div class="cal2-pop-none">Nothing scheduled yet</div>');
+  wrap.appendChild(pop);
+  const left=Math.min(Math.max(el.offsetLeft+el.offsetWidth/2,92),wrap.clientWidth-92);
+  pop.style.left=left+'px';
+  pop.style.top=(el.offsetTop-6)+'px';
+  setTimeout(()=>{document.addEventListener('click',function h(e){if(!pop.contains(e.target)){pop.remove();document.removeEventListener('click',h);}});},0);
+};
 window.tdCalShift=function(n){
   let [y,m]=window._tdCalYm; m+=n; if(m<0){m=11;y--;} if(m>11){m=0;y++;}
   window._tdCalYm=[y,m]; render();
@@ -110,6 +134,15 @@ function renderToday(){
     const chipIco=['✈','⏱','📅'];
     const fmtD=a=>`${MONTH_NAMES[a[1]].slice(0,3)} ${a[2]}`;
     if(!window._tdCalYm)window._tdCalYm=[dep[0],dep[1]];
+    const calInfo={};
+    for(let d=dep[2];d<=fin[2];d++){
+      const cid=TODAY_CITY[d];
+      const cn=cid?((CITIES.find(c=>c.id===cid)||{}).city||''):'';
+      const order={Breakfast:0,Lunch:1,Dinner:2};
+      const meals=allStops.filter(x=>x.d===TRIP_MON+'/'+d).sort((a,b)=>(order[a.m]??9)-(order[b.m]??9));
+      calInfo[d]={c:cn,items:meals.map(x=>x.name)};
+    }
+    window._tdCalInfo=calInfo;
     const toBook=allStops.filter(x=>x.res==='book');
     const walkIns=allStops.filter(x=>x.res==='walk');
     html+=`<div class="td2-grid">

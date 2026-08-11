@@ -356,7 +356,7 @@
 <script>
 /* ---------------- DATA ---------------- */
 const NRT={n:"Narita Airport (NRT)",lat:35.7719,lng:140.3929};
-const HOTELS = {
+var HOTELS = {
  parq:{n:"JW Marriott Parq Vancouver",lat:49.2756,lng:-123.1148,addr:"39 Smithe St, Vancouver, BC V6B 0R3, Canada",tel:"+1 604-676-0888",mail:"— Marriott app chat",stn:"Yaletown–Roundhouse (Canada Line) · 7 min walk — direct train to YVR ~25 min (board a YVR-bound train, not Richmond)",note:"Night of Nov 15 only. ZG021 departs 10:30 — leave the hotel by ~7:45 for a 2-hour international cushion."},
  westin:{n:"The Westin Yokohama",lat:35.4620,lng:139.6300,addr:"4-2-8 Minatomirai, Nishi-ku, Yokohama 220-0012",tel:"+81 45-577-0888",mail:"ays.yokohama@westin.com",stn:"Shin-Takashima (Minatomirai line) · 5 min walk — Yokohama Stn · 10 min walk",note:"Check-in 23F. Reservations: reservations.yokohama@westin.com"},
  shisui:{n:"Shisui, a Luxury Collection Hotel",lat:34.6857,lng:135.8340,addr:"62 Noborioji-chō, Nara 630-8213 (west edge of Nara Park)",tel:"+81 75-744-0951",mail:"reservation-sh@suihotels.com",stn:"Kintetsu-Nara (Kintetsu line) · 12 min walk — Kenchō-Higashi bus stop · 3 min",note:"Phone = SUI Customer Engagement Center. Garden Delight champagne hour at dusk, free."},
@@ -366,7 +366,7 @@ const HOTELS = {
 };
 const CAT={sight:"⛩ Sights",cafe:"☕ Cafés",shop:"🛍 Shopping", gift:"🎁 Omiyage", conv:"🏪 Konbini"};
 
-const CITIES=[
+var CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
 {id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
 {id:"vancouver",city:"Vancouver",sub:"11/15–11/16 · repositioning",hotel:"parq",
@@ -658,7 +658,7 @@ const CITIES=[
 {id:"calc",city:"Calc",sub:"Live Converter",calc:true}
 ];
 
-const FLIGHTS=[
+var FLIGHTS=[
  {d:"Sun Nov 15",t:"07:00 → 10:05 · 13:30 → 15:45",route:"Washington IAD → Seattle → Vancouver YVR",train:"Delta 1015 + 3748 · Delta First Classic (Z)",note:"Positioning day. 3h25 connection in SEA. DL3748* is a codeshare — confirm the operating carrier at check-in. Overnight at JW Marriott Parq Vancouver; ZG021 departs 10:30 the next morning."},
  {d:"Mon Nov 16 → Tue Nov 17",t:"10:30 → 12:45 (+1)",route:"Vancouver YVR → Tokyo Narita",train:"Zip Air ZG021 · US$1,221.33",note:"Lands 12:45 on the 17th. Immigration + bags ≈ 1.5–2 h → landside ~14:15 → N'EX direct to Yokohama (see Yokohama tab)."},
  {d:"Fri Nov 27",t:"16:00 → 08:30 same day",route:"Tokyo Narita → Vancouver YVR",train:"Zip Air ZG022 · US$1,007.89",note:"At NRT by ~13:30 → leave Grand Hyatt by ~11:45. You land YVR the morning of the same calendar date — plan pickups for Nov 27, not 28.",warn:true},
@@ -1004,7 +1004,7 @@ function mealCard(p){
 }
 
 /* ---------------- WEATHER (Open-Meteo, no key) ---------------- */
-const WX_CFG = {
+var WX_CFG = {
   vancouver:{lat:49.2756,lng:-123.1148,from:"2026-11-15",to:"2026-11-16"},
   yokohama:{lat:35.4620,lng:139.6300,from:"2026-11-17",to:"2026-11-19"},
   nara:    {lat:34.6857,lng:135.8340,from:"2026-11-19",to:"2026-11-21"},
@@ -1104,6 +1104,8 @@ function renderHome(){
 window.openTrip=function(id){
   tripSel=id;
   try{localStorage.setItem('jt_trip',id);}catch(e){}
+  applyTripData(id);
+  bindTrip();
   document.body.classList.remove('home');
   render();
 };
@@ -1877,8 +1879,27 @@ window.editExp = function(idx) {
 };
 
 /* ---------------- TODAY VIEW ---------------- */
-const TODAY_CITY={15:'vancouver',16:'vancouver',17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'osaka',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
-const TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
+var TODAY_CITY={15:'vancouver',16:'vancouver',17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'osaka',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
+var TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
+
+/* ---- STEP 2: trip-scoped static data ------------------------------------
+   TRIP_DATA holds a reference to each trip's content. Opening a trip points
+   the live bindings above at that trip's data. Only Japan exists so far, so
+   this commit changes nothing a user can see. */
+const TRIP_DATA={
+ 'japan-2026':{cities:CITIES,hotels:HOTELS,flights:FLIGHTS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
+   brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals"}
+};
+function applyTripData(id){
+  const t=TRIP_DATA[id];
+  if(!t)return;                       // unknown trip: leave the current data alone
+  CITIES=t.cities;HOTELS=t.hotels;FLIGHTS=t.flights;
+  WX_CFG=t.wx;TODAY_CITY=t.todayCity;TONIGHT=t.tonight;
+  ci=0;sel=null;selPoi=null;
+  const b=document.querySelector('.nb-t');if(b)b.textContent=t.brand;
+  const f=document.querySelector('.nav-foot');if(f)f.textContent=t.foot;
+}
+function applyRememberedTrip(){ if(tripSel&&TRIP_DATA[tripSel])applyTripData(tripSel); }
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function tokyoToday(){
   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',weekday:'long'}).formatToParts(new Date());
@@ -2113,7 +2134,7 @@ function render(){
   buildMap(c);
   renderSide(c);
 }
-loadOverrides().then(render);
+loadOverrides().then(()=>{applyRememberedTrip();render();});
 
 /* ---------------- COUNTDOWN ---------------- */
 (function(){

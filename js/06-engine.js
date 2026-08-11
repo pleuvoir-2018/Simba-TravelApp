@@ -74,7 +74,6 @@ function renderToday(){
     const toBook=allStops.filter(x=>x.res==='book');
     const walkIns=allStops.filter(x=>x.res==='walk');
     html+=`<div class="td2-grid">
-      <div class="td2-main">
         <div class="card td2-hero">
           ${card.photo?`<img class="td2-art" src="${card.photo}" alt="" onerror="this.style.display='none'">`:''}
           <div class="td2-hero-mid">
@@ -84,7 +83,16 @@ function renderToday(){
             ${chips.length?`<div class="td2-chips">${chips.map((c,i)=>`<span class="td2-chip">${chipIco[i]||'·'} ${esc(c)}</span>`).join('')}</div>`:''}
           </div>
         </div>
-        <div class="card"><div class="td2-h"><span>To Book</span><span class="td2-pill">${toBook.length} open</span></div>
+      <div class="card td2-ovcard"><div class="td2-h"><span>Trip Overview</span></div>
+          <div class="td2-ov">
+            <div class="ov-row"><span class="ov-ic">📍</span><span><span class="ov-l">Destination</span><span class="ov-v">${esc(card.country||TD.brand||'')}</span></span></div>
+            <div class="ov-row"><span class="ov-ic">⏳</span><span><span class="ov-l">Duration</span><span class="ov-v">${tripDays} days</span></span></div>
+            <div class="ov-row"><span class="ov-ic">🗓</span><span><span class="ov-l">Dates</span><span class="ov-v">${fmtD(dep)} – ${fmtD(fin)}, ${fin[0]}</span></span></div>
+            <div class="ov-row"><span class="ov-ic">👥</span><span><span class="ov-l">Travelers</span><span class="ov-v">${TD.travelers||2}</span></span></div>
+          </div>
+      </div>
+      <div class="td2-main">
+        <div class="card"><div class="td2-h tint"><span>To Book</span><span class="td2-pill">${toBook.length} open</span></div>
           ${toBook.map((x,i)=>`<div class="tb-row" onclick="gotoMeal(${x.ci},${x.id})">
             <span class="tb-main"><span class="tb-name">${esc(x.name)}</span>
               <span class="tb-meta">${esc(x.cityName)} · ${x.d} · ${x.m}</span>
@@ -93,18 +101,10 @@ function renderToday(){
           </div>`).join('')||'<div class="td-empty">Everything is booked ✓</div>'}
         </div>
         ${todoCard(21,'Prep — due in the next 3 weeks')}
-        <div class="card"><div class="td2-h"><span>Walk-ins</span><span style="font:600 9px var(--mono);color:var(--grey)">NO ACTION NEEDED</span></div>
+        <div class="card"><div class="td2-h tint"><span>Walk-ins</span><span style="font:600 9px var(--mono);color:var(--grey)">NO ACTION NEEDED</span></div>
           <div style="padding:4px 16px 13px;font-size:12px;color:var(--grey)">${walkIns.map(x=>esc(x.name)).join(' · ')||'—'}</div></div>
       </div>
       <div class="td2-side">
-        <div class="card"><div class="td2-h"><span>Trip Overview</span></div>
-          <div class="td2-ov">
-            <div class="ov-row"><span class="ov-ic">📍</span><span><span class="ov-l">Destination</span><span class="ov-v">${esc(card.country||TD.brand||'')}</span></span></div>
-            <div class="ov-row"><span class="ov-ic">⏳</span><span><span class="ov-l">Duration</span><span class="ov-v">${tripDays} days</span></span></div>
-            <div class="ov-row"><span class="ov-ic">🗓</span><span><span class="ov-l">Dates</span><span class="ov-v">${fmtD(dep)} – ${fmtD(fin)}, ${fin[0]}</span></span></div>
-            <div class="ov-row"><span class="ov-ic">👥</span><span><span class="ov-l">Travelers</span><span class="ov-v">${TD.travelers||2}</span></span></div>
-          </div>
-        </div>
         <div class="card"><div class="td2-h"><span>Calendar</span></div>${tdCalHtml(dep,fin,t)}</div>
       </div>
     </div>`;

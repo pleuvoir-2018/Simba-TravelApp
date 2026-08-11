@@ -1540,8 +1540,51 @@ function renderCruise(c){
     }
   }
   if(c.cruiseTab==='clog'){
-    body=`<div class="card"><div class="chead"><span>Coming in the next build</span></div>
-      <div style="padding:14px;font-size:13px;color:var(--grey)">Your flights in, feeding the organizer's transport plan — plus transport invoicing into the charge system that is now live on Expenses.</div></div>`;
+    const me=(window._cru||{}).uid;
+    const users=(overrides.users||[]);
+    const nameOf=uid=>uid==='admin'?'조상연':((users.find(u=>u.uid===uid)||{}).name||'—');
+    const logi=overrides.logi||{};
+    const mine=(logi[me]||[]);
+    const legRow=(x,owner)=>`<div class="tdo-row">
+      <span class="tdo-date">${esc((x.date||'').slice(5))||'—'}</span>
+      <span class="tdo-main"><span class="tdo-t">${x.dir==='arrive'?'→':'←'} ${esc(x.flt||x.mode||'—')}</span>
+        <span class="tdo-desc">${esc(x.ap||'')}${x.time?' · '+esc(x.time):''}${owner?' · '+esc(nameOf(owner)):''}${x.note?' · '+esc(x.note):''}</span></span>
+      ${owner?'':`<button class="tdo-x" onclick="delLogi('${x.id}')" style="color:var(--clay);font-size:17px">×</button>`}</div>`;
+    const myForm=`<div class="card"><div class="chead"><span>${admin?'My travel (organizer)':'My travel to the ship'}</span></div>
+      <div class="plform">
+        <div class="plrow1">
+          <select id="lg_dir"><option value="arrive">Arriving (before Jan 9)</option><option value="depart">Departing (after Jan 16)</option></select>
+          <input id="lg_date" type="date">
+          <input id="lg_time" type="time" title="Local time">
+        </div>
+        <div class="plrow1">
+          <input id="lg_flt" placeholder="Flight / how (UA 1642, driving, Brightline…)" maxlength="40">
+          <input id="lg_ap" placeholder="Airport / place (MCO, FLL, Port Canaveral…)" maxlength="30">
+        </div>
+        <input id="lg_note" placeholder="Note — bags, +1 in tow, hotel night before… (optional)" maxlength="80">
+        <button class="pladd" type="button" onclick="addLogi()" style="align-self:flex-start;padding:8px 14px">+ Add</button>
+        <div class="plhint">This feeds the organizer's coordination view so shuttles and pickups can be planned.</div>
+      </div>
+      ${mine.slice().sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(x=>legRow(x,null)).join('')||'<div style="padding:11px 13px;font-size:12px;color:var(--grey)">Nothing added yet.</div>'}
+    </div>`;
+    if(!admin){ body=myForm; }
+    else{
+      const everyone=['admin',...users.map(u=>u.uid)];
+      const all=everyone.flatMap(uid=>(logi[uid]||[]).map(x=>({...x,uid})));
+      const arr=all.filter(x=>x.dir==='arrive').sort((a,b)=>String(a.date+a.time).localeCompare(String(b.date+b.time)));
+      const dep=all.filter(x=>x.dir!=='arrive').sort((a,b)=>String(a.date+a.time).localeCompare(String(b.date+b.time)));
+      const silent=users.filter(u=>!(logi[u.uid]||[]).length);
+      body=`
+      <div class="card"><div class="chead"><span>🧭 Transport coordination</span><span>${all.length} legs from ${everyone.filter(uid=>(logi[uid]||[]).length).length} people</span></div>
+        <div style="font:600 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--indigo2);padding:9px 13px 2px;background:var(--washi2)">Arrivals — before embark Jan 9</div>
+        ${arr.map(x=>legRow(x,x.uid)).join('')||'<div style="padding:9px 13px;font-size:12px;color:var(--grey)">No arrivals logged.</div>'}
+        <div style="font:600 9px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--indigo2);padding:9px 13px 2px;background:var(--washi2)">Departures — after Jan 16</div>
+        ${dep.map(x=>legRow(x,x.uid)).join('')||'<div style="padding:9px 13px;font-size:12px;color:var(--grey)">No departures logged.</div>'}
+        ${silent.length?`<div style="padding:10px 13px;border-top:1px solid var(--rule);font-size:12px;color:var(--clay)"><b>No travel info yet:</b> ${silent.map(u=>esc(u.name)).join(' · ')}</div>`:''}
+        <div style="padding:10px 13px;border-top:1px solid var(--rule);font-size:11.5px;color:var(--grey)">Booked a van or shuttle? Bill it from the <a href="#" onclick="event.preventDefault();gotoCruiseTab('cexp')" style="color:var(--indigo2)">Expenses tab</a> as kind "Transport" — it lands on each person's tracker and invoice with paid/unpaid like everything else.</div>
+      </div>
+      ${myForm}`;
+    }
   }
   if(c.cruiseTab==='cadmin'){
     const users=(overrides.users||[]);
@@ -1553,7 +1596,7 @@ function renderCruise(c){
         </div>
         <div class="plhint">Each guest signs in with their own code from the landing page. Your organizer code stays ${CRUISE_MASTER}.</div>
       </div>
-      ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span><span class="tdo-desc">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
+      ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span><span class="tdo-desc" style="margin-left:10px">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
         <button class="tdo-x" onclick="renameUser('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
         <button class="tdo-x" onclick="regenUser('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
         <button class="tdo-x" onclick="delUser('${u.uid}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No guests yet — add the first one above.</div>'}
@@ -1594,6 +1637,27 @@ window.editSched=function(id){
 window.delSched=function(id){
   if(!confirm('Remove this from the schedule?'))return;
   overrides.sched=(overrides.sched||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.gotoCruiseTab=function(id){
+  const i=navCities().findIndex(c=>c.id===id);
+  if(i>-1){ci=i;render();}
+};
+window.addLogi=function(){
+  const g=i=>document.getElementById(i);
+  const flt=g('lg_flt').value.trim();
+  if(!flt){g('lg_flt').focus();return;}
+  const me=(window._cru||{}).uid;
+  overrides.logi=overrides.logi||{};
+  overrides.logi[me]=overrides.logi[me]||[];
+  overrides.logi[me].push({id:'l'+Date.now(),dir:g('lg_dir').value,date:g('lg_date').value,time:g('lg_time').value,
+    flt,ap:g('lg_ap').value.trim(),note:g('lg_note').value.trim()});
+  saveOverrides();render();
+};
+window.delLogi=function(id){
+  const me=(window._cru||{}).uid;
+  if(!overrides.logi||!overrides.logi[me])return;
+  overrides.logi[me]=overrides.logi[me].filter(x=>x.id!==id);
   saveOverrides();render();
 };
 window._inv=null;

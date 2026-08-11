@@ -199,7 +199,7 @@ function mealCard(p,c){
       </div>
       ${e.warn?`<div class="note warn">${esc(e.warn)}</div>`:''}
       ${e.note?`<div class="note">${esc(e.note)}</div>`:''}
-      ${e.unote&&!editMode?`<div class="note" style="border-left-color:var(--moss);background:rgba(94,127,76,.08);color:#465F38">✎ ${esc(e.unote)}</div>`:''}
+      ${e.unote&&!editMode?`<div class="note user">✎ ${esc(e.unote)}</div>`:''}
     </div></div>`;
 }
 

@@ -139,6 +139,10 @@
   .m4{font-family:var(--mono);font-size:9.5px;color:var(--grey);margin-top:4px}
   .note{font-size:11px;line-height:1.45;margin-top:6px;padding:6px 8px;background:rgba(34,64,107,.07);border-left:2px solid var(--indigo);color:#2C4A73}
   .note.warn{background:rgba(184,85,42,.09);border-left-color:var(--clay);color:#8A3313}
+  .note.user{border-left-color:var(--moss);background:rgba(94,127,76,.08);color:#465F38}
+  body.dark .note{background:rgba(169,198,232,.10);color:#C7D8EC}
+  body.dark .note.warn{background:rgba(217,139,95,.13);color:#F0BA97}
+  body.dark .note.user{background:rgba(143,184,120,.12);color:#BCD9A9}
   .tag{display:inline-block;font:600 8px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:1.5px 5px;border-radius:2px;margin-left:5px;vertical-align:1px;color:#fff}
   .tag.ok{background:var(--moss)}.tag.book{background:var(--clay)}.tag.walk{background:var(--grey)}.tag.cash{background:#B08A1F}
   .meal input,.meal select,.meal textarea{font:inherit;font-size:11px;border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:#fff;width:100%;margin-top:4px}

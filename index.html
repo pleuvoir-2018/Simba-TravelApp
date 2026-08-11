@@ -1450,7 +1450,7 @@ function renderCruise(c){
     body=(admin?`<div class="card"><div class="chead"><span>${window._editRoom?'Edit cabin':'Add a cabin'}</span></div>
       <div class="plform">
         <div class="plrow1">
-          <input id="rm_num" placeholder="Cabin no. (e.g. 10254)" maxlength="10">
+          <input id="rm_num" placeholder="Cabin no. (optional — Royal often assigns near sailing)" maxlength="10">
           <select id="rm_cat">${cats.map(k=>`<option value="${k.id}">${k.n}</option>`).join('')}</select>
         </div>
         <input id="rm_note" placeholder="Deck / note (optional)" maxlength="60">
@@ -1460,13 +1460,13 @@ function renderCruise(c){
         </div>
       </div></div>`:'')+
       `<div class="card"><div class="chead"><span>🛏 Cabins</span><span>${placed.size}/${rooms.length*2} slots taken</span></div>
-      ${rooms.length?rooms.map(r=>{
+      ${rooms.length?rooms.map((r,ri)=>{
         const k=cats.find(x=>x.id===r.cat)||{n:r.cat,d:'',sq:'',tone:'#5B7185'};
         const slots=(r.slots||[null,null]);
         return `<div style="display:flex;gap:11px;padding:11px 13px;border-bottom:1px dotted var(--rule);align-items:flex-start">
           <span style="flex:0 0 42px;height:42px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 9px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>
           <span style="flex:1;min-width:0">
-            <span style="font-size:13.5px;font-weight:600;color:var(--ink)">${esc(r.num||'Cabin')}</span>
+            <span style="font-size:13.5px;font-weight:600;color:var(--ink)">Room ${ri+1}${r.num?` <span style="font-weight:400;color:var(--grey);font-size:12px">· Cabin ${esc(r.num)}</span>`:''}</span>
             <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--indigo2);margin-top:1px">${esc(k.n)}${k.sq?' · '+esc(k.sq):''}</span>
             ${k.d?`<span style="display:block;font-size:11px;color:var(--grey);margin-top:2px">${esc(k.d)}</span>`:''}
             ${r.note?`<span style="display:block;font-size:11px;color:var(--grey);margin-top:2px">${esc(r.note)}</span>`:''}
@@ -1847,8 +1847,7 @@ window.delCharge=function(id){
 window._editRoom=null;
 window.addRoom=function(){
   const g=i=>document.getElementById(i);
-  const num=g('rm_num').value.trim();
-  if(!num){g('rm_num').focus();return;}
+  const num=g('rm_num').value.trim();   // optional: cabin numbers often come later
   overrides.rooms=overrides.rooms||[];
   if(window._editRoom){
     const r=overrides.rooms.find(x=>x.id===window._editRoom);
@@ -1868,10 +1867,12 @@ window.editRoom=function(id){
   g('rm_num').scrollIntoView({behavior:'smooth',block:'center'});
 };
 window.delRoom=function(id){
-  const r=(overrides.rooms||[]).find(x=>x.id===id);
+  const rooms=(overrides.rooms||[]);
+  const r=rooms.find(x=>x.id===id);
   if(!r)return;
+  const label='Room '+(rooms.indexOf(r)+1)+(r.num?' (Cabin '+r.num+')':'');
   const occupied=(r.slots||[]).filter(Boolean).length;
-  if(!confirm('Remove cabin '+r.num+(occupied?' and unassign '+occupied+' guest'+(occupied>1?'s':''):'')+'?'))return;
+  if(!confirm('Remove '+label+(occupied?' and unassign '+occupied+' guest'+(occupied>1?'s':''):'')+'?'))return;
   overrides.rooms=(overrides.rooms||[]).filter(x=>x.id!==id);
   saveOverrides();render();
 };

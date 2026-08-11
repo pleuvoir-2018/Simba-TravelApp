@@ -33,32 +33,43 @@ function tokyoToday(){
 window.gotoCity=function(i){ci=i;sel=null;selPoi=null;cat='all';render();};
 window.gotoMeal=function(i,id){ci=i;sel=id;selPoi=null;cat='all';render();};
 async function loadTodayWx(){
-  const el=document.getElementById('tdwx2');
-  if(!el)return;
+  // Writes resolve #tdwx2 FRESH at write time: the panel re-renders after this
+  // starts, so an element captured up front can be detached by the time the
+  // fetch lands (the stuck-at-Loading bug). A per-trip busy flag stops the
+  // second render's call from double-fetching; the in-flight one paints the
+  // live node when it finishes.
+  const put=h=>{const n=document.getElementById('tdwx2');if(n)n.innerHTML=h;return !!n;};
+  if(!document.getElementById('tdwx2'))return;
   const wx=TD.wx||{};
   const dz=w=>{try{return (new Date(w.to)-new Date(w.from))||0;}catch(e){return 0;}};
   const k=Object.keys(wx).sort((a,b)=>dz(wx[b])-dz(wx[a]))[0];
-  if(!k){if(el.parentElement)el.parentElement.style.display='none';return;}
+  if(!k){const n=document.getElementById('tdwx2');if(n&&n.parentElement)n.parentElement.style.display='none';return;}
   const key=tripKey();
+  window._wx2=window._wx2||{}; window._wx2busy=window._wx2busy||{};
   try{
-    window._wx2=window._wx2||{};
     if(!window._wx2[key]){
+      if(window._wx2busy[key])return; // an earlier call is fetching; it paints on completion
+      window._wx2busy[key]=true;
       const w=wx[k];
       const ac=new AbortController(); const tm=setTimeout(()=>ac.abort(),8000);
       const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${w.lat}&longitude=${w.lng}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=7`,{signal:ac.signal});
       clearTimeout(tm);
       if(!r.ok)throw new Error('wx');
       window._wx2[key]=(await r.json()).daily;
+      window._wx2busy[key]=false;
     }
     const d=window._wx2[key];
     const dow=iso=>['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date(iso+'T00:00:00').getDay()];
-    el.innerHTML=d.time.map((iso,i)=>`<span class="wx2-d">
+    put(d.time.map((iso,i)=>`<span class="wx2-d">
       <b>${i===0?'TODAY':dow(iso)}</b>
       <i>${WX_ICON(d.weather_code[i])}</i>
       <em>${Math.round(d.temperature_2m_max[i])}°</em>
       <u>${Math.round(d.temperature_2m_min[i])}°</u>
-    </span>`).join('');
-  }catch(e){ el.innerHTML='<span class="td-empty" style="padding:10px 4px;display:block;grid-column:1/-1;text-align:left">Forecast unavailable right now.</span>'; }
+    </span>`).join(''));
+  }catch(e){
+    window._wx2busy[key]=false;
+    put('<span class="td-empty" style="padding:10px 4px;display:block;grid-column:1/-1;text-align:left">Forecast unavailable right now.</span>');
+  }
 }
 let _tdCalRef=null;
 function tdCalHtml(dep,fin,t){

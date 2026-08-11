@@ -536,7 +536,7 @@ function mergeCruise(rt,lt,base){
           if(lv===me||rv===me)return lv;   // my own claim or release stands
           return rv;                        // someone else's newer action
         });
-        return {...r,...l,slots};
+        return {...l,...r,slots};   // remote (admin) wins on fields; slots merged above
       });
     }
   }
@@ -1488,7 +1488,9 @@ function renderCruise(c){
     </div>`:'';
     const myPendReq=reqs.find(r=>r.uid===me&&r.status==='pending');
     const myLastReq=reqs.filter(r=>r.uid===me&&r.status!=='pending').sort((a,b)=>(b.decided||b.ts)-(a.decided||a.ts))[0];
-    const reqCard=(!admin&&mine)?`<div class="card"><div class="chead"><span>🔁 Request a room-type change</span><span>Room ${rooms.indexOf(mine)+1}</span></div>
+    const reqCard=(!admin&&mine)?(mine.locked?`<div class="card"><div class="chead"><span>🔁 Room-type changes</span><span>Room ${rooms.indexOf(mine)+1}</span></div>
+      <div style="padding:12px 13px;font-size:12.5px;color:var(--grey)">🔒 Your room is locked by 조상연 — type changes are closed${myPendReq?'; your pending request will still be decided':''}.</div>
+    </div>`:`<div class="card"><div class="chead"><span>🔁 Request a room-type change</span><span>Room ${rooms.indexOf(mine)+1}</span></div>
       ${myPendReq?`<div style="padding:12px 13px;font-size:12.5px">Pending with 조상연: <b>${esc((cats.find(k=>k.id===myPendReq.to)||{}).n||myPendReq.to)}</b>${myPendReq.note?' · '+esc(myPendReq.note):''}
         <button onclick="cancelReq('${myPendReq.id}')" style="margin-left:10px;background:none;border:1px solid var(--rule);border-radius:2px;font:600 9px var(--mono);text-transform:uppercase;color:var(--clay);padding:4px 8px;cursor:pointer">Cancel</button></div>`
       :`<div class="plform">
@@ -1498,7 +1500,7 @@ function renderCruise(c){
         <button class="pladd" type="button" onclick="reqChange()" style="align-self:flex-start;padding:8px 14px">Send request</button>
         <div class="plhint">Once approved, your cabin's type changes automatically — nothing else to do.</div>
       </div>`}
-    </div>`:'';
+    </div>`):'';
     body=(admin?`<div class="card"><div class="chead"><span>${window._editRoom?'Edit cabin':'Add a cabin'}</span></div>
       <div class="plform">
         <div class="plrow1">
@@ -1518,7 +1520,7 @@ function renderCruise(c){
         return `<div style="display:flex;gap:11px;padding:11px 13px;border-bottom:1px dotted var(--rule);align-items:flex-start">
           <span style="flex:0 0 42px;height:42px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 9px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>
           <span style="flex:1;min-width:0">
-            <span style="font-size:13.5px;font-weight:600;color:var(--ink)">Room ${ri+1}${r.num?` <span style="font-weight:400;color:var(--grey);font-size:12px">· Cabin ${esc(r.num)}</span>`:''}</span>
+            <span style="font-size:13.5px;font-weight:600;color:var(--ink)">Room ${ri+1}${r.locked?' <span title="Locked — type changes closed">🔒</span>':''}${r.num?` <span style="font-weight:400;color:var(--grey);font-size:12px">· Cabin ${esc(r.num)}</span>`:''}</span>
             <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--indigo2);margin-top:1px">${esc(k.n)}${k.sq?' · '+esc(k.sq):''}</span>
             ${k.d?`<span style="display:block;font-size:11px;color:var(--grey);margin-top:2px">${esc(k.d)}</span>`:''}
             ${r.note?`<span style="display:block;font-size:11px;color:var(--grey);margin-top:2px">${esc(r.note)}</span>`:''}
@@ -1530,7 +1532,7 @@ function renderCruise(c){
               }).join('')}
             </span>
           </span>
-          ${admin?`<span style="display:flex;flex-direction:column;gap:2px"><button class="tdo-x" onclick="editRoom('${r.id}')" style="color:var(--indigo)">✎</button><button class="tdo-x" onclick="delRoom('${r.id}')" style="color:var(--clay);font-size:17px">×</button></span>`:''}
+          ${admin?`<span style="display:flex;flex-direction:column;gap:2px"><button class="tdo-x" onclick="editRoom('${r.id}')" style="color:var(--indigo)">✎</button><button class="tdo-x" onclick="toggleRoomLock('${r.id}')" title="${r.locked?'Unlock — reopen type changes':'Lock — close type changes'}" style="font-size:13px">${r.locked?'🔒':'🔓'}</button><button class="tdo-x" onclick="delRoom('${r.id}')" style="color:var(--clay);font-size:17px">×</button></span>`:''}
         </div>`;
       }).join(''):'<div style="padding:13px;font-size:12px;color:var(--grey)">No cabins added yet.</div>'}
       </div>`+reqCard+`
@@ -1996,6 +1998,7 @@ window.reqChange=function(){
   const rooms=overrides.rooms||[];
   const mine=rooms.find(r=>(r.slots||[]).includes(me));
   if(!mine||!g('rq_to'))return;
+  if(mine.locked){flash('This room is locked — type changes are closed','err');return;}
   overrides.reqs=(overrides.reqs||[]).filter(r=>!(r.uid===me&&r.status==='pending'));
   overrides.reqs.push({id:'q'+Date.now(),uid:me,rid:mine.id,from:mine.cat,to:g('rq_to').value,
     note:g('rq_note')?g('rq_note').value.trim():'',ts:Date.now(),status:'pending'});
@@ -2003,6 +2006,12 @@ window.reqChange=function(){
 };
 window.cancelReq=function(id){
   overrides.reqs=(overrides.reqs||[]).filter(r=>r.id!==id);
+  saveOverrides();render();
+};
+window.toggleRoomLock=function(id){
+  const r=(overrides.rooms||[]).find(x=>x.id===id);
+  if(!r)return;
+  r.locked=!r.locked;
   saveOverrides();render();
 };
 window.decideReq=function(id,ok){

@@ -1777,13 +1777,27 @@ function renderCruise(c){
       <div class="card"><div class="chead"><span>✈️ My travel</span><span>${myLegs.length} leg${myLegs.length===1?'':'s'}</span></div>
         ${myLegs.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))||'—'}</span><span class="tdo-main"><span style="font-size:12.5px">${x.dir==='arrive'?'→':'←'} ${esc(x.flt||'—')}${x.ap?' · '+esc(x.ap):''}${x.time?' · '+esc(x.time):''}</span></span></div>`).join('')||`<div class="tdo-row" onclick="gotoCruiseTab('clog')" style="cursor:pointer"><span class="tdo-main"><span style="font-size:12.5px">Nothing yet — add your flights</span></span><span style="color:var(--indigo2)">→</span></div>`}
       </div>
-      <div class="card"><div class="chead"><span>🪪 Travelers</span><span>legal details for the booking</span></div>
-        ${['admin',...users.map(u=>u.uid)].map(uid=>{
-          const l=legalOf(uid);
-          return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(uid))}</span>
+      ${(()=>{
+        // Guest list = whoever holds a cabin slot, in room order — the booking manifest.
+        const seated=[];
+        rooms.forEach((r,ri)=>(r.slots||[]).forEach(u=>{ if(u&&!seated.some(x=>x.uid===u))seated.push({uid:u,room:ri+1}); }));
+        const roleBadge=uid=>{
+          const org=uid==='admin'||((users.find(x=>x.uid===uid)||{}).role==='admin');
+          return `<span style="margin-left:8px;border:1px solid ${org?'var(--indigo2)':'var(--grey)'};color:${org?'var(--indigo2)':'var(--grey)'};border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;vertical-align:1px">${org?'organizer':'guest'}</span>`;
+        };
+        const row=x=>{
+          const l=legalOf(x.uid);
+          return `<div class="tdo-row"><span style="flex:0 0 30px;font:600 9px var(--mono);color:var(--grey);text-align:center">R${x.room}</span>
+            <span class="tdo-main"><span class="tdo-t">${esc(nameOf(x.uid))}</span>${roleBadge(x.uid)}
             <span class="tdo-desc" style="margin-left:10px">${l&&l.first?esc(l.first+' '+(l.last||'')):'<i>legal name not set</i>'} · ${l&&l.dob?esc(l.dob):'<i>DOB not set</i>'}</span></span></div>`;
-        }).join('')}
-      </div>`;
+        };
+        const seatedIds=new Set(seated.map(x=>x.uid));
+        const unseated=['admin',...users.map(u=>u.uid)].filter(uid=>!seatedIds.has(uid));
+        return `<div class="card"><div class="chead"><span>🪪 Guest list</span><span>${seated.length} in cabins · legal details</span></div>
+          ${seated.map(row).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nobody has taken a cabin slot yet.</div>'}
+          ${admin&&unseated.length?`<div style="padding:9px 13px;font-size:11px;color:var(--grey);border-top:1px solid var(--rule)">Not in a cabin yet: ${unseated.map(uid=>esc(nameOf(uid))).join(', ')}</div>`:''}
+        </div>`;
+      })()}`;
   }
   if(c.cruiseTab==='ship'){
     const SI=T.shipInfo||{facts:[],hoods:[],note:''};

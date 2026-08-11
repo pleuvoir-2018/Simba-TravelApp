@@ -17,6 +17,18 @@
   body{background:var(--washi);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased}
   .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 70px}
   header{border-bottom:2px solid var(--ink);padding-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;flex-wrap:wrap}
+  .hdr-actions{display:flex;gap:8px;align-items:center;flex-wrap:nowrap}
+  .hdr-actions button{height:38px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
+  .hdr-actions .backtrips,.hdr-actions .editbtn{padding:0 13px;margin-right:0}
+  .hdr-actions .navburger{width:40px;padding:0}
+  @media(max-width:640px){
+    .hdr-actions{width:100%;justify-content:flex-start;gap:7px;margin-top:2px}
+    .hdr-actions button{height:34px}
+    .hdr-actions .backtrips,.hdr-actions .editbtn{font-size:9.5px;letter-spacing:.06em;padding:0 10px}
+    .hdr-actions .navburger{width:36px;font-size:12px}
+    .hdr-actions .themebtn,#cruAvatar{width:34px;height:34px;font-size:13px}
+    .hdr-actions .editbtn{margin-left:auto}   /* pushes edit + moon + avatar right */
+  }
   h1{font-family:var(--mono);font-size:clamp(20px,4.6vw,31px);font-weight:700;letter-spacing:.05em;text-transform:uppercase;line-height:1.16;color:var(--tripac,var(--indigo));margin-top:4px}
   h1 .flag { height: 0.7em; width: auto; border: 1px solid var(--rule); border-radius: 2px; margin-right: 14px; vertical-align: -0.05em; box-shadow: 0 2px 4px rgba(0,0,0,0.06); }
   .kicker{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);margin-bottom:7px}

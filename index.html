@@ -1084,8 +1084,8 @@ function renderHome(){
   </div>
   <div class="trips">
     ${TRIPS.map(t=>`
-      <button class="trip ${t.status==='soon'?'soon':''}" type="button" ${t.status==='soon'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
-        ${t.status==='soon'?'<span class="ribbon">Coming soon</span>':''}
+      <button class="trip" type="button" onclick="openTrip('${t.id}')">
+        ${t.status==='soon'?'<span class="ribbon">In progress</span>':''}
         <div class="ph">
           <img src="${t.photo}" alt="${esc(t.country)}" loading="lazy"
                onerror="this.style.display='none'">
@@ -1095,7 +1095,7 @@ function renderHome(){
             <div class="cd">${esc(t.dates)}</div>
           </div>
         </div>
-        <div class="bar"><span>${t.status==='soon'?'Not planned yet':'Open trip →'}</span>
+        <div class="bar"><span>Open trip →</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>
@@ -1886,9 +1886,84 @@ var TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 
    TRIP_DATA holds a reference to each trip's content. Opening a trip points
    the live bindings above at that trip's data. Only Japan exists so far, so
    this commit changes nothing a user can see. */
+/* ================= KOREA · MAY 2027 =================
+   Hotels confirmed from Marriott/Google. Flights and restaurants are stubs
+   on purpose — they get filled in as they are actually booked. */
+var KR_HOTELS = {
+ westin_parnas:{n:"The Westin Seoul Parnas",lat:37.51293,lng:127.05745,addr:"524 Bongeunsa-ro, Gangnam-gu, Seoul 06164",
+   tel:"+82 2-3452-2500",mail:"— Marriott app chat",
+   stn:"Bongeunsa (Line 9) Exit 7 · 5 min walk — Samseong (Line 2) Exit 6 · 13 min · airport limousine 6703 stops at COEX North Gate",
+   note:"Two stays: 7–10 and 14–18 May. Reopened Sept 2025 as a Westin after a full rebuild of the old InterContinental COEX — 564 rooms, and one of the largest club lounges in Seoul, which your Platinum status should open. Ask for a Bongeunsa temple view."},
+ parnas_jeju:{n:"Parnas Hotel Jeju",lat:33.24460,lng:126.40596,addr:"100 Jungmungwangwang-ro 72beon-gil, Seogwipo, Jeju-do",
+   tel:"+82 64-801-5555",mail:"— add if needed",
+   stn:"No rail on Jeju — rental car or taxi from CJU (~50 min). Jungmun resort area, 10 min walk to the beach",
+   note:"10–14 May. Not a Marriott property, so no Bonvoy benefits. Heated outdoor infinity pool, Fondmer lounge; two towers — the newer wing gets better reviews. Ocean-view rooms are the ones worth asking for."}
+};
+var KR_FLIGHTS=[
+ {d:"May 7",r:"IAD → ICN",f:"not booked",t:"—",n:"Award options researched earlier: Amex MR → Aeroplan/Asiana, or Virgin Atlantic → Korean Air, both from Dulles."},
+ {d:"May 10",r:"Seoul → CJU",f:"not booked",t:"—",n:"Gimpo (GMP) is far quicker to reach from Gangnam than Incheon. ~70 min flight; Korean Air, Asiana and the LCCs run it constantly."},
+ {d:"May 14",r:"CJU → Seoul",f:"not booked",t:"—",n:"Back for the second Westin Parnas stay."},
+ {d:"May 18",r:"ICN → IAD",f:"not booked",t:"—",n:"Homeward."}
+];
+var KR_WX = {
+ seoul:{lat:37.5665,lng:126.9780,from:"2027-05-07",to:"2027-05-18"},
+ jeju:{lat:33.2500,lng:126.4100,from:"2027-05-10",to:"2027-05-14"}
+};
+var KR_TODAY_CITY={7:'seoul',8:'seoul',9:'seoul',10:'jeju',11:'jeju',12:'jeju',13:'jeju',14:'seoul',15:'seoul',16:'seoul',17:'seoul',18:'seoul'};
+var KR_TONIGHT={7:'westin_parnas',8:'westin_parnas',9:'westin_parnas',10:'parnas_jeju',11:'parnas_jeju',12:'parnas_jeju',13:'parnas_jeju',
+ 14:'westin_parnas',15:'westin_parnas',16:'westin_parnas',17:'westin_parnas',18:['Homeward \u2708','ICN \u2192 IAD']};
+var KR_CITIES=[
+{id:"today",city:"Today",sub:"live day view",today:true},
+{id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
+{id:"seoul",city:"Seoul",sub:"5/7–5/10 · 5/14–5/18",hotel:"westin_parnas",
+ legs:[
+  {r:"✈ ICN → Gangnam",m:"5/7 · AREX to Seoul Stn then Line 2, or the 6703 limousine bus",n:"The 6703 stops at COEX North Gate, two minutes from the hotel — easiest with luggage. A taxi runs about ₩70,000 and 60–80 min."},
+  {r:"Seoul → Jeju",m:"5/10 · fly from Gimpo",n:"Line 9 runs express straight to Gimpo from Bongeunsa — one of the reasons this hotel is well placed."},
+  {r:"Jeju → Seoul",m:"5/14 · CJU → Gimpo",n:"Straight back to the Westin Parnas for the second half."},
+  {r:"Gangnam → ICN ✈",m:"5/18 · 6703 limousine or AREX",n:"Allow ~90 min door to gate."}],
+ metro:[["Line 9 (gold)","Bongeunsa Exit 7 is 5 min away · express trains to Gimpo Airport and Yeouido"],
+        ["Line 2 (green)","Samseong Exit 6, 13 min · the loop to Gangnam, City Hall, Hongdae"],
+        ["Payment","T-money card from any convenience store — subway, buses and most taxis"]],
+ pois:[
+ {c:"sight",ic:"🛕",n:"Bongeunsa",d:"1,000-year-old temple directly across from the hotel — your room may look onto it",a:"hotel",lat:37.5147,lng:127.0577},
+ {c:"sight",ic:"📚",n:"Starfield Library, COEX",d:"the giant atrium bookshelf, inside the mall you are connected to",a:"COEX",lat:37.5096,lng:127.0601},
+ {c:"sight",ic:"🏯",n:"Gyeongbokgung",d:"the main palace — hanbok rental gets you in free; guard changing mid-morning",a:"Jongno",lat:37.5796,lng:126.9770},
+ {c:"sight",ic:"🏘",n:"Bukchon Hanok Village",d:"lanes of traditional houses between two palaces — residents live here, so keep it quiet",a:"Jongno",lat:37.5826,lng:126.9830},
+ {c:"sight",ic:"⛩",n:"Changdeokgung & Huwon",d:"the secret garden is a timed ticket, booked ahead",a:"Jongno",lat:37.5794,lng:126.9910},
+ {c:"sight",ic:"🌉",n:"Banpo Hangang Park",d:"rainbow fountain on the bridge in the evenings from spring",a:"Banpo",lat:37.5130,lng:127.0000},
+ {c:"food",ic:"🥘",n:"Gwangjang Market",d:"bindaetteok and mayak gimbap at the stalls — bring cash",a:"Jongno",lat:37.5701,lng:126.9997},
+ {c:"shop",ic:"🛍",n:"Seongsu-dong",d:"old factories turned into coffee and flagship stores — the current fashionable quarter",a:"Seongsu",lat:37.5445,lng:127.0557},
+ {c:"shop",ic:"🏬",n:"Hyundai Dept Store COEX",d:"next door — depachika-style food hall in the basement",a:"COEX",lat:37.5088,lng:127.0596},
+ {c:"cafe",ic:"☕",n:"Ikseon-dong",d:"hanok alleys full of small cafés and restaurants",a:"Jongno",lat:37.5740,lng:126.9903}],
+ stops:[]},
+{id:"jeju",city:"Jeju",sub:"5/10–5/14",hotel:"parnas_jeju",
+ legs:[
+  {r:"✈ CJU → Jungmun",m:"5/10 · rental car or taxi, ~50 min",n:"Decide early whether you are renting — it changes what half the island is worth attempting."},
+  {r:"Jeju → Seoul ✈",m:"5/14 · CJU → Gimpo",n:"Leave time to return a rental car."}],
+ metro:[["Getting around","No rail. A rental car is normal; the 201/282 buses cover the ring road slowly"],
+        ["Driving","An International Driving Permit is required — get one from AAA before leaving the US"]],
+ pois:[
+ {c:"sight",ic:"🌅",n:"Seongsan Ilchulbong",d:"tuff cone on the east coast, about an hour up and back — the sunrise landmark",a:"east",lat:33.4580,lng:126.9427},
+ {c:"sight",ic:"🕳",n:"Manjanggul Lava Tube",d:"UNESCO lava cave and cold inside — take a layer",a:"east",lat:33.5285,lng:126.7714},
+ {c:"sight",ic:"⛰",n:"Hallasan",d:"Yeongsil trail is the manageable one; summit routes need a reservation",a:"centre",lat:33.3617,lng:126.5292},
+ {c:"sight",ic:"💧",n:"Cheonjeyeon Falls",d:"three-tier falls in Jungmun, minutes from the hotel",a:"Jungmun",lat:33.2530,lng:126.4160},
+ {c:"sight",ic:"🏖",n:"Jungmun Saekdal Beach",d:"10 min walk from the hotel — black volcanic rock at the ends",a:"Jungmun",lat:33.2440,lng:126.4110},
+ {c:"sight",ic:"⛵",n:"Udo",d:"ferry from Seongsan; scooters and beaches make an easy half day",a:"east",lat:33.5060,lng:126.9530},
+ {c:"food",ic:"🐟",n:"Dongmun Market",d:"Jeju City's market — hairtail, tangerines, black pork",a:"Jeju City",lat:33.5124,lng:126.5270},
+ {c:"food",ic:"🐖",n:"Heukdwaeji (black pork)",d:"the island signature, grilled over charcoal — clusters in Jeju City and Seogwipo",a:"Seogwipo",lat:33.2490,lng:126.5620},
+ {c:"cafe",ic:"☕",n:"Aewol coast cafés",d:"the west-coast café strip with sea views",a:"west",lat:33.4630,lng:126.3100}],
+ stops:[]},
+{id:"flights",city:"Flights",sub:"all legs",flights:true},
+{id:"vault",city:"Vault",sub:"confirmations",vault:true},
+{id:"expenses",city:"Expenses",sub:"budget tracker",expenses:true},
+{id:"calc",city:"Calc",sub:"₩ ⇄ $",calc:true}
+];
+
 const TRIP_DATA={
  'japan-2026':{cities:CITIES,hotels:HOTELS,flights:FLIGHTS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
-   brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals"}
+   brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals"},
+ 'korea-2027':{cities:KR_CITIES,hotels:KR_HOTELS,flights:KR_FLIGHTS,wx:KR_WX,todayCity:KR_TODAY_CITY,tonight:KR_TONIGHT,
+   brand:"Korea · May '27",foot:"7–18 May · Seoul & Jeju"}
 };
 function applyTripData(id){
   const t=TRIP_DATA[id];

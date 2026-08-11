@@ -139,7 +139,8 @@ function renderToday(){
       const cid=TODAY_CITY[d];
       const cn=cid?((CITIES.find(c=>c.id===cid)||{}).city||''):'';
       const order={Breakfast:0,Lunch:1,Dinner:2};
-      const meals=allStops.filter(x=>x.d===TRIP_MON+'/'+d).sort((a,b)=>(order[a.m]??9)-(order[b.m]??9));
+      const ds=TRIP_MON+'/'+d;
+      const meals=allStops.filter(x=>x.d===ds||String(x.d).startsWith(ds+' ')).sort((a,b)=>(order[a.m]??9)-(order[b.m]??9));
       calInfo[d]={c:cn,items:meals.map(x=>x.name)};
     }
     window._tdCalInfo=calInfo;

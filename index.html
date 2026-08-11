@@ -1468,7 +1468,7 @@ function renderCruise(c){
     const money=n=>'$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0});
     const qFor=cat=>quoteList.filter(x=>x.cat===cat);
     const qMin=cat=>{const a=qFor(cat).map(x=>Number(x.q)).filter(n=>n>0);return a.length?Math.min(...a):0;};
-    const quoteAdmin=`<div class="card"><div class="chead"><span>💵 Quotes</span><span>${quoteList.length} on offer</span></div>
+    const quoteAdmin=`<div class="card"><div class="chead"><span>${window._editQuote?'💵 Edit quote':'💵 Quotes'}</span><span>${quoteList.length} on offer</span></div>
       <div class="plform">
         <div class="plrow1">
           <select id="qt_cat">${cats.map(k=>`<option value="${k.id}">${esc(k.n)}</option>`).join('')}</select>
@@ -1476,10 +1476,14 @@ function renderCruise(c){
           <input id="qt_amt" type="number" min="0" step="0.01" placeholder="$ quote">
         </div>
         <input id="qt_img" placeholder="Image link (optional) — right-click a photo on Royal's site → Copy Image Address">
-        <button class="pladd" type="button" onclick="addQuote()" style="align-self:flex-start;padding:8px 14px">+ Add quote</button>
+        <div style="display:flex;gap:8px">
+          <button class="pladd" type="button" onclick="addQuote()" style="padding:8px 14px;${window._editQuote?'background:var(--moss)':''}">${window._editQuote?'✓ Save quote':'+ Add quote'}</button>
+          ${window._editQuote?'<button type="button" onclick="window._editQuote=null;render()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);padding:7px 11px;cursor:pointer;color:var(--grey)">Cancel</button>':''}
+        </div>
         <div class="plhint">Guests see each quote as its own card. Quote the same type at different occupancies freely.</div>
       </div>
-      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat};return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc">${q.ppl} people · ${money(q.q)}${q.img?' · 🖼 image set':''}</span></span>
+      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat};return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc" style="margin-left:10px">${q.ppl} people · ${money(q.q)}${q.img?' · 🖼 image set':''}</span></span>
+        <button class="tdo-x" onclick="editQuote('${q.id}')" title="Edit" style="color:var(--indigo)">✎</button>
         <button class="tdo-x" onclick="delQuote('${q.id}')" style="color:var(--clay);font-size:17px">×</button></div>`;}).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing quoted yet.</div>'}
     </div>`;
     const pend=reqs.filter(r=>r.status==='pending');
@@ -2010,13 +2014,31 @@ function quoteListNow(){
   if(q&&typeof q==='object')return Object.entries(q).filter(([k,v])=>v&&Number(v.q)>0).map(([k,v])=>({id:'mig_'+k,cat:k,ppl:2,q:Number(v.q),img:v.img||''}));
   return [];
 }
+window._editQuote=null;
 window.addQuote=function(){
   const g=i=>document.getElementById(i);
   const amt=Number(g('qt_amt').value);
   if(!(amt>0)){g('qt_amt').focus();return;}
   overrides.quotes=quoteListNow();
-  overrides.quotes.push({id:'qt'+Date.now(),cat:g('qt_cat').value,ppl:Math.min(4,Math.max(2,Number(g('qt_ppl').value)||2)),q:Number(amt.toFixed(2)),img:g('qt_img').value.trim()});
+  const fields={cat:g('qt_cat').value,ppl:Math.min(4,Math.max(2,Number(g('qt_ppl').value)||2)),q:Number(amt.toFixed(2)),img:g('qt_img').value.trim()};
+  if(window._editQuote){
+    const q=overrides.quotes.find(x=>x.id===window._editQuote);
+    window._editQuote=null;
+    if(q)Object.assign(q,fields);
+  }else{
+    overrides.quotes.push({id:'qt'+Date.now(),...fields});
+  }
   saveOverrides();render();
+};
+window.editQuote=function(id){
+  const q=quoteListNow().find(x=>x.id===id);
+  if(!q)return;
+  overrides.quotes=quoteListNow();      // pin the migrated array so the edit lands on it
+  window._editQuote=id;
+  render();
+  const g=i=>document.getElementById(i);
+  g('qt_cat').value=q.cat;g('qt_ppl').value=String(q.ppl||2);g('qt_amt').value=q.q;g('qt_img').value=q.img||'';
+  g('qt_amt').scrollIntoView({behavior:'smooth',block:'center'});
 };
 window.delQuote=function(id){
   overrides.quotes=quoteListNow().filter(x=>x.id!==id);

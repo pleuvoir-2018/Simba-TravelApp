@@ -227,7 +227,7 @@
   .trip .cap .cd{font:11px var(--mono);opacity:.92}
   .trip .bar{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 16px;min-height:47px;box-sizing:border-box;font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--indigo);border-top:1px solid var(--rule)}
   .trip .bar>span:first-child{white-space:nowrap;flex:0 0 auto}
-  .trip .credit{flex:1 1 auto;min-width:0;text-align:right;line-height:1.4;font:8.5px var(--mono);color:var(--grey);text-transform:none;letter-spacing:0}
+  .trip .credit{flex:1 1 auto;min-width:0;text-align:right;line-height:1.4;font:8.5px var(--mono);color:var(--grey);text-transform:none;letter-spacing:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .trip.soon{cursor:default}
   .trip.soon:hover{transform:none;box-shadow:none}
   .trip.soon .ph img{filter:grayscale(1) brightness(.72)}
@@ -1030,7 +1030,7 @@ function renderHome(){
             <div class="cd">${esc(t.dates)}</div>
           </div>
         </div>
-        <div class="bar"><span>${t.status==='idea'?'Not planned yet':(!canOpen(t.id)?'🔒 No access — ask the organizer':(tripArchived(t)?'Open · read-only →':'Open trip →'))}</span>
+        <div class="bar"><span title="${!canOpen(t.id)&&t.status!=='idea'?'Ask the organizer for access':''}">${t.status==='idea'?'Not planned yet':(!canOpen(t.id)?'🔒 No access':(tripArchived(t)?'Open · read-only →':'Open trip →'))}</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>

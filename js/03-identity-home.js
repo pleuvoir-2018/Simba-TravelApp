@@ -44,6 +44,7 @@ function renderAdminPage(){
             <span class="urow-id"><b>${esc(u.name)}</b><span class="urow-code">${esc(u.code)}</span>
               ${u.role==='pending'?'<span class="urow-badge">⏳ pending</span>':''}</span>
             <span class="urow-ops">
+              ${u.role!=='pending'?`<button class="tdo-x" onclick="appViewAs('${u.uid}')" title="View the app as ${esc(u.name)}" style="font-size:13px">👁</button>`:''}
               ${u.role==='pending'?`<button class="tdo-x" onclick="appApprove('${u.uid}')" title="Approve" style="color:var(--moss);font:700 11px var(--mono)">✓ approve</button>`
                 :`<select onchange="appSetRole('${u.uid}',this.value)" title="App role">
                     <option value="user" ${u.role!=='designer'?'selected':''}>Member</option>
@@ -220,6 +221,12 @@ function appRole(){ return window._app&&window._app.role; }
 function cruRole(){return window._cru&&window._cru.role;}
 function cruName(){return (window._cru&&window._cru.name)||'';}
 function validateAppSession(){
+  if(window._realApp){ // impersonating: refresh the viewed user's role from the roster, never the master's
+    const u=appUsers().find(x=>x.uid===(window._app||{}).uid);
+    if(u){window._app.name=u.name;window._app.role=(u.role==='pending')?'pending':(u.role==='designer'?'designer':'user');}
+    else appViewExit();  // the viewed user was deleted mid-view
+    return;
+  }
   if(!window._app||!window._app.uid)return false;
   if(window._app.uid==='admin'){
     window._app.name=appAdminName();
@@ -257,6 +264,39 @@ function appGroupSession(tripId){
   return {uid:u.uid,name:u.name,role:g==='organizer'?'admin':'participant'};
 }
 function appCruiseSession(){ return appGroupSession('cruise-2028'); }
+window.appViewAs=function(uid){
+  if(appRole()!=='admin'||window._realApp)return;
+  const u=appUsers().find(x=>x.uid===uid);
+  if(!u)return;
+  window._realApp=window._app;
+  window._app={role:(u.role==='pending')?'pending':(u.role==='designer'?'designer':'user'),name:u.name,uid:u.uid};
+  window._cru=null;
+  tripSel=null;
+  viewAsBanner();
+  if(window._app.role==='pending')renderPendingApp(); else renderHome();
+};
+window.appViewExit=function(){
+  if(!window._realApp)return;
+  window._app=window._realApp;
+  window._realApp=null;
+  window._cru=null;
+  tripSel=null;
+  const b=document.getElementById('viewAsBar');
+  if(b)b.remove();
+  document.body.style.paddingTop='';
+  renderAdminPage();
+};
+function viewAsBanner(){
+  let b=document.getElementById('viewAsBar');
+  if(!b){
+    b=document.createElement('div');
+    b.id='viewAsBar';
+    document.body.appendChild(b);
+  }
+  b.innerHTML=`<span>👁 Viewing as <b>${esc((window._app||{}).name||'')}</b> — read only, exactly what they see</span>
+    <button type="button" onclick="appViewExit()">Exit ✕</button>`;
+  document.body.style.paddingTop='40px';
+}
 window.appSignOut=function(){
   window._app=null;window._cru=null;tripSel=null;
   try{localStorage.removeItem('jt_app');localStorage.removeItem('jt_cru');}catch(e){}

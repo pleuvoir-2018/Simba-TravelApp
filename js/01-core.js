@@ -130,6 +130,7 @@ async function loadOverrides(){
    debounced so a burst of edits costs one trip instead of one each. */
 let _saveTimer=null,_savePending=false,_saveInFlight=false;
 function saveOverrides(){
+  if(window._realApp){flash('Viewing as '+((window._app||{}).name||'…')+' — read only, nothing saves','err');return;}
   if(typeof appRole==='function'&&appRole()==='designer'){flash('Design review account — read only, nothing saves','err');return;}
   if(tripSel&&typeof currentArchived==='function'&&currentArchived()){flash('This trip is archived — read only');return;}
   store.trips=store.trips||{};

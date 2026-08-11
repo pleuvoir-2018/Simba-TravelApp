@@ -1397,7 +1397,7 @@ function renderJeju(c){
 
   if(c.jjTab==='jexp'){
     const opts=overrides.options||[];
-    const N=jjEveryone().length;
+    const N=Math.max(1,Number(overrides.headcount)||Number(T.headcount)||jjEveryone().length);
     const chosenCosts=opts.filter(o=>o.chosen).map(o=>({desc:(o.kind==='car'?'🚗 ':'✈️ ')+o.title,amt:o.per==='pp'?Number(o.cost)*N:Number(o.cost),by:'—',fromVote:true}));
     const gexp=(overrides.gexp||[]);
     const groupTotal=chosenCosts.reduce((a,x)=>a+x.amt,0)+gexp.reduce((a,x)=>a+Number(x.amt),0);
@@ -1407,7 +1407,8 @@ function renderJeju(c){
     const mine=(overrides.cexp&&overrides.cexp[me])||[];
     const myPersonal=mine.reduce((a,x)=>a+Number(x.amt||0),0);
     body=`
-      <div class="card"><div class="chead"><span>👥 Group pot</span><span>${jjMoney(groupTotal)} · ${jjMoney(share)}/person (${N})</span></div>
+      <div class="card"><div class="chead"><span>👥 Group pot</span><span style="display:flex;gap:7px;align-items:center">${jjMoney(groupTotal)} · ${jjMoney(share)}/person
+        ${admin?`<span style="display:flex;gap:4px;align-items:center">÷ <input type="number" min="1" max="50" value="${N}" onchange="jjSetHead(this.value)" title="How many people the pot splits across" style="width:46px;font:600 11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;text-align:center;background:#fff"></span>`:`÷ ${N} people`}</span></div>
         ${chosenCosts.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">decided on the Decisions tab</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b></div>`).join('')}
         ${gexp.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">paid by ${esc(jjName(x.payer))}${x.note?' · '+esc(x.note):''}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
           ${(admin||x.by===me)?`<button class="tdo-x" onclick="jjDelGexp('${x.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`).join('')||''}
@@ -1424,7 +1425,7 @@ function renderJeju(c){
         ${jjEveryone().map(u=>{const d=(paidBy[u]||0)-share;return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(jjName(u))}</span>
           <span class="tdo-desc" style="margin-left:10px">paid ${jjMoney(paidBy[u]||0)}</span></span>
           <b style="font-family:var(--mono);font-size:11.5px;color:${d>=0?'var(--moss)':'var(--clay)'}">${d>=0?'+':''}${jjMoney(d)}</b></div>`;}).join('')}
-        <div style="padding:8px 13px;font:10px var(--mono);color:var(--grey)">Positive = the group owes them; negative = they owe the pot. Chosen car/flight costs count into the pot but aren't assigned a payer until you log who actually paid, as a group expense.</div>
+        <div style="padding:8px 13px;font:10px var(--mono);color:var(--grey)">Split across ${N} people${N!==jjEveryone().length?` (${jjEveryone().length} with app accounts — people without accounts settle in cash with whoever fronted)`:''}. Positive = the group owes them; negative = they owe the pot. Chosen car/flight costs count into the pot but aren't assigned a payer until you log who actually paid, as a group expense.</div>
       </div>
       <div class="card"><div class="chead"><span>💳 My own spending</span><span>${jjMoney(myPersonal)}</span></div>
         ${mine.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))}</span><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
@@ -1527,6 +1528,11 @@ window.jjAddPin=function(){
 };
 window.jjDelPin=function(id){
   overrides.pins=(overrides.pins||[]).filter(x=>x.id!==id);
+  saveOverrides();render();
+};
+window.jjSetHead=function(v){
+  const n=Math.max(1,Math.min(50,Number(v)||1));
+  overrides.headcount=n;
   saveOverrides();render();
 };
 window.jjAddGexp=function(){

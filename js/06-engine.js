@@ -107,7 +107,8 @@ async function loadFx(range){
   if(!el)return;
   el.innerHTML='<div class="note">Loading rate history…</div>';
   try{
-    if(!fxCache[range]){
+    const ck=CUR.code+':'+range;
+    if(!fxCache[ck]){
       const end=new Date();
       const start=new Date(end.getTime()-(range==='1w'?7:30)*86400000);
       const fmt=d=>d.toISOString().slice(0,10);
@@ -135,9 +136,9 @@ async function loadFx(range){
         if(arr.length>=2)pts=arr;
       }
       if(!pts)throw new Error('fx unavailable');
-      fxCache[range]=pts;
+      fxCache[ck]=pts;
     }
-    const pts=fxCache[range];
+    const pts=fxCache[ck];
     const vs=pts.map(x=>x.v), min=Math.min(...vs), max=Math.max(...vs), span=(max-min)||1;
     const W=320,H=110,T=8,B=18,L=6,R=6;
     const X=i=>L+(W-L-R)*i/(pts.length-1);

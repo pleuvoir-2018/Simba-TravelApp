@@ -1293,6 +1293,23 @@ const TRIP_DATA=window.TRIPS_REGISTRY||{};
    A collaborative land trip: decisions (car/flights) with voting, a shared
    map+schedule everyone can pin, group-vs-personal money, and a file-links
    vault. Rides the same _cru session and role-aware merge as the cruise. */
+const JJ_EXPCATS=['Food','POI & Cafe','Transit','Omiyage','Other'];
+const JJ_EXPICO={'Food':'🍽','POI & Cafe':'🎟','Transit':'🚗','Omiyage':'🛍','Other':'📦'};
+function jjCatSel(id,sel){return `<select id="${id}">${JJ_EXPCATS.map(c=>`<option ${c===(sel||'Food')?'selected':''}>${c}</option>`).join('')}</select>`;}
+function jjCatBars(rows){
+  const total=rows.reduce((a,x)=>a+Number(x.amt||0),0);
+  if(!(total>0))return '<div style="padding:10px 13px;font-size:11.5px;color:var(--grey)">Nothing to break down yet.</div>';
+  return JJ_EXPCATS.map(c=>{
+    const v=rows.filter(x=>(x.cat||'Other')===c).reduce((a,x)=>a+Number(x.amt||0),0);
+    if(!(v>0))return '';
+    const pct=Math.round(v/total*100);
+    return `<div style="display:flex;align-items:center;gap:9px;padding:4px 13px">
+      <span style="flex:0 0 96px;font:600 9px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey)">${JJ_EXPICO[c]} ${c}</span>
+      <span style="flex:1;height:9px;background:var(--rule);border-radius:2px;overflow:hidden"><span style="display:block;height:100%;width:${pct}%;background:var(--tripac,#E8871E)"></span></span>
+      <span style="flex:0 0 96px;text-align:right;font:600 10.5px var(--mono)">${jjMoney(v)} · ${pct}%</span>
+    </div>`;
+  }).join('');
+}
 function jjUsers(){ return groupUsers(tripKey()); }
 function jjName(uid){ return uid==='admin'?appAdminName():((jjUsers().find(u=>u.uid===uid)||{}).name||'—'); }
 function jjMoney(n){ return CUR.sym+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0}); }
@@ -1419,12 +1436,15 @@ function renderJeju(c){
       <div class="card"><div class="chead"><span>👥 Group pot</span><span style="display:flex;gap:7px;align-items:center">${jjMoney(groupTotal)} · ${jjMoney(share)}/person
         ${admin?`<span style="display:flex;gap:4px;align-items:center">÷ <input type="number" min="1" max="50" value="${N}" onchange="jjSetHead(this.value)" title="How many people the pot splits across" style="width:46px;font:600 11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;text-align:center;background:#fff"></span>`:`÷ ${N} people`}</span></div>
         ${chosenCosts.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">decided on the Decisions tab</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b></div>`).join('')}
-        ${gexp.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">paid by ${esc(jjName(x.payer))}${x.note?' · '+esc(x.note):''}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
+        ${gexp.map(x=>`<div class="tdo-row"><span style="flex:0 0 24px;text-align:center">${JJ_EXPICO[x.cat||'Other']||'📦'}</span><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span><span class="tdo-desc" style="margin-left:10px">paid by ${esc(jjName(x.payer))}${x.note?' · '+esc(x.note):''}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
           ${(admin||x.by===me)?`<button class="tdo-x" onclick="jjDelGexp('${x.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`).join('')||''}
         <div class="plform" style="border-top:1px solid var(--rule)">
           <div class="plrow1">
             <input id="jg_d" placeholder="Group expense — e.g. groceries, fuel" maxlength="60">
             <input id="jg_a" type="number" min="0" placeholder="${CUR.sym} amount">
+          </div>
+          <div class="plrow1">
+            ${jjCatSel('jg_c')}
             <select id="jg_p">${jjEveryone().map(u=>`<option value="${u}" ${u===me?'selected':''}>paid by ${esc(jjName(u))}</option>`).join('')}</select>
           </div>
           <button class="pladd" type="button" onclick="jjAddGexp()" style="align-self:flex-start;padding:8px 14px">+ Add group expense</button>
@@ -1440,18 +1460,41 @@ function renderJeju(c){
         ${flightPick?`<div class="tdo-row" style="background:rgba(74,110,158,.08)"><span style="flex:0 0 26px;text-align:center">✈️</span>
           <span class="tdo-main"><span class="tdo-t">${esc(flightPick.title)} — the chosen flight</span>
           <span class="tdo-desc" style="margin-left:10px">≈ ${jjMoney(flightEach)} each · book your own and log it here once paid</span></span></div>`:''}
-        ${mine.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))}</span><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
+        ${mine.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))}</span><span style="flex:0 0 24px;text-align:center">${JJ_EXPICO[x.cat||'Other']||'📦'}</span><span class="tdo-main"><span class="tdo-t">${esc(x.desc)}</span></span><b style="font-family:var(--mono);font-size:12px">${jjMoney(x.amt)}</b>
           <button class="tdo-x" onclick="jjDelMy('${x.id}')" style="color:var(--clay);font-size:16px">×</button></div>`).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing yet — souvenirs, coffees, your own meals.</div>'}
         <div class="plform" style="border-top:1px solid var(--rule)">
           <div class="plrow1">
             <input id="jm_date" type="date" value="2027-05-10">
             <input id="jm_d" placeholder="What" maxlength="50">
+          </div>
+          <div class="plrow1">
+            ${jjCatSel('jm_c')}
             <input id="jm_a" type="number" min="0" placeholder="${CUR.sym}">
           </div>
           <button class="pladd" type="button" onclick="jjAddMy()" style="align-self:flex-start;padding:8px 14px">+ Add</button>
           <div class="plhint">Personal — only you see your own list; totals stay yours.</div>
         </div>
-      </div>`;
+      </div>
+      ${(()=>{
+        const groupRows=[...gexp,...chosenCosts.map(x=>({amt:x.amt,cat:'Transit'}))];
+        const gTotal=groupRows.reduce((a,x)=>a+Number(x.amt||0),0);
+        const days=Math.max(1,tripDates().length-0);
+        const topG=gexp.slice().sort((a,b)=>Number(b.amt)-Number(a.amt)).slice(0,3);
+        const byDay={};
+        mine.forEach(x=>{const k=(x.date||'').slice(5)||'—';byDay[k]=(byDay[k]||0)+Number(x.amt||0);});
+        const busiest=Object.entries(byDay).sort((a,b)=>b[1]-a[1])[0];
+        return `<div class="card"><div class="chead"><span>📊 Insights</span><span>where the money goes</span></div>
+          <div style="padding:9px 0 3px"><div style="padding:0 13px 4px;font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Group pot by category — the chosen car counts as Transit</div>
+            ${jjCatBars(groupRows)}
+            <div style="padding:6px 13px 2px;font:10.5px var(--mono);color:var(--grey)">Burn: ${jjMoney(gTotal/days)}/day across ${days} days · ${jjMoney(gTotal/days/N)}/person/day</div>
+            ${topG.length?`<div style="padding:2px 13px 8px;font:10.5px var(--mono);color:var(--grey)">Biggest: ${topG.map(x=>esc(x.desc)+' '+jjMoney(x.amt)).join(' · ')}</div>`:''}
+          </div>
+          <div style="border-top:1px solid var(--rule);padding:9px 0 8px"><div style="padding:0 13px 4px;font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">My own spending by category</div>
+            ${jjCatBars(mine)}
+            ${busiest?`<div style="padding:6px 13px 0;font:10.5px var(--mono);color:var(--grey)">My average: ${jjMoney(myPersonal/days)}/day · busiest day ${esc(busiest[0])} at ${jjMoney(busiest[1])}</div>`:''}
+          </div>
+        </div>`;
+      })()}`;
   }
 
   if(c.jjTab==='jlinks'){
@@ -1562,7 +1605,7 @@ window.jjAddGexp=function(){
   if(!d){g('jg_d').focus();return;}
   if(!(a>0)){g('jg_a').focus();return;}
   overrides.gexp=(overrides.gexp||[]);
-  overrides.gexp.push({id:'g'+Date.now(),desc:d,amt:a,payer:g('jg_p').value,by:(window._cru||{}).uid,ts:Date.now()});
+  overrides.gexp.push({id:'g'+Date.now(),desc:d,amt:a,cat:(g('jg_c')?g('jg_c').value:'Other'),payer:g('jg_p').value,by:(window._cru||{}).uid,ts:Date.now()});
   saveOverrides();render();
 };
 window.jjDelGexp=function(id){
@@ -1577,7 +1620,7 @@ window.jjAddMy=function(){
   if(!(a>0)){g('jm_a').focus();return;}
   overrides.cexp=overrides.cexp||{};
   overrides.cexp[me]=overrides.cexp[me]||[];
-  overrides.cexp[me].push({id:'x'+Date.now(),date:g('jm_date').value,desc:d,amt:a});
+  overrides.cexp[me].push({id:'x'+Date.now(),date:g('jm_date').value,desc:d,amt:a,cat:(g('jm_c')?g('jm_c').value:'Other')});
   saveOverrides();render();
 };
 window.jjDelMy=function(id){

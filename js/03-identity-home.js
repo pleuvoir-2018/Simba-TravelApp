@@ -3,11 +3,11 @@
 /* ---------------- TRIPS / LANDING ---------------- */
 const wm=f=>`https://commons.wikimedia.org/wiki/Special:FilePath/${f}?width=900`;
 const TRIPS=[
- {id:'japan-2026',country:'Japan',title:'Japan, November 2026',dates:'15–27 November 2026',
+ {id:'japan-2026',country:'Japan',emoji:'⛩',title:'Japan, November 2026',dates:'15–27 November 2026',
   blurb:'Vancouver · Yokohama · Nara · Osaka · Kyoto · Nagoya · Tokyo',
   photo:wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg'),
   credit:'Kiyomizu-dera in autumn · Martin Falbisoner, CC BY-SA 4.0',status:'active'},
- {id:'korea-2027',country:'South Korea',title:'Korea, May 2027',dates:'7–18 May 2027',
+ {id:'korea-2027',country:'South Korea',emoji:'🏯',title:'Korea, May 2027',dates:'7–18 May 2027',
   blurb:'Planning starts later — Seoul and beyond',
   photo:wm('Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg'),
   credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'},

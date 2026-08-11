@@ -237,7 +237,8 @@
   #cruPop .cruPopBack{position:fixed;inset:0;z-index:60}
   #cruPop .cruPopCard{position:fixed;top:64px;right:16px;z-index:61;width:264px;background:#fff;border:1px solid #C4D6E6;border-radius:6px;box-shadow:0 8px 30px rgba(11,37,69,.25);padding:16px 16px 14px}
   #cruPop label{display:block;font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:9px}
-  #cruPop input{width:100%;font:13.5px var(--sans);border:1px solid #C4D6E6;border-radius:3px;padding:7px 9px;margin-top:3px}
+  #cruPop input{width:100%;box-sizing:border-box;min-width:0;font:13.5px var(--sans);border:1px solid #C4D6E6;border-radius:3px;padding:7px 9px;margin-top:3px;-webkit-appearance:none;appearance:none;background:#fff}
+  #cruPop input[type=date]{text-align:left}
   #cruPop .ro{font:12.5px var(--mono);color:#0D2033;background:#F0F5FA;border-radius:3px;padding:7px 9px;margin-top:3px;letter-spacing:.08em}
   .trip.ocean{border-color:#0B2545}
   .trip.ocean .ph{background:linear-gradient(135deg,#0B2545,#13315C 55%,#1D5C8F)}
@@ -473,10 +474,42 @@ async function sDel(){
   mem=null;
 }
 
+function mergeApp(rA,lA){
+  const sAp=window._app||{}; const me=sAp.uid||null; const admin=sAp.role==='admin';
+  const out={...rA,...lA};
+  ['adminName','adminLegal','tripLabels'].forEach(k=>{
+    const v=admin?(lA[k]!==undefined?lA[k]:rA[k]):(rA[k]!==undefined?rA[k]:lA[k]);
+    if(v!==undefined)out[k]=v;
+  });
+  const R=rA.users, L=lA.users;
+  if(admin){ if(L!==undefined||R!==undefined)out.users=L!==undefined?L:R; }
+  else if(R!==undefined||L!==undefined){
+    const meLocal=(L||[]).find(u=>u.uid===me);
+    let list=(R||[]).map(u=>(u.uid===me&&meLocal)
+      ?{...u,name:meLocal.name??u.name,legalFirst:meLocal.legalFirst??u.legalFirst,legalLast:meLocal.legalLast??u.legalLast,dob:meLocal.dob??u.dob}
+      :u);
+    // self-registration lands only ever as pending with NO grants
+    if(meLocal&&!list.some(u=>u.uid===me))list=list.concat([{...meLocal,role:'pending',access:{}}]);
+    out.users=list;
+  }
+  return out;
+}
 async function loadOverrides(){
   try{ const v=await sGet(); if(v)store=JSON.parse(v); }catch(e){ store={}; }
   store=normalizeStore(store);
+  // one-time lift of cruise-scoped users into the app directory
+  store.app=store.app||{};
+  const cru=(store.trips&&store.trips['cruise-2028'])||{};
+  if((!store.app.users||!store.app.users.length)&&cru.users&&cru.users.length){
+    store.app.users=cru.users.map(u=>({uid:u.uid,name:u.name,code:u.code,
+      role:u.role==='pending'?'pending':'user',
+      legalFirst:u.legalFirst,legalLast:u.legalLast,dob:u.dob,
+      access:u.role==='pending'?{}:{'cruise-2028':(u.role==='admin')?'organizer':'guest'}}));
+    if(cru.adminName)store.app.adminName=cru.adminName;
+    if(cru.adminLegal)store.app.adminLegal=cru.adminLegal;
+  }
   bindTrip();
+  validateAppSession();
 }
 
 /* Saving is two-stage: the local copy is written synchronously so a refresh
@@ -484,9 +517,9 @@ async function loadOverrides(){
    debounced so a burst of edits costs one trip instead of one each. */
 let _saveTimer=null,_savePending=false,_saveInFlight=false;
 function saveOverrides(){
-  if(typeof currentArchived==='function'&&currentArchived()){flash('This trip is archived — read only');return;}
+  if(tripSel&&typeof currentArchived==='function'&&currentArchived()){flash('This trip is archived — read only');return;}
   store.trips=store.trips||{};
-  store.trips[tripKey()]=overrides;
+  if(tripSel)store.trips[tripKey()]=overrides;
   store._ts=Date.now();
   try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}
   flash('Saving…');
@@ -512,23 +545,10 @@ function mergeCruise(rt,lt,base){
     Object.keys(R).forEach(uid=>{ if(uid!==me)m[uid]=R[uid]; });
     if(Object.keys(m).length)out[key]=m;
   });
-  ['charges','sched','ann','quotes','adminName','adminLegal'].forEach(key=>{
+  ['charges','sched','ann','quotes'].forEach(key=>{
     const v=admin?(lt[key]!==undefined?lt[key]:rt[key]):(rt[key]!==undefined?rt[key]:lt[key]);
     if(v!==undefined)out[key]=v;
   });
-  {  // users: the roster is organizer-owned, but each guest owns their display name
-    const R=rt.users, L=lt.users;
-    if(admin){ if(L!==undefined||R!==undefined)out.users=L!==undefined?L:R; }
-    else if(R!==undefined||L!==undefined){
-      const meLocal=(L||[]).find(u=>u.uid===me);
-      let list=(R||[]).map(u=>(u.uid===me&&meLocal)
-        ?{...u,name:meLocal.name??u.name,legalFirst:meLocal.legalFirst??u.legalFirst,legalLast:meLocal.legalLast??u.legalLast,dob:meLocal.dob??u.dob}
-        :u);
-      // self-registration: my record may not exist remotely yet — it lands, but only ever as pending
-      if(meLocal&&!list.some(u=>u.uid===me))list=list.concat([{...meLocal,role:'pending'}]);
-      out.users=list;
-    }
-  }
   {  // change requests: each guest owns their own; admin's decisions win
     const R=rt.reqs, L=lt.reqs;
     if(admin){ if(L!==undefined||R!==undefined)out.reqs=L!==undefined?L:R; }
@@ -572,7 +592,8 @@ async function flushSave(){
           if(TRIP_DATA[k]&&TRIP_DATA[k].cruise)m=mergeCruise(rt,lt,m);
           trips[k]=m;
         });
-        store={...store,trips};
+        const appOut=mergeApp((remote.app||{}),(store.app||{}));
+        store={...store,trips,app:appOut};
         bindTrip();
       }
     }catch(e){}
@@ -634,7 +655,7 @@ try{devMode=localStorage.getItem('jt_dev')==='1';}catch(e){}
 const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'developer mode',addrest:true};
 function navCities(){
   let list=CITIES.slice();
-  if(list.some(c=>c.cruiseTab)&&(!window._cru||cruRole()==='pending'))return [];
+  if(list.some(c=>c.cruiseTab)&&!window._cru)return [];
   if(list.some(c=>c.adminOnly)&&cruRole()!=='admin')list=list.filter(c=>!c.adminOnly);
   if(devMode&&list.some(c=>c.stops)&&!list.some(c=>c.addrest))list.push(DEV_TAB);
   return list;
@@ -881,19 +902,124 @@ const TRIPS=[
   photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'idea'}
 ];
 let tripSel=null;                 // never restored from storage: every reload
-const _unlocked={};               // starts at the picker, and coded trips relock
+
+window.openAdmin=function(){ renderAdminPage(); };
+function renderAdminPage(){
+  if(appRole()!=='admin'){renderHome();return;}
+  document.body.classList.add('home');
+  const users=appUsers();
+  const dests=TRIPS.filter(t=>TRIP_DATA[t.id]);
+  const labels=(store.app&&store.app.tripLabels)||{};
+  panel.innerHTML=`<div class="stack" style="max-width:860px;margin:0 auto">
+    <div class="home-hero" style="position:relative">
+      <div class="hk">IAM · access & labels</div>
+      <h1>Admin</h1>
+      <div style="position:absolute;top:0;right:0"><button type="button" onclick="renderHome()" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;cursor:pointer;color:var(--ink)">← Trips</button></div>
+    </div>
+    <div class="card"><div class="chead"><span>👥 People & access</span><span>${users.length} · master code ${CRUISE_MASTER}</span></div>
+      ${users.map(u=>{
+        const acc=u.access||{};
+        return `<div style="padding:11px 13px;border-bottom:1px dotted var(--rule)">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <b style="font-size:13px">${esc(u.name)}</b>
+            ${u.role==='pending'?'<span style="border:1px solid #B0761F;color:#B0761F;border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px">⏳ pending</span>':''}
+            <span style="font:11px var(--mono);color:var(--grey)">code <b style="letter-spacing:.12em">${esc(u.code)}</b></span>
+            <span style="flex:1"></span>
+            ${u.role==='pending'?`<button class="tdo-x" onclick="appApprove('${u.uid}')" title="Approve" style="color:var(--moss);font:700 11px var(--mono)">✓ approve</button>`:''}
+            <button class="tdo-x" onclick="appRename('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
+            <button class="tdo-x" onclick="appRegen('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
+            <button class="tdo-x" onclick="appDel('${u.uid}')" style="color:var(--clay);font-size:17px">×</button>
+          </div>
+          ${u.role==='pending'?'':`<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px">
+            ${dests.map(d=>{
+              const td=TRIP_DATA[d.id];
+              if(td.cruise)return `<label style="display:flex;align-items:center;gap:5px">${d.emoji||'🚢'} ${esc(d.country)}
+                <select onchange="appGrant('${u.uid}','${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:2px 4px;background:#fff">
+                  <option value="" ${!acc[d.id]?'selected':''}>No access</option>
+                  <option value="guest" ${acc[d.id]==='guest'?'selected':''}>Guest</option>
+                  <option value="organizer" ${acc[d.id]==='organizer'?'selected':''}>Organizer</option>
+                </select></label>`;
+              return `<label style="display:flex;align-items:center;gap:5px;cursor:pointer">
+                <input type="checkbox" ${acc[d.id]?'checked':''} onchange="appGrant('${u.uid}','${d.id}',this.checked?'yes':'')" style="width:13px;height:13px;accent-color:var(--moss)"> ${d.emoji||''} ${esc(d.country)}</label>`;
+            }).join('')}
+          </div>`}
+        </div>`;
+      }).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nobody yet — people appear here when they request access, or add one below.</div>'}
+      <div class="plform" style="border-top:1px solid var(--rule)">
+        <div class="plrow1">
+          <input id="ad_name" placeholder="Add a person by name" maxlength="40">
+          <button class="pladd" type="button" onclick="appAdd()" style="flex:0 0 auto;padding:8px 14px">+ Add & generate code</button>
+        </div>
+      </div>
+    </div>
+    <div class="card"><div class="chead"><span>🏷 Destination labels</span><span>shown on the landing cards</span></div>
+      ${dests.map(d=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${d.emoji||''} ${esc(d.title)}</span></span>
+        <select onchange="appLabel('${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;background:#fff">
+          ${Object.entries(TRIP_LABELS).map(([v,[t]])=>`<option value="${v}" ${tripLabelOf(TRIPS.find(x=>x.id===d.id))===v?'selected':''}>${t}</option>`).join('')}
+        </select></div>`).join('')}
+    </div>
+  </div>`;
+}
+window.appApprove=function(uid){
+  const u=appUsers().find(x=>x.uid===uid);
+  if(!u)return;
+  u.role='user';u.access=u.access||{};
+  saveOverrides();renderAdminPage();flash(u.name+' approved ✓','ok');
+};
+window.appGrant=function(uid,tripId,val){
+  const u=appUsers().find(x=>x.uid===uid);
+  if(!u)return;
+  u.access=u.access||{};
+  if(val)u.access[tripId]=(val==='yes')?true:val; else delete u.access[tripId];
+  saveOverrides();
+};
+window.appLabel=function(tripId,val){
+  APP().tripLabels=APP().tripLabels||{};
+  APP().tripLabels[tripId]=val;
+  saveOverrides();
+};
+window.appAdd=function(){
+  const el=document.getElementById('ad_name');
+  const name=el?el.value.trim():'';
+  if(!name){el&&el.focus();return;}
+  APP().users=appUsers().concat([{uid:'u'+Date.now(),name,code:genCode(),role:'user',access:{}}]);
+  saveOverrides();renderAdminPage();
+};
+window.appRename=function(uid){
+  const u=appUsers().find(x=>x.uid===uid);
+  if(!u)return;
+  const v=prompt('Name:',u.name);
+  if(v===null||!v.trim())return;
+  u.name=v.trim();saveOverrides();renderAdminPage();
+};
+window.appRegen=function(uid){
+  const u=appUsers().find(x=>x.uid===uid);
+  if(u&&confirm('Issue a new code for '+u.name+'? The old one stops working.')){u.code=genCode();saveOverrides();renderAdminPage();}
+};
+window.appDel=function(uid){
+  const u=appUsers().find(x=>x.uid===uid);
+  if(u&&confirm('Remove '+u.name+'? Their code and all access stop working.')){
+    APP().users=appUsers().filter(x=>x.uid!==uid);
+    saveOverrides();renderAdminPage();
+  }
+};
 function renderHome(){
   document.body.classList.add('home');
   panel.innerHTML=`
-  <div class="home-hero">
+  <div class="home-hero" style="position:relative">
+    <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">
+      ${appRole()==='admin'?'<button type="button" onclick="openAdmin()" title="Access & labels" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;cursor:pointer;color:var(--ink)">⚙ Admin</button>':''}
+      <button type="button" onclick="cruProfile()" title="Your profile" style="width:34px;height:34px;border-radius:50%;background:#0E7C86;color:#fff;font:700 14px var(--sans);border:2px solid #fff;box-shadow:0 1px 5px rgba(11,37,69,.35);cursor:pointer">${esc(((window._app||{}).name||'?').slice(0,1))}</button>
+    </div>
     <div class="hk">Trip journal</div>
     <h1>Where to?</h1>
     <p>Pick a trip to open its plans, meals, maps and expenses. Finished trips stay here as a record of where you have been.</p>
   </div>
   <div class="trips">
     ${TRIPS.map(t=>`
-      <button class="trip ${t.theme==='ocean'?'ocean':''} ${t.status==='idea'||(t.code&&!tripUnlocked(t))?'soon':''} ${tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
-        ${t.status==='idea'?'<span class="ribbon" style="background:var(--plum)">Someday</span>':(t.status==='group'?'<span class="ribbon" style="background:#0B2545">🔒 Group trip</span>':(t.status==='wip'?`<span class="ribbon">${tripUnlocked(t)?'Work in progress':'🔒 Work in progress'}</span>`:(tripArchived(t)?'<span class="ribbon" style="background:var(--grey)">Archived</span>':'')))}
+      <button class="trip ${t.theme==='ocean'?'ocean':''} ${t.status==='idea'||!canOpen(t.id)?'soon':''} ${tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
+        ${(()=>{const L=tripLabelOf(t);return tripArchived(t)?'<span class="ribbon" style="background:var(--grey)">Archived</span>':`<span class="ribbon" style="background:${TRIP_LABELS[L][1]}">${TRIP_LABELS[L][0]}</span>`;})()}
+        ${t.status!=='idea'&&canOpen(t.id)?'<span class="ribbon" style="top:34px;background:var(--moss)">✓ Access granted</span>':''}
         <div class="ph">
           <img src="${t.photo}" alt="${esc(t.country)}" loading="lazy"
                onerror="this.style.display='none'">
@@ -903,13 +1029,18 @@ function renderHome(){
             <div class="cd">${esc(t.dates)}</div>
           </div>
         </div>
-        <div class="bar"><span>${t.status==='idea'?'Not planned yet':(t.status==='group'?'🔒 Sign in with your code':(t.code&&!tripUnlocked(t)?'🔒 Access code':(tripArchived(t)?'Open · read-only →':'Open trip →')))}</span>
+        <div class="bar"><span>${t.status==='idea'?'Not planned yet':(!canOpen(t.id)?'🔒 No access — ask the organizer':(tripArchived(t)?'Open · read-only →':'Open trip →'))}</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>
   <div class="home-foot">Photos via Wikimedia Commons under their stated licences.</div>`;
 }
-function tripUnlocked(t){ return !t||!t.code||_unlocked[t.id]===true; }
+const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)']};
+function tripLabelOf(t){
+  const ov=(store.app&&store.app.tripLabels)||{};
+  if(ov[t.id]&&TRIP_LABELS[ov[t.id]])return ov[t.id];
+  return t.status==='group'?'group':(t.status==='wip'?'wip':(t.status==='idea'?'soon':'live'));
+}
 /* A trip becomes read-only once its own end date has passed. Purely per trip:
    an archived trip never affects a live one. */
 function tripArchived(t){
@@ -921,127 +1052,154 @@ function currentArchived(){
   const t=(typeof TRIPS!=='undefined')&&TRIPS.find(x=>x.id===tripKey());
   return t?tripArchived(t):false;
 }
-const CRUISE_MASTER='THEO1218';
-window._cru=null;
-try{const raw=localStorage.getItem('jt_cru');if(raw)window._cru=JSON.parse(raw);}catch(e){}
-if(window._cru&&window._cru.uid==='admin'&&window._cru.name==='Admin')window._cru.name='조상연';   // migrate legacy sessions only
+const CRUISE_MASTER='THEO1218';   // now the APP master code
+window._cru=null;                  // cruise-scope session, derived from the app session
+window._app=null;                  // app-wide session
+try{const raw=localStorage.getItem('jt_app');if(raw)window._app=JSON.parse(raw);}catch(e){}
+function APP(){ if(!store.app||typeof store.app!=='object')store.app={}; return store.app; }
+function appUsers(){ return (store.app&&store.app.users)||[]; }
+function appAdminName(){ return (store.app&&store.app.adminName)||'조상연'; }
+function appRole(){ return window._app&&window._app.role; }
 function cruRole(){return window._cru&&window._cru.role;}
 function cruName(){return (window._cru&&window._cru.name)||'';}
-function validateCruSession(id){
-  const slice=(store.trips&&store.trips[id])||{};
-  const users=slice.users||[];
-  if(!window._cru||!window._cru.uid)return false;
-  if(window._cru.uid==='admin'){
-    if(slice.adminName){window._cru.name=slice.adminName;}
-    try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+function validateAppSession(){
+  if(!window._app||!window._app.uid)return false;
+  if(window._app.uid==='admin'){
+    window._app.name=appAdminName();
+    try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
     return true;
   }
-  const u=users.find(x=>x.uid===window._cru.uid);
+  const u=appUsers().find(x=>x.uid===window._app.uid);
   if(u){
-    window._cru.name=u.name;
-    window._cru.role=(u.role==='admin')?'admin':(u.role==='pending'?'pending':'participant');
-    try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+    window._app.name=u.name;
+    window._app.role=(u.role==='pending')?'pending':'user';
+    try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
     return true;
   }
-  window._cru=null;
-  try{localStorage.removeItem('jt_cru');}catch(e){}
+  window._app=null;
+  try{localStorage.removeItem('jt_app');}catch(e){}
   return false;
 }
-function renderCruiseLogin(){
-  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:26px auto 0">
+function canOpen(id){
+  const sAp=window._app;
+  if(!sAp||!sAp.uid)return false;
+  if(sAp.role==='admin')return true;
+  if(sAp.role!=='user')return false;
+  const u=appUsers().find(x=>x.uid===sAp.uid);
+  return !!(u&&u.access&&u.access[id]);
+}
+function appCruiseSession(){
+  const sAp=window._app;
+  if(!sAp||!sAp.uid)return null;
+  if(sAp.role==='admin')return {uid:'admin',name:appAdminName(),role:'admin'};
+  const u=appUsers().find(x=>x.uid===sAp.uid);
+  const g=u&&u.access&&u.access['cruise-2028'];
+  if(!g)return null;
+  return {uid:u.uid,name:u.name,role:g==='organizer'?'admin':'participant'};
+}
+window.appSignOut=function(){
+  window._app=null;window._cru=null;tripSel=null;
+  try{localStorage.removeItem('jt_app');localStorage.removeItem('jt_cru');}catch(e){}
+  const pp=document.getElementById('cruPop');if(pp)pp.remove();
+  document.body.classList.remove('cruise');
+  if(typeof updateAvatar==='function')updateAvatar();
+  renderLogin();
+};
+function renderLogin(){
+  document.body.classList.add('home');
+  if(typeof updateAvatar==='function')updateAvatar();
+  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:40px auto 0">
+    <div class="home-hero" style="text-align:center;margin-bottom:14px">
+      <div class="hk">Trip journal</div>
+      <h1 style="margin-top:6px">Sign in</h1>
+    </div>
     <div class="card">
-      <div class="chead"><span>🚢 Icon Cruise · sign in</span></div>
-      <div class="plform" style="padding:16px 15px 6px">
+      <div class="plform" style="padding:16px 15px 8px">
         <label style="font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Your access code
-          <input id="cl_code" maxlength="12" autocomplete="off" style="margin-top:4px;letter-spacing:.2em;font-family:var(--mono);text-transform:uppercase" onkeydown="if(event.key==='Enter')doCruLogin()"></label>
-        <button class="pladd" type="button" onclick="doCruLogin()" style="align-self:flex-start;padding:9px 18px">Sign in</button>
-        <div id="cl_err" style="font:10px var(--mono);color:var(--clay)"></div>
+          <input id="al_code" maxlength="12" autocomplete="off" style="margin-top:4px;letter-spacing:.2em;font-family:var(--mono);text-transform:uppercase" onkeydown="if(event.key==='Enter')doAppLogin()"></label>
+        <button class="pladd" type="button" onclick="doAppLogin()" style="align-self:flex-start;padding:9px 18px">Sign in</button>
+        <div id="al_err" style="font:10px var(--mono);color:var(--clay)"></div>
       </div>
       <div style="border-top:1px solid var(--rule);padding:13px 15px 15px">
         <div style="font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:7px">No code yet? Request access</div>
         <div class="plform" style="padding:0">
-          <input id="cl_name" placeholder="Your name (Korean is fine)" maxlength="40" onkeydown="if(event.key==='Enter')doCruRequest()">
-          <button type="button" onclick="doCruRequest()" style="align-self:flex-start;background:none;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:8px 14px;cursor:pointer">Request access</button>
-          <div class="plhint">You get a login code immediately; the organizer approves your access from the Admin tab.</div>
+          <input id="al_name" placeholder="Your name (Korean is fine)" maxlength="40" onkeydown="if(event.key==='Enter')doAppRequest()">
+          <button type="button" onclick="doAppRequest()" style="align-self:flex-start;background:none;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:8px 14px;cursor:pointer">Request access</button>
+          <div class="plhint">You get a login code immediately; the organizer grants access to each destination.</div>
         </div>
       </div>
     </div>
   </div>`;
-  const i=document.getElementById('cl_code'); if(i)i.focus();
+  const i=document.getElementById('al_code'); if(i)i.focus();
 }
-function renderCruisePending(){
-  const me=window._cru||{};
-  const u=(overrides.users||[]).find(x=>x.uid===me.uid);
-  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:26px auto 0">
+function renderPendingApp(){
+  document.body.classList.add('home');
+  const me=window._app||{};
+  const u=appUsers().find(x=>x.uid===me.uid);
+  panel.innerHTML=`<div class="stack" style="max-width:430px;margin:40px auto 0">
     <div class="card"><div class="chead"><span>⏳ Access pending</span></div>
       <div style="padding:16px 15px">
         <div style="font-size:14px;font-weight:600;margin-bottom:6px">${esc(me.name||'')}, your access request is being reviewed.</div>
-        <div style="font-size:12.5px;color:var(--grey);margin-bottom:11px">The organizer will approve it from the Admin tab. Once approved, this page turns into the trip automatically the next time you check.</div>
+        <div style="font-size:12.5px;color:var(--grey);margin-bottom:11px">Once approved, sign in again or tap Check status and the destinations you have been granted will open.</div>
         <div style="font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey)">Your login code — keep it</div>
         <div style="font:700 19px var(--mono);letter-spacing:.28em;color:var(--indigo);margin:4px 0 13px">${esc((u&&u.code)||'—')}</div>
-        <div style="font-size:11.5px;color:var(--grey);margin-bottom:12px">While you wait: click your avatar (top right) and add your legal English name and date of birth — they're needed for the booking.</div>
+        <div style="font-size:11.5px;color:var(--grey);margin-bottom:12px">While you wait: click your avatar (top right) and add your legal English name and date of birth — needed for bookings.</div>
         <div style="display:flex;gap:8px">
-          <button class="pladd" type="button" onclick="checkAccess()" style="padding:8px 14px">Check status</button>
-          <button type="button" onclick="cruSignOut()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);padding:7px 12px;cursor:pointer">Sign out</button>
+          <button class="pladd" type="button" onclick="checkAppStatus()" style="padding:8px 14px">Check status</button>
+          <button type="button" onclick="appSignOut()" style="background:none;border:1px solid var(--rule);border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);padding:7px 12px;cursor:pointer">Sign out</button>
         </div>
       </div></div>
   </div>`;
+  if(typeof updateAvatar==='function')updateAvatar();
 }
-window.doCruLogin=function(){
-  const el=document.getElementById('cl_code'), err=document.getElementById('cl_err');
+window.doAppLogin=function(){
+  const el=document.getElementById('al_code'), err=document.getElementById('al_err');
   const code=String(el?el.value:'').trim().toUpperCase();
   if(!code){el&&el.focus();return;}
-  const id=tripKey();
-  const users=((store.trips&&store.trips[id])||{}).users||[];
   if(code===CRUISE_MASTER){
-    window._cru={role:'admin',name:(((store.trips||{})[id]||{}).adminName)||'조상연',uid:'admin'};
+    window._app={role:'admin',name:appAdminName(),uid:'admin'};
   }else{
-    const u=users.find(u=>String(u.code).toUpperCase()===code);
+    const u=appUsers().find(u=>String(u.code).toUpperCase()===code);
     if(!u){if(err)err.textContent='Code not recognized — ask the organizer, or request access below.';return;}
-    window._cru={role:(u.role==='admin')?'admin':(u.role==='pending'?'pending':'participant'),name:u.name,uid:u.uid};
+    window._app={role:(u.role==='pending')?'pending':'user',name:u.name,uid:u.uid};
   }
-  try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
-  updateAvatar();render();
+  try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
+  if(typeof updateAvatar==='function')updateAvatar();
+  if(appRole()==='pending')renderPendingApp(); else renderHome();
 };
-window.doCruRequest=function(){
-  const el=document.getElementById('cl_name');
+window.doAppRequest=function(){
+  const el=document.getElementById('al_name');
   const name=String(el?el.value:'').trim();
   if(!name){el&&el.focus();return;}
-  const rec={uid:'u'+Date.now(),name,code:genCode(),role:'pending',ts:Date.now()};
-  overrides.users=overrides.users||[];
-  overrides.users.push(rec);
-  window._cru={role:'pending',name,uid:rec.uid};
-  try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+  const rec={uid:'u'+Date.now(),name,code:genCode(),role:'pending',ts:Date.now(),access:{}};
+  APP().users=appUsers().concat([rec]);
+  window._app={role:'pending',name,uid:rec.uid};
+  try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
   saveOverrides();
-  updateAvatar();render();
+  if(typeof updateAvatar==='function')updateAvatar();
+  renderPendingApp();
 };
-window.checkAccess=async function(){
-  try{
-    const v=await sGet();
-    if(v){store=normalizeStore(JSON.parse(v));bindTrip();}
-  }catch(e){}
-  validateCruSession(tripKey());
-  updateAvatar();buildNav();render();
-  if(cruRole()==='participant'||cruRole()==='admin')flash('Approved — welcome aboard ✓','ok');
+window.checkAppStatus=async function(){
+  try{ const v=await sGet(); if(v){store=normalizeStore(JSON.parse(v));bindTrip();} }catch(e){}
+  validateAppSession();
+  if(typeof updateAvatar==='function')updateAvatar();
+  if(!window._app)renderLogin();
+  else if(appRole()==='pending')renderPendingApp();
+  else{renderHome();flash('You are in ✓','ok');}
 };
-window.cruSignOut=function(){
-  window._cru=null;
-  try{localStorage.removeItem('jt_cru');}catch(e){}
-  backToTrips();
-};
+window.cruSignOut=function(){ appSignOut(); };
 window.openTrip=function(id){
+  if(!canOpen(id)){flash('No access to this trip — ask '+appAdminName(),'err');return;}
   const td=TRIP_DATA[id];
-  if(td&&td.cruise){ tripSel=id; applyTripData(id); bindTrip(); validateCruSession(id); updateAvatar(); buildNav(); document.body.classList.remove('home'); render(); return; }
-  const tr=TRIPS.find(x=>x.id===id);
-  if(tr&&tr.code&&!tripUnlocked(tr)){
-    const v=prompt(tr.title+' is still being built.\nEnter the access code:');
-    if(v===null)return;
-    if(String(v).trim()!==tr.code){alert('That code is not right.');return;}
-    _unlocked[id]=true;
+  if(td&&td.cruise){
+    window._cru=appCruiseSession();
+    if(!window._cru){flash('No cruise access — ask '+appAdminName(),'err');return;}
   }
   tripSel=id;
   applyTripData(id);
   bindTrip();
+  updateAvatar();
+  buildNav();
   document.body.classList.remove('home');
   render();
 };
@@ -1499,20 +1657,19 @@ window.restoreStop=function(id){
 function updateAvatar(){
   const b=document.getElementById('cruAvatar');
   if(!b)return;
-  const t=(typeof TRIP_DATA!=='undefined')&&TRIP_DATA[tripKey()];
-  const on=!!(t&&t.cruise&&window._cru&&window._cru.uid);
+  const on=!!(window._app&&window._app.uid&&tripSel);   // header avatar on any open trip
   b.style.display=on?'inline-flex':'none';
-  if(on)b.textContent=(window._cru.name||'?').slice(0,1);
+  if(on)b.textContent=(window._app.name||'?').slice(0,1);
 }
 window.cruProfile=function(){
   const old=document.getElementById('cruPop');
   if(old){old.remove();return;}
-  const me=window._cru||{};
+  const me=window._app||{};
   if(!me.uid)return;
   const isMaster=me.uid==='admin';
-  const u=(overrides.users||[]).find(x=>x.uid===me.uid);
+  const u=appUsers().find(x=>x.uid===me.uid);
   const code=isMaster?CRUISE_MASTER:((u&&u.code)||'—');
-  const lg=isMaster?(overrides.adminLegal||{}):{first:(u||{}).legalFirst,last:(u||{}).legalLast,dob:(u||{}).dob};
+  const lg=isMaster?((store.app&&store.app.adminLegal)||{}):{first:(u||{}).legalFirst,last:(u||{}).legalLast,dob:(u||{}).dob};
   const pop=document.createElement('div');
   pop.id='cruPop';
   pop.innerHTML=`<div class="cruPopBack" onclick="document.getElementById('cruPop').remove()"></div>
@@ -1525,10 +1682,10 @@ window.cruProfile=function(){
       </div>
       <label>Date of birth<input id="pf_dob" type="date" value="${esc(lg.dob||'')}"></label>
       <label>Login code<div class="ro">${esc(code)}</div></label>
-      <label>Role<div class="ro">${me.role==='admin'?'Organizer':(me.role==='pending'?'Pending approval':'Guest')}</div></label>
+      <label>Role<div class="ro">${me.role==='admin'?'App admin':(me.role==='pending'?'Pending approval':'Member')}</div></label>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="pladd" type="button" onclick="saveProfile()" style="flex:1;padding:8px 0">Save</button>
-        <button type="button" onclick="document.getElementById('cruPop').remove();cruSignOut()" style="flex:1;background:none;border:1px solid #C4D6E6;border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);cursor:pointer">Sign out</button>
+        <button type="button" onclick="document.getElementById('cruPop').remove();appSignOut()" style="flex:1;background:none;border:1px solid #C4D6E6;border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);cursor:pointer">Sign out</button>
       </div>
     </div>`;
   document.body.appendChild(pop);
@@ -1541,19 +1698,24 @@ window.saveProfile=function(){
   if(!v)return;
   const gf=i=>{const e=document.getElementById(i);return e?e.value.trim():'';};
   const first=gf('pf_first'), last=gf('pf_last'), dob=gf('pf_dob');
-  if(window._cru.uid==='admin'){
-    overrides.adminName=v;
-    overrides.adminLegal={first,last,dob};
+  if(window._app.uid==='admin'){
+    APP().adminName=v;
+    APP().adminLegal={first,last,dob};
   }else{
-    const u=(overrides.users||[]).find(x=>x.uid===window._cru.uid);
+    const u=appUsers().find(x=>x.uid===window._app.uid);
     if(u){u.name=v;u.legalFirst=first;u.legalLast=last;u.dob=dob;}
   }
-  window._cru.name=v;
-  try{localStorage.setItem('jt_cru',JSON.stringify(window._cru));}catch(e){}
+  window._app.name=v;
+  if(window._cru)window._cru.name=v;
+  try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
   saveOverrides();
   const pop=document.getElementById('cruPop');if(pop)pop.remove();
   updateAvatar();render();
 };
+function cruiseUsers(){
+  return appUsers().filter(u=>u.role!=='pending'&&u.access&&u.access['cruise-2028'])
+    .map(u=>({...u,role:(u.access['cruise-2028']==='organizer')?'admin':'participant'}));
+}
 function genCode(){
   const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   let c='';for(let i=0;i<6;i++)c+=A[Math.floor(Math.random()*A.length)];
@@ -1561,18 +1723,17 @@ function genCode(){
 }
 window._editSched=null;
 function renderCruise(c){
-  if(!window._cru||!window._cru.uid){renderCruiseLogin();return;}
-  if(cruRole()==='pending'){renderCruisePending();return;}
+  if(!window._cru||!window._cru.uid){window._cru=appCruiseSession();if(!window._cru){backToTrips();return;}}
   const T=TRIP_DATA[tripKey()]||{};
   const admin=cruRole()==='admin';
   let body='';
   if(c.cruiseTab==='csum'){
     const me=(window._cru||{}).uid;
-    const users=(overrides.users||[]);
-    const nameOf=uid=>uid==='admin'?(overrides.adminName||'조상연'):((users.find(u=>u.uid===uid)||{}).name||'—');
+    const users=cruiseUsers();
+    const nameOf=uid=>uid==='admin'?appAdminName():((users.find(u=>u.uid===uid)||{}).name||'—');
     const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
     const charges=(overrides.charges||[]), rooms=(overrides.rooms||[]), logi=overrides.logi||{}, reqs=overrides.reqs||[];
-    const legalOf=uid=>uid==='admin'?(overrides.adminLegal||{}):{first:(users.find(u=>u.uid===uid)||{}).legalFirst,last:(users.find(u=>u.uid===uid)||{}).legalLast,dob:(users.find(u=>u.uid===uid)||{}).dob};
+    const legalOf=uid=>uid==='admin'?((store.app&&store.app.adminLegal)||{}):{first:(users.find(u=>u.uid===uid)||{}).legalFirst,last:(users.find(u=>u.uid===uid)||{}).legalLast,dob:(users.find(u=>u.uid===uid)||{}).dob};
     const legalMissing=uid=>{const l=legalOf(uid);return !(l&&l.first&&l.last&&l.dob);};
     // --- my reminders ---
     const rem=[];
@@ -1587,12 +1748,12 @@ function renderCruise(c){
     if(admin){
       const billed=charges.reduce((a,x)=>a+Number(x.amt||0),0), coll=charges.reduce((a,x)=>a+Number(x.paid||0),0);
       if(billed-coll>0.005)orgRem.push({ic:'💰',t:`${money(billed-coll)} still to collect across the group`,tab:'cexp'});
-      const noLogi=users.filter(u=>u.role!=='pending'&&!((logi[u.uid])||[]).length);
+      const noLogi=users.filter(u=>!((logi[u.uid])||[]).length);
       if(noLogi.length)orgRem.push({ic:'✈️',t:`No travel info yet: ${noLogi.map(u=>u.name).join(', ')}`,tab:'clog'});
-      const noLegal=users.filter(u=>u.role!=='pending'&&legalMissing(u.uid));
+      const noLegal=users.filter(u=>legalMissing(u.uid));
       if(noLegal.length)orgRem.push({ic:'🪪',t:`Missing legal name / DOB: ${noLegal.map(u=>u.name).join(', ')}`,tab:null});
-      const pendAccess=users.filter(u=>u.role==='pending');
-      if(pendAccess.length)orgRem.push({ic:'⏳',t:`${pendAccess.length} access request${pendAccess.length>1?'s':''} waiting: ${pendAccess.map(u=>u.name).join(', ')}`,tab:'cadmin'});
+      const pendAccess=appUsers().filter(u=>u.role==='pending');
+      if(pendAccess.length&&appRole()==='admin')orgRem.push({ic:'⏳',t:`${pendAccess.length} access request${pendAccess.length>1?'s':''} waiting on the app Admin page: ${pendAccess.map(u=>u.name).join(', ')}`,tab:null});
       const pendReqs=reqs.filter(r=>r.status==='pending');
       if(pendReqs.length)orgRem.push({ic:'🔁',t:`${pendReqs.length} room request${pendReqs.length>1?'s':''} to decide`,tab:'rooms'});
     }
@@ -1616,7 +1777,7 @@ function renderCruise(c){
         ${myLegs.map(x=>`<div class="tdo-row"><span class="tdo-date">${esc((x.date||'').slice(5))||'—'}</span><span class="tdo-main"><span style="font-size:12.5px">${x.dir==='arrive'?'→':'←'} ${esc(x.flt||'—')}${x.ap?' · '+esc(x.ap):''}${x.time?' · '+esc(x.time):''}</span></span></div>`).join('')||`<div class="tdo-row" onclick="gotoCruiseTab('clog')" style="cursor:pointer"><span class="tdo-main"><span style="font-size:12.5px">Nothing yet — add your flights</span></span><span style="color:var(--indigo2)">→</span></div>`}
       </div>
       <div class="card"><div class="chead"><span>🪪 Travelers</span><span>legal details for the booking</span></div>
-        ${['admin',...users.filter(u=>u.role!=='pending').map(u=>u.uid)].map(uid=>{
+        ${['admin',...users.map(u=>u.uid)].map(uid=>{
           const l=legalOf(uid);
           return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(uid))}</span>
             <span class="tdo-desc" style="margin-left:10px">${l&&l.first?esc(l.first+' '+(l.last||'')):'<i>legal name not set</i>'} · ${l&&l.dob?esc(l.dob):'<i>DOB not set</i>'}</span></span></div>`;
@@ -1672,8 +1833,8 @@ function renderCruise(c){
   }
   if(c.cruiseTab==='rooms'){
     const cats=T.cats||[], rooms=(overrides.rooms||[]);
-    const users=(overrides.users||[]);
-    const nameOf=uid=>uid==='admin'?(overrides.adminName||'조상연'):((users.find(u=>u.uid===uid)||{}).name||'—');
+    const users=cruiseUsers();
+    const nameOf=uid=>uid==='admin'?appAdminName():((users.find(u=>u.uid===uid)||{}).name||'—');
     const me=(window._cru||{}).uid;
     const mine=rooms.find(r=>(r.slots||[]).includes(me));
     const placed=new Set(rooms.flatMap(r=>(r.slots||[]).filter(Boolean)));
@@ -1808,8 +1969,8 @@ function renderCruise(c){
       ?`<div style="padding:7px 12px;border-top:1px dotted var(--rule);font:11px var(--mono);color:var(--indigo2);text-align:center">≈ ${pairs.map(([l,v])=>`${cfmt(v)} ${l}`).join(' · ')} <span style="color:var(--grey)">@ 1 USD = ${crate.toFixed(cpref==='KRW'?0:4)} ${cpref}</span></div>`
       :`<div style="padding:7px 12px;border-top:1px dotted var(--rule);font:11px var(--mono);color:var(--grey);text-align:center">fetching ${cpref} rate…</div>`);
     const me=(window._cru||{}).uid;
-    const users=(overrides.users||[]);
-    const nameOf=uid=>uid==='admin'?(overrides.adminName||'조상연'):((users.find(u=>u.uid===uid)||{}).name||'—');
+    const users=cruiseUsers();
+    const nameOf=uid=>uid==='admin'?appAdminName():((users.find(u=>u.uid===uid)||{}).name||'—');
     const charges=(overrides.charges||[]);
     const money=n=>'$'+Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
     const myCharges=charges.filter(x=>x.uid===me);
@@ -1876,7 +2037,7 @@ function renderCruise(c){
       <div class="card"><div class="chead"><span>${window._editCharge?'✎ Edit charge':'Bill someone'}</span>${window._editCharge?'<span>payments already recorded are kept</span>':''}</div>
         <div class="plform">
           <div class="plrow1">
-            <select id="ch_uid">${users.filter(u=>u.role!=='pending').map(u=>`<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select>
+            <select id="ch_uid">${users.map(u=>`<option value="${u.uid}">${esc(u.name)}</option>`).join('')}</select>
             <select id="ch_kind"><option value="cruise">Cruise fare</option><option value="room">Room</option><option value="transport">Transport</option><option value="other">Other</option></select>
           </div>
           <input id="ch_desc" placeholder="Description — e.g. Star of the Seas · balcony share" maxlength="80">
@@ -1915,8 +2076,8 @@ function renderCruise(c){
   }
   if(c.cruiseTab==='clog'){
     const me=(window._cru||{}).uid;
-    const users=(overrides.users||[]);
-    const nameOf=uid=>uid==='admin'?(overrides.adminName||'조상연'):((users.find(u=>u.uid===uid)||{}).name||'—');
+    const users=cruiseUsers();
+    const nameOf=uid=>uid==='admin'?appAdminName():((users.find(u=>u.uid===uid)||{}).name||'—');
     const logi=overrides.logi||{};
     const mine=(logi[me]||[]);
     const legRow=(x,owner)=>`<div class="tdo-row">
@@ -1961,21 +2122,8 @@ function renderCruise(c){
     }
   }
   if(c.cruiseTab==='cadmin'){
-    const users=(overrides.users||[]);
-    body=`<div class="card"><div class="chead"><span>🛠 Guests & access codes</span><span>${users.length} guest${users.length===1?'':'s'}</span></div>
-      <div class="plform">
-        <div class="plrow1">
-          <input id="us_name" placeholder="Name" maxlength="40">
-          <select id="us_role" style="flex:0 1 150px"><option value="participant">Guest</option><option value="admin">Organizer</option></select>
-          <button class="pladd" type="button" onclick="addUser()" style="flex:0 0 auto;padding:8px 14px">+ Add & generate code</button>
-        </div>
-        <div class="plhint">Everyone signs in with their own code from the landing page. Organizers get the Admin tab and full control; your master code stays ${CRUISE_MASTER}. Role changes take effect the next time that person opens the trip.</div>
-      </div>
-      ${users.map(u=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(u.name)}</span>${u.role==='admin'?'<span style="margin-left:8px;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;vertical-align:1px">organizer</span>':(u.role==='pending'?'<span style="margin-left:8px;border:1px solid #B0761F;color:#B0761F;border-radius:2px;font:600 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;padding:1px 5px;vertical-align:1px">⏳ pending</span>':'')}<span class="tdo-desc" style="margin-left:10px">code: <b style="font-family:var(--mono);letter-spacing:.12em">${esc(u.code)}</b></span></span>
-        ${u.role==='pending'?`<button class="tdo-x" onclick="approveUser('${u.uid}')" title="Approve as guest" style="color:var(--moss);font:700 10px var(--mono)">✓</button>`:`<button class="tdo-x" onclick="roleUser('${u.uid}')" title="${u.role==='admin'?'Make guest':'Make organizer'}" style="color:var(--indigo2);font:700 9px var(--mono)">${u.role==='admin'?'⬇︎':'⬆︎'}</button>`}
-        <button class="tdo-x" onclick="renameUser('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
-        <button class="tdo-x" onclick="regenUser('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
-        <button class="tdo-x" onclick="delUser('${u.uid}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No guests yet — add the first one above.</div>'}
+    body=`<div class="card"><div class="chead"><span>👥 Guests & access</span></div>
+      <div style="padding:13px 15px;font-size:12.5px;color:var(--grey)">People, codes, roles and per-destination access now live in the app-wide <b>⚙ Admin</b> page on the trip picker (top right). Cruise organizer/guest rights are the cruise column there.</div>
     </div>
     <div class="card"><div class="chead"><span>🔔 Discord integration</span></div>
       <div class="plform">
@@ -2399,51 +2547,6 @@ window.leaveSlot=function(rid,i){
   if(r.slots[i]!==me&&admin&&!confirm('Clear this slot?'))return;
   r.slots[i]=null;
   saveOverrides();render();
-};
-window.addUser=function(){
-  const el=document.getElementById('us_name');
-  const rl=document.getElementById('us_role');
-  const name=el?el.value.trim():'';
-  if(!name){el&&el.focus();return;}
-  overrides.users=overrides.users||[];
-  overrides.users.push({uid:'u'+Date.now(),name,code:genCode(),role:(rl&&rl.value==='admin')?'admin':'participant'});
-  saveOverrides();render();
-};
-window.approveUser=function(uid){
-  const u=(overrides.users||[]).find(x=>x.uid===uid);
-  if(!u)return;
-  u.role='participant';
-  saveOverrides();render();
-  flash(u.name+' approved ✓','ok');
-};
-window.roleUser=function(uid){
-  const u=(overrides.users||[]).find(x=>x.uid===uid);
-  if(!u)return;
-  const toAdmin=u.role!=='admin';
-  if(!confirm(toAdmin
-    ?('Make '+u.name+' an organizer? They get the Admin tab, billing, rooms and schedule control.')
-    :('Make '+u.name+' a guest? They lose the Admin tab and organizer controls.')))return;
-  u.role=toAdmin?'admin':'participant';
-  saveOverrides();render();
-};
-window.renameUser=function(uid){
-  const u=(overrides.users||[]).find(x=>x.uid===uid);
-  if(!u)return;
-  const v=prompt('Name for this guest:',u.name);
-  if(v===null||!v.trim())return;
-  u.name=v.trim();
-  saveOverrides();render();
-};
-window.regenUser=function(uid){
-  const u=(overrides.users||[]).find(x=>x.uid===uid);
-  if(u&&confirm('Issue a new code for '+u.name+'? The old one stops working.')){u.code=genCode();saveOverrides();render();}
-};
-window.delUser=function(uid){
-  const u=(overrides.users||[]).find(x=>x.uid===uid);
-  if(u&&confirm('Remove '+u.name+'? Their code stops working.')){
-    overrides.users=(overrides.users||[]).filter(x=>x.uid!==uid);
-    saveOverrides();render();
-  }
 };
 
 /* Static stops from the trip file + anything added in the app. */
@@ -3142,9 +3245,10 @@ function renderCalc() {
 function render(){
   if(!tripSel){renderHome();return;}
   refreshNav();
+  if(!window._app){ renderLogin(); return; }
+  if(appRole()==='pending'){ renderPendingApp(); return; }
   const TT=(typeof TRIP_DATA!=='undefined')&&TRIP_DATA[tripKey()];
-  if(TT&&TT.cruise&&(!window._cru||!window._cru.uid)){ if(map){map.remove();map=null;} renderCruiseLogin(); return; }
-  if(TT&&TT.cruise&&cruRole()==='pending'){ if(map){map.remove();map=null;} renderCruisePending(); return; }
+  if(TT&&TT.cruise&&(!window._cru||!window._cru.uid)){ window._cru=appCruiseSession(); if(!window._cru){ backToTrips(); return; } }
   const NAVC=navCities(); if(ci>=NAVC.length)ci=0;
   const c=NAVC[ci];
 
@@ -3194,11 +3298,16 @@ function render(){
   buildMap(c);
   renderSide(c);
 }
-// Paint the trip picker immediately — it needs no stored data — and let the
-// (network-bound) storage load finish in the background. Nothing that renders
-// before a trip is opened depends on the blob.
-renderHome();
-loadOverrides().then(()=>{buildNav();drawCountdown();if(tripSel)render();});
+// Paint immediately (login wall or picker), and let the network-bound storage
+// load finish behind it. The picker re-renders once grants are known.
+if(window._app){ if(appRole()==='pending')renderPendingApp(); else renderHome(); } else renderLogin();
+loadOverrides().then(()=>{
+  buildNav();drawCountdown();
+  if(!window._app)renderLogin();
+  else if(appRole()==='pending')renderPendingApp();
+  else if(tripSel)render();
+  else renderHome();
+});
 
 /* ---------------- COUNTDOWN ---------------- */
 function drawCountdown(){

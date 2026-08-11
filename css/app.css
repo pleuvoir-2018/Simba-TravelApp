@@ -67,6 +67,11 @@
   .nvi.on{background:var(--indigo);border-left-color:var(--clay)}
   .nvi.on .nv1{color:#fff}
   .nvi.on .nv2{color:rgba(255,255,255,.7)}
+  body.dark .nv1{color:var(--ink)}
+  body.dark .nv2{color:var(--grey)}
+  body.dark .nvi:hover{background:rgba(169,198,232,.10)}
+  body.dark .nvi.on .nv1{color:#14161B}
+  body.dark .nvi.on .nv2{color:rgba(20,22,27,.65)}
   .nvic{flex:0 0 22px;text-align:center;font-size:15px;line-height:1}
   .nvtx{min-width:0}
   .nv1{display:block;font-family:var(--mono);font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -137,7 +142,9 @@
   .tag{display:inline-block;font:600 8px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:1.5px 5px;border-radius:2px;margin-left:5px;vertical-align:1px;color:#fff}
   .tag.ok{background:var(--moss)}.tag.book{background:var(--clay)}.tag.walk{background:var(--grey)}.tag.cash{background:#B08A1F}
   .meal input,.meal select,.meal textarea{font:inherit;font-size:11px;border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:#fff;width:100%;margin-top:4px}
-  .meal .erow{display:flex;gap:6px}.meal .erow>*{flex:1}
+  .meal .erow{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px;align-items:end}
+  .meal .erow label{display:flex;flex-direction:column;gap:4px;min-width:0}
+  .meal .erow input,.meal .erow select{width:100%;min-width:0}
   .efields{display:none}.editing .efields{display:block}.editing .m4{display:none}.editing .meal .note{display:none}
   .hotel-card dl{padding:9px 12px;font-size:12px}
   .hotel-card dt{font:600 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-top:7px}
@@ -174,8 +181,8 @@
   /* Today view */
   .td-stack{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
   .td-hero{padding:24px 20px;text-align:center}
-  .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:0}
-  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.9;margin:3px 0 14px}
+  .td-date{font:600 9px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--clay);margin-bottom:6px}
+  .td-big{font-family:var(--serif);font-size:clamp(38px,8vw,60px);color:var(--indigo);line-height:.78;margin:4px 0 12px}
   .td-sub{font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:0}
   .td-row{display:flex;gap:10px;padding:10px 12px;border-bottom:1px dotted var(--rule);cursor:pointer;align-items:flex-start}
   .td-row:hover{background:#fff}

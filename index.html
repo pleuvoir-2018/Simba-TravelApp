@@ -356,7 +356,7 @@
 <script>
 /* ---------------- DATA ---------------- */
 const NRT={n:"Narita Airport (NRT)",lat:35.7719,lng:140.3929};
-const HOTELS = {
+const JP_HOTELS = {
  parq:{n:"JW Marriott Parq Vancouver",lat:49.2756,lng:-123.1148,addr:"39 Smithe St, Vancouver, BC V6B 0R3, Canada",tel:"+1 604-676-0888",mail:"— Marriott app chat",stn:"Yaletown–Roundhouse (Canada Line) · 7 min walk — direct train to YVR ~25 min (board a YVR-bound train, not Richmond)",note:"Night of Nov 15 only. ZG021 departs 10:30 — leave the hotel by ~7:45 for a 2-hour international cushion."},
  westin:{n:"The Westin Yokohama",lat:35.4620,lng:139.6300,addr:"4-2-8 Minatomirai, Nishi-ku, Yokohama 220-0012",tel:"+81 45-577-0888",mail:"ays.yokohama@westin.com",stn:"Shin-Takashima (Minatomirai line) · 5 min walk — Yokohama Stn · 10 min walk",note:"Check-in 23F. Reservations: reservations.yokohama@westin.com"},
  shisui:{n:"Shisui, a Luxury Collection Hotel",lat:34.6857,lng:135.8340,addr:"62 Noborioji-chō, Nara 630-8213 (west edge of Nara Park)",tel:"+81 75-744-0951",mail:"reservation-sh@suihotels.com",stn:"Kintetsu-Nara (Kintetsu line) · 12 min walk — Kenchō-Higashi bus stop · 3 min",note:"Phone = SUI Customer Engagement Center. Garden Delight champagne hour at dusk, free."},
@@ -366,7 +366,7 @@ const HOTELS = {
 };
 const CAT={sight:"⛩ Sights",cafe:"☕ Cafés",shop:"🛍 Shopping", gift:"🎁 Omiyage", conv:"🏪 Konbini"};
 
-const CITIES=[
+const JP_CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
 {id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
 {id:"vancouver",city:"Vancouver",sub:"11/15–11/16 · repositioning",hotel:"parq",
@@ -658,7 +658,7 @@ const CITIES=[
 {id:"calc",city:"Calc",sub:"Live Converter",calc:true}
 ];
 
-const FLIGHTS=[
+const JP_FLIGHTS=[
  {d:"Sun Nov 15",t:"07:00 → 10:05 · 13:30 → 15:45",route:"Washington IAD → Seattle → Vancouver YVR",train:"Delta 1015 + 3748 · Delta First Classic (Z)",note:"Positioning day. 3h25 connection in SEA. DL3748* is a codeshare — confirm the operating carrier at check-in. Overnight at JW Marriott Parq Vancouver; ZG021 departs 10:30 the next morning."},
  {d:"Mon Nov 16 → Tue Nov 17",t:"10:30 → 12:45 (+1)",route:"Vancouver YVR → Tokyo Narita",train:"Zip Air ZG021 · US$1,221.33",note:"Lands 12:45 on the 17th. Immigration + bags ≈ 1.5–2 h → landside ~14:15 → N'EX direct to Yokohama (see Yokohama tab)."},
  {d:"Fri Nov 27",t:"16:00 → 08:30 same day",route:"Tokyo Narita → Vancouver YVR",train:"Zip Air ZG022 · US$1,007.89",note:"At NRT by ~13:30 → leave Grand Hyatt by ~11:45. You land YVR the morning of the same calendar date — plan pickups for Nov 27, not 28.",warn:true},
@@ -673,7 +673,27 @@ const TRAINS=[
 
 /* ---------------- STORAGE ---------------- */
 const KEY='japan_trip_v2';
-let overrides={},mem=null;
+let store={},overrides={},mem=null;
+
+/* ---- multi-trip storage ------------------------------------------------
+   The blob holds one namespace per trip:  { _ts, trips:{ <tripId>:{...} } }
+   `overrides` is a live reference INTO store.trips[current], so every
+   existing overrides.* call site keeps working unchanged while the data
+   stays isolated per trip. */
+function tripKey(){return tripSel||'japan-2026';}
+function normalizeStore(o){
+  if(!o||typeof o!=='object')return {trips:{}};
+  if(o.trips)return o;
+  const legacy={};                        // pre-multi-trip blob: all of it is Japan
+  Object.keys(o).forEach(k=>{if(k!=='trips'&&k!=='_ts')legacy[k]=o[k];});
+  return {_ts:o._ts,trips:{'japan-2026':legacy}};
+}
+function bindTrip(){
+  store.trips=store.trips||{};
+  const k=tripKey();
+  store.trips[k]=store.trips[k]||{};
+  overrides=store.trips[k];
+}
 async function sGet(){
   // Read BOTH copies and keep whichever was written last (_ts). Taking the
   // cloud copy unconditionally would discard a local edit whose upload never
@@ -727,7 +747,9 @@ async function sDel(){
 }
 
 async function loadOverrides(){
-  try{const v=await sGet();if(v)overrides=JSON.parse(v);}catch(e){}
+  try{const v=await sGet();if(v)store=JSON.parse(v);}catch(e){}
+  store=normalizeStore(store);
+  bindTrip();
 }
 
 /* Saving is two-stage: the local copy is written synchronously so a refresh
@@ -735,8 +757,10 @@ async function loadOverrides(){
    debounced so a burst of edits costs one trip instead of one each. */
 let _saveTimer=null,_savePending=false,_saveInFlight=false;
 function saveOverrides(){
-  overrides._ts=Date.now();
-  try{localStorage.setItem(KEY,JSON.stringify(overrides));}catch(e){}
+  store.trips=store.trips||{};
+  store.trips[tripKey()]=overrides;
+  store._ts=Date.now();
+  try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){}
   flash('Saving…');
   _savePending=true;
   clearTimeout(_saveTimer);
@@ -749,11 +773,18 @@ async function flushSave(){
   try{
     try{ const r=await fetch('/api/sync'); const d=await r.json();
       if(d&&d.value){
-        const remote=d.value;   // remote first, my edits win conflicts; vault merged per-key
-        overrides={...remote,...overrides,vault:{...(remote.vault||{}),...(overrides.vault||{})}};
+        // Merge per trip so a save from one trip can never clobber another.
+        const remote=normalizeStore(d.value);
+        const trips={...(remote.trips||{})};
+        Object.keys(store.trips||{}).forEach(k=>{
+          const rt=trips[k]||{}, lt=store.trips[k]||{};
+          trips[k]={...rt,...lt,vault:{...(rt.vault||{}),...(lt.vault||{})}};
+        });
+        store={...store,trips};
+        bindTrip();
       }
     }catch(e){}
-    mode=await sSet(JSON.stringify(overrides));
+    mode=await sSet(JSON.stringify(store));
   }finally{ _saveInFlight=false; }
   flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist',
         mode==='cloud'?'ok':'err');
@@ -763,8 +794,10 @@ async function flushSave(){
 window.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&_savePending){clearTimeout(_saveTimer);flushSave();}});
 
 async function resetAll(){
-  if(!confirm('Discard all edits and expenses?'))return;
-  overrides={};
+  if(!confirm('Discard all edits and expenses for THIS trip?'))return;
+  store.trips[tripKey()]={};
+  bindTrip();
+  saveOverrides();
   await sDel();
   render();
   flash('Reset ✓');
@@ -969,7 +1002,7 @@ function mealCard(p){
 }
 
 /* ---------------- WEATHER (Open-Meteo, no key) ---------------- */
-const WX_CFG = {
+const JP_WX = {
   vancouver:{lat:49.2756,lng:-123.1148,from:"2026-11-15",to:"2026-11-16"},
   yokohama:{lat:35.4620,lng:139.6300,from:"2026-11-17",to:"2026-11-19"},
   nara:    {lat:34.6857,lng:135.8340,from:"2026-11-19",to:"2026-11-21"},
@@ -1033,9 +1066,9 @@ const TRIPS=[
   photo:wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg'),
   credit:'Kiyomizu-dera in autumn · Martin Falbisoner, CC BY-SA 4.0',status:'active'},
  {id:'korea-2027',country:'South Korea',title:'Korea, May 2027',dates:'7–18 May 2027',
-  blurb:'Planning starts later — Seoul and beyond',
+  blurb:'Seoul · Jeju · Seoul — Westin Parnas, Parnas Jeju, Westin Parnas',
   photo:wm('Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg'),
-  credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'soon'}
+  credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'soon',code:'THEO1218'}
 ];
 let tripSel=null;
 try{tripSel=localStorage.getItem('jt_trip');}catch(e){}
@@ -1049,8 +1082,8 @@ function renderHome(){
   </div>
   <div class="trips">
     ${TRIPS.map(t=>`
-      <button class="trip ${t.status==='soon'?'soon':''}" type="button" ${t.status==='soon'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
-        ${t.status==='soon'?'<span class="ribbon">Coming soon</span>':''}
+      <button class="trip ${t.status==='soon'&&!tripUnlocked(t)?'soon':''}" type="button" onclick="openTrip('${t.id}')">
+        ${t.status==='soon'?`<span class="ribbon">${tripUnlocked(t)?'In progress':'Coming soon'}</span>`:''}
         <div class="ph">
           <img src="${t.photo}" alt="${esc(t.country)}" loading="lazy"
                onerror="this.style.display='none'">
@@ -1060,15 +1093,28 @@ function renderHome(){
             <div class="cd">${esc(t.dates)}</div>
           </div>
         </div>
-        <div class="bar"><span>${t.status==='soon'?'Not planned yet':'Open trip →'}</span>
+        <div class="bar"><span>${t.status==='soon'&&!tripUnlocked(t)?'🔒 Access code':'Open trip →'}</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>
   <div class="home-foot">${esc(TRIPS.find(t=>t.id==='japan-2026').blurb)}<br>Photos via Wikimedia Commons under their stated licences.</div>`;
 }
+function tripUnlocked(t){
+  if(!t.code)return true;
+  try{return localStorage.getItem('jt_unlock_'+t.id)==='1';}catch(e){return false;}
+}
 window.openTrip=function(id){
+  const t=TRIPS.find(x=>x.id===id);
+  if(t&&t.code&&!tripUnlocked(t)){
+    const v=prompt(t.title+' is still being built.\nEnter the access code to open it:');
+    if(v===null)return;
+    if(v.trim()!==t.code){alert('That code is not right.');return;}
+    try{localStorage.setItem('jt_unlock_'+id,'1');}catch(e){}
+  }
   tripSel=id;
   try{localStorage.setItem('jt_trip',id);}catch(e){}
+  applyTripData(id);
+  bindTrip();
   document.body.classList.remove('home');
   render();
 };
@@ -1077,6 +1123,7 @@ window.backToTrips=function(){
   try{localStorage.removeItem('jt_trip');}catch(e){}
   renderHome();
 };
+function applyRememberedTrip(){ if(tripSel&&TRIP_DATA[tripSel])applyTripData(tripSel); }
 
 /* ---------------- TO-DO / PREP TRACKER ---------------- */
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
@@ -1385,7 +1432,7 @@ function renderSide(c){
   const visPois=c.pois.map((p,i)=>({...p,i})).filter(p=>cat==='all'||p.c===cat);
   document.getElementById('side').innerHTML=`
     ${renderPlansCard(c)}
-    <div class="card"><div class="chead"><span>Meals</span><span>Plan ¥${total.toLocaleString()}${spent?` · Spent ¥${spent.toLocaleString()}`:''}</span></div>${c.stops.map(mealCard).join('')}</div>
+    ${(c.stops&&c.stops.length)?`<div class="card"><div class="chead"><span>Meals</span><span>Plan ¥${total.toLocaleString()}${spent?` · Spent ¥${spent.toLocaleString()}`:''}</span></div>${c.stops.map(mealCard).join('')}</div>`:`<div class="card"><div class="chead"><span>Meals</span><span>none yet</span></div><div style="padding:11px 13px;font-size:12px;color:var(--grey)">No restaurants locked in for ${esc(c.city)} yet — add them here as you book, or sketch the day on the Day plans card above.</div></div>`}
     <div class="card"><div class="chead"><span>Getting there & away</span></div>
       ${c.legs.map(l=>`<div class="leg"><div class="lr">${l.r}</div><div class="lm">${l.m}</div><div class="note">${l.n}</div></div>`).join('')}</div>
     ${c.lounges?`<div class="card"><div class="chead"><span>Airport lounges</span><span>with Amex Plat / Priority Pass</span></div>
@@ -1842,8 +1889,94 @@ window.editExp = function(idx) {
 };
 
 /* ---------------- TODAY VIEW ---------------- */
-const TODAY_CITY={15:'vancouver',16:'vancouver',17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'osaka',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
-const TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
+const JP_TODAY_CITY={15:'vancouver',16:'vancouver',17:'yokohama',18:'yokohama',19:'nara',20:'nara',21:'nara',22:'osaka',23:'kyoto',24:'nagoya',25:'nagoya',26:'tokyo',27:'tokyo'};
+const JP_TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 on the 17th'],17:'westin',18:'westin',19:'shisui',20:'shisui',21:'miyako',22:'miyako',23:'miyako',24:'tiad',25:'tiad',26:'hyatt',27:['Homeward ✈','ZG022 NRT → YVR, then United on to IAD — plan pickups for Nov 27, not 28']};
+
+/* ================= KOREA · MAY 2027 =================
+   Same shape as the Japan data above. Details the user has confirmed are
+   filled in; everything else is deliberately marked so it reads as a stub
+   rather than as fact. */
+const KR_HOTELS = {
+ parnas_seoul:{n:"Westin Parnas Seoul",lat:37.5110,lng:127.0595,addr:"Parnas complex, Samseong-dong, Gangnam-gu, Seoul — confirm exact address",
+   tel:"— add",mail:"— Marriott app chat",stn:"Samseong (Line 2) / COEX — confirm walking time",
+   note:"Two stays: 7–10 May and 14–18 May, with Jeju in between. Confirm the property details and Bonvoy benefits."},
+ parnas_jeju:{n:"Parnas Hotel Jeju",lat:33.4200,lng:126.5600,addr:"Jeju — confirm exact address",
+   tel:"— add",mail:"— add",stn:"Rental car or taxi from CJU — confirm transfer",
+   note:"10–14 May. Confirm airport transfer and whether it is a Marriott-affiliated stay."}
+};
+const KR_FLIGHTS=[
+ {d:"May 7",r:"IAD → ICN",f:"— not booked yet",t:"—",n:"Add the flight once ticketed. Amex MR transfer options were researched: Aeroplan/Asiana and Virgin Atlantic/Korean Air from Dulles."},
+ {d:"May 10",r:"GMP or ICN → CJU",f:"— not booked yet",t:"—",n:"Domestic hop to Jeju. Korean Air / Asiana / LCCs run it hourly; Gimpo is the usual departure."},
+ {d:"May 14",r:"CJU → GMP or ICN",f:"— not booked yet",t:"—",n:"Back to Seoul for the second Westin Parnas stay."},
+ {d:"May 18",r:"ICN → IAD",f:"— not booked yet",t:"—",n:"Homeward."}
+];
+const KR_WX = {
+ seoul:{lat:37.5665,lng:126.9780,from:"2027-05-07",to:"2027-05-18"},
+ jeju:{lat:33.4996,lng:126.5312,from:"2027-05-10",to:"2027-05-14"}
+};
+const KR_TODAY_CITY={7:'seoul',8:'seoul',9:'seoul',10:'jeju',11:'jeju',12:'jeju',13:'jeju',14:'seoul',15:'seoul',16:'seoul',17:'seoul',18:'seoul'};
+const KR_TONIGHT={7:'parnas_seoul',8:'parnas_seoul',9:'parnas_seoul',10:'parnas_jeju',11:'parnas_jeju',12:'parnas_jeju',13:'parnas_jeju',14:'parnas_seoul',15:'parnas_seoul',16:'parnas_seoul',17:'parnas_seoul',18:['Homeward ✈','ICN → IAD']};
+const KR_CITIES=[
+{id:"today",city:"Today",sub:"live day view",today:true},
+{id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
+{id:"seoul",city:"Seoul",sub:"5/7–5/10 · 5/14–5/18",hotel:"parnas_seoul",
+ legs:[
+  {r:"✈ ICN → Gangnam",m:"5/7 · AREX express ~43 min to Seoul Stn, then Line 2",n:"Or a taxi (~₩70,000, 60–80 min). Confirm once the arrival time is known."},
+  {r:"Seoul → Jeju",m:"5/10 · domestic flight",n:"Gimpo is quicker to reach from Gangnam than Incheon; ~70 min in the air."},
+  {r:"Jeju → Seoul",m:"5/14 · domestic flight",n:"Back to the Westin Parnas for the second stay."},
+  {r:"Gangnam → ICN ✈",m:"5/18 · AREX or airport limousine bus",n:"The 6103 limousine bus stops near COEX — confirm the stop by the hotel."}],
+ metro:[["Line 2 (green)","Samseong ↔ Gangnam, City Hall, Hongdae — the circle line does most of the work"],
+        ["Line 9 (gold)","Express trains along the Han to Yeouido and Gimpo Airport"],
+        ["Payment","Buy a T-money card at any convenience store; it works on subway, bus and most taxis"]],
+ pois:[
+ {c:"sight",ic:"🏯",n:"Gyeongbokgung",d:"the main palace — hanbok rental gets you in free; changing of the guard mid-morning",a:"Jongno",lat:37.5796,lng:126.9770},
+ {c:"sight",ic:"🏘",n:"Bukchon Hanok Village",d:"lanes of traditional houses between the two palaces — residential, so keep it quiet",a:"Jongno",lat:37.5826,lng:126.9830},
+ {c:"sight",ic:"⛩",n:"Changdeokgung & Huwon",d:"the secret garden needs a timed ticket, booked ahead",a:"Jongno",lat:37.5794,lng:126.9910},
+ {c:"sight",ic:"📚",n:"Starfield Library, COEX",d:"the big atrium bookshelf — under your own hotel, effectively",a:"COEX",lat:37.5096,lng:127.0601},
+ {c:"sight",ic:"🛕",n:"Bongeunsa",d:"working temple facing COEX across the road; templestay programmes",a:"COEX",lat:37.5147,lng:127.0577},
+ {c:"sight",ic:"🌉",n:"Han River park (Banpo)",d:"rainbow fountain shows on the bridge in the evening, May onward",a:"Banpo",lat:37.5130,lng:127.0000},
+ {c:"food",ic:"🥘",n:"Gwangjang Market",d:"bindaetteok and mayak gimbap at the stalls — cash is smoothest",a:"Jongno",lat:37.5701,lng:126.9997},
+ {c:"shop",ic:"🛍",n:"Seongsu-dong",d:"converted factories, coffee and flagship stores — the current fashionable district",a:"Seongsu",lat:37.5445,lng:127.0557},
+ {c:"shop",ic:"💄",n:"Myeongdong",d:"cosmetics and street food; touristy but efficient for skincare hauls",a:"Myeongdong",lat:37.5636,lng:126.9827},
+ {c:"cafe",ic:"☕",n:"Ikseon-dong",d:"hanok alleys turned into cafés and small restaurants",a:"Jongno",lat:37.5740,lng:126.9903}],
+ stops:[]},
+{id:"jeju",city:"Jeju",sub:"5/10–5/14",hotel:"parnas_jeju",
+ legs:[
+  {r:"✈ CJU → hotel",m:"5/10 · rental car or taxi",n:"Jeju is really a driving island — decide early whether you are renting, since it changes what is reachable."},
+  {r:"Jeju → Seoul ✈",m:"5/14 · CJU → GMP/ICN",n:"Allow time to return the car if you rent one."}],
+ metro:[["Getting around","No rail on Jeju. Rental car is the norm; intercity buses cover the ring road slowly"],
+        ["Driving","An International Driving Permit is required — apply before leaving the US"]],
+ pois:[
+ {c:"sight",ic:"🌅",n:"Seongsan Ilchulbong",d:"tuff cone on the east coast — sunrise peak, about an hour's walk up and back",a:"east",lat:33.4580,lng:126.9427},
+ {c:"sight",ic:"🕳",n:"Manjanggul Lava Tube",d:"UNESCO lava cave, cold inside — bring a layer",a:"east",lat:33.5285,lng:126.7714},
+ {c:"sight",ic:"⛰",n:"Hallasan",d:"the island's volcano — Yeongsil trail is the manageable one; permits for the summit routes",a:"centre",lat:33.3617,lng:126.5292},
+ {c:"sight",ic:"💧",n:"Cheonjiyeon Falls",d:"lit in the evening, short walk from the car park",a:"Seogwipo",lat:33.2470,lng:126.5540},
+ {c:"sight",ic:"⛵",n:"Udo island",d:"ferry from Seongsan — scooters and beaches, an easy half day",a:"east",lat:33.5060,lng:126.9530},
+ {c:"food",ic:"🐟",n:"Dongmun Market",d:"Jeju City's main market — hairtail, tangerines, black pork",a:"Jeju City",lat:33.5124,lng:126.5270},
+ {c:"food",ic:"🐖",n:"Black pork street",d:"heukdwaeji grilled over charcoal — the island's signature meal",a:"Jeju City",lat:33.5110,lng:126.5220},
+ {c:"cafe",ic:"☕",n:"Aewol coast cafés",d:"the west-coast café strip with sea views",a:"west",lat:33.4630,lng:126.3100}],
+ stops:[]},
+{id:"flights",city:"Flights",sub:"all legs",flights:true},
+{id:"vault",city:"Vault",sub:"confirmations",vault:true},
+{id:"expenses",city:"Expenses",sub:"budget tracker",expenses:true},
+{id:"calc",city:"Calc",sub:"₩ ⇄ $",calc:true}
+];
+
+/* ---- trip registry: which static data belongs to which trip ---- */
+const TRIP_DATA={
+ 'japan-2026':{cities:JP_CITIES,hotels:JP_HOTELS,flights:JP_FLIGHTS,wx:JP_WX,todayCity:JP_TODAY_CITY,tonight:JP_TONIGHT,
+   brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities",month:11,year:2026},
+ 'korea-2027':{cities:KR_CITIES,hotels:KR_HOTELS,flights:KR_FLIGHTS,wx:KR_WX,todayCity:KR_TODAY_CITY,tonight:KR_TONIGHT,
+   brand:"Korea · May '27",foot:"7–18 May · Seoul & Jeju",month:5,year:2027}
+};
+let CITIES=JP_CITIES,HOTELS=JP_HOTELS,FLIGHTS=JP_FLIGHTS,WX_CFG=JP_WX,TODAY_CITY=JP_TODAY_CITY,TONIGHT=JP_TONIGHT;
+function applyTripData(id){
+  const t=TRIP_DATA[id]||TRIP_DATA['japan-2026'];
+  CITIES=t.cities;HOTELS=t.hotels;FLIGHTS=t.flights;WX_CFG=t.wx;TODAY_CITY=t.todayCity;TONIGHT=t.tonight;
+  ci=0;
+  const b=document.querySelector('.nb-t');if(b)b.textContent=t.brand;
+  const f=document.querySelector('.nav-foot');if(f)f.textContent=t.foot;
+}
 const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function tokyoToday(){
   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',weekday:'long'}).formatToParts(new Date());
@@ -2078,7 +2211,7 @@ function render(){
   buildMap(c);
   renderSide(c);
 }
-loadOverrides().then(render);
+loadOverrides().then(()=>{applyRememberedTrip();render();});
 
 /* ---------------- COUNTDOWN ---------------- */
 (function(){

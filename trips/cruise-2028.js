@@ -29,16 +29,16 @@ var CR_ITIN=[
    drawn swatch. Star of the Seas has ~2,805 staterooms across 28 categories;
    these are the ones a group like this actually books. */
 var CR_CATS=[
- {id:'interior',n:'Interior',sq:'~156 sq ft',d:'The standard interior. Four interior sub-categories exist, up to 187 sq ft Surfside Family.',tone:'#5D7185'},
- {id:'insideplus',n:'Inside Plus',sq:'~160 sq ft',d:'New for Icon class — an interior with a virtual view screen.',tone:'#6B7F94'},
- {id:'oceanview',n:'Ocean View',sq:'~180 sq ft',d:'Porthole or picture window, no balcony.',tone:'#2E6E8E'},
- {id:'panoramic',n:'Panoramic Ocean View',sq:'~258 sq ft',d:'Deck 14, floor-to-ceiling window. A view without a balcony.',tone:'#1D5C8F'},
- {id:'infinite',n:'Infinite Balcony',sq:'200 sq ft + 50',d:'Floor-to-ceiling window whose top half drops to make the space open-air. ~615 cabins.',tone:'#0E7C86'},
- {id:'balcony',n:'Ocean View Balcony',sq:'204 sq ft + 50',d:'The classic step-out balcony. ~908 cabins — the most common choice.',tone:'#0F6E7A'},
- {id:'centralpark',n:'Infinite Central Park View',sq:'~200 sq ft',d:'Faces inward over the open-air Central Park neighbourhood. Good people-watching, no sea view.',tone:'#3E7D5A'},
- {id:'surfside',n:'Surfside Family View',sq:'~200 sq ft',d:'Faces the Surfside family neighbourhood, aft on Deck 7.',tone:'#B0761F'},
- {id:'junior',n:'Junior Suite',sq:'322–330 + 115',d:'Ocean-facing with the bed toward the water; Sea/Sky tier perks vary.',tone:'#7A4F8C'},
- {id:'suite',n:'Suite (Sky / Star)',sq:'varies',d:'Grand, Sunset, Icon Loft and above — Coastal Kitchen, Suite Lounge, concierge or Genie service.',tone:'#8C3F52'}
+ {id:'interior',n:'Interior',sq:'156 sq ft · sleeps 2',d:'The standard interior — relaxing retreat at a great value. Royal King converts to two twins.',tone:'#5D7185',img:'https://assets.widgety.co.uk/2022/10/24/09/43/10/f3ccfb46-4aee-4665-9299-5068bef5751d/RCI%20Icon%20of%20the%20Seas%20Interior.jpeg'},
+ {id:'insideplus',n:'Inside Plus',sq:'157 sq ft · sleeps 2',d:'Interior with a walk-in closet with vanity plus a lounge chair and ottoman — no such thing as overpacking.',tone:'#6B7F94',img:'https://assets.widgety.co.uk/2022/10/24/09/41/31/3bcfef5e-db7b-4f17-bea2-52ff750bc0ba/RCI%20Icon%20of%20the%20Seas%20Interior%20Plus.jpeg'},
+ {id:'oceanview',n:'Ocean View',sq:'160–187 sq ft · up to 4',d:'Picture window over the sea, no balcony; sofa bed configurations for 3–4.',tone:'#2E6E8E',img:'https://assets.widgety.co.uk/2022/10/24/09/30/02/afc0b87d-1618-4d0d-b1b7-0e7bba785ee1/RCI%20Icon%20of%20the%20Seas%20Ocean%20View.jpeg'},
+ {id:'panoramic',n:'Panoramic Ocean View',sq:'258 sq ft · up to 3',d:'Prime top decks with a floor-to-ceiling panoramic window and a dedicated seating nook.',tone:'#1D5C8F',img:'https://assets.widgety.co.uk/2022/10/24/10/33/43/af55eebe-ff21-4aa7-b94b-e1f47f7ccaf3/RCI%20Icon%20of%20the%20Seas%20Panoramic%20Ocean%20View.jpeg'},
+ {id:'infinite',n:'Infinite Balcony',sq:'250 sq ft incl 50 convertible',d:'The window-wall drops at a button-press, turning the seating area open-air. Extra indoor space when closed.',tone:'#0E7C86',img:'https://assets.widgety.co.uk/2022/10/24/09/11/28/031ed4d7-1a2b-43c4-a2d5-94593592fef3/RCI%20Icon%20of%20the%20Seas%20Infinite%20Ocean%20View%20Balcony.jpeg'},
+ {id:'balcony',n:'Ocean View Balcony',sq:'204 sq ft + 50 balcony',d:'The classic step-out balcony with chairs and a table — the most common choice aboard.',tone:'#0F6E7A',img:'https://assets.widgety.co.uk/2022/10/24/09/07/24/ab9d4dc6-7b0a-45df-8f8e-54c61ed7e6bc/RCI%20Icon%20of%20the%20Seas%20Ocean%20View%20Balcony.jpeg'},
+ {id:'centralpark',n:'Infinite Central Park View',sq:'250 sq ft incl 50 convertible',d:'Convertible balcony over the tree-lined Central Park neighbourhood. Great people-watching, no sea view.',tone:'#3E7D5A',img:'https://assets.widgety.co.uk/2022/10/24/09/20/41/e49505b0-3e07-41ea-9cc3-e6a33510208a/RCI%20Icon%20of%20the%20Seas%20Infinite%20Central%20Park%20View%20Balcony.jpeg'},
+ {id:'surfside',n:'Surfside Family View',sq:'196 sq ft + 50 balcony',d:'Balcony over the Surfside family neighbourhood, aft — all the action below.',tone:'#B0761F',img:'https://assets.widgety.co.uk/2022/10/24/08/55/45/848df165-a4ee-4571-9c23-62fe0ed1f513/RCI%20Icon%20of%20the%20Seas%20Surfside%20Family%20View%20Balcony%20H2.jpeg'},
+ {id:'junior',n:'Junior Suite',sq:'322 sq ft + 80 balcony',d:'The suite life, intimately: full bath with tub, Coastal Kitchen dinner by reservation, priority boarding.',tone:'#7A4F8C',img:'https://assets.widgety.co.uk/2022/10/21/10/10/17/48359f8d-7dd6-4360-bf5f-0ea3859b3c42/RCI%20Icon%20of%20the%20Seas%20Junior%20Suite.jpeg'},
+ {id:'suite',n:'Suite (Sky / Star)',sq:'431+ sq ft · varies',d:'Grand, Sunset, Icon Loft and above — Coastal Kitchen, Suite Lounge, concierge or Genie service.',tone:'#8C3F52',img:'https://assets.widgety.co.uk/2022/10/21/09/06/15/21634a29-2d31-4bd5-b3b7-10ce4fea5d07/RCI%20Icon%20of%20the%20Seas%20Grand%20Suite.jpeg'}
 ];
 
 /* Ship facts — Icon-class figures from public sources; worth re-checking

@@ -156,7 +156,7 @@ function renderCruise(c){
         </div>
         <div class="plhint">Guests see each quote as its own card. Quote the same type at different occupancies freely.</div>
       </div>
-      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat};return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc" style="margin-left:10px">${q.ppl} people · ${money(q.q)}${q.img?((/\.(jpe?g|png|webp|gif|avif)([?#]|$)/i.test(q.img)||/\/render\/image\//.test(q.img))?' · 🖼 image set':' · ⚠ image link is a webpage — edit & re-paste'):''}</span></span>
+      ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat};return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(k.n)}</span><span class="tdo-desc" style="margin-left:10px">${q.ppl} people · ${money(q.q)}${q.img?((/\.(jpe?g|png|webp|gif|avif)([?#]|$)/i.test(q.img)||/\/render\/image\//.test(q.img))?' · 🖼 custom image':' · ⚠ image link is a webpage — edit & re-paste'):((cats.find(x=>x.id===q.cat)||{}).img?' · 🖼 stock photo':'')}</span></span>
         <button class="tdo-x" onclick="editQuote('${q.id}')" title="Edit" style="color:var(--indigo)">✎</button>
         <button class="tdo-x" onclick="delQuote('${q.id}')" style="color:var(--clay);font-size:17px">×</button></div>`;}).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing quoted yet.</div>'}
     </div>`;
@@ -172,7 +172,7 @@ function renderCruise(c){
     </div>`;
     const quoteShow=quoteList.length?`<div class="card"><div class="chead"><span>💵 Rooms on offer</span><span>from the organizer</span></div>
       ${quoteList.map(q=>{const k=cats.find(x=>x.id===q.cat)||{n:q.cat,sq:'',d:'',tone:'#5B7185'};return `<div style="display:flex;gap:12px;padding:12px 13px;border-bottom:1px dotted var(--rule);align-items:center">
-        ${q.img?`<img src="${esc(q.img)}" alt="${esc(k.n)}" loading="lazy" style="flex:0 0 110px;width:110px;height:78px;object-fit:cover;border-radius:3px" onerror="this.style.display='none'">`:`<span style="flex:0 0 110px;height:78px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 10px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>`}
+        ${(q.img||k.img)?`<img src="${esc(q.img||k.img)}" alt="${esc(k.n)}" loading="lazy" style="flex:0 0 110px;width:110px;height:78px;object-fit:cover;border-radius:3px" onerror="this.style.display='none'">`:`<span style="flex:0 0 110px;height:78px;border-radius:3px;background:${k.tone};display:flex;align-items:center;justify-content:center;color:#fff;font:600 10px var(--mono)">${esc((k.n||'').slice(0,2).toUpperCase())}</span>`}
         <span style="flex:1;min-width:0"><span style="font-size:13.5px;font-weight:600">${esc(k.n)}</span>
           <span style="display:inline-block;margin-left:7px;border:1px solid var(--indigo2);color:var(--indigo2);border-radius:2px;font:600 8.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;vertical-align:1px">sleeps ${q.ppl}</span>
           <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--indigo2);margin-top:2px">${esc(k.sq)}</span>

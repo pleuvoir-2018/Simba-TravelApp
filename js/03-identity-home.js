@@ -34,7 +34,7 @@ function renderAdminPage(){
     <div class="home-hero" style="position:relative">
       <div class="hk">IAM · access & labels</div>
       <h1>Admin</h1>
-      <div style="position:absolute;top:0;right:0"><button type="button" onclick="renderHome()" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;cursor:pointer;color:var(--ink)">← Trips</button></div>
+      <div style="position:absolute;top:0;right:0"><button type="button" onclick="renderHome()" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;height:34px;display:inline-flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--ink)">← Trips</button></div>
     </div>
     <div class="card"><div class="chead"><span>👥 People & access</span><span>${users.length} · master code ${CRUISE_MASTER}</span></div>
       ${users.map(u=>{
@@ -140,7 +140,7 @@ function renderHome(){
   panel.innerHTML=`
   <div class="home-hero" style="position:relative">
     <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">
-      ${appRole()==='admin'?'<button type="button" onclick="openAdmin()" title="Access & labels" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:8px 12px;cursor:pointer;color:var(--ink)">⚙ Admin</button>':''}
+      ${appRole()==='admin'?'<button type="button" onclick="openAdmin()" title="Access & labels" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;height:34px;display:inline-flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--ink)">⚙ Admin</button>':''}
       ${themeBtn()}
       <button type="button" onclick="cruProfile()" title="Your profile" style="width:34px;height:34px;border-radius:50%;background:#0E7C86;color:#fff;font:700 14px var(--sans);border:2px solid #fff;box-shadow:0 1px 5px rgba(11,37,69,.35);cursor:pointer">${esc(((window._app||{}).name||'?').slice(0,1))}</button>
     </div>

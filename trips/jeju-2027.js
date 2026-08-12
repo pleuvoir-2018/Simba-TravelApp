@@ -11,7 +11,7 @@ var JJ_CITIES=[
  {id:'jlinks',city:'Files',   sub:'confirmations',  jjTab:'jlinks'}
 ];
 
-window.TRIPS_REGISTRY['jeju-2027']={accent:'#E8871E',cities:JJ_CITIES,hotels:{},flights:[],wx:{jeju:{lat:33.2500,lng:126.4100,from:'2027-05-10',to:'2027-05-14'}},
+window.TRIPS_REGISTRY['jeju-2027']={theme:'ocean',accent:'#E8871E',cities:JJ_CITIES,hotels:{},flights:[],wx:{jeju:{lat:33.2500,lng:126.4100,from:'2027-05-10',to:'2027-05-14'}},
  todayCity:{},tonight:{},group:true,headcount:6,
  emoji:'🍊',brand:"Jeju · May '27",foot:'10–14 May · group trip',
  title:'Jeju, May 2027',kicker:'10–14 May 2027 · the group leg',

@@ -480,10 +480,10 @@ window.cruProfile=function(){
     :r==='guest'?'<span class="pp-badge guest">Guest</span>'
     :'<span class="pp-badge member">Member</span>';
   const accRows=TRIP_TITLES.map(([id,label])=>{
-    if(!isMaster&&me.role==='admin')return `<div class="pp-acc"><span>${label}</span><span class="pp-badge adm">Admin · full access</span></div>`;
+    if(!isMaster&&me.role==='admin')return `<div class="pp-acc"><span>${label}</span><span class="pp-badge adm">${uAcc[id]?'Admin · participant':'Admin · full access'}</span></div>`;
     const r=isMaster?'organizer':(me.role==='designer'?'designer':uAcc[id]);
     if(!r)return `<div class="pp-acc"><span style="color:var(--grey)">${label}</span><span class="pp-badge none">No access</span></div>`;
-    return `<div class="pp-acc"><span>${label}</span>${me.role==='designer'?'<span class="pp-badge dsgn">Designer · read-only</span>':badge(r,id)}</div>`;
+    return `<div class="pp-acc"><span>${label}</span>${me.role==='designer'?`<span class="pp-badge ${uAcc[id]?'part':'dsgn'}">${uAcc[id]?'Participant · read-only':'Designer · read-only'}</span>`:badge(r,id)}</div>`;
   }).join('');
   pop.innerHTML=`<div class="cruPopBack" onclick="document.getElementById('cruPop').remove()"></div>
     <div class="cruPopCard pp-wide">
@@ -627,14 +627,42 @@ function groupUsers(tripId){
    grant as if it were the app role. */
 window.uPerson=function(uid){
   if(uid==='admin')return {uid:'admin',name:appAdminName(),
-    legal:(store.app&&store.app.adminLegal)||{},role:'superadmin'};
+    legal:(store.app&&store.app.adminLegal)||{},role:'superadmin',
+    trav:(store.app&&store.app.adminTrav)||{}};
   const u=appUsers().find(x=>x.uid===uid);
   if(!u)return null;
   return {uid:uid,name:u.name||'—',legal:{first:u.legalFirst,last:u.legalLast},
-    role:u.role==='designer'?'designer':(u.role==='pending'?'pending':(u.role==='admin'?'admin':'member'))};
+    role:u.role==='designer'?'designer':(u.role==='pending'?'pending':(u.role==='admin'?'admin':'member')),
+    trav:u.trav||{}};
 };
 const U_ROLE={superadmin:['Super Admin','ub-sadm'],admin:['Admin','ub-adm'],
   designer:['Designer','ub-dsg'],member:['Member','ub-mem'],pending:['Pending','ub-pen']};
+const U_FLAIR_SHORT={ua:'MileagePlus',dl:'SkyMiles',aa:'AAdvantage',ke:'SKYPASS',oz:'Asiana Club',nh:'ANA',
+  bonvoy:'Bonvoy',hilton:'Hilton',hyatt:'Hyatt',ihg:'IHG'};
+/* 2026 annual fees; only used to pick the single most expensive card to show. */
+const U_CARD_AF={amexplat:['Amex Platinum',895],csr:['Sapphire Reserve',795],
+  unitedclub:['United Club Infinite',695],deltares:['Delta Reserve',650],
+  aaexec:['AAdvantage Executive',595],venturex:['Venture X',395],amexgold:['Amex Gold',325]};
+function uFlair(trav){
+  const chips=[];
+  /* One chip per category, the single best. 'Notable' floor: tier index >= 3
+     in the program's own ladder (Bonvoy Gold, Hilton Gold, Hyatt Explorist,
+     UA Gold, AA Platinum, SKYPASS Morning Calm Premium ... and up); Silvers
+     and base Members are not a flex. Across programs the winner is the
+     highest NORMALIZED position — Hyatt Globalist (top of 4) outranks Bonvoy
+     Platinum (4 of 6) even though the raw index is lower. */
+  const best=(cat,sel)=>{let hit=null;
+    (TRAV_CAT[cat]||[]).forEach(p=>{const tier=(sel||{})[p.id];if(!tier)return;
+      const i=p.tiers.indexOf(tier);if(i<3)return;
+      const score=i/(p.tiers.length-1);
+      if(!hit||score>hit.score||(score===hit.score&&i>hit.i))hit={score,i,txt:(U_FLAIR_SHORT[p.id]||p.n)+' '+tier};});
+    return hit&&hit.txt;};
+  const h=best('hotel',trav.hotel); if(h)chips.push(['🏨',h,'uf-h']);
+  const a=best('air',trav.air);     if(a)chips.push(['✈',a,'uf-a']);
+  let card=null;(trav.cards||[]).forEach(id=>{const c=U_CARD_AF[id];if(c&&(!card||c[1]>card[1]))card=c;});
+  if(card)chips.push(['💳',card[0],'uf-c']);
+  return chips.length?`<div class="uc-flair">${chips.map(([ic,t,cls])=>`<span class="uc-chip ${cls}">${ic} ${esc(t)}</span>`).join('')}</div>`:'';
+}
 window.uHov=function(uid,txt){
   if(!uid)return esc(txt);
   return `<span class="uhov" data-uid="${esc(uid)}" tabindex="0">${esc(txt)}</span>`;
@@ -657,7 +685,7 @@ function uCardShow(el){
         <span class="uc-en">${en?esc(en):'<i>legal name not set</i>'}</span>
       </span>
     </div>
-    <span class="uc-badge ${cls}">${label}</span>`;
+    <span class="uc-badge ${cls}">${label}</span>${uFlair(p.trav||{})}`;
   c.style.display='block';
   /* Measure after paint, then clamp into the viewport — the card is fixed, so
      a name near the right edge or the fold would otherwise render offscreen. */

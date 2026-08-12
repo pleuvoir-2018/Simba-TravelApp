@@ -33,6 +33,18 @@ function renderAdminPage(){
   const users=appUsers();
   const dests=TRIPS.filter(t=>TRIP_DATA[t.id]);
   const labels=(store.app&&store.app.tripLabels)||{};
+  /* Admins and designers need no grants for ACCESS — their role opens every
+     door. This grid controls PARTICIPATION instead: whether they appear in a
+     trip's roster, headcount and money split. Stored through the same
+     u.access slot ('guest' on group trips, true elsewhere) so groupUsers()
+     and the Participant badge pick it up with no new field or merge lane. */
+  const partCells=u=>{const acc=u.access||{};return dests.map(d=>{
+    const td=TRIP_DATA[d.id];const pv=(td.cruise||td.group)?'guest':'yes';
+    return `<label class="gcell"><span class="gname">${d.emoji||''} ${esc(d.country)}</span>
+      <select onchange="appGrant('${u.uid}','${d.id}',this.value)">
+        <option value="" ${!acc[d.id]?'selected':''}>Not on trip</option>
+        <option value="${pv}" ${acc[d.id]?'selected':''}>Participant</option>
+      </select></label>`;}).join('');};
   panel.innerHTML=`<div class="stack" style="max-width:860px;margin:0 auto">
     <div class="home-hero" style="position:relative">
       <div class="hk">IAM · access & labels</div>
@@ -60,8 +72,8 @@ function renderAdminPage(){
               <button class="tdo-x" onclick="appDel('${u.uid}')" style="color:var(--clay);font-size:17px">×</button>`}
             </span>
           </div>
-          ${u.role==='designer'?`<div style="margin-top:7px;font:10.5px var(--mono);color:var(--indigo2)">🎨 Designer — opens every destination for review; Expenses, Vault and all money tabs are hidden, and nothing they do saves.</div>`
-          :u.role==='admin'?`<div style="margin-top:7px;font:10.5px var(--mono);color:#8A4390">🛡 Admin — full access to every destination and this panel; no per-trip grants needed. Only the Super Admin can change or remove this account.</div>`
+          ${u.role==='designer'?`<div style="margin-top:7px;font:10.5px var(--mono);color:var(--indigo2)">🎨 Designer — opens every destination for review; nothing they do saves. Participation below only adds them to rosters and splits.</div><div class="ggrid">${partCells(u)}</div>`
+          :u.role==='admin'?`<div style="margin-top:7px;font:10.5px var(--mono);color:#8A4390">🛡 Admin — full access everywhere regardless. Participation below controls which trips they are counted in — rosters, headcounts, the group pot. Only the Super Admin can change or remove this account.</div><div class="ggrid">${partCells(u)}</div>`
           :u.role==='pending'?'':`<div class="ggrid">
             ${dests.map(d=>{
               const td=TRIP_DATA[d.id];

@@ -313,7 +313,7 @@ function renderCalc() {
     
     <div style="margin-bottom:24px; position:relative;">
       <div style="font:600 12px var(--mono); color:var(--grey); text-transform:uppercase; margin-bottom:8px; text-align:left;">Price in ${CUR.name||CUR.code} (${CUR.sym})</div>
-      <input type="number" id="quickJpy" placeholder="0" style="width:100%; font-family:var(--serif); font-size:48px; font-weight:700; color:var(--ink); border:none; border-bottom:2px solid var(--clay); background:transparent; padding:8px 0 16px; text-align:center; outline:none;">
+      <input type="number" id="quickJpy" placeholder="0" style="width:100%; height:auto; font-family:var(--serif); font-size:48px; font-weight:700; color:var(--ink); border:none; border-bottom:2px solid var(--clay); background:transparent; padding:8px 0 16px; text-align:center; outline:none;">
     </div>
 
     <div style="margin-bottom:24px;">

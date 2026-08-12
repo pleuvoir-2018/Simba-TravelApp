@@ -486,6 +486,11 @@ body.dark .cal2-today{color:#0D1218}
 .fb-kind.on{border-color:var(--indigo);color:var(--indigo);background:rgba(34,64,107,.06)}
 body.dark .fb-kind.on{background:rgba(169,198,232,.10)}
 .tkt-chip{flex:0 0 auto;font:700 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid;border-radius:2px;padding:3px 7px;background:none;white-space:nowrap}
+.tkt-btn{height:30px;padding:0 11px;border-radius:3px;border:1px solid;background:none;cursor:pointer;font:700 9.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.tkt-btn.ok{border-color:var(--moss);color:var(--moss)}
+.tkt-btn.ok:hover{background:rgba(94,127,76,.1)}
+.tkt-btn.no{border-color:var(--plum);color:var(--plum)}
+.tkt-btn.no:hover{background:rgba(142,75,98,.1)}
 /* ---- About us ---- */
 .ab-link{font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--indigo);text-decoration:none;border-bottom:1px dotted var(--indigo)}
 #aboutOv{position:fixed;inset:0;background:rgba(15,18,24,.45);display:flex;align-items:center;justify-content:center;z-index:340;padding:18px}

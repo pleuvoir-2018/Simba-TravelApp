@@ -114,9 +114,13 @@ function renderAdminPage(){
           <span class="urow-id" style="min-width:0;flex:1"><span style="flex:0 0 auto">${t.kind==='bug'?'🐞':'✨'}</span>
             <span style="min-width:0"><b style="font-size:13px">${esc(t.title)}</b>
             <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);margin-top:2px">${esc(t.byName||t.by)} · ${new Date(t.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span></span></span>
-          <span class="urow-ops"><select onchange="tktSetStatus('${t.id}',this.value)" title="Status">
-            ${Object.entries(TKT_STATUS).map(([v,[l]])=>`<option value="${v}" ${t.status===v?'selected':''}>${l}</option>`).join('')}
-          </select></span>
+          <span class="urow-ops" style="gap:6px">
+            <span class="tkt-chip" style="border-color:${TKT_STATUS[t.status][1]};color:${TKT_STATUS[t.status][1]}">${TKT_STATUS[t.status][0]}</span>
+            ${t.status==='received'?`<button type="button" class="tkt-btn ok" onclick="tktSetStatus('${t.id}','progress')">✓ Approve</button>
+              <button type="button" class="tkt-btn no" onclick="tktSetStatus('${t.id}','declined')">✕ Decline</button>`
+            :t.status==='progress'?`<button type="button" class="tkt-btn ok" onclick="tktSetStatus('${t.id}','done')">→ Implemented</button>`
+            :''}
+          </span>
         </div>
         ${t.detail?`<div style="margin-top:6px;font-size:12px;color:var(--grey);white-space:pre-wrap">${esc(t.detail)}</div>`:''}
       </div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing filed yet — the Feedback link lives in the landing footer.</div>'}

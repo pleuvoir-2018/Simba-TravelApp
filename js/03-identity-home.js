@@ -25,7 +25,7 @@ const TRIPS=[
  {id:'benefits',country:'Travel tools',emoji:'🧰',title:'Benefits Assistant',dates:'Tiers, perks & lounge doors',
   blurb:'What your memberships get you',
   photo:wm('Air_India_Heathrow_lounge.JPG'),
-  credit:'Airport lounge, Heathrow · Clayton Tang, CC BY-SA 3.0',status:'tool',tool:true},
+  credit:'Airport lounge, Heathrow · Clayton Tang, CC BY-SA 3.0',status:'wip',tool:true},
  {id:'orlando-universal',country:'Theme-Park Trip',title:'Orlando — Universal',dates:'Dates TBD',emoji:'🎬',theme:'ocean',
   photo:wm('Universal_Studios_Florida_Gate.JPG'),credit:'Universal Studios Florida gate · Malpass93, public domain',status:'wip'}
 ];
@@ -217,19 +217,7 @@ function renderHome(){
   document.body.classList.remove('tools');
   document.body.classList.add('home');
   document.body.style.setProperty('--tripac','#22406B');
-  panel.innerHTML=`
-  <div class="home-hero" style="position:relative">
-    <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">
-      ${appRole()==='admin'?'<button type="button" onclick="openAdmin()" title="Access & labels" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;height:34px;display:inline-flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--ink)">⚙ Admin</button>':''}
-      ${themeBtn()}
-      <button type="button" onclick="cruProfile()" title="Your profile" style="width:34px;height:34px;border-radius:50%;background:#0E7C86;color:#fff;font:700 14px var(--sans);border:2px solid #fff;box-shadow:0 1px 5px rgba(11,37,69,.35);cursor:pointer">${esc(((window._app||{}).name||'?').slice(0,1))}</button>
-    </div>
-    <div class="hk">Trip journal</div>
-    <h1>Where to?</h1>
-    <p>Pick a trip to open its plans, meals, maps and expenses. Finished trips stay here as a record of where you have been.</p>
-  </div>
-  <div class="trips">
-    ${TRIPS.map(t=>`
+  const tripCard=t=>`
       <button class="trip ${t.theme==='ocean'?'ocean':''} ${t.status==='idea'||!canOpen(t.id)?'soon':''} ${tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="${t.tool?`openTool('${t.id}')`:`openTrip('${t.id}')`}"`}>
         ${(()=>{const L=tripLabelOf(t);return `<span class="ribbon" style="background:${TRIP_LABELS[L][1]}">${TRIP_LABELS[L][0]}</span>`;})()}
         ${t.status!=='idea'&&canOpen(t.id)?'<span class="ribbon" style="top:34px;background:var(--moss)">✓ Access granted</span>':''}
@@ -244,13 +232,31 @@ function renderHome(){
         </div>
         <div class="bar"><span title="${!canOpen(t.id)&&t.status!=='idea'?'Ask the organizer for access':''}">${t.status==='idea'?'Not planned yet':(!canOpen(t.id)?'🔒 No access':(tripArchived(t)?'Open · read-only →':t.tool?'Open tool →':'Open trip →'))}</span>
           <span class="credit">${esc(t.credit)}</span></div>
-      </button>`).join('')}
+      </button>`;
+  panel.innerHTML=`
+  <div class="home-hero" style="position:relative">
+    <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">
+      ${appRole()==='admin'?'<button type="button" onclick="openAdmin()" title="Access & labels" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;height:34px;display:inline-flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--ink)">⚙ Admin</button>':''}
+      ${themeBtn()}
+      <button type="button" onclick="cruProfile()" title="Your profile" style="width:34px;height:34px;border-radius:50%;background:#0E7C86;color:#fff;font:700 14px var(--sans);border:2px solid #fff;box-shadow:0 1px 5px rgba(11,37,69,.35);cursor:pointer">${esc(((window._app||{}).name||'?').slice(0,1))}</button>
+    </div>
+    <div class="hk">Trip journal</div>
+    <h1>Where to?</h1>
+    <p>Pick a trip to open its plans, meals, maps and expenses. Finished trips stay here as a record of where you have been.</p>
   </div>
+  <div class="trips">
+    ${TRIPS.filter(t=>!t.tool).map(tripCard).join('')}
+  </div>
+  ${TRIPS.some(t=>t.tool)?`<div class="home-sec">
+    <div style="text-align:center;font:600 10px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--clay)">Travel tools</div>
+    <p style="text-align:center;font-size:13px;color:var(--grey);max-width:460px;margin:6px auto 16px">Utilities built on your travel profile — tiers, perks and which doors open.</p>
+    <div class="trips tools">${TRIPS.filter(t=>t.tool).map(tripCard).join('')}</div>
+  </div>`:''}
   <div class="home-foot" style="padding:0">Photos via Wikimedia Commons under their stated licences.</div>
   <div class="home-foot" style="padding:4px 0 12px"><a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener license"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20132%2031%22%20width%3D%22132%22%20height%3D%2231%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2279%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ctext%20x%3D%2215%22%20y%3D%2219.5%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2211%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3ECC%3C/text%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2210.5%22%20r%3D%223.1%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M40.5%2022.5%20a6.5%206.5%200%200%201%2013%200%20z%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M85.5%2012%20a7%207%200%201%200%201%206%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Cpath%20d%3D%22M83%208%20l4.5%204.5%20-6%201.5%20z%22%20fill%3D%22%2314161B%22/%3E%3Ctext%20x%3D%2297%22%20y%3D%2213%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3EBY-SA%3C/text%3E%3Ctext%20x%3D%2297%22%20y%3D%2225%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3E2.0%3C/text%3E%3C/svg%3E" class="cclogo" alt="CC BY-SA 2.0" width="132" height="31" style="opacity:.8"></a></div>
   <div class="home-foot"><a href="#" class="ab-link" onclick="openAbout();return false">About us →</a></div>`;
 }
-const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)'],done:['Trip completed','var(--grey)'],tool:['Travel tool','#0E7C86']};
+const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)'],done:['Trip completed','var(--grey)']};
 function tripPastEnd(t){
   const d=t&&typeof TRIP_DATA!=='undefined'&&TRIP_DATA[t.id]&&TRIP_DATA[t.id].end;
   if(!d)return false;
@@ -260,7 +266,6 @@ function tripLabelOf(t){
   const ov=(store.app&&store.app.tripLabels)||{};
   if(ov[t.id]&&TRIP_LABELS[ov[t.id]])return ov[t.id];   // the admin's word is final
   if(tripPastEnd(t))return 'done';                       // default only — override to reopen
-  if(t.status==='tool')return 'tool';
   return t.status==='group'?'group':(t.status==='wip'?'wip':(t.status==='idea'?'soon':'live'));
 }
 /* A trip becomes read-only once its own end date has passed. Purely per trip:

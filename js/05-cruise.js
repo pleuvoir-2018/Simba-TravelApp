@@ -399,6 +399,14 @@ function renderCruise(c){
           <button class="tdo-x" onclick="setChargePaid('${x.id}','${Number(x.amt)}')" title="Mark fully paid" style="color:var(--moss);font-size:13px">✓</button>
           <button class="tdo-x" onclick="delCharge('${x.id}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">No charges yet.</div>'}
       </div>
+      <div class="card"><div class="chead"><span>My own expenses (organizer)</span></div>
+        <div class="plform"><div class="plrow1">
+          <input id="mx_date" type="date">
+          <input id="mx_desc" placeholder="Description" maxlength="60">
+          <input id="mx_amt" type="number" min="0" step="0.01" placeholder="$">
+          <button class="pladd" type="button" onclick="addMyExp()" style="flex:0 0 auto;padding:8px 13px">+ Add</button>
+        </div></div>
+        ${myRows||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing yet.</div>'}
       </div>`+myExpCard;
     }
   }

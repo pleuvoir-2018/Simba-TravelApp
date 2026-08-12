@@ -111,6 +111,25 @@ function mergeApp(rA,lA){
     if(meLocal&&!list.some(u=>u.uid===me))list=list.concat([{...meLocal,role:'pending',access:{}}]);
     out.users=list;
   }
+  /* Tickets (bug reports / enhancement requests): append-mostly, no hard
+     delete — Declined is the terminal state, which is what lets this lane
+     stay tombstone-free. Union by id; per item the ADMIN's copy wins (status
+     and note changes land), a non-admin's copy of an EXISTING item never
+     wins (submissions are immutable after submit, so a stale save cannot
+     roll an admin's triage back), and a non-admin may only append items
+     they authored (by===me) — you cannot file a ticket in someone else's
+     name via a crafted local blob. */
+  {
+    const R=rA.tickets, L=lA.tickets;
+    if(R!==undefined||L!==undefined){
+      const map=new Map((R||[]).map(t=>[t.id,t]));
+      (L||[]).forEach(t=>{
+        if(map.has(t.id)){ if(admin)map.set(t.id,t); }
+        else if(admin||t.by===me)map.set(t.id,t);
+      });
+      out.tickets=[...map.values()];
+    }
+  }
   return out;
 }
 async function loadOverrides(){

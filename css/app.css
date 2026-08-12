@@ -480,6 +480,12 @@ body.dark .cal2-today{color:#0D1218}
 .wx2-d em{font-style:normal;font:600 11px var(--mono);color:var(--ink)}
 .wx2-d u{text-decoration:none;font:500 10px var(--mono);color:var(--grey)}
 
+/* ---- Feedback tickets ---- */
+#fbOv{position:fixed;inset:0;background:rgba(15,18,24,.45);display:flex;align-items:center;justify-content:center;z-index:340;padding:18px}
+.fb-kind{flex:1;height:34px;border:1px solid var(--rule);border-radius:5px;background:var(--card,#fff);color:var(--grey);font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.fb-kind.on{border-color:var(--indigo);color:var(--indigo);background:rgba(34,64,107,.06)}
+body.dark .fb-kind.on{background:rgba(169,198,232,.10)}
+.tkt-chip{flex:0 0 auto;font:700 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;border:1px solid;border-radius:2px;padding:3px 7px;background:none;white-space:nowrap}
 /* ---- About us ---- */
 .ab-link{font:600 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--indigo);text-decoration:none;border-bottom:1px dotted var(--indigo)}
 #aboutOv{position:fixed;inset:0;background:rgba(15,18,24,.45);display:flex;align-items:center;justify-content:center;z-index:340;padding:18px}

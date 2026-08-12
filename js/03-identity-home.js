@@ -106,6 +106,21 @@ function renderAdminPage(){
         </div>
       </div>
     </div>
+    ${(()=>{const tk=appTickets().slice().sort((a,b)=>({received:0,progress:1,done:2,declined:3}[a.status]-{received:0,progress:1,done:2,declined:3}[b.status])||b.ts-a.ts);
+      const open=tk.filter(t=>t.status==='received'||t.status==='progress').length;
+      return `<div class="card"><div class="chead"><span>💬 Feedback tickets</span><span>${open} open · ${tk.length} total</span></div>
+      ${tk.map(t=>`<div class="urow">
+        <div class="urow-top">
+          <span class="urow-id" style="min-width:0;flex:1"><span style="flex:0 0 auto">${t.kind==='bug'?'🐞':'✨'}</span>
+            <span style="min-width:0"><b style="font-size:13px">${esc(t.title)}</b>
+            <span style="display:block;font:600 9px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);margin-top:2px">${esc(t.byName||t.by)} · ${new Date(t.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span></span></span>
+          <span class="urow-ops"><select onchange="tktSetStatus('${t.id}',this.value)" title="Status">
+            ${Object.entries(TKT_STATUS).map(([v,[l]])=>`<option value="${v}" ${t.status===v?'selected':''}>${l}</option>`).join('')}
+          </select></span>
+        </div>
+        ${t.detail?`<div style="margin-top:6px;font-size:12px;color:var(--grey);white-space:pre-wrap">${esc(t.detail)}</div>`:''}
+      </div>`).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing filed yet — the Feedback link lives in the landing footer.</div>'}
+    </div>`;})()}
     <div class="card"><div class="chead"><span>🏷 Destination labels</span><span>shown on the landing cards</span></div>
       ${dests.map(d=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${d.emoji||''} ${esc(d.title)}</span></span>
         <select onchange="appLabel('${d.id}',this.value)" style="font:11px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;background:var(--card,#fff)">
@@ -193,6 +208,60 @@ const AB_TEAM=[
  {n:'Gemini',role:'Travel Planner',img:'data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%234285F4%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%239B72CB%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2250%22%20fill%3D%22%23F2F5FD%22/%3E%3Cpath%20d%3D%22M50%2010%20C53%2032%2068%2047%2090%2050%20C68%2053%2053%2068%2050%2090%20C47%2068%2032%2053%2010%2050%20C32%2047%2047%2032%2050%2010%20Z%22%20fill%3D%22url%28%23g%29%22/%3E%3C/svg%3E',
   bio:'An AI assistant made by Google. The research arm of the operation: scouted the restaurants, dug through opening hours and booking windows, and compared the options that ended up on these itineraries — from Yokohama tempura counters to Nara kaiseki.'}
 ];
+/* ---------------- FEEDBACK / TICKETS ---------------- */
+const TKT_STATUS={received:['Received','var(--indigo2)'],progress:['In progress','#B0761F'],
+  done:['Implemented','var(--moss)'],declined:['Declined','var(--plum)']};
+function appTickets(){ return (store.app&&store.app.tickets)||[]; }
+window.openFeedback=function(){
+  const me=window._app||{};
+  if(!me.uid){flash('Sign in first','err');return;}
+  let ov=document.getElementById('fbOv'); if(ov)ov.remove();
+  const mine=appTickets().filter(t=>t.by===me.uid).sort((a,b)=>b.ts-a.ts);
+  ov=document.createElement('div'); ov.id='fbOv';
+  ov.innerHTML=`<div class="ab-card">
+    <button class="ab-x" onclick="document.getElementById('fbOv').remove()" aria-label="Close">✕</button>
+    <div class="ab-kick">Trip journal</div>
+    <h2 class="ab-h">Feedback</h2>
+    <p class="ab-sub">Spotted a bug, or want something the app doesn't do yet? It lands with the organizer.</p>
+    <div style="display:flex;gap:7px;margin:4px 0 10px">
+      <button type="button" id="fb_bug" class="fb-kind on" onclick="fbKind('bug')">🐞 Bug</button>
+      <button type="button" id="fb_idea" class="fb-kind" onclick="fbKind('idea')">✨ Enhancement</button>
+    </div>
+    <input id="fb_title" maxlength="90" placeholder="One line — what happened / what you want" style="width:100%;margin-bottom:8px">
+    <textarea id="fb_detail" rows="4" maxlength="800" placeholder="Details — where it happened, what you expected…" style="width:100%;font:12.5px/1.45 var(--sans);border:1px solid var(--rule);border-radius:3px;padding:8px 10px;resize:vertical"></textarea>
+    <button class="pladd" type="button" onclick="fbSubmit()" style="width:100%;padding:9px 0;margin-top:10px">Send</button>
+    ${me.role==='designer'?'<div style="font:10px var(--mono);color:var(--clay);margin-top:7px">Design review account — nothing saves, including feedback. Send it to the organizer directly.</div>':''}
+    ${mine.length?`<div style="font:600 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin:16px 0 6px">Yours</div>
+      ${mine.map(t=>`<div class="tdo-row" style="padding:8px 0"><span class="tdo-main"><span style="font-size:12.5px">${t.kind==='bug'?'🐞':'✨'} ${esc(t.title)}</span></span>
+        <span class="tkt-chip" style="border-color:${TKT_STATUS[t.status][1]};color:${TKT_STATUS[t.status][1]}">${TKT_STATUS[t.status][0]}</span></div>`).join('')}`:''}
+  </div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov)ov.remove();});
+  document.body.appendChild(ov);
+  document.getElementById('fb_title').focus();
+};
+window._fbKind='bug';
+window.fbKind=function(k){window._fbKind=k;
+  document.getElementById('fb_bug').classList.toggle('on',k==='bug');
+  document.getElementById('fb_idea').classList.toggle('on',k==='idea');};
+window.fbSubmit=function(){
+  const me=window._app||{}; if(!me.uid)return;
+  const title=(document.getElementById('fb_title')||{}).value.trim();
+  const detail=(document.getElementById('fb_detail')||{}).value.trim();
+  if(!title){document.getElementById('fb_title').focus();return;}
+  APP().tickets=appTickets().concat([{id:'t'+Date.now(),kind:window._fbKind||'bug',title,detail,
+    by:me.uid,byName:me.name||'',ts:Date.now(),status:'received'}]);
+  saveOverrides();
+  const ov=document.getElementById('fbOv'); if(ov)ov.remove();
+  flash('Sent — the organizer will see it ✓','ok');
+};
+/* Status changes are an admin act; the guard lives here, not in the select. */
+window.tktSetStatus=function(id,val){
+  if(appRole()!=='admin'){flash('Only admins can triage tickets','err');return;}
+  if(!TKT_STATUS[val])return;
+  const t=appTickets().find(x=>x.id===id); if(!t)return;
+  t.status=val; t.decidedTs=Date.now();
+  saveOverrides(); if(window._onAdmin)renderAdminPage();
+};
 window.openAbout=function(){
   let ov=document.getElementById('aboutOv');
   if(ov){ov.style.display='flex';return;}
@@ -259,7 +328,7 @@ function renderHome(){
   </div>`:''}
   <div class="home-foot" style="padding:0">Photos via Wikimedia Commons under their stated licences.</div>
   <div class="home-foot" style="padding:4px 0 12px"><a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener license"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20132%2031%22%20width%3D%22132%22%20height%3D%2231%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2279%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ctext%20x%3D%2215%22%20y%3D%2219.5%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2211%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3ECC%3C/text%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2210.5%22%20r%3D%223.1%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M40.5%2022.5%20a6.5%206.5%200%200%201%2013%200%20z%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M85.5%2012%20a7%207%200%201%200%201%206%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Cpath%20d%3D%22M83%208%20l4.5%204.5%20-6%201.5%20z%22%20fill%3D%22%2314161B%22/%3E%3Ctext%20x%3D%2297%22%20y%3D%2213%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3EBY-SA%3C/text%3E%3Ctext%20x%3D%2297%22%20y%3D%2225%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3E2.0%3C/text%3E%3C/svg%3E" class="cclogo" alt="CC BY-SA 2.0" width="132" height="31" style="opacity:.8"></a></div>
-  <div class="home-foot"><a href="#" class="ab-link" onclick="openAbout();return false">About us →</a></div>`;
+  <div class="home-foot"><a href="#" class="ab-link" onclick="openAbout();return false">About us →</a><span style="margin:0 8px;color:var(--rule)">·</span><a href="#" class="ab-link" onclick="openFeedback();return false">Feedback →</a></div>`;
 }
 const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)'],done:['Trip completed','var(--grey)']};
 function tripPastEnd(t){

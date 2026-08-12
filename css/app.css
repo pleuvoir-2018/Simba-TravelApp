@@ -557,7 +557,11 @@ body.itin .mapcard{background:#fff;border:none;border-radius:9px;box-shadow:0 1p
 body.dark.itin .mapcard{background:#1C2027}
 
 /* ==== ORLANDO GROUP MODULE + AVATAR ACCESS TAB ==== */
-.cruPopCard.pp-wide{display:flex;gap:0;padding:0;max-width:560px;width:94vw;overflow:hidden}
+/* ID-scoped: #cruPop .cruPopCard{width:264px} (1,1,0) outranks a plain
+   .cruPopCard.pp-wide (0,2,0), so the earlier widening never applied and the
+   108px rail left ~120px of pane. Match the ID to win, and size off the
+   viewport so phones keep a 16px gutter. */
+#cruPop .cruPopCard.pp-wide{display:flex;gap:0;padding:0;width:min(560px,calc(100vw - 32px));max-width:none;overflow:hidden}
 .pp-menu{flex:0 0 108px;background:var(--washi2);display:flex;flex-direction:column;padding:14px 0;gap:2px}
 body.dark .pp-menu{background:#20242D}
 .pp-menu button{background:none;border:none;text-align:left;padding:10px 14px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);cursor:pointer;border-left:3px solid transparent}

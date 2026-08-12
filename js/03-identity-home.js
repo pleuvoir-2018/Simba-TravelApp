@@ -226,6 +226,13 @@ function renderHome(){
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>
+  <div class="home-sec" style="margin-top:26px"><div class="kicker" style="text-align:center;margin-bottom:10px">TRAVEL TOOLS</div>
+    <button type="button" class="ba-entry" onclick="openBenefits()">
+      <span style="font-size:26px">🧰</span>
+      <span style="text-align:left"><b style="display:block;font:700 15px var(--serif)">Benefits Assistant</b>
+      <span style="font-size:11.5px;color:var(--grey)">Your hotel tiers, flight perks, and which lounge doors open — from the memberships in your profile</span></span>
+      <span style="margin-left:auto;font-size:16px">→</span>
+    </button></div>
   <div class="home-foot" style="padding:0">Photos via Wikimedia Commons under their stated licences.</div>
   <div class="home-foot" style="padding:4px 0 12px"><a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener license"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20132%2031%22%20width%3D%22132%22%20height%3D%2231%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2279%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ctext%20x%3D%2215%22%20y%3D%2219.5%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2211%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3ECC%3C/text%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2210.5%22%20r%3D%223.1%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M40.5%2022.5%20a6.5%206.5%200%200%201%2013%200%20z%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M85.5%2012%20a7%207%200%201%200%201%206%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Cpath%20d%3D%22M83%208%20l4.5%204.5%20-6%201.5%20z%22%20fill%3D%22%2314161B%22/%3E%3Ctext%20x%3D%2297%22%20y%3D%2213%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3EBY-SA%3C/text%3E%3Ctext%20x%3D%2297%22%20y%3D%2225%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3E2.0%3C/text%3E%3C/svg%3E" class="cclogo" alt="CC BY-SA 2.0" width="132" height="31" style="opacity:.8"></a></div>
   <div class="home-foot"><a href="#" class="ab-link" onclick="openAbout();return false">About us →</a></div>`;

@@ -19,7 +19,7 @@ const TRIPS=[
   photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'wip'},
  {id:'hawaii-2029',country:'Spring Break',title:'Hawaii, March 2029',dates:'9–18 March 2029',emoji:'🏝',
   photo:wm('Waikiki_Beach_(2024)-L1004709.jpg'),credit:'Waikīkī & Diamond Head · Frank Schulenburg, CC BY-SA 4.0',status:'wip'},
- {id:'orlando-universal',country:'Theme-Park Trip',title:'Orlando — Universal',dates:'Dates TBD',emoji:'🎬',
+ {id:'orlando-universal',country:'Theme-Park Trip',title:'Orlando — Universal',dates:'Dates TBD',emoji:'🎬',theme:'ocean',
   photo:wm('Universal_Studios_Florida_Gate.JPG'),credit:'Universal Studios Florida gate · Malpass93, public domain',status:'wip'}
 ];
 let tripSel=null;                 // never restored from storage: every reload

@@ -559,7 +559,7 @@ body.itin .mapcard{background:#fff;border:none;border-radius:9px;box-shadow:0 1p
 body.dark.itin .mapcard{background:#1C2027}
 
 /* ==== ORLANDO GROUP MODULE + AVATAR ACCESS TAB ==== */
-.cruPopCard.pp-wide{display:flex;gap:0;padding:0;max-width:430px;width:94vw;overflow:hidden}
+.cruPopCard.pp-wide{display:flex;gap:0;padding:0;max-width:560px;width:94vw;overflow:hidden}
 .pp-menu{flex:0 0 108px;background:var(--washi2);display:flex;flex-direction:column;padding:14px 0;gap:2px}
 body.dark .pp-menu{background:#20242D}
 .pp-menu button{background:none;border:none;text-align:left;padding:10px 14px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);cursor:pointer;border-left:3px solid transparent}

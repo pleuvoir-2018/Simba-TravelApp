@@ -28,6 +28,7 @@ export default async function handler(req, res) {
 
     try {
       const { blobs } = await list({ prefix: KEY, limit: 1 });
+      res.setHeader('Cache-Control','no-store, max-age=0');
       if (!blobs.length) return res.status(200).json({ value: null });
       const r = await fetch(`${blobs[0].url}?t=${Date.now()}`, { cache: 'no-store' });
       if (!r.ok) return res.status(500).json({ error: 'read-back failed: ' + r.status });

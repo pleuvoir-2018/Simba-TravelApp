@@ -40,7 +40,7 @@ async function sGet(){
   // finished — e.g. the tab closed inside the save debounce.
   let cloud=null, local=null;
   try {
-    const res = await fetch('/api/sync');
+    const res = await fetch('/api/sync?t='+Date.now(), {cache:'no-store'});
     if (res.ok) { const data = await res.json(); if (data && data.value) cloud = data.value; }
   } catch(e) { console.error('Cloud load failed, falling back to local'); }
   try { const raw = localStorage.getItem(KEY); if (raw) local = JSON.parse(raw); } catch(e){}
@@ -251,7 +251,7 @@ async function flushSave(){
   _saveInFlight=true;_savePending=false;
   let mode='memory';
   try{
-    try{ const r=await fetch('/api/sync'); const d=await r.json();
+    try{ const r=await fetch('/api/sync?t='+Date.now(),{cache:'no-store'}); const d=await r.json();
       if(d&&d.value){
         // Merge per trip id so a save in one trip can never touch another.
         const remote=normalizeStore(d.value);
@@ -277,6 +277,16 @@ async function flushSave(){
 // Last-ditch flush if the tab closes mid-debounce (local copy is already written).
 window.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&_savePending){clearTimeout(_saveTimer);flushSave();}});
 
+window.forceRefresh=async function(){
+  flash('Refreshing from cloud…');
+  try{
+    await loadOverrides();                     // same _ts-winner logic as boot — a newer local edit still wins
+    if(typeof buildNav==='function')try{buildNav();}catch(e){}
+    render();
+    const n=(((store||{}).app||{}).users||[]).length;
+    flash('Refreshed ✓ — '+n+' people on file','ok');
+  }catch(e){ flash('Refresh failed — check your connection','err'); }
+};
 async function resetAll(){
   if(!confirm('Discard all edits and expenses for this trip?'))return;
   store.trips=store.trips||{};

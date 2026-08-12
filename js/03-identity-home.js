@@ -36,7 +36,7 @@ function renderAdminPage(){
       <h1>Admin</h1>
       <div style="position:absolute;top:0;right:0"><button type="button" onclick="renderHome()" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;height:34px;display:inline-flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--ink)">← Trips</button></div>
     </div>
-    <div class="card"><div class="chead"><span>👥 People & access</span><span>${users.length} people · master ${CRUISE_MASTER}</span></div>
+    <div class="card"><div class="chead"><span>👥 People & access</span><span style="display:flex;gap:9px;align-items:center">${users.length} people · master ${CRUISE_MASTER}<button type="button" onclick="forceRefresh()" title="Pull the latest data now" style="font:600 9px var(--mono);letter-spacing:.06em;border:1px solid currentColor;background:none;color:inherit;border-radius:4px;padding:4px 9px;cursor:pointer">⟳ REFRESH</button></span></div>
       ${users.map(u=>{
         const acc=u.access||{};
         return `<div class="urow">

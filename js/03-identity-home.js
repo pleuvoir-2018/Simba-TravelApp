@@ -338,7 +338,7 @@ window.appSignOut=function(){
   window._app=null;window._cru=null;tripSel=null;
   try{localStorage.removeItem('jt_app');localStorage.removeItem('jt_cru');}catch(e){}
   const pp=document.getElementById('cruPop');if(pp)pp.remove();
-  document.body.classList.remove('cruise');
+  document.body.classList.remove('cruise','itin');
   if(typeof updateAvatar==='function')updateAvatar();
   renderLogin();
 };
@@ -460,5 +460,5 @@ window.openTrip=function(id){
   document.body.classList.remove('home');
   render();
 };
-window.backToTrips=function(){ tripSel=null; document.body.classList.remove('cruise'); const pp=document.getElementById('cruPop'); if(pp)pp.remove(); if(typeof updateAvatar==='function')updateAvatar(); renderHome(); };
+window.backToTrips=function(){ tripSel=null; document.body.classList.remove('cruise','itin'); const pp=document.getElementById('cruPop'); if(pp)pp.remove(); if(typeof updateAvatar==='function')updateAvatar(); renderHome(); };
 

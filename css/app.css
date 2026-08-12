@@ -518,3 +518,26 @@ body.dark .cal2-pop::after{border-top-color:#2A313B}
 .cal2-pop ul{margin:0;padding-left:15px;display:flex;flex-direction:column;gap:4px}
 .cal2-pop li{font:500 11.5px var(--sans);color:var(--ink);line-height:1.35}
 .cal2-pop-none{font:500 11px var(--sans);color:var(--grey)}
+
+/* ==== ITINERARY REDESIGN (approved preview, scoped to body.itin) ====
+   White floating cards on the washi page; tan title bands become inset
+   rounded containers with soft warm-grey labels; clearer day grouping in
+   plans; softened separators; rounded inputs and pill chips. Dark mode
+   mirrors each piece; the map card (own .maphead) and its legend stay
+   theme-independent as before. */
+body.itin .card{background:#fff;border:none;border-radius:9px;box-shadow:0 1px 4px rgba(20,22,27,.07)}
+body.dark.itin .card{background:#1C2027;box-shadow:0 1px 5px rgba(0,0,0,.4)}
+body.itin .chead{background:var(--washi2);border-bottom:none;border-radius:6px;margin:10px 12px 4px;padding:10px 14px;color:#6B6455}
+body.dark.itin .chead{background:#262B34;color:#B8C2CF}
+body.itin .pl-day{font:700 14px var(--sans);color:var(--ink);padding:14px 16px 9px;border-bottom:1px solid var(--rule)}
+body.itin .meal{border-top:1px solid rgba(20,22,27,.07);padding:14px 16px}
+body.dark.itin .meal{border-top-color:rgba(231,226,214,.08)}
+body.itin .note{background:var(--washi2);border-radius:0 4px 4px 0}
+body.itin .train{border-top:1px solid rgba(20,22,27,.07)}
+body.dark.itin .train{border-top-color:rgba(231,226,214,.08)}
+body.itin .tdo-row{border-top:1px solid rgba(20,22,27,.07);border-bottom:none}
+body.dark.itin .tdo-row{border-top-color:rgba(231,226,214,.08)}
+body.itin input,body.itin select,body.itin textarea{border-radius:5px}
+body.itin .poitoggle,body.itin .catbtn{border-radius:20px}
+body.itin .mapcard{background:#fff;border:none;border-radius:9px;box-shadow:0 1px 4px rgba(20,22,27,.07)}
+body.dark.itin .mapcard{background:#1C2027}

@@ -280,9 +280,14 @@ window.addEventListener('visibilitychange',()=>{if(document.visibilityState==='h
 window.forceRefresh=async function(){
   flash('Refreshing from cloud…');
   try{
+    const onAdmin=!!window._onAdmin;
     await loadOverrides();                     // same _ts-winner logic as boot — a newer local edit still wins
-    if(typeof buildNav==='function')try{buildNav();}catch(e){}
-    render();
+    if(onAdmin&&typeof renderAdminPage==='function'&&typeof appRole==='function'&&appRole()==='admin'){
+      renderAdminPage();                       // stay on the Admin page the button lives on
+    }else{
+      if(typeof buildNav==='function')try{buildNav();}catch(e){}
+      render();
+    }
     const n=(((store||{}).app||{}).users||[]).length;
     flash('Refreshed ✓ — '+n+' people on file','ok');
   }catch(e){ flash('Refresh failed — check your connection','err'); }

@@ -22,8 +22,9 @@ const TRIPS=[
 ];
 let tripSel=null;                 // never restored from storage: every reload
 
-window.openAdmin=function(){ renderAdminPage(); };
+window.openAdmin=function(){ window._onAdmin=true; renderAdminPage(); };
 function renderAdminPage(){
+  window._onAdmin=true;
   if(appRole()!=='admin'){renderHome();return;}
   document.body.classList.add('home');
   document.body.style.setProperty('--tripac','#22406B');
@@ -181,6 +182,7 @@ window.openAbout=function(){
 };
 window.closeAbout=function(){const ov=document.getElementById('aboutOv');if(ov)ov.style.display='none';};
 function renderHome(){
+  window._onAdmin=false;
   document.body.classList.add('home');
   document.body.style.setProperty('--tripac','#22406B');
   panel.innerHTML=`

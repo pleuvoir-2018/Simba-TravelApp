@@ -219,7 +219,26 @@ window.baApType=function(inp){
   if(!m.length||m.some(a=>inp.value===a.c+' · '+a.city)){dd.style.display='none';return;}
   dd.innerHTML=m.map(a=>`<div class="ba-dd-i" onmousedown="baApPick(this,'${a.c}')"><b>${a.c}</b> · ${a.city}</div>`).join('');
   dd.style.display='block';
+  /* Fixed-position: coordinates from the input's rect, measured after paint,
+     clamped into the viewport; flips above the field when the space below is
+     shorter than the list (the tablet keyboard eats half the screen). */
+  const r=inp.getBoundingClientRect();
+  dd.style.minWidth=Math.max(220,r.width)+'px';
+  const b=dd.getBoundingClientRect(), G=10;
+  let left=r.left, top=r.bottom+3;
+  if(left+b.width>innerWidth-G)left=innerWidth-G-b.width;
+  if(left<G)left=G;
+  if(top+b.height>innerHeight-G&&r.top-3-b.height>G)top=r.top-3-b.height;
+  dd.style.left=left+'px'; dd.style.top=top+'px';
 };
+/* The page scrolling under a fixed dropdown would strand it mid-air; close it.
+   Scrolls INSIDE the list (its own scrollbar) must not — that is the fix for
+   'cannot scroll through the results'. */
+addEventListener('scroll',e=>{
+  if(e.target&&e.target.classList&&e.target.classList.contains('ba-dd'))return;
+  document.querySelectorAll('.ba-dd').forEach(d=>{if(d.style.display==='block')d.style.display='none';});
+},true);
+addEventListener('resize',()=>{document.querySelectorAll('.ba-dd').forEach(d=>d.style.display='none');});
 window.baApPick=function(el,code){
   const wrap=el.closest('.ba-apwrap'); const inp=wrap.querySelector('input');
   inp.value=code+' · '+BA_AIRPORTS[code].city;

@@ -683,7 +683,12 @@ body.dark.tools{--indigo:#6FC4CC;--washi2:#1E2D2E;--clay:#6FC4CC}
 body.dark.tools .kicker,body.dark.tools h1{color:#6FC4CC}
 body.dark.tools .pp-menu button.on{color:#6FC4CC;border-left-color:#6FC4CC;background:rgba(111,196,204,.1)}
 .ba-apwrap{position:relative;display:inline-block}
-.ba-dd{display:none;position:absolute;left:0;top:calc(100% + 3px);z-index:80;min-width:220px;background:var(--card,#fff);border:1px solid var(--rule);border-radius:6px;box-shadow:0 6px 20px rgba(20,22,27,.16);overflow:hidden}
+/* position:fixed, not absolute — .card{overflow:hidden} (the rule that gives
+   cards their rounded clipping) was cropping the list to the card box, and
+   the lounge card is one row tall. Fixed escapes every ancestor clip; JS
+   sets the coordinates from the input's rect at open. max-height +
+   overflow-y makes long result sets scrollable at last. */
+.ba-dd{display:none;position:fixed;z-index:340;min-width:220px;max-height:min(288px,42vh);overflow-y:auto;overscroll-behavior:contain;background:var(--card,#fff);border:1px solid var(--rule);border-radius:6px;box-shadow:0 6px 20px rgba(20,22,27,.16)}
 body.dark .ba-dd{background:#242A33}
 .ba-dd-i{padding:8px 12px;font-size:12px;cursor:pointer}
 .ba-dd-i:hover{background:var(--washi2)}

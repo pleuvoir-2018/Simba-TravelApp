@@ -527,9 +527,16 @@ body.dark .cal2-pop::after{border-top-color:#2A313B}
    theme-independent as before. */
 body.itin .card{background:#fff;border:none;border-radius:9px;box-shadow:0 1px 4px rgba(20,22,27,.07)}
 body.dark.itin .card{background:#1C2027;box-shadow:0 1px 5px rgba(0,0,0,.4)}
-body.itin .chead{background:var(--washi2);border-bottom:none;border-radius:6px;margin:10px 12px 4px;padding:10px 14px;color:#6B6455}
-body.dark.itin .chead{background:#262B34;color:#B8C2CF}
-body.itin .pl-day{font:700 14px var(--sans);color:var(--ink);padding:14px 16px 9px;border-bottom:1px solid var(--rule)}
+body.itin .chead{background:var(--washi2);border-bottom:none;border-radius:6px;margin:10px 12px 4px;padding:10px 14px;color:var(--indigo)}
+body.dark.itin .chead{background:#262B34;color:var(--indigo)}
+body.itin .maphead{background:#fff;border-bottom:1px solid rgba(20,22,27,.07)}
+body.dark.itin .maphead{background:#1C2027;border-bottom-color:rgba(231,226,214,.10)}
+body.itin .pl-day{font:700 14px var(--sans);color:var(--ink);background:none;letter-spacing:0;text-transform:none;padding:14px 16px 9px;border-bottom:1px solid var(--rule)}
+body.itin .plform{background:none}
+body.itin input:not([type=checkbox]):not([type=radio]),body.itin select,body.itin textarea{background:#fff}
+body.dark.itin input:not([type=checkbox]):not([type=radio]),body.dark.itin select,body.dark.itin textarea{background:#242A33}
+body.itin .meal .num{display:none}
+body.itin .mk:not(.mk-poi):not(.mk-h):not(.mk-air){font-size:0}
 body.itin .meal{border-top:1px solid rgba(20,22,27,.07);padding:14px 16px}
 body.dark.itin .meal{border-top-color:rgba(231,226,214,.08)}
 body.itin .note{background:var(--washi2);border-radius:0 4px 4px 0}

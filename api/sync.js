@@ -1,6 +1,17 @@
-import { put, list } from '@vercel/blob';
+import { put, list, del } from '@vercel/blob';
 
-const KEY = 'japan_trip_v2.json';
+/* State is stored as VERSIONED, WRITE-ONCE blobs: state/japan_trip_v2-<ts>.json.
+   Overwriting one URL (the old scheme) rode Vercel Blob's edge cache, which is
+   eventually consistent for ~60s after an overwrite — the source of "saved to
+   cloud, but a refresh shows old data". A brand-new pathname per save gets a
+   brand-new URL, which no edge can have cached. GET lists the versions and
+   reads the newest; POST prunes to the last 3 so storage stays flat.
+   Date.now() is 13 digits until the year 2286, so lexical pathname sort is
+   chronological. The legacy single blob remains as a read fallback for
+   migration. */
+
+const LEGACY_KEY = 'japan_trip_v2.json';
+const VER_PREFIX = 'state/japan_trip_v2-';
 
 export default async function handler(req, res) {
 
@@ -12,25 +23,24 @@ export default async function handler(req, res) {
           access: 'public', addRandomSuffix: false, allowOverwrite: true, contentType: 'application/json'
         });
         report.write1 = 'ok';
-        await put('selftest.json', JSON.stringify({ ok: 2 }), {
-          access: 'public', addRandomSuffix: false, allowOverwrite: true, contentType: 'application/json'
-        });
-        report.overwrite = 'ok';
         const { blobs } = await list({ prefix: 'selftest.json', limit: 1 });
         report.listed = blobs.length ? 'ok' : 'MISSING';
-        if (blobs.length) {
-          const r = await fetch(`${blobs[0].url}?t=${Date.now()}`, { cache: 'no-store' });
-          report.readback = r.ok ? await r.json() : 'HTTP ' + r.status;
-        }
       } catch (e) { report.error = e.message; }
       return res.status(200).json(report);
     }
 
     try {
-      const { blobs } = await list({ prefix: KEY, limit: 1 });
-      res.setHeader('Cache-Control','no-store, max-age=0');
-      if (!blobs.length) return res.status(200).json({ value: null });
-      const r = await fetch(`${blobs[0].url}?t=${Date.now()}`, { cache: 'no-store' });
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
+      const { blobs } = await list({ prefix: VER_PREFIX, limit: 20 });
+      let target = null;
+      if (blobs.length) {
+        target = blobs.slice().sort((a, b) => b.pathname.localeCompare(a.pathname))[0];
+      } else {
+        const legacy = await list({ prefix: LEGACY_KEY, limit: 1 });
+        if (legacy.blobs.length) target = legacy.blobs[0];
+      }
+      if (!target) return res.status(200).json({ value: null });
+      const r = await fetch(`${target.url}?t=${Date.now()}`, { cache: 'no-store' });
       if (!r.ok) return res.status(500).json({ error: 'read-back failed: ' + r.status });
       return res.status(200).json({ value: await r.json() });
     } catch (e) {
@@ -46,12 +56,20 @@ export default async function handler(req, res) {
       }
       if (!payload || typeof payload !== 'object') payload = {};
 
-      await put(KEY, JSON.stringify(payload), {
+      await put(`${VER_PREFIX}${Date.now()}.json`, JSON.stringify(payload), {
         access: 'public',
         addRandomSuffix: false,
-        allowOverwrite: true,
         contentType: 'application/json',
       });
+
+      // best-effort prune: keep the newest 3 versions
+      try {
+        const { blobs } = await list({ prefix: VER_PREFIX, limit: 100 });
+        const sorted = blobs.slice().sort((a, b) => b.pathname.localeCompare(a.pathname));
+        const stale = sorted.slice(3);
+        if (stale.length) await del(stale.map(b => b.url));
+      } catch (_) {}
+
       return res.status(200).json({ success: true });
     } catch (e) {
       console.error('POST /api/sync failed:', e);

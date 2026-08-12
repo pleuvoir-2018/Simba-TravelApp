@@ -489,8 +489,18 @@ window.cruProfile=function(){
       <div class="pp-menu">
         <button type="button" class="on" onclick="ppTab(this,'pp_info')">👤 Info</button>
         <button type="button" onclick="ppTab(this,'pp_acc')">🔑 Access</button>
+        <button type="button" onclick="ppTab(this,'pp_trav')">🎫 Travel</button>
       </div>
       <div class="pp-panes">
+      <div id="pp_trav" style="display:none">
+        <div style="font:600 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin-bottom:9px">Memberships & cards — feeds the coming benefits assistant</div>
+        ${(()=>{const t=travOf(me);
+          const sel=(g,item,cur)=>`<div class="tv-row"><span>${item.n}</span><select id="tv_${g}_${item.id}">${item.tiers.map((tr,i)=>`<option ${((cur&&cur===tr)||(!cur&&i===0))?'selected':''}>${tr}</option>`).join('')}</select></div>`;
+          return `<div class="tv-sec">✈ Airlines</div>${TRAV_CAT.air.map(a=>sel('a',a,(t.air||{})[a.id])).join('')}
+          <div class="tv-sec">🏨 Hotels</div>${TRAV_CAT.hotel.map(h=>sel('h',h,(t.hotel||{})[h.id])).join('')}
+          <div class="tv-sec">💳 Premium cards</div><div class="tv-cards">${TRAV_CAT.cards.map(cd=>`<label class="tv-card"><input type="checkbox" id="tv_c_${cd.id}" ${((t.cards||[]).includes(cd.id))?'checked':''}> ${cd.n}</label>`).join('')}</div>`;})()}
+        <button class="pladd" type="button" onclick="saveTrav()" style="width:100%;padding:9px 0;margin-top:12px">Save travel profile</button>
+      </div>
       <div id="pp_acc" style="display:none">
         <div style="font:600 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin-bottom:9px">Where you can go — and as what</div>
         ${accRows}
@@ -519,11 +529,52 @@ window.cruProfile=function(){
   const inp=document.getElementById('pf_name');
   if(inp){inp.focus();inp.select();}
 };
+/* Travel memberships catalog — ids are stable API for the future benefits
+   assistant (lounge access by airport, elite perks per stay, card credits). */
+const TRAV_CAT={
+ air:[
+  {id:'ua', n:'United MileagePlus', tiers:['No membership','Member','Silver','Gold','Platinum','1K']},
+  {id:'dl', n:'Delta SkyMiles',     tiers:['No membership','Member','Silver','Gold','Platinum','Diamond']},
+  {id:'aa', n:'American AAdvantage',tiers:['No membership','Member','Gold','Platinum','Platinum Pro','Executive Platinum']},
+  {id:'ke', n:'Korean Air SKYPASS', tiers:['No membership','Member','Morning Calm','Morning Calm Premium','Million Miler']},
+  {id:'oz', n:'Asiana Club',        tiers:['No membership','Member','Gold','Diamond','Diamond Plus','Platinum']},
+  {id:'nh', n:'ANA Mileage Club',   tiers:['No membership','Member','Bronze','Platinum','Diamond']}
+ ],
+ hotel:[
+  {id:'bonvoy',n:'Marriott Bonvoy', tiers:['No membership','Member','Silver','Gold','Platinum','Titanium','Ambassador']},
+  {id:'hilton',n:'Hilton Honors',   tiers:['No membership','Member','Silver','Gold','Diamond']},
+  {id:'hyatt', n:'World of Hyatt',  tiers:['No membership','Member','Discoverist','Explorist','Globalist']},
+  {id:'ihg',   n:'IHG One Rewards', tiers:['No membership','Club','Silver','Gold','Platinum','Diamond']}
+ ],
+ cards:[
+  {id:'amexplat',n:'Amex Platinum'},{id:'csr',n:'Chase Sapphire Reserve'},
+  {id:'venturex',n:'Capital One Venture X'},{id:'amexgold',n:'Amex Gold'},
+  {id:'deltares',n:'Delta Reserve'},{id:'unitedclub',n:'United Club Infinite'},
+  {id:'aaexec',n:'Citi / AAdvantage Executive'}
+ ]
+};
+function travOf(me){
+  if(me.uid==='admin')return (store.app&&store.app.adminTrav)||{};
+  const u=appUsers().find(x=>x.uid===me.uid);
+  return (u&&u.trav)||{};
+}
+window.saveTrav=function(){
+  const me=window._app; if(!me||!me.uid)return;
+  const t={air:{},hotel:{},cards:[]};
+  TRAV_CAT.air.forEach(a=>{const e=document.getElementById('tv_a_'+a.id);if(e&&e.selectedIndex>0)t.air[a.id]=e.value;});
+  TRAV_CAT.hotel.forEach(h=>{const e=document.getElementById('tv_h_'+h.id);if(e&&e.selectedIndex>0)t.hotel[h.id]=e.value;});
+  TRAV_CAT.cards.forEach(cd=>{const e=document.getElementById('tv_c_'+cd.id);if(e&&e.checked)t.cards.push(cd.id);});
+  if(me.uid==='admin'){APP().adminTrav=t;}
+  else{const u=appUsers().find(x=>x.uid===me.uid);if(u)u.trav=t;}
+  saveOverrides();
+  flash('Travel memberships saved ✓','ok');
+};
 window.ppTab=function(btn,id){
   const card=btn.closest('.cruPopCard');
   card.querySelectorAll('.pp-menu button').forEach(b=>b.classList.toggle('on',b===btn));
-  card.querySelector('#pp_info').style.display=id==='pp_info'?'':'none';
-  card.querySelector('#pp_acc').style.display=id==='pp_acc'?'':'none';
+  ['pp_info','pp_acc','pp_trav'].forEach(p=>{
+    const el=card.querySelector('#'+p); if(el)el.style.display=p===id?'':'none';
+  });
 };
 window.saveProfile=function(){
   const el=document.getElementById('pf_name');

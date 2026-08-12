@@ -589,3 +589,12 @@ body.dark .pp-badge.guest{background:#9A5470}
 body.dark .pp-badge.part{background:#5A7A46}
 body.dark .pp-badge.dsgn{background:#9E6A1C}
 body.dark .pp-badge.none{background:none}
+.tv-sec{font:600 9px var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--clay);margin:12px 0 5px}
+.tv-sec:first-of-type{margin-top:2px}
+.tv-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;font-size:12px}
+.tv-row select{max-width:170px;font:12px var(--sans);padding:5px 7px;border:1px solid var(--rule);border-radius:4px;background:#fff}
+body.dark .tv-row select{background:#242A33;color:var(--ink);border-color:var(--rule)}
+.tv-cards{display:flex;flex-direction:column;gap:5px}
+.tv-card{display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer}
+.tv-card input{width:14px;height:14px;accent-color:var(--indigo)}
+#pp_trav{max-height:56vh;overflow:auto;padding-right:4px}

@@ -8,16 +8,31 @@
 
 /* ---------------- small IATA base ---------------- */
 const BA_AIRPORTS={
- IAD:{city:'Washington Dulles',cc:'US'},DCA:{city:'Washington National',cc:'US'},
- MCO:{city:'Orlando',cc:'US'},JFK:{city:'New York JFK',cc:'US'},EWR:{city:'Newark',cc:'US'},
- LAX:{city:'Los Angeles',cc:'US'},SFO:{city:'San Francisco',cc:'US'},ORD:{city:'Chicago O\u2019Hare',cc:'US'},
- ATL:{city:'Atlanta',cc:'US'},DFW:{city:'Dallas\u2013Fort Worth',cc:'US'},HNL:{city:'Honolulu',cc:'US'},
- YVR:{city:'Vancouver',cc:'CA'},ICN:{city:'Seoul Incheon',cc:'KR'},GMP:{city:'Seoul Gimpo',cc:'KR'},
- CJU:{city:'Jeju',cc:'KR'},NRT:{city:'Tokyo Narita',cc:'JP'},HND:{city:'Tokyo Haneda',cc:'JP'},
- KIX:{city:'Osaka Kansai',cc:'JP'},NGO:{city:'Nagoya Ch\u016bbu',cc:'JP'}
+ /* USA */
+ ATL:{city:'Atlanta',cc:'US'},LAX:{city:'Los Angeles',cc:'US'},ORD:{city:'Chicago O\u2019Hare',cc:'US'},MDW:{city:'Chicago Midway',cc:'US'},
+ DFW:{city:'Dallas\u2013Fort Worth',cc:'US'},DAL:{city:'Dallas Love',cc:'US'},DEN:{city:'Denver',cc:'US'},JFK:{city:'New York JFK',cc:'US'},
+ LGA:{city:'New York LaGuardia',cc:'US'},EWR:{city:'Newark',cc:'US'},SFO:{city:'San Francisco',cc:'US'},SJC:{city:'San Jose',cc:'US'},
+ SEA:{city:'Seattle',cc:'US'},LAS:{city:'Las Vegas',cc:'US'},MCO:{city:'Orlando',cc:'US'},MIA:{city:'Miami',cc:'US'},
+ FLL:{city:'Fort Lauderdale',cc:'US'},TPA:{city:'Tampa',cc:'US'},PHX:{city:'Phoenix',cc:'US'},IAH:{city:'Houston Bush',cc:'US'},
+ HOU:{city:'Houston Hobby',cc:'US'},BOS:{city:'Boston',cc:'US'},MSP:{city:'Minneapolis',cc:'US'},DTW:{city:'Detroit',cc:'US'},
+ PHL:{city:'Philadelphia',cc:'US'},BWI:{city:'Baltimore',cc:'US'},DCA:{city:'Washington National',cc:'US'},IAD:{city:'Washington Dulles',cc:'US'},
+ SLC:{city:'Salt Lake City',cc:'US'},SAN:{city:'San Diego',cc:'US'},AUS:{city:'Austin',cc:'US'},BNA:{city:'Nashville',cc:'US'},
+ CLT:{city:'Charlotte',cc:'US'},RDU:{city:'Raleigh\u2013Durham',cc:'US'},STL:{city:'St. Louis',cc:'US'},MSY:{city:'New Orleans',cc:'US'},
+ PDX:{city:'Portland',cc:'US'},SMF:{city:'Sacramento',cc:'US'},HNL:{city:'Honolulu',cc:'US'},OGG:{city:'Maui Kahului',cc:'US'},
+ ANC:{city:'Anchorage',cc:'US'},
+ /* Japan */
+ HND:{city:'Tokyo Haneda',cc:'JP'},NRT:{city:'Tokyo Narita',cc:'JP'},KIX:{city:'Osaka Kansai',cc:'JP'},ITM:{city:'Osaka Itami',cc:'JP'},
+ NGO:{city:'Nagoya Ch\u016bbu',cc:'JP'},CTS:{city:'Sapporo New Chitose',cc:'JP'},FUK:{city:'Fukuoka',cc:'JP'},OKA:{city:'Okinawa Naha',cc:'JP'},
+ SDJ:{city:'Sendai',cc:'JP'},HIJ:{city:'Hiroshima',cc:'JP'},KOJ:{city:'Kagoshima',cc:'JP'},KMJ:{city:'Kumamoto',cc:'JP'},
+ /* Canada */
+ YYZ:{city:'Toronto Pearson',cc:'CA'},YVR:{city:'Vancouver',cc:'CA'},YUL:{city:'Montr\u00e9al',cc:'CA'},YYC:{city:'Calgary',cc:'CA'},
+ YEG:{city:'Edmonton',cc:'CA'},YOW:{city:'Ottawa',cc:'CA'},YWG:{city:'Winnipeg',cc:'CA'},YHZ:{city:'Halifax',cc:'CA'},
+ /* Korea */
+ ICN:{city:'Seoul Incheon',cc:'KR'},GMP:{city:'Seoul Gimpo',cc:'KR'},CJU:{city:'Jeju',cc:'KR'},PUS:{city:'Busan Gimhae',cc:'KR'},
+ TAE:{city:'Daegu',cc:'KR'},CJJ:{city:'Cheongju',cc:'KR'}
 };
-const BA_AIRLINE_HOME={ua:'US',dl:'US',aa:'US',ke:'KR',oz:'KR',nh:'JP'};
-const BA_AIRLINE_NAMES={ua:'United',dl:'Delta',aa:'American',ke:'Korean Air',oz:'Asiana',nh:'ANA'};
+const BA_AIRLINE_HOME={ua:'US',dl:'US',aa:'US',ke:'KR',oz:'KR',nh:'JP',jl:'JP',ac:'CA'};
+const BA_AIRLINE_NAMES={ua:'United',dl:'Delta',aa:'American',ke:'Korean Air',oz:'Asiana',nh:'ANA',jl:'JAL',ac:'Air Canada'};
 
 /* ---------------- hotel benefits by tier ---------------- */
 const BA_HOTEL={
@@ -50,7 +65,8 @@ const BA_HOTEL={
 function baTierRank(air,tier){
   const ladders={ua:['Member','Silver','Gold','Platinum','1K'],dl:['Member','Silver','Gold','Platinum','Diamond'],
    aa:['Member','Gold','Platinum','Platinum Pro','Executive Platinum'],ke:['Member','Morning Calm','Morning Calm Premium','Million Miler'],
-   oz:['Member','Gold','Diamond','Diamond Plus','Platinum'],nh:['Member','Bronze','Platinum','Diamond']};
+   oz:['Member','Gold','Diamond','Diamond Plus','Platinum'],nh:['Member','Bronze','Platinum','Diamond'],
+   jl:['Member','Crystal','Sapphire','JGC Premier','Diamond'],ac:['Member','25K','35K','50K','75K','Super Elite']};
   const L=ladders[air]||[]; const i=L.indexOf(tier); return i<0?0:i;
 }
 function baAirlineBenefits(air,cabin,fromCode,toCode,tier){
@@ -70,7 +86,8 @@ function baAirlineBenefits(air,cabin,fromCode,toCode,tier){
   else { // economy / basic
     if(air==='ua'||air==='aa'||air==='dl'){ bags=intl?'1–2 checked bags (route-dependent; transpacific usually 1–2)':(rank>0?'1+ free bag (elite waiver)':'0 free — fees apply domestically (card waivers may apply)'); }
     if(air==='ke'||air==='oz')bags=intl?'1–2 checked bags (TPAC 2 on many fares)':'1 checked bag';
-    if(air==='nh')bags=intl?'2 checked bags (ANA intl standard)':'1 checked bag';
+    if(air==='nh'||air==='jl')bags=intl?'2 checked bags (JP-carrier intl standard)':'1 checked bag';
+  if(air==='ac')bags=intl?'1–2 checked bags (route/fare-dependent)':(rank>0?'1+ free bag (Aeroplan elite)':'0–1 free — fare-dependent');
   }
   if(rank>=2)bags+=' · +1 extra bag or +extra weight (elite)';
   out.items.push({label:'🧳 Baggage: '+bags,why:tier&&rank>0?tier+' allowance applied':'base fare rules'});
@@ -79,7 +96,8 @@ function baAirlineBenefits(air,cabin,fromCode,toCode,tier){
   add(prem||rank>=1,'🛫 Priority boarding',prem?'premium cabin':'elite status');
   add(prem||rank>=3,'🧳 Priority baggage delivery',prem?'premium cabin':'top-tier');
   add(intl&&(cabin==='business'||cabin==='first'),'🛋 Lounge access with this ticket','international premium cabin — see the Lounge tab for the doors');
-  add(intl&&!prem&&((air==='ua'&&rank>=2)||(air==='nh'&&rank>=2)||(air==='oz'&&rank>=1)),'🛋 Star Alliance Gold lounge access on this itinerary','Star Gold from your status, intl itinerary');
+  add(intl&&!prem&&((air==='ua'&&rank>=2)||(air==='nh'&&rank>=2)||(air==='oz'&&rank>=1)||(air==='ac'&&rank>=3)),'🛋 Star Alliance Gold lounge access on this itinerary','Star Gold from your status, intl itinerary');
+  add(intl&&!prem&&air==='jl'&&rank>=2,'🛋 oneworld Sapphire lounge access on this itinerary','JMB Sapphire+ status');
   add(intl&&!prem&&air==='ke'&&rank>=1,'🛋 KAL Prestige lounge access','SKYPASS elite on intl Korean Air');
   add((air==='ua'||air==='dl'||air==='aa')&&rank>=1&&dom,'⬆ Complimentary upgrade list (domestic)','elite status');
   add(rank>=1,'💺 Preferred / extra-legroom seats',rank>=3?'free at booking (top tiers)':'free or discounted by tier');
@@ -101,9 +119,9 @@ const BA_LOUNGES={
   {n:'Turkish Airlines Lounge',loc:'Concourse B, opposite B43',hrs:'~09:00–23:00 (flight-dependent)',rate:'4.6★',am:'Best food at IAD — hot buffet, cocktail bar, showers; walk-in day passes',
    rules:[{pp:true,why:'Priority Pass'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance premium cabin'}],ver:'verified Aug 2026'},
   {n:'United Polaris Lounge',loc:'Concourse C',hrs:'from ~05:30 to last departure',rate:'4.6★',am:'À la carte dining, showers, quiet suites',
-   rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'United/Star long-haul business — 2026: basic business fares excluded'},{airline:{id:'nh',cabins:['business','first'],intlOnly:true},why:'ANA long-haul premium cabin'}],ver:'verified Aug 2026'},
+   rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'United/Star long-haul business — 2026: basic business fares excluded'},{airline:{id:'nh',cabins:['business','first'],intlOnly:true},why:'ANA long-haul premium cabin'},{airline:{id:'ac',cabins:['business','first'],intlOnly:true},why:'Air Canada Signature (Star long-haul J)'}],ver:'verified Aug 2026'},
   {n:'United Club (C7 · C17 · D)',loc:'Concourses C & D',hrs:'05:30–22:00',rate:'4.0★',am:'Standard Club fare, multiple locations',
-   rules:[{airline:{id:'ua',cabins:['business','first']},why:'United premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold on intl itinerary'},{cards:['unitedclub'],why:'United Club Infinite card'}],ver:'verified Aug 2026'},
+   rules:[{airline:{id:'ua',cabins:['business','first']},why:'United premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold on intl itinerary'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold) intl'},{airline:{id:'ac',cabins:['business','first'],intlOnly:true},why:'Star premium cabin'},{cards:['unitedclub'],why:'United Club Infinite card'}],ver:'verified Aug 2026'},
   {n:'Air France–KLM Lounge',loc:'Concourse A (upper level)',hrs:'afternoon bank ~12:00–22:00',rate:'4.3★',am:'Taittinger champagne, French bites',
    rules:[{pp:true,why:'Priority Pass (capacity-controlled)'}],ver:'verified Aug 2026'},
   {n:'Etihad Lounge',loc:'Concourse A near A14',hrs:'06:00–22:00',rate:'4.4★',am:'Revamped with Chase; à la carte at peak',
@@ -139,9 +157,9 @@ const BA_LOUNGES={
  ],
  HND:[
   {n:'ANA Suite Lounge / ANA Lounge (Intl T3)',loc:'110 & 114 gate areas',hrs:'per bank',rate:'4.4★',am:'Fresh-made soba/udon bar, showers',
-   rules:[{airline:{id:'nh',cabins:['business','first'],intlOnly:true},why:'ANA intl premium cabin'},{tier:{air:'nh',min:'Platinum',intlOnly:true},why:'ANA Platinum+/Star Gold'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business'}],ver:'curated'},
+   rules:[{airline:{id:'nh',cabins:['business','first'],intlOnly:true},why:'ANA intl premium cabin'},{tier:{air:'nh',min:'Platinum',intlOnly:true},why:'ANA Platinum+/Star Gold'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business'},{airline:{id:'ac',cabins:['business','first'],intlOnly:true},why:'Star Alliance business'}],ver:'curated'},
   {n:'JAL Sakura Lounge (Intl T3)',loc:'Near gate 112',hrs:'per bank',rate:'4.4★',am:'JAL curry tradition, showers',
-   rules:[{airline:{id:'aa',cabins:['business','first'],intlOnly:true},why:'oneworld intl premium cabin'},{tier:{air:'aa',min:'Platinum',intlOnly:true},why:'oneworld Sapphire+'}],ver:'curated'},
+   rules:[{airline:{id:'jl',cabins:['business','first'],intlOnly:true},why:'JAL intl premium cabin'},{tier:{air:'jl',min:'Sapphire',intlOnly:true},why:'JMB Sapphire+/oneworld Sapphire'},{airline:{id:'aa',cabins:['business','first'],intlOnly:true},why:'oneworld intl premium cabin'},{tier:{air:'aa',min:'Platinum',intlOnly:true},why:'oneworld Sapphire+'}],ver:'curated'},
   {n:'TIAT Lounge / Sky Lounge',loc:'T3, 4F area',hrs:'~07:00–22:00',rate:'3.9★',am:'Contract lounges; the PP doors at Haneda intl',
    rules:[{pp:true,why:'Priority Pass'}],ver:'curated'}
  ],
@@ -173,7 +191,7 @@ const BA_LOUNGES={
   {n:'Plaza Premium Lounge (Intl & Transborder)',loc:'Intl departures + US transborder',hrs:'~05:00–22:00',rate:'4.1★',am:'Plaza Premium\u2019s home airport — hot food, showers',
    rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat'],why:'Amex Platinum — Plaza Premium network'}],ver:'curated'},
   {n:'SKYTEAM / Air Canada Maple Leaf Lounges',loc:'Intl & transborder piers',hrs:'per bank',rate:'4.2★',am:'Alliance doors before the Yokohama-bound legs',
-   rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business (Maple Leaf)'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'},{airline:{id:'dl',cabins:['business'],intlOnly:true},why:'SkyTeam business (SkyTeam lounge)'},{airline:{id:'ke',cabins:['business','first']},why:'SkyTeam — KE Prestige uses SkyTeam/contract door'}],ver:'curated'}
+   rules:[{airline:{id:'ac',cabins:['business','first']},why:'Air Canada Signature / Maple Leaf home hub'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold)'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business (Maple Leaf)'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'},{airline:{id:'dl',cabins:['business'],intlOnly:true},why:'SkyTeam business (SkyTeam lounge)'},{airline:{id:'ke',cabins:['business','first']},why:'SkyTeam — KE Prestige uses SkyTeam/contract door'}],ver:'curated'}
  ]
 };
 
@@ -190,9 +208,10 @@ function baLoungeCheck(l,ctx){
 }
 
 /* ---------------- page ---------------- */
-window.openBenefits=function(){ window._onAdmin=false; renderBenefitsPage('hotel'); };
+window.openBenefits=function(){ window._onAdmin=false; tripSel=null; renderBenefitsPage('hotel'); };
 window.renderBenefitsPage=function(tab,keep){
-  document.body.classList.remove('home','cruise','itin');
+  document.body.classList.remove('cruise','itin');
+  document.body.classList.add('home','tools');   // home-family chrome (no trip sidebar/header), tools palette
   document.body.style.setProperty('--tripac','#0E7C86');
   const me=window._app||{}; const t=(typeof travOf==='function')?travOf(me):{};
   const st=window._baState=keep?window._baState||{}:{};

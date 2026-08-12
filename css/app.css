@@ -672,3 +672,12 @@ body.dark .ba-lounge{border-top-color:rgba(231,226,214,.08)}
 .ba-meta{font-size:11px;color:var(--grey);margin-top:2px}
 .ba-yes{font:600 11px var(--mono);color:var(--moss);margin-top:5px}
 .ba-nope{font:600 11px var(--mono);color:var(--grey);margin-top:5px}
+
+/* ==== TRAVEL TOOLS palette (body.tools) — sea-glass teal, distinct from trips ==== */
+body.tools{--tripac:#0E7C86;--indigo:#0E7C86;--washi2:#DCEAE7;--clay:#0E7C86}
+body.tools .kicker,body.tools h1{color:#0E7C86}
+body.tools .pp-menu button.on{color:#0E7C86;border-left-color:#0E7C86;background:rgba(14,124,134,.08)}
+body.tools .pladd{background:#0E7C86;border-color:#0E7C86}
+body.dark.tools{--indigo:#6FC4CC;--washi2:#1E2D2E;--clay:#6FC4CC}
+body.dark.tools .kicker,body.dark.tools h1{color:#6FC4CC}
+body.dark.tools .pp-menu button.on{color:#6FC4CC;border-left-color:#6FC4CC;background:rgba(111,196,204,.1)}

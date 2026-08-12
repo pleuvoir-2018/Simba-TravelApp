@@ -540,7 +540,9 @@ const TRAV_CAT={
   {id:'aa', n:'American AAdvantage',tiers:['No membership','Member','Gold','Platinum','Platinum Pro','Executive Platinum']},
   {id:'ke', n:'Korean Air SKYPASS', tiers:['No membership','Member','Morning Calm','Morning Calm Premium','Million Miler']},
   {id:'oz', n:'Asiana Club',        tiers:['No membership','Member','Gold','Diamond','Diamond Plus','Platinum']},
-  {id:'nh', n:'ANA Mileage Club',   tiers:['No membership','Member','Bronze','Platinum','Diamond']}
+  {id:'nh', n:'ANA Mileage Club',   tiers:['No membership','Member','Bronze','Platinum','Diamond']},
+  {id:'jl', n:'JAL Mileage Bank',   tiers:['No membership','Member','Crystal','Sapphire','JGC Premier','Diamond']},
+  {id:'ac', n:'Air Canada Aeroplan',tiers:['No membership','Member','25K','35K','50K','75K','Super Elite']}
  ],
  hotel:[
   {id:'bonvoy',n:'Marriott Bonvoy', tiers:['No membership','Member','Silver','Gold','Platinum','Titanium','Ambassador']},

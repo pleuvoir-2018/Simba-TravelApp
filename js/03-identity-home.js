@@ -49,16 +49,19 @@ function renderAdminPage(){
             <span class="urow-ops">
               ${u.role!=='pending'?`<button class="tdo-x" onclick="appViewAs('${u.uid}')" title="View the app as ${esc(u.name)}" style="font-size:13px">👁</button>`:''}
               ${u.role==='pending'?`<button class="tdo-x" onclick="appApprove('${u.uid}')" title="Approve" style="color:var(--moss);font:700 11px var(--mono)">✓ approve</button>`
+                :(u.role==='admin'&&!isSuper())?'<span class="urow-badge" style="border-color:#8A4390;color:#8A4390">🛡 admin</span>'
                 :`<select onchange="appSetRole('${u.uid}',this.value)" title="App role">
-                    <option value="user" ${u.role!=='designer'?'selected':''}>Member</option>
+                    <option value="user" ${(u.role!=='designer'&&u.role!=='admin')?'selected':''}>Member</option>
                     <option value="designer" ${u.role==='designer'?'selected':''}>Designer</option>
+                    ${isSuper()?`<option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>`:''}
                   </select>`}
               <button class="tdo-x" onclick="appRename('${u.uid}')" title="Rename" style="color:var(--indigo)">✎</button>
-              <button class="tdo-x" onclick="appRegen('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
-              <button class="tdo-x" onclick="appDel('${u.uid}')" style="color:var(--clay);font-size:17px">×</button>
+              ${(u.role==='admin'&&!isSuper())?'':`<button class="tdo-x" onclick="appRegen('${u.uid}')" title="New code" style="color:var(--indigo);font-size:13px">↻</button>
+              <button class="tdo-x" onclick="appDel('${u.uid}')" style="color:var(--clay);font-size:17px">×</button>`}
             </span>
           </div>
           ${u.role==='designer'?`<div style="margin-top:7px;font:10.5px var(--mono);color:var(--indigo2)">🎨 Designer — opens every destination for review; Expenses, Vault and all money tabs are hidden, and nothing they do saves.</div>`
+          :u.role==='admin'?`<div style="margin-top:7px;font:10.5px var(--mono);color:#8A4390">🛡 Admin — full access to every destination and this panel; no per-trip grants needed. Only the Super Admin can change or remove this account.</div>`
           :u.role==='pending'?'':`<div class="ggrid">
             ${dests.map(d=>{
               const td=TRIP_DATA[d.id];
@@ -92,9 +95,14 @@ function renderAdminPage(){
 window.appSetRole=function(uid,val){
   const u=appUsers().find(x=>x.uid===uid);
   if(!u)return;
-  u.role=(val==='designer')?'designer':'user';
+  /* The Admin role is granted and revoked by the Super Admin alone. The UI does
+     not offer the option to anyone else, but the guard lives here because the
+     UI is not the security boundary — a stale page or a console call must hit
+     the same wall. This is also what makes deprovisioning one-directional. */
+  if((val==='admin'||u.role==='admin')&&!isSuper()){flash('Only the Super Admin can grant or revoke the Admin role','err');renderAdminPage();return;}
+  u.role=(val==='designer')?'designer':(val==='admin')?'admin':'user';
   saveOverrides();renderAdminPage();
-  flash(u.name+(val==='designer'?' is now a Designer (read-only, no money tabs)':' is a Member')+' ✓','ok');
+  flash(u.name+(val==='designer'?' is now a Designer (read-only, no money tabs)':val==='admin'?' is now an Admin — full access everywhere ✓':' is a Member')+' ✓','ok');
 };
 window.appApprove=function(uid){
   const u=appUsers().find(x=>x.uid===uid);
@@ -130,11 +138,13 @@ window.appRename=function(uid){
 };
 window.appRegen=function(uid){
   const u=appUsers().find(x=>x.uid===uid);
+  if(u&&u.role==='admin'&&!isSuper()){flash('Only the Super Admin can reissue an Admin\'s code','err');return;}
   if(u&&confirm('Issue a new code for '+u.name+'? The old one stops working.')){u.code=genCode();saveOverrides();renderAdminPage();}
 };
 window.appDel=function(uid){
   const u=appUsers().find(x=>x.uid===uid);
   if(!u)return;
+  if(u.role==='admin'&&!isSuper()){flash('Only the Super Admin can remove an Admin','err');return;}
   if(!confirm('Remove '+u.name+'? Their code stops working, and on the cruise they are pulled out of their cabin and their billing, travel plans and requests are deleted.'))return;
   APP().users=appUsers().filter(x=>x.uid!==uid);
   // cascade through the cruise slice
@@ -257,12 +267,19 @@ function APP(){ if(!store.app||typeof store.app!=='object')store.app={}; return 
 function appUsers(){ return (store.app&&store.app.users)||[]; }
 function appAdminName(){ return (store.app&&store.app.adminName)||'조상연'; }
 function appRole(){ return window._app&&window._app.role; }
+/* Super Admin is the master session (uid 'admin', THEO1218) and lives outside
+   the roster, which is what makes them structurally un-deprovisionable: every
+   management op looks a user up in appUsers(), and there is no row to act on.
+   Roster users can now hold role 'admin' — same session powers, but they ARE
+   rows, so the Super Admin can demote or remove them. */
+function isSuper(){ return !!(window._app&&window._app.uid==='admin'&&!window._realApp); }
+function sessRole(u){ return u.role==='pending'?'pending':u.role==='designer'?'designer':u.role==='admin'?'admin':'user'; }
 function cruRole(){return window._cru&&window._cru.role;}
 function cruName(){return (window._cru&&window._cru.name)||'';}
 function validateAppSession(){
   if(window._realApp){ // impersonating: refresh the viewed user's role from the roster, never the master's
     const u=appUsers().find(x=>x.uid===(window._app||{}).uid);
-    if(u){window._app.name=u.name;window._app.role=(u.role==='pending')?'pending':(u.role==='designer'?'designer':'user');}
+    if(u){window._app.name=u.name;window._app.role=sessRole(u);}
     else appViewExit();  // the viewed user was deleted mid-view
     return;
   }
@@ -275,7 +292,7 @@ function validateAppSession(){
   const u=appUsers().find(x=>x.uid===window._app.uid);
   if(u){
     window._app.name=u.name;
-    window._app.role=(u.role==='pending')?'pending':(u.role==='designer'?'designer':'user');
+    window._app.role=sessRole(u);
     try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
     return true;
   }
@@ -295,7 +312,10 @@ function canOpen(id){
 function appGroupSession(tripId){
   const sAp=window._app;
   if(!sAp||!sAp.uid)return null;
-  if(sAp.role==='admin')return {uid:'admin',name:appAdminName(),role:'admin'};
+  if(sAp.uid==='admin')return {uid:'admin',name:appAdminName(),role:'admin'};
+  /* Roster admins get organizer powers on every group trip but keep their own
+     uid, so anything they post or spend is attributed to them, not the master. */
+  if(sAp.role==='admin')return {uid:sAp.uid,name:sAp.name,role:'admin'};
   if(sAp.role==='designer')return {uid:sAp.uid,name:sAp.name,role:'participant'};   // guest view; writes are blocked at the save layer
   const u=appUsers().find(x=>x.uid===sAp.uid);
   const g=u&&u.access&&u.access[tripId];
@@ -308,7 +328,7 @@ window.appViewAs=function(uid){
   const u=appUsers().find(x=>x.uid===uid);
   if(!u)return;
   window._realApp=window._app;
-  window._app={role:(u.role==='pending')?'pending':(u.role==='designer'?'designer':'user'),name:u.name,uid:u.uid};
+  window._app={role:sessRole(u),name:u.name,uid:u.uid};
   window._cru=null;
   tripSel=null;
   viewAsBanner();
@@ -411,7 +431,7 @@ window.doAppLogin=function(){
         :'Code not recognized — ask the organizer, or request access below.';
       return;
     }
-    window._app={role:(u.role==='pending')?'pending':(u.role==='designer'?'designer':'user'),name:u.name,uid:u.uid};
+    window._app={role:sessRole(u),name:u.name,uid:u.uid};
   }
   try{localStorage.setItem('jt_app',JSON.stringify(window._app));}catch(e){}
   if(typeof updateAvatar==='function')updateAvatar();

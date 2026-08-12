@@ -87,7 +87,14 @@ async function sDel(){
 }
 
 function mergeApp(rA,lA){
-  const sAp=window._app||{}; const me=sAp.uid||null; const admin=sAp.role==='admin';
+  const sAp=window._app||{}; const me=sAp.uid||null;
+  /* Admin lanes must key off the REMOTE roster, not the session. A roster
+     admin who was just demoted still carries session role 'admin' at merge
+     time (validateAppSession runs after the store is replaced), and letting
+     that stale session win the users lane would push their local roster —
+     where they are still admin — back over the demotion. The master keys on
+     uid: they have no roster row and can never be demoted remotely. */
+  const admin=me==='admin'||((rA&&rA.users)||[]).some(u=>u.uid===me&&u.role==='admin');
   const out={...rA,...lA};
   ['adminName','adminLegal','tripLabels'].forEach(k=>{
     const v=admin?(lA[k]!==undefined?lA[k]:rA[k]):(rA[k]!==undefined?rA[k]:lA[k]);

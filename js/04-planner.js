@@ -480,6 +480,7 @@ window.cruProfile=function(){
     :r==='guest'?'<span class="pp-badge guest">Guest</span>'
     :'<span class="pp-badge member">Member</span>';
   const accRows=TRIP_TITLES.map(([id,label])=>{
+    if(!isMaster&&me.role==='admin')return `<div class="pp-acc"><span>${label}</span><span class="pp-badge adm">Admin · full access</span></div>`;
     const r=isMaster?'organizer':(me.role==='designer'?'designer':uAcc[id]);
     if(!r)return `<div class="pp-acc"><span style="color:var(--grey)">${label}</span><span class="pp-badge none">No access</span></div>`;
     return `<div class="pp-acc"><span>${label}</span>${me.role==='designer'?'<span class="pp-badge dsgn">Designer · read-only</span>':badge(r,id)}</div>`;
@@ -517,7 +518,7 @@ window.cruProfile=function(){
       ${isMaster?`<label>Login code<div class="ro">${esc(code)}</div></label>`
         :`<label>Login code — make it yours<input id="pf_code" value="${esc(code)}" maxlength="12" autocomplete="off" style="letter-spacing:.18em;font-family:var(--mono);text-transform:uppercase"></label>
           <div id="pf_code_err" style="font:10px var(--mono);color:var(--clay);margin:-4px 0 6px"></div>`}
-      <label>Role<div class="ro">${me.role==='admin'?'App admin':(me.role==='pending'?'Pending approval':'Member')}</div></label>
+      <label>Role<div class="ro">${isMaster?'Super Admin':me.role==='admin'?'Admin':(me.role==='pending'?'Pending approval':'Member')}</div></label>
       <div style="display:flex;gap:8px;margin-top:4px">
         <button class="pladd" type="button" onclick="saveProfile()" style="flex:1;padding:8px 0">Save</button>
         <button type="button" onclick="document.getElementById('cruPop').remove();appSignOut()" style="flex:1;background:none;border:1px solid #C4D6E6;border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);cursor:pointer">Sign out</button>
@@ -626,14 +627,14 @@ function groupUsers(tripId){
    grant as if it were the app role. */
 window.uPerson=function(uid){
   if(uid==='admin')return {uid:'admin',name:appAdminName(),
-    legal:(store.app&&store.app.adminLegal)||{},role:'admin'};
+    legal:(store.app&&store.app.adminLegal)||{},role:'superadmin'};
   const u=appUsers().find(x=>x.uid===uid);
   if(!u)return null;
   return {uid:uid,name:u.name||'—',legal:{first:u.legalFirst,last:u.legalLast},
-    role:u.role==='designer'?'designer':(u.role==='pending'?'pending':'member')};
+    role:u.role==='designer'?'designer':(u.role==='pending'?'pending':(u.role==='admin'?'admin':'member'))};
 };
-const U_ROLE={admin:['Admin','ub-adm'],designer:['Designer','ub-dsg'],
-  member:['Member','ub-mem'],pending:['Pending','ub-pen']};
+const U_ROLE={superadmin:['Super Admin','ub-sadm'],admin:['Admin','ub-adm'],
+  designer:['Designer','ub-dsg'],member:['Member','ub-mem'],pending:['Pending','ub-pen']};
 window.uHov=function(uid,txt){
   if(!uid)return esc(txt);
   return `<span class="uhov" data-uid="${esc(uid)}" tabindex="0">${esc(txt)}</span>`;

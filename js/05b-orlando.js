@@ -15,9 +15,9 @@ function uoDayLabel(d){ return 'Day '+d+(d===1?' · arrive':(d===4?' · depart':
 function uoFeed(){
   const T=uoT();
   const rows=uoSchedList().map(x=>({...x,src:'sched'}));
-  (overrides.uoflights||[]).forEach((f,i)=>{
-    rows.push({id:'fl'+i,day:Number(f.day)||1,t:f.t||'',txt:'✈ '+(f.r||'Flight')+(f.f?' · '+f.f:''),kind:'flight',src:'fly'});
-  });
+  const FL=overrides.uoflights||{};
+  if(FL.out&&FL.out.r)rows.push({id:'flout',day:Number(FL.out.day)||1,t:FL.out.t||'',txt:'✈ '+FL.out.r+(FL.out.f?' · '+FL.out.f:''),kind:'flight',src:'fly'});
+  if(FL.ret&&FL.ret.r)rows.push({id:'flret',day:Number(FL.ret.day)||4,t:FL.ret.t||'',txt:'✈ '+FL.ret.r+(FL.ret.f?' · '+FL.ret.f:''),kind:'flight',src:'fly'});
   const H=overrides.uohotel||T.hotelDefault||{};
   if(H.name){ rows.push({id:'hin',day:1,t:'16:00',txt:'🏨 Check in · '+H.name,kind:'hotel',src:'hotel'});
               rows.push({id:'hout',day:4,t:'11:00',txt:'🏨 Check out · '+H.name,kind:'hotel',src:'hotel'}); }
@@ -131,19 +131,28 @@ function renderOrlando(c){
 
   /* ================= FLIGHTS ================= */
   if(c.uoTab==='uofly'){
-    const F=overrides.uoflights||[]; const fees=overrides.uofees||[];
-    const pp=F.reduce((s,f)=>s+Number(f.pp||0),0), fpp=fees.reduce((s,x)=>s+Number(x.amt||0),0);
+    const FL=overrides.uoflights||{}; const fees=overrides.uofees||[];
+    const rtpp=Number(FL.rtpp||0), fpp=fees.reduce((s,x)=>s+Number(x.amt||0),0);
+    const legCard=(slot,label,dflt,defDay)=>{
+      const L2=FL[slot]||{};
+      return admin?`<div class="plform" style="border-bottom:1px solid var(--rule)"><div style="font:600 9px var(--mono);letter-spacing:.12em;color:var(--grey);padding:2px 0 6px">${label}</div>
+        <div class="plrow1" style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="uof_${slot}_r" placeholder="${dflt}" value="${esc(L2.r||'')}" style="width:130px">
+          <input id="uof_${slot}_f" placeholder="UA 1234" value="${esc(L2.f||'')}" style="width:90px">
+          <select id="uof_${slot}_day">${[1,2,3,4].map(d=>`<option value="${d}" ${d===(Number(L2.day)||defDay)?'selected':''}>Day ${d}</option>`).join('')}</select>
+          <input id="uof_${slot}_t" type="time" value="${esc(L2.t||'')}" style="width:100px">
+        </div></div>`
+      :`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">✈ ${esc(L2.r||label+' — TBD')}</span><span class="tdo-cat">Day ${L2.day||defDay}${L2.t?' · '+esc(L2.t):''}${L2.f?' · '+esc(L2.f):''}</span></span></div>`;
+    };
     body=`
       <div class="card"><div class="chead"><span>✈ Flights</span><span>${admin?'you edit · guests view':'from the organizer'}</span></div>
-        ${admin?`<div class="plform"><div class="plrow1" style="display:flex;gap:8px;flex-wrap:wrap">
-          <input id="uof_r" placeholder="IAD → MCO" style="width:120px"><input id="uof_f" placeholder="UA 1234" style="width:90px">
-          <select id="uof_day">${[1,2,3,4].map(d=>`<option value="${d}">Day ${d}</option>`).join('')}</select>
-          <input id="uof_t" type="time" style="width:100px"><input id="uof_pp" type="number" min="0" step="0.01" placeholder="$/person" style="width:100px">
-          <button class="pladd" type="button" onclick="uoAddFly()" style="padding:8px 13px">+ Add</button></div></div>`:''}
-        ${F.length?F.map((f,i)=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">✈ ${esc(f.r)}</span><span class="tdo-cat">Day ${f.day}${f.t?' · '+esc(f.t):''}${f.f?' · '+esc(f.f):''}</span>
-          <span class="tdo-desc" style="display:block;margin-top:2px">${uoMoney(f.pp)} per person · feeds the Schedule tab</span></span>
-          ${admin?`<button class="tdo-x" onclick="uoDelFly(${i})" style="color:var(--clay);font-size:16px;background:none;border:none;cursor:pointer">×</button>`:''}</div>`).join('')
-        :'<div style="padding:12px 14px;font-size:12px;color:var(--grey)">No flights entered yet.</div>'}
+        ${legCard('out','OUTBOUND','IAD → MCO',1)}
+        ${legCard('ret','RETURN','MCO → IAD',4)}
+        ${admin?`<div class="plform"><div class="plrow1" style="display:flex;gap:8px;align-items:center">
+          <span style="font:600 10px var(--mono);letter-spacing:.08em;color:var(--grey)">ROUND-TRIP PRICE</span>
+          <input id="uof_rtpp" type="number" min="0" step="0.01" placeholder="$/person round trip" value="${FL.rtpp||''}" style="width:170px">
+          <button class="pladd" type="button" onclick="uoSaveFly()" style="padding:8px 16px">Save flights</button></div></div>`
+        :`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">Round-trip fare</span><span class="tdo-desc" style="margin-left:9px">${uoMoney(rtpp)} per person · both legs feed the Schedule</span></span></div>`}
       </div>
       <div class="card"><div class="chead"><span>💳 Flight fees & extras</span><span>per person</span></div>
         ${admin?`<div class="plform"><div class="plrow1" style="display:flex;gap:8px">
@@ -151,7 +160,7 @@ function renderOrlando(c){
           <button class="pladd" type="button" onclick="uoAddFee()" style="padding:8px 13px">+ Add</button></div></div>`:''}
         ${fees.map((x,i)=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(x.l)}</span><span class="tdo-desc" style="margin-left:9px">${uoMoney(x.amt)}</span></span>
           ${admin?`<button class="tdo-x" onclick="uoDelFee(${i})" style="color:var(--clay);font-size:16px;background:none;border:none;cursor:pointer">×</button>`:''}</div>`).join('')||'<div style="padding:12px 14px;font-size:12px;color:var(--grey)">None yet.</div>'}
-        <div style="padding:10px 14px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;font:700 13px var(--serif)"><span>Air total / person</span><span>${uoMoney(pp+fpp)}</span></div>
+        <div style="padding:10px 14px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;font:700 13px var(--serif)"><span>Air total / person</span><span>${uoMoney(rtpp+fpp)}</span></div>
       </div>`;
   }
 
@@ -179,9 +188,9 @@ function renderOrlando(c){
 
   /* ================= EXPENSES ================= */
   if(c.uoTab==='uoexp'){
-    const F=overrides.uoflights||[]; const fees=overrides.uofees||[];
+    const FL=overrides.uoflights||{}; const fees=overrides.uofees||[];
     const H={...(T.hotelDefault||{}),...(overrides.uohotel||{})};
-    const flightPP=F.reduce((s,f)=>s+Number(f.pp||0),0), feePP=fees.reduce((s,x)=>s+Number(x.amt||0),0);
+    const flightPP=Number(FL.rtpp||0), feePP=fees.reduce((s,x)=>s+Number(x.amt||0),0);
     const hotelPP=Number(H.roomCost||0)/2;
     const total=flightPP+feePP+hotelPP;
     if(!overrides.uoexp)overrides.uoexp={};
@@ -190,7 +199,7 @@ function renderOrlando(c){
     const invRow=(l,v,sub)=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${l}</span>${sub?`<span class="tdo-desc" style="display:block;margin-top:2px">${sub}</span>`:''}</span><span style="font:600 12px var(--mono)">${uoMoney(v)}</span></div>`;
     body=`
       <div class="card"><div class="chead"><span>🧾 Group booking — your share</span><span>invoice</span></div>
-        ${invRow('✈ Flights',flightPP,F.map(f=>esc(f.r)).join(' · ')||'not booked yet')}
+        ${invRow('✈ Flights — round trip',flightPP,[FL.out&&FL.out.r,FL.ret&&FL.ret.r].filter(Boolean).map(esc).join(' · ')||'not booked yet')}
         ${fees.map(x=>invRow('&nbsp;&nbsp;+ '+esc(x.l),x.amt)).join('')}
         ${invRow('🏨 Hotel · half a room',hotelPP,esc(H.name||'')+' · '+(H.nights||3)+' nights ÷ 2')}
         <div style="padding:12px 16px;border-top:2px solid var(--indigo);display:flex;justify-content:space-between;align-items:baseline">
@@ -221,12 +230,18 @@ function uoMap(elId,mode){
   const m=L.map(elId,{scrollWheelZoom:false});
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:18,attribution:'© OpenStreetMap © CARTO'}).addTo(m);
   const pts=[];
-  const pin=(lat,lng,html,color)=>{ pts.push([lat,lng]);
-    L.marker([lat,lng],{icon:L.divIcon({className:'',html:`<span class="mk" style="background:${color};font-size:9px">${html}</span>`,iconSize:[20,20],iconAnchor:[10,10]})}).addTo(m); };
+  const pin=(lat,lng,html,color,popup,onclick)=>{ pts.push([lat,lng]);
+    const mk=L.marker([lat,lng],{icon:L.divIcon({className:'',html:`<span class="mk" style="background:${color};font-size:9px;cursor:pointer">${html}</span>`,iconSize:[20,20],iconAnchor:[10,10]})}).addTo(m);
+    if(popup)mk.bindPopup(popup);
+    if(onclick)mk.on('click',onclick);
+    return mk; };
   const H={...(T.hotelDefault||{}),...(overrides.uohotel||{})};
-  if(mode!=='parks'){ pin(PT.mco.lat,PT.mco.lng,'✈','#4A6E9E'); pin(H.lat||PT.hotel.lat,H.lng||PT.hotel.lng,'🏨','#8E4B62'); }
-  Object.keys(P).forEach(k=>{ if(mode==='hotel')return; pin(P[k].lat,P[k].lng,'🎢',P[k].c); });
-  if(mode==='hotel'){ pin(P.epic.lat,P.epic.lng,'🎢',P.epic.c); }
+  if(mode!=='parks'){ pin(PT.mco.lat,PT.mco.lng,'✈','#4A6E9E','<b>'+PT.mco.n+'</b>'); pin(H.lat||PT.hotel.lat,H.lng||PT.hotel.lng,'🏨','#8E4B62','<b>'+esc(H.name||PT.hotel.n)+'</b>'); }
+  Object.keys(P).forEach(k=>{ if(mode==='hotel')return;
+    const nAttr=(T.attr||[]).filter(a=>a.park===k).length;
+    pin(P[k].lat,P[k].lng,'🎢',P[k].c,'<b>'+P[k].n+'</b>'+(mode==='parks'&&nAttr?'<br>'+nAttr+' attractions — tap the pin to filter':''),
+      mode==='parks'?()=>{ if(typeof uoPark==='function')uoPark(k); }:null); });
+  if(mode==='hotel'){ pin(P.epic.lat,P.epic.lng,'🎢',P.epic.c,'<b>'+P.epic.n+'</b>'); }
   m.fitBounds(pts,{padding:[28,28]});
 }
 
@@ -271,12 +286,11 @@ window.uoRestAdd=function(i){
   const d=Number(document.getElementById('uor_d_'+i).value)||1, t=document.getElementById('uor_t_'+i).value;
   uoSchedList().push({id:'uos'+Date.now(),by:uoMe(),day:d,t,kind:'meal',txt:r.n+(r.res?' — reserve ahead':'')});
   saveOverrides(); flash(r.n+' → Day '+d+' ✓','ok'); render(); };
-window.uoAddFly=function(){ if(!uoAdmin())return;
-  const g=i=>document.getElementById(i); const r=g('uof_r').value.trim(); if(!r)return;
-  overrides.uoflights=overrides.uoflights||[];
-  overrides.uoflights.push({r,f:g('uof_f').value.trim(),day:Number(g('uof_day').value),t:g('uof_t').value,pp:Number(g('uof_pp').value||0)});
-  saveOverrides(); render(); };
-window.uoDelFly=function(i){ if(!uoAdmin())return; overrides.uoflights.splice(i,1); saveOverrides(); render(); };
+window.uoSaveFly=function(){ if(!uoAdmin())return;
+  const g=i=>{const e=document.getElementById(i);return e?e.value:'';};
+  const leg=s=>({r:g('uof_'+s+'_r').trim(),f:g('uof_'+s+'_f').trim(),day:Number(g('uof_'+s+'_day'))||1,t:g('uof_'+s+'_t')});
+  overrides.uoflights={out:leg('out'),ret:leg('ret'),rtpp:Number(g('uof_rtpp')||0)};
+  saveOverrides(); flash('Flights saved ✓','ok'); render(); };
 window.uoAddFee=function(){ if(!uoAdmin())return;
   const l=document.getElementById('uofee_l').value.trim(); if(!l)return;
   overrides.uofees=overrides.uofees||[];

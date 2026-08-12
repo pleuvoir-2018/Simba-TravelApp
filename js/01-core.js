@@ -155,13 +155,13 @@ function mergeCruise(rt,lt,base){
   const me=(window._cru||{}).uid||null;
   const admin=((window._cru||{}).role==='admin')||((window._app||{}).role==='admin');  // the app master is a cruise organizer wherever they act from
   const out={...base};
-  ['cexp','logi'].forEach(key=>{
+  ['cexp','logi','uoexp'].forEach(key=>{
     const R=rt[key]||{}, L=lt[key]||{};
     const m={...L};
     Object.keys(R).forEach(uid=>{ if(uid!==me)m[uid]=R[uid]; });
     if(Object.keys(m).length)out[key]=m;
   });
-  ['charges','sched','ann','quotes','qSeedSkip','headcount'].forEach(key=>{
+  ['charges','sched','ann','quotes','qSeedSkip','headcount','uoflights','uofees','uohotel','uotodoDone'].forEach(key=>{
     const v=admin?(lt[key]!==undefined?lt[key]:rt[key]):(rt[key]!==undefined?rt[key]:lt[key]);
     if(v!==undefined)out[key]=v;
   });
@@ -195,7 +195,7 @@ function mergeCruise(rt,lt,base){
   // stale copy cannot drop a guest's new item); otherwise each item follows
   // its owner (.by) — mine local, everyone else's remote. Votes are a per-uid
   // map merged separately: my vote is mine, everyone else's comes from remote.
-  ['options','pins','gexp','links'].forEach(key=>{
+  ['options','pins','gexp','links','uosched'].forEach(key=>{
     const R=rt[key], L=lt[key];
     if(R===undefined&&L===undefined)return;
     const Ra=R||[], La=L||[];

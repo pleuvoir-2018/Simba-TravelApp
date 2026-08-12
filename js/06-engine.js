@@ -363,6 +363,7 @@ function render(){
 
   if(c.cruiseTab){ if(map){map.remove();map=null;} renderCruise(c); return; }
   if(c.jjTab){ if(map){map.remove();map=null;} renderJeju(c); return; }
+  if(c.uoTab){ if(map){map.remove();map=null;} renderOrlando(c); return; }
 
   if(c.addrest){ if(map){map.remove();map=null;} renderAddRestaurant(); return; }
 

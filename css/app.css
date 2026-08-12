@@ -557,3 +557,19 @@ body.dark.itin .td2-h.tint{background:#262B34;color:var(--indigo)}
 body.itin .tb-row:first-of-type,body.itin .td2-h.tint+.tb-row{border-top:none}
 body.itin .mapcard{background:#fff;border:none;border-radius:9px;box-shadow:0 1px 4px rgba(20,22,27,.07)}
 body.dark.itin .mapcard{background:#1C2027}
+
+/* ==== ORLANDO GROUP MODULE + AVATAR ACCESS TAB ==== */
+.cruPopCard.pp-wide{display:flex;gap:0;padding:0;max-width:430px;width:94vw;overflow:hidden}
+.pp-menu{flex:0 0 108px;background:var(--washi2);display:flex;flex-direction:column;padding:14px 0;gap:2px}
+body.dark .pp-menu{background:#20242D}
+.pp-menu button{background:none;border:none;text-align:left;padding:10px 14px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--grey);cursor:pointer;border-left:3px solid transparent}
+.pp-menu button.on{color:var(--indigo);border-left-color:var(--indigo);background:rgba(34,64,107,.06)}
+body.dark .pp-menu button.on{background:rgba(169,198,232,.08)}
+.pp-panes{flex:1;padding:18px 18px 16px;min-width:0}
+.pp-acc{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:12px}
+.pp-acc:last-of-type{border-bottom:none}
+.pp-badge{font:700 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;border-radius:2px;padding:3px 7px;background:var(--washi2);color:var(--grey)}
+.pp-badge.org{background:#0E7C86;color:#fff}
+.pp-badge.none{background:none;border:1px dashed var(--rule)}
+body.dark .pp-badge{background:#262B34}
+body.dark .pp-badge.org{background:#0E7C86}

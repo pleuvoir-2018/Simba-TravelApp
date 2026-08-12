@@ -467,8 +467,27 @@ window.cruProfile=function(){
   const lg=isMaster?((store.app&&store.app.adminLegal)||{}):{first:(u||{}).legalFirst,last:(u||{}).legalLast,dob:(u||{}).dob};
   const pop=document.createElement('div');
   pop.id='cruPop';
+  const TRIP_TITLES=[['japan-2026','⛩ Japan · Nov 2026'],['korea-2027','🏯 Korea · May 2027'],['jeju-2027','🍊 Jeju · May 2027'],['cruise-2028','🚢 Star of the Seas · Jan 2028'],['hawaii-2028','🌺 Hawaii · Dec 2028'],['hawaii-2029','🏝 Hawaii · Mar 2029'],['orlando-universal','🎬 Orlando Universal · TBD']];
+  const uAcc=(isMaster?null:(appUsers().find(x=>x.uid===me.uid)||{}).access)||{};
+  const badge=r=>r==='organizer'?'<span class="pp-badge org">Organizer</span>':r==='guest'?'<span class="pp-badge">Guest</span>':'<span class="pp-badge">Member</span>';
+  const accRows=TRIP_TITLES.map(([id,label])=>{
+    const r=isMaster?'organizer':(me.role==='designer'?'designer':uAcc[id]);
+    if(!r)return `<div class="pp-acc"><span style="color:var(--grey)">${label}</span><span class="pp-badge none">No access</span></div>`;
+    return `<div class="pp-acc"><span>${label}</span>${me.role==='designer'?'<span class="pp-badge">Designer · read-only</span>':badge(r)}</div>`;
+  }).join('');
   pop.innerHTML=`<div class="cruPopBack" onclick="document.getElementById('cruPop').remove()"></div>
-    <div class="cruPopCard">
+    <div class="cruPopCard pp-wide">
+      <div class="pp-menu">
+        <button type="button" class="on" onclick="ppTab(this,'pp_info')">👤 Info</button>
+        <button type="button" onclick="ppTab(this,'pp_acc')">🔑 Access</button>
+      </div>
+      <div class="pp-panes">
+      <div id="pp_acc" style="display:none">
+        <div style="font:600 9px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--grey);margin-bottom:9px">Where you can go — and as what</div>
+        ${accRows}
+        <div style="font-size:10px;color:var(--grey);margin-top:10px">Grants are set by the organizer in the Admin panel.</div>
+      </div>
+      <div id="pp_info">
       <div style="width:52px;height:52px;border-radius:50%;background:#0E7C86;color:#fff;font:700 22px var(--sans);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">${esc((me.name||'?').slice(0,1))}</div>
       <label>Display name<input id="pf_name" value="${esc(me.name||'')}" maxlength="40"></label>
       <div style="display:flex;gap:8px">
@@ -484,10 +503,18 @@ window.cruProfile=function(){
         <button class="pladd" type="button" onclick="saveProfile()" style="flex:1;padding:8px 0">Save</button>
         <button type="button" onclick="document.getElementById('cruPop').remove();appSignOut()" style="flex:1;background:none;border:1px solid #C4D6E6;border-radius:2px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--grey);cursor:pointer">Sign out</button>
       </div>
+      </div>
+      </div>
     </div>`;
   document.body.appendChild(pop);
   const inp=document.getElementById('pf_name');
   if(inp){inp.focus();inp.select();}
+};
+window.ppTab=function(btn,id){
+  const card=btn.closest('.cruPopCard');
+  card.querySelectorAll('.pp-menu button').forEach(b=>b.classList.toggle('on',b===btn));
+  card.querySelector('#pp_info').style.display=id==='pp_info'?'':'none';
+  card.querySelector('#pp_acc').style.display=id==='pp_acc'?'':'none';
 };
 window.saveProfile=function(){
   const el=document.getElementById('pf_name');

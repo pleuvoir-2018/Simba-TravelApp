@@ -13,9 +13,9 @@ const shell=document.getElementById('shell'),navlist=document.getElementById('na
 const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'organizer tools',addrest:true};
 function navCities(){
   let list=CITIES.slice();
-  if(list.some(c=>c.cruiseTab||c.jjTab)&&!window._cru)return [];
+  if(list.some(c=>c.cruiseTab||c.jjTab||c.uoTab)&&!window._cru)return [];
   if(typeof appRole==='function'&&appRole()==='designer'){
-    list=list.filter(c=>!c.vault&&!c.expenses&&c.cruiseTab!=='cexp'&&c.jjTab!=='jexp');
+    list=list.filter(c=>!c.vault&&!c.expenses&&c.cruiseTab!=='cexp'&&c.jjTab!=='jexp'&&c.uoTab!=='uoexp');
   }
   if(list.some(c=>c.adminOnly)&&cruRole()!=='admin')list=list.filter(c=>!c.adminOnly);
   const _adm=(window._app&&window._app.role==='admin');

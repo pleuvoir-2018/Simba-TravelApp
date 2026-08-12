@@ -469,11 +469,19 @@ window.cruProfile=function(){
   pop.id='cruPop';
   const TRIP_TITLES=[['japan-2026','⛩ Japan · Nov 2026'],['korea-2027','🏯 Korea · May 2027'],['jeju-2027','🍊 Jeju · May 2027'],['cruise-2028','🚢 Star of the Seas · Jan 2028'],['hawaii-2028','🌺 Hawaii · Dec 2028'],['hawaii-2029','🏝 Hawaii · Mar 2029'],['orlando-universal','🎬 Orlando Universal · TBD']];
   const uAcc=(isMaster?null:(appUsers().find(x=>x.uid===me.uid)||{}).access)||{};
-  const badge=r=>r==='organizer'?'<span class="pp-badge org">Organizer</span>':r==='guest'?'<span class="pp-badge">Guest</span>':'<span class="pp-badge">Member</span>';
+  /* Group-ness comes from the registry (cruise|group) — the same test 01-core,
+     03 and 06 use. TRIPS[].status is the landing-card copy and disagrees:
+     Orlando is status:'wip' but group:true. Off a group trip the organizer/
+     member/guest ladder is meaningless, so everyone reads Participant. */
+  const isGroupTrip=id=>{const td=(typeof TRIP_DATA!=='undefined'&&TRIP_DATA[id])||null;return !!(td&&(td.cruise||td.group));};
+  const badge=(r,id)=>!isGroupTrip(id)?'<span class="pp-badge part">Participant</span>'
+    :r==='organizer'?'<span class="pp-badge org">Organizer</span>'
+    :r==='guest'?'<span class="pp-badge guest">Guest</span>'
+    :'<span class="pp-badge member">Member</span>';
   const accRows=TRIP_TITLES.map(([id,label])=>{
     const r=isMaster?'organizer':(me.role==='designer'?'designer':uAcc[id]);
     if(!r)return `<div class="pp-acc"><span style="color:var(--grey)">${label}</span><span class="pp-badge none">No access</span></div>`;
-    return `<div class="pp-acc"><span>${label}</span>${me.role==='designer'?'<span class="pp-badge">Designer · read-only</span>':badge(r)}</div>`;
+    return `<div class="pp-acc"><span>${label}</span>${me.role==='designer'?'<span class="pp-badge dsgn">Designer · read-only</span>':badge(r,id)}</div>`;
   }).join('');
   pop.innerHTML=`<div class="cruPopBack" onclick="document.getElementById('cruPop').remove()"></div>
     <div class="cruPopCard pp-wide">

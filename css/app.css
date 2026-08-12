@@ -572,7 +572,20 @@ body.dark .pp-menu button.on{background:rgba(169,198,232,.08)}
 .pp-acc{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:12px}
 .pp-acc:last-of-type{border-bottom:none}
 .pp-badge{font:700 8px var(--mono);letter-spacing:.08em;text-transform:uppercase;border-radius:2px;padding:3px 7px;background:var(--washi2);color:var(--grey)}
+/* One fill per role so the ladder reads at a glance. Fixed literals, not theme
+   vars: these carry white text, and --indigo/--plum inverting in dark mode would
+   put white on a pastel. Hues sit >25deg apart; every fill clears 4.5:1 against
+   white text and 1.8:1 against its card in both themes. */
 .pp-badge.org{background:#0E7C86;color:#fff}
+.pp-badge.member{background:#22406B;color:#fff}
+.pp-badge.guest{background:#8E4B62;color:#fff}
+.pp-badge.part{background:#4F6B3D;color:#fff}
+.pp-badge.dsgn{background:#96631A;color:#fff}
 .pp-badge.none{background:none;border:1px dashed var(--rule)}
 body.dark .pp-badge{background:#262B34}
 body.dark .pp-badge.org{background:#0E7C86}
+body.dark .pp-badge.member{background:#2E5384}
+body.dark .pp-badge.guest{background:#9A5470}
+body.dark .pp-badge.part{background:#5A7A46}
+body.dark .pp-badge.dsgn{background:#9E6A1C}
+body.dark .pp-badge.none{background:none}

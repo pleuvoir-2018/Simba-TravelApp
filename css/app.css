@@ -129,7 +129,7 @@
   .grid>*{min-width:0}
   .card{min-width:0;overflow-wrap:anywhere}
   .card{border:1px solid var(--rule);border-radius:7px;background:#fffc;overflow:hidden}
-  .chead{padding:8px 12px;background:var(--washi2);border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);display:flex;justify-content:space-between}
+  .chead{padding:8px 12px;background:var(--washi2);border-bottom:1px solid var(--rule);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo);display:flex;justify-content:space-between;align-items:center}
   .meal{display:flex;gap:10px;padding:9px 12px;border-bottom:1px dotted var(--rule);cursor:pointer}
   .meal:last-child{border-bottom:0}
   .meal.on{background:#fff;box-shadow:inset 3px 0 0 var(--clay)}

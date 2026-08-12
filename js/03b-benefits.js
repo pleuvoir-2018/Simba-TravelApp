@@ -268,7 +268,49 @@ function baLoungeCheck(l,ctx){
 }
 
 /* ---------------- page ---------------- */
-window.openBenefits=function(){ window._onAdmin=false; tripSel=null; renderBenefitsPage('hotel'); };
+/* ---------------- SUMMARY: heads-up engine over the trips you're on ---------------- */
+const BA_CHAIN_KEYS=[[/jw marriott|marriott|westin|sheraton|ritz|st\.? regis|renaissance|courtyard|moxy|aloft|autograph/i,'bonvoy'],
+ [/hilton|conrad|waldorf|doubletree|canopy|curio/i,'hilton'],[/hyatt/i,'hyatt'],[/intercontinental|holiday inn|crowne|hotel indigo|kimpton/i,'ihg']];
+const BA_CARRIER_KEYS=[[/united|polaris/i,'ua'],[/delta/i,'dl'],[/american/i,'aa'],[/korean/i,'ke'],[/asiana/i,'oz'],[/\bana\b|all nippon/i,'nh'],[/\bjal\b|japan airlines/i,'jl'],[/air canada/i,'ac']];
+function baChainOf(name){ for(const [rx,id] of BA_CHAIN_KEYS)if(rx.test(name||''))return id; return null; }
+function baCarrierOf(txt){ for(const [rx,id] of BA_CARRIER_KEYS)if(rx.test(txt||''))return id; return null; }
+function baCodesIn(txt){ return (String(txt||'').match(/\b[A-Z]{3}\b/g)||[]).filter(c=>BA_AIRPORTS[c]); }
+function baCabinOf(txt){ return /first/i.test(txt||'')?'first':(/business|prestige|polaris|signature/i.test(txt||'')?'business':'economy'); }
+function baSummaryData(trav,trips){
+  const out=[];
+  trips.forEach(T=>{
+    const card={id:T.id,title:T.title,emoji:T.emoji,items:[]};
+    (T.flights||[]).forEach(f=>{
+      const codes=baCodesIn((f.route||f.r||'')+' '+(f.note||f.n||''));
+      const dep=codes[0]; if(!dep)return;
+      const carrier=baCarrierOf((f.train||f.f||'')+' '+(f.route||f.r||''));
+      const intl=codes.some(c=>BA_AIRPORTS[c].cc!==BA_AIRPORTS[dep].cc);
+      const cabin=baCabinOf((f.train||f.f||'')+' '+(f.note||''));
+      const L=BA_LOUNGES[dep];
+      if(L){
+        const ok=L.map(l=>({l,why:baLoungeCheck(l,{trav,air:carrier,cabin,intl})})).filter(x=>x.why).slice(0,3);
+        if(ok.length)card.items.push({k:'lounge',t:(f.d||'')+' · departing '+dep+' ('+BA_AIRPORTS[dep].city+')',
+          d:ok.map(x=>x.l.n+' — '+x.why).join(' · ')});
+      }
+      if(carrier&&(trav.air||{})[carrier]){
+        const tier=(trav.air||{})[carrier];
+        const rank=baTierRank(carrier,tier);
+        if(rank>0)card.items.push({k:'air',t:(f.d||'')+' · '+BA_AIRLINE_NAMES[carrier]+' as '+tier,
+          d:['priority check-in & boarding',rank>=2?'priority security where offered':null,intl&&((carrier==='ua'&&rank>=2)||(carrier==='nh'&&rank>=2)||(carrier==='oz'&&rank>=1)||(carrier==='ac'&&rank>=3))?'Star Gold lounges on this itinerary':null,intl&&carrier==='ke'&&rank>=1?'KAL Prestige lounges':null,intl&&carrier==='jl'&&rank>=2?'oneworld Sapphire lounges':null].filter(Boolean).join(' · ')});
+      }
+    });
+    Object.values(T.hotels||{}).forEach(h=>{
+      const chain=baChainOf(h.n); if(!chain)return;
+      const H=BA_HOTEL[chain]; const tier=(trav.hotel||{})[chain];
+      if(tier){ card.items.push({k:'hotel',t:h.n+' · your '+H.n+' '+tier,
+        d:(H.ben[tier]||[]).slice(0,3).join(' · ')}); }
+      else card.items.push({k:'hotel',t:h.n+' · '+H.n,d:'Base member benefits apply — add your tier under Avatar → 🎫 Travel to personalise'});
+    });
+    if(card.items.length)out.push(card);
+  });
+  return out;
+}
+window.openBenefits=function(){ window._onAdmin=false; tripSel=null; renderBenefitsPage('sum'); };
 window.renderBenefitsPage=function(tab,keep){
   document.body.classList.remove('cruise','itin');
   document.body.classList.add('home','tools');   // home-family chrome (no trip sidebar/header), tools palette
@@ -276,6 +318,20 @@ window.renderBenefitsPage=function(tab,keep){
   const me=window._app||{}; const t=(typeof travOf==='function')?travOf(me):{};
   const st=window._baState=keep?window._baState||{}:{};
   let pane='';
+  if(tab==='sum'){
+    const trips=Object.keys(window.TRIPS_REGISTRY||{}).filter(id=>typeof canOpen!=='function'||canOpen(id))
+      .map(id=>({id,...(window.TRIPS_REGISTRY[id]||{})}));
+    const data=baSummaryData(t,trips);
+    const ICO={lounge:'🛋',air:'✈',hotel:'🏨'};
+    const hasProfile=(t.cards||[]).length||Object.keys(t.air||{}).length||Object.keys(t.hotel||{}).length;
+    pane=(hasProfile?'':`<div class="card"><div style="padding:13px 16px;font-size:12.5px">No memberships on file yet — add cards and statuses under <b>Avatar → 🎫 Travel</b> and this page starts predicting your trips.</div></div>`)
+     +(data.length?data.map(c=>`<div class="card"><div class="chead"><span>${c.emoji||'🧭'} ${esc(c.title||c.id)}</span><span>heads up</span></div>
+        ${c.items.map(i=>`<div class="ba-lounge"><div style="font:600 10px var(--mono);letter-spacing:.08em;color:var(--grey)">${ICO[i.k]} ${esc(i.t)}</div>
+          <div style="font-size:12.5px;margin-top:3px;line-height:1.55">${esc(i.d)}</div></div>`).join('')}
+      </div>`).join('')
+     :`<div class="card"><div style="padding:13px 16px;font-size:12.5px;color:var(--grey)">Nothing to predict yet — trips with flights or chain hotels will surface here.</div></div>`)
+     +`<div class="ba-note" style="padding:0 4px">Built from the flights and hotels already in your trips, crossed with your saved memberships. Lounge lines cover the seeded airports; carriers are read from booking notes.</div>`;
+  }
   if(tab==='hotel'){
     pane=Object.keys(BA_HOTEL).map(k=>{
       const H=BA_HOTEL[k]; const myTier=(t.hotel||{})[k];
@@ -331,7 +387,7 @@ window.renderBenefitsPage=function(tab,keep){
       </div>
       <div style="display:flex;gap:16px;align-items:flex-start">
         <div class="pp-menu" style="flex:0 0 118px;border-radius:9px;padding:10px 0">
-          ${[['hotel','🏨 Hotel'],['air','✈ Airline'],['lounge','🛋 Lounge']].map(([k,l])=>`<button type="button" class="${k===tab?'on':''}" onclick="renderBenefitsPage('${k}',true)">${l}</button>`).join('')}
+          ${[['sum','💡 Summary'],['hotel','🏨 Hotel'],['air','✈ Airline'],['lounge','🛋 Lounge']].map(([k,l])=>`<button type="button" class="${k===tab?'on':''}" onclick="renderBenefitsPage('${k}',true)">${l}</button>`).join('')}
         </div>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:14px">${pane}</div>
       </div>

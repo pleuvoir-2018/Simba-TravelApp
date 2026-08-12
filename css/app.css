@@ -531,7 +531,7 @@ body.itin .chead{background:var(--washi2);border-bottom:none;border-radius:6px;m
 body.dark.itin .chead{background:#262B34;color:var(--indigo)}
 body.itin .maphead{background:#fff;border-bottom:1px solid rgba(20,22,27,.07)}
 body.dark.itin .maphead{background:#1C2027;border-bottom-color:rgba(231,226,214,.10)}
-body.itin .pl-day{font:700 14px var(--sans);color:var(--ink);background:none;letter-spacing:0;text-transform:none;padding:14px 16px 9px;border-bottom:1px solid var(--rule)}
+body.itin .pl-day{font:700 10px var(--sans);color:var(--ink);background:none;letter-spacing:.04em;text-transform:none;padding:13px 16px 8px;border-bottom:1px solid var(--rule)}
 body.itin .plform{background:none}
 body.itin input:not([type=checkbox]):not([type=radio]),body.itin select,body.itin textarea{background:#fff}
 body.dark.itin input:not([type=checkbox]):not([type=radio]),body.dark.itin select,body.dark.itin textarea{background:#242A33}

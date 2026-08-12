@@ -682,3 +682,9 @@ body.tools .pladd{background:#0E7C86;border-color:#0E7C86}
 body.dark.tools{--indigo:#6FC4CC;--washi2:#1E2D2E;--clay:#6FC4CC}
 body.dark.tools .kicker,body.dark.tools h1{color:#6FC4CC}
 body.dark.tools .pp-menu button.on{color:#6FC4CC;border-left-color:#6FC4CC;background:rgba(111,196,204,.1)}
+.ba-apwrap{position:relative;display:inline-block}
+.ba-dd{display:none;position:absolute;left:0;top:calc(100% + 3px);z-index:80;min-width:220px;background:var(--card,#fff);border:1px solid var(--rule);border-radius:6px;box-shadow:0 6px 20px rgba(20,22,27,.16);overflow:hidden}
+body.dark .ba-dd{background:#242A33}
+.ba-dd-i{padding:8px 12px;font-size:12px;cursor:pointer}
+.ba-dd-i:hover{background:var(--washi2)}
+.ba-dd-i b{font-family:var(--mono);letter-spacing:.04em}

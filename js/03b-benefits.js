@@ -195,6 +195,47 @@ const BA_LOUNGES={
  ]
 };
 
+/* ---- smart airport field: one box, code or name, system figures it out ---- */
+function baApMatches(q){
+  q=(q||'').trim().toLowerCase(); if(!q)return [];
+  const all=Object.keys(BA_AIRPORTS).map(c=>({c,city:BA_AIRPORTS[c].city}));
+  const exact=all.filter(a=>a.c.toLowerCase()===q);
+  const codeP=all.filter(a=>a.c.toLowerCase().startsWith(q)&&a.c.toLowerCase()!==q);
+  const cityM=all.filter(a=>a.city.toLowerCase().includes(q)&&!exact.includes(a)&&!codeP.includes(a));
+  return [...exact,...codeP,...cityM].slice(0,8);
+}
+function baResolveAp(q){
+  const m=baApMatches(q);
+  if(!m.length)return {code:null,cands:[]};
+  if(m[0].c.toLowerCase()===String(q).trim().toLowerCase())return {code:m[0].c,cands:m};
+  const cityEq=m.filter(a=>a.city.toLowerCase()===String(q).trim().toLowerCase());
+  if(cityEq.length===1)return {code:cityEq[0].c,cands:m};
+  if(m.length===1)return {code:m[0].c,cands:m};
+  return {code:null,cands:m};   // ambiguous — the dropdown disambiguates
+}
+window.baApType=function(inp){
+  const dd=inp.parentElement.querySelector('.ba-dd'); if(!dd)return;
+  const m=baApMatches(inp.value);
+  if(!m.length||m.some(a=>inp.value===a.c+' · '+a.city)){dd.style.display='none';return;}
+  dd.innerHTML=m.map(a=>`<div class="ba-dd-i" onmousedown="baApPick(this,'${a.c}')"><b>${a.c}</b> · ${a.city}</div>`).join('');
+  dd.style.display='block';
+};
+window.baApPick=function(el,code){
+  const wrap=el.closest('.ba-apwrap'); const inp=wrap.querySelector('input');
+  inp.value=code+' · '+BA_AIRPORTS[code].city;
+  wrap.querySelector('.ba-dd').style.display='none';
+};
+window.baApHide=function(inp){ setTimeout(()=>{const dd=inp.parentElement.querySelector('.ba-dd'); if(dd)dd.style.display='none';},160); };
+function baApField(id,ph,val){
+  return `<span class="ba-apwrap"><input id="${id}" placeholder="${ph}" value="${val||''}" autocomplete="off"
+    oninput="baApType(this)" onfocus="baApType(this)" onblur="baApHide(this)" style="width:180px"><div class="ba-dd"></div></span>`;
+}
+function baApValue(id){
+  const v=(document.getElementById(id)||{}).value||'';
+  const picked=v.match(/^([A-Za-z]{3}) · /);
+  if(picked)return {code:picked[1].toUpperCase(),cands:[]};
+  return baResolveAp(v);
+}
 function baHasPP(cards){ return (cards||[]).some(c=>BA_PP_CARDS.includes(c)); }
 function baLoungeCheck(l,ctx){
   const t=ctx.trav||{}; const cards=t.cards||[];
@@ -234,8 +275,8 @@ window.renderBenefitsPage=function(tab,keep){
       <div class="plform"><div class="plrow1" style="display:flex;gap:8px;flex-wrap:wrap">
         <select id="ba_air">${Object.keys(BA_AIRLINE_NAMES).map(a=>`<option value="${a}" ${st.air===a?'selected':''}>${BA_AIRLINE_NAMES[a]}</option>`).join('')}</select>
         <select id="ba_cab">${[['economy','Economy'],['basic','Basic economy'],['premium','Premium economy'],['business','Business'],['first','First']].map(([v,l])=>`<option value="${v}" ${st.cab===v?'selected':''}>${l}</option>`).join('')}</select>
-        <input id="ba_from" placeholder="From (IAD)" maxlength="3" value="${st.from||''}" style="width:90px;text-transform:uppercase">
-        <input id="ba_to" placeholder="To (ICN)" maxlength="3" value="${st.to||''}" style="width:90px;text-transform:uppercase">
+        ${baApField('ba_from','From — code or city',st.fromTxt)}
+        ${baApField('ba_to','To — code or city',st.toTxt)}
         <button class="pladd" type="button" onclick="baAirGo()" style="padding:8px 14px">Check</button>
       </div></div>
       ${r?`<div style="padding:4px 15px 12px"><div style="font:600 10px var(--mono);letter-spacing:.1em;color:var(--grey);margin:6px 0 8px">${r.route}${r.tier?' · as '+r.tier:''}</div>
@@ -248,7 +289,7 @@ window.renderBenefitsPage=function(tab,keep){
     const r=st.lRes;
     pane=`<div class="card"><div class="chead"><span>🛋 Which doors open for me?</span></div>
       <div class="plform"><div class="plrow1" style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="ba_lap" placeholder="Airport (IAD)" maxlength="3" value="${st.lap||''}" style="width:110px;text-transform:uppercase">
+        ${baApField('ba_lap','Airport — code or city',st.lapTxt)}
         <select id="ba_lair">${Object.keys(BA_AIRLINE_NAMES).map(a=>`<option value="${a}" ${st.lair===a?'selected':''}>${BA_AIRLINE_NAMES[a]}</option>`).join('')}</select>
         <select id="ba_lsvc">${[['first','Domestic / intl First'],['business','International Business'],['economy','Economy']].map(([v,l])=>`<option value="${v}" ${st.lsvc===v?'selected':''}>${l}</option>`).join('')}</select>
         <button class="pladd" type="button" onclick="baLoungeGo()" style="padding:8px 14px">Find lounges</button>
@@ -281,7 +322,12 @@ window.baAirGo=function(){
   const g=i=>document.getElementById(i);
   const st=window._baState=window._baState||{};
   st.air=g('ba_air').value; st.cab=g('ba_cab').value;
-  st.from=g('ba_from').value.trim().toUpperCase(); st.to=g('ba_to').value.trim().toUpperCase();
+  st.fromTxt=g('ba_from').value; st.toTxt=g('ba_to').value;
+  const F=baApValue('ba_from'), T2=baApValue('ba_to');
+  const amb=(r,which)=>{ if(!r.code){ flash(which+': '+(r.cands.length?('did you mean '+r.cands.slice(0,3).map(a=>a.c+' ('+a.city+')').join(' / ')+'?'):'no airport matched'),'err'); return true;} return false; };
+  if(amb(F,'From')||amb(T2,'To'))return;
+  st.from=F.code; st.to=T2.code;
+  st.fromTxt=F.code+' · '+BA_AIRPORTS[F.code].city; st.toTxt=T2.code+' · '+BA_AIRPORTS[T2.code].city;
   const t=(typeof travOf==='function')?travOf(window._app||{}):{};
   const tier=(t.air||{})[st.air]||null;
   st.airRes=baAirlineBenefits(st.air,st.cab,st.from,st.to,tier);
@@ -291,7 +337,10 @@ window.baAirGo=function(){
 window.baLoungeGo=function(){
   const g=i=>document.getElementById(i);
   const st=window._baState=window._baState||{};
-  st.lap=g('ba_lap').value.trim().toUpperCase(); st.lair=g('ba_lair').value; st.lsvc=g('ba_lsvc').value;
+  st.lapTxt=g('ba_lap').value; st.lair=g('ba_lair').value; st.lsvc=g('ba_lsvc').value;
+  const R=baApValue('ba_lap');
+  if(!R.code){ flash(R.cands.length?('Did you mean '+R.cands.slice(0,3).map(a=>a.c+' ('+a.city+')').join(' / ')+'?'):'No airport matched — try the code or city name','err'); return; }
+  st.lap=R.code; st.lapTxt=R.code+' · '+BA_AIRPORTS[R.code].city;
   const t=(typeof travOf==='function')?travOf(window._app||{}):{};
   const L=BA_LOUNGES[st.lap];
   if(!L){ st.lRes={list:[],known:false}; renderBenefitsPage('lounge',true); return; }

@@ -5,9 +5,11 @@ modules, per-trip data files, one serverless sync endpoint, zero build step.
 Deployed on Vercel; shared state syncs through Vercel Blob so everyone on a trip
 sees the same data on any device.
 
-Built by a three-person team: **Wesley Cho** (Product Lead), **Jayden We**
-(UI/UX Designer) and **Fable 5 / Claude** (Developer, an AI assistant by
-Anthropic) — largely in late-night screenshot-driven sessions. There's an
+Built by a four-member team: **Wesley Cho** (Product Lead), **Jayden We**
+(UI/UX Designer), **Fable 5 / Claude** (Developer, an AI assistant by
+Anthropic) and **Gemini** (Travel Planner, an AI assistant by Google, on
+restaurant and itinerary research) — largely in late-night
+screenshot-driven sessions. There's an
 About-us page in the app itself, linked from the landing footer.
 
 ## Current trips

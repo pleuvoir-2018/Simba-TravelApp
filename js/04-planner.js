@@ -614,6 +614,82 @@ function groupUsers(tripId){
   return appUsers().filter(u=>u.role!=='pending'&&u.access&&u.access[tripId])
     .map(u=>({...u,role:(u.access[tripId]==='organizer')?'admin':'participant'}));
 }
+
+/* ---------------- PERSON HOVER CARD (group trips) ----------------
+   Group pages show bare names in a dozen places. uHov() wraps one in a
+   hoverable span; a single delegated listener does the rest, so new call
+   sites need no wiring.
+
+   The role shown is the GLOBAL app role, read from the roster. It must not
+   come from groupUsers(), which rewrites .role to admin|participant for its
+   own per-trip purposes — a spread of that object would report the trip
+   grant as if it were the app role. */
+window.uPerson=function(uid){
+  if(uid==='admin')return {uid:'admin',name:appAdminName(),
+    legal:(store.app&&store.app.adminLegal)||{},role:'admin'};
+  const u=appUsers().find(x=>x.uid===uid);
+  if(!u)return null;
+  return {uid:uid,name:u.name||'—',legal:{first:u.legalFirst,last:u.legalLast},
+    role:u.role==='designer'?'designer':(u.role==='pending'?'pending':'member')};
+};
+const U_ROLE={admin:['Admin','ub-adm'],designer:['Designer','ub-dsg'],
+  member:['Member','ub-mem'],pending:['Pending','ub-pen']};
+window.uHov=function(uid,txt){
+  if(!uid)return esc(txt);
+  return `<span class="uhov" data-uid="${esc(uid)}" tabindex="0">${esc(txt)}</span>`;
+};
+function uCardEl(){
+  let c=document.getElementById('uCard');
+  if(!c){c=document.createElement('div');c.id='uCard';document.body.appendChild(c);}
+  return c;
+}
+function uCardShow(el){
+  const p=uPerson(el.dataset.uid);
+  const c=uCardEl();
+  if(!p){c.style.display='none';return;}
+  const [label,cls]=U_ROLE[p.role]||U_ROLE.member;
+  const en=[p.legal&&p.legal.first,p.legal&&p.legal.last].filter(Boolean).join(' ');
+  c.innerHTML=`<div class="uc-top">
+      <span class="uc-ava">${esc((p.name||'?').slice(0,1))}</span>
+      <span class="uc-id">
+        <span class="uc-ko">${esc(p.name)}</span>
+        <span class="uc-en">${en?esc(en):'<i>legal name not set</i>'}</span>
+      </span>
+    </div>
+    <span class="uc-badge ${cls}">${label}</span>`;
+  c.style.display='block';
+  /* Measure after paint, then clamp into the viewport — the card is fixed, so
+     a name near the right edge or the fold would otherwise render offscreen. */
+  const r=el.getBoundingClientRect(), b=c.getBoundingClientRect(), G=10;
+  let left=r.left, top=r.bottom+7;
+  if(left+b.width>innerWidth-G) left=innerWidth-G-b.width;
+  if(left<G) left=G;
+  if(top+b.height>innerHeight-G) top=Math.max(G,r.top-b.height-7);
+  c.style.left=left+'px';
+  c.style.top=top+'px';
+}
+function uCardHide(){const c=document.getElementById('uCard');if(c)c.style.display='none';}
+window.uCardHide=uCardHide;
+document.addEventListener('mouseover',e=>{
+  const el=e.target.closest&&e.target.closest('.uhov');
+  if(el)uCardShow(el); else if(!(e.target.closest&&e.target.closest('#uCard')))uCardHide();
+});
+document.addEventListener('focusin',e=>{
+  const el=e.target.closest&&e.target.closest('.uhov');
+  if(el)uCardShow(el);
+});
+/* Touch has no hover: tap the name to toggle, tap anywhere else to dismiss. */
+document.addEventListener('click',e=>{
+  const el=e.target.closest&&e.target.closest('.uhov');
+  const c=document.getElementById('uCard');
+  if(el){e.stopPropagation();
+    if(c&&c.style.display==='block'&&c.dataset.for===el.dataset.uid){uCardHide();return;}
+    uCardShow(el);uCardEl().dataset.for=el.dataset.uid;return;}
+  uCardHide();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')uCardHide();});
+addEventListener('scroll',uCardHide,true);
+
 function cruiseUsers(){ return groupUsers('cruise-2028'); }
 function genCode(){
   const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';

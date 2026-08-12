@@ -65,14 +65,14 @@ function renderCruise(c){
         const row=x=>{
           const l=legalOf(x.uid);
           return `<div class="tdo-row"><span style="flex:0 0 30px;font:600 9px var(--mono);color:var(--grey);text-align:center">R${x.room}</span>
-            <span class="tdo-main"><span class="tdo-t">${esc(nameOf(x.uid))}</span>${roleBadge(x.uid)}
+            <span class="tdo-main"><span class="tdo-t">${uHov(x.uid,nameOf(x.uid))}</span>${roleBadge(x.uid)}
             <span class="tdo-desc" style="margin-left:10px">${l&&l.first?esc(l.first+' '+(l.last||'')):'<i>legal name not set</i>'} · ${l&&l.dob?esc(l.dob):'<i>DOB not set</i>'}</span></span></div>`;
         };
         const seatedIds=new Set(seated.map(x=>x.uid));
         const unseated=['admin',...users.map(u=>u.uid)].filter(uid=>!seatedIds.has(uid));
         return `<div class="card"><div class="chead"><span>🪪 Guest list</span><span>${seated.length} in cabins · legal details</span></div>
           ${seated.map(row).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nobody has taken a cabin slot yet.</div>'}
-          ${admin&&unseated.length?`<div style="padding:9px 13px;font-size:11px;color:var(--grey);border-top:1px solid var(--rule)">Not in a cabin yet: ${unseated.map(uid=>esc(nameOf(uid))).join(', ')}</div>`:''}
+          ${admin&&unseated.length?`<div style="padding:9px 13px;font-size:11px;color:var(--grey);border-top:1px solid var(--rule)">Not in a cabin yet: ${unseated.map(uid=>uHov(uid,nameOf(uid))).join(', ')}</div>`:''}
         </div>`;
       })():''}`;
   }
@@ -199,7 +199,7 @@ function renderCruise(c){
       ${reqs.slice().sort((a,b)=>b.ts-a.ts).slice(0,10).map(r=>{
         const room=rooms.find(x=>x.id===r.rid); const ri=room?rooms.indexOf(room)+1:'?';
         const fromN=(cats.find(k=>k.id===r.from)||{}).n||r.from, toN=(cats.find(k=>k.id===r.to)||{}).n||r.to;
-        return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(r.uid))}${r.kind==='new'?'':' · Room '+ri}</span>
+        return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${uHov(r.uid,nameOf(r.uid))}${r.kind==='new'?'':' · Room '+ri}</span>
           <span class="tdo-desc">${r.kind==='new'?`<b>NEW ROOM</b> · ${esc(toN)} · sleeps ${r.ppl||2}`:`${esc(fromN)} → <b>${esc(toN)}</b>`}${r.note?' · '+esc(r.note):''} · ${r.status}</span></span>
           ${r.status==='pending'?`<button class="tdo-x" onclick="decideReq('${r.id}',1)" title="Approve — applies immediately" style="color:var(--moss)">✓</button><button class="tdo-x" onclick="decideReq('${r.id}',0)" title="Deny" style="color:var(--clay);font-size:16px">×</button>`:''}</div>`;
       }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No requests yet.</div>'}
@@ -279,7 +279,7 @@ function renderCruise(c){
             <span style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap">
               ${slots.map((uid,i)=>{
                 if(uid) return `<span style="flex:1 1 120px;border:1.5px solid ${uid===me?'var(--moss)':'var(--rule)'};background:${uid===me?'rgba(47,125,107,.09)':'var(--washi2)'};border-radius:2px;padding:6px 9px;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:6px">
-                  <b>${esc(nameOf(uid))}</b>${(uid===me||admin)?`<button onclick="leaveSlot('${r.id}',${i})" style="background:none;border:none;color:var(--clay);cursor:pointer;font:600 9px var(--mono);text-transform:uppercase">${uid===me?'Release':'Clear'}</button>`:''}</span>`;
+                  <b>${uHov(uid,nameOf(uid))}</b>${(uid===me||admin)?`<button onclick="leaveSlot('${r.id}',${i})" style="background:none;border:none;color:var(--clay);cursor:pointer;font:600 9px var(--mono);text-transform:uppercase">${uid===me?'Release':'Clear'}</button>`:''}</span>`;
                 return `<button onclick="takeSlot('${r.id}',${i})" style="flex:1 1 120px;border:1.5px dashed var(--indigo2);background:none;border-radius:2px;padding:6px 9px;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--indigo2);cursor:pointer">${mine&&mine.id===r.id?'Take 2nd slot':'Take this slot'}</button>`;
               }).join('')}
             </span>
@@ -363,7 +363,7 @@ function renderCruise(c){
         <div style="border-top:1px solid var(--rule)">
         ${Object.keys(byUser).map(uid=>{
           const b=byUser[uid].reduce((a,x)=>a+Number(x.amt||0),0), pd=byUser[uid].reduce((a,x)=>a+Number(x.paid||0),0);
-          return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(uid))}</span></span>
+          return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${uHov(uid,nameOf(uid))}</span></span>
             <span style="font:11px var(--mono);color:${pd>=b-0.005?'var(--moss)':'var(--clay)'};flex:0 0 auto">${money(pd)} / ${money(b)}</span></div>`;
         }).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">No charges assigned yet.</div>'}
         </div></div>
@@ -387,7 +387,7 @@ function renderCruise(c){
           <div class="plhint">Guests see ONE line on their tracker; the invoice shows every line with its category.</div>
         </div></div>
       <div class="card"><div class="chead"><span>All charges</span><span>record payments here</span></div>
-        ${charges.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(nameOf(x.uid))} · ${esc(x.desc)}</span>
+        ${charges.map(x=>`<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${uHov(x.uid,nameOf(x.uid))} · ${esc(x.desc)}</span>
             <span class="tdo-desc">${money(x.amt)} · ${x.kind}${x.dep?` · dep ${money(x.dep)} ${Number(x.paid||0)>=Number(x.dep)-0.005?'✓':'due'}`:''}${x.items?` · ${x.items.length} lines`:''}</span></span>
           <label style="flex:0 0 auto;font:600 8px var(--mono);color:var(--grey);text-transform:uppercase;text-align:right">Paid $<br>
             <input type="number" min="0" step="0.01" value="${Number(x.paid||0)>0.005?Number(x.paid).toFixed(2):''}" placeholder="0" onchange="setChargePaid('${x.id}',this.value)" style="width:78px;font:12px var(--mono);border:1px solid var(--rule);border-radius:2px;padding:3px 5px;text-align:right;background:var(--card,#fff);margin-top:2px"></label>
@@ -1422,7 +1422,7 @@ function renderJeju(c){
           return `<div class="tdo-row" style="${o.chosen?'background:rgba(94,127,76,.08)':''}">
             <span class="tdo-main"><span class="tdo-t">${o.chosen?'✓ ':''}${esc(o.title)}</span>
               <span class="tdo-desc" style="margin-left:10px">${jjMoney(o.cost)}${o.per==='pp'?' / person':' total'}${o.note?' · '+esc(o.note):''}${o.url?` · <a href="${esc(o.url)}" target="_blank" rel="noopener">link</a>`:''}
-                · by ${esc(jjName(o.by))}${n?` · 👍 ${n} (${esc(voters)})`:''}</span></span>
+                · by ${uHov(o.by,jjName(o.by))}${n?` · 👍 ${n} (${esc(voters)})`:''}</span></span>
             <button class="tdo-x" onclick="jjVote('${o.id}')" title="${iVoted?'Un-vote':'Vote for this'}" style="font-size:14px;${iVoted?'':'filter:grayscale(1);opacity:.55'}">👍</button>
             ${admin?`<button class="tdo-x" onclick="jjChoose('${o.id}')" title="${o.chosen?'Un-choose':'Choose this one'}" style="color:var(--moss);font:700 10px var(--mono)">${o.chosen?'undo':'✓ pick'}</button>`:''}
             ${(admin||o.by===me)?`<button class="tdo-x" onclick="jjDelOpt('${o.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}
@@ -1474,7 +1474,7 @@ function renderJeju(c){
           ${list.map(p=>`<div class="tdo-row jj-pin" data-jpin="${p.id}" onclick="jjPinFocus('${p.id}')" style="cursor:pointer">
             <span style="flex:0 0 26px;text-align:center">${({sight:'⛰',food:'🍽',cafe:'☕',other:'📍'})[p.cat]||'📍'}</span>
             <span class="tdo-main"><span class="tdo-t">${esc(p.n)}</span>
-              <span class="tdo-desc" style="margin-left:10px">${p.time?esc(p.time)+' · ':''}${p.note?esc(p.note)+' · ':''}by ${esc(jjName(p.by))} · <a href="${esc(p.url)}" target="_blank" rel="noopener">map</a></span></span>
+              <span class="tdo-desc" style="margin-left:10px">${p.time?esc(p.time)+' · ':''}${p.note?esc(p.note)+' · ':''}by ${uHov(p.by,jjName(p.by))} · <a href="${esc(p.url)}" target="_blank" rel="noopener">map</a></span></span>
             ${(admin||p.by===me)?`<button class="tdo-x" onclick="jjDelPin('${p.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}
           </div>`).join('')}
         </div>`;}).join('')}`;
@@ -1512,7 +1512,7 @@ function renderJeju(c){
         </div>
       </div>
       <div class="card"><div class="chead"><span>⚖️ Who's paid what</span><span>even share = ${jjMoney(share)}</span></div>
-        ${jjEveryone().map(u=>{const d=(paidBy[u]||0)-share;return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${esc(jjName(u))}</span>
+        ${jjEveryone().map(u=>{const d=(paidBy[u]||0)-share;return `<div class="tdo-row"><span class="tdo-main"><span class="tdo-t">${uHov(u,jjName(u))}</span>
           <span class="tdo-desc" style="margin-left:10px">paid ${jjMoney(paidBy[u]||0)}</span></span>
           <b style="font-family:var(--mono);font-size:11.5px;color:${d>=0?'var(--moss)':'var(--clay)'}">${d>=0?'+':''}${jjMoney(d)}</b></div>`;}).join('')}
         <div style="padding:8px 13px;font:10px var(--mono);color:var(--grey)">Split across ${N} people${N!==jjEveryone().length?` (${jjEveryone().length} with app accounts — people without accounts settle in cash with whoever fronted)`:''}. Positive = the group owes them; negative = they owe the pot. Chosen car/flight costs count into the pot but aren't assigned a payer until you log who actually paid, as a group expense.</div>
@@ -1565,7 +1565,7 @@ function renderJeju(c){
         ${links.map(l=>`<div class="tdo-row">
           <span style="flex:0 0 26px;text-align:center">${l.url&&l.url.indexOf('drive.google')>-1?'🟢':'🔗'}</span>
           <span class="tdo-main"><span class="tdo-t"><a href="${esc(l.url)}" target="_blank" rel="noopener" style="color:var(--indigo)">${esc(l.t)}</a></span>
-            <span class="tdo-desc" style="margin-left:10px">by ${esc(jjName(l.by))}</span></span>
+            <span class="tdo-desc" style="margin-left:10px">by ${uHov(l.by,jjName(l.by))}</span></span>
           ${(admin||l.by===me)?`<button class="tdo-x" onclick="jjDelLink('${l.id}')" style="color:var(--clay);font-size:16px">×</button>`:''}
         </div>`).join('')||'<div style="padding:11px;font-size:12px;color:var(--grey)">Nothing filed yet — car confirmation, flight PDFs, the hotel booking.</div>'}
         <div class="plform" style="border-top:1px solid var(--rule)">

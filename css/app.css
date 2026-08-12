@@ -589,6 +589,33 @@ body.dark .pp-badge.guest{background:#9A5470}
 body.dark .pp-badge.part{background:#5A7A46}
 body.dark .pp-badge.dsgn{background:#9E6A1C}
 body.dark .pp-badge.none{background:none}
+
+/* ---- Person hover card (group trips) ---- */
+.uhov{cursor:help;border-bottom:1px dotted var(--rule);outline:none}
+.uhov:hover,.uhov:focus{border-bottom-color:var(--indigo2)}
+#uCard{display:none;position:fixed;z-index:400;width:214px;background:var(--card,#fff);
+  border:1px solid var(--rule);border-radius:7px;box-shadow:0 10px 30px rgba(20,22,27,.22);
+  padding:13px 14px 12px;pointer-events:none}
+.uc-top{display:flex;align-items:center;gap:11px}
+.uc-ava{flex:0 0 40px;width:40px;height:40px;border-radius:50%;background:#0E7C86;color:#fff;
+  font:700 17px var(--sans);display:flex;align-items:center;justify-content:center}
+.uc-id{min-width:0;display:flex;flex-direction:column;gap:1px}
+.uc-ko{font:700 15px var(--serif);color:var(--ink);line-height:1.25;padding-bottom:2px}
+.uc-en{font:500 10.5px var(--mono);color:var(--grey);letter-spacing:.03em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.uc-en i{font-style:italic;opacity:.8}
+/* App role, not the trip grant. Own fills, hues >25deg from each other and from
+   the pp-badge family; white text clears 4.5:1 on both cards. */
+.uc-badge{display:inline-block;margin-top:11px;font:700 8px var(--mono);letter-spacing:.08em;
+  text-transform:uppercase;border-radius:2px;padding:3px 7px;color:#fff}
+.uc-badge.ub-adm{background:#5B4A8C}
+.uc-badge.ub-dsg{background:#96631A}
+.uc-badge.ub-mem{background:#22406B}
+.uc-badge.ub-pen{background:none;border:1px dashed var(--rule);color:var(--grey)}
+body.dark .uc-badge.ub-adm{background:#6E5CA6}
+body.dark .uc-badge.ub-dsg{background:#9E6A1C}
+body.dark .uc-badge.ub-mem{background:#2E5384}
+body.dark .uc-badge.ub-pen{background:none}
 .tv-sec{font:600 9px var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--clay);margin:12px 0 5px}
 .tv-sec:first-of-type{margin-top:2px}
 .tv-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;font-size:12px}

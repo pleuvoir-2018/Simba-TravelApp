@@ -134,7 +134,7 @@ function buildMap(c){
   legend.onAdd = function () {
     const div = L.DomUtil.create('div', 'map-legend');
     div.innerHTML = `
-      <div style="font-weight:bold; margin-bottom:6px; color:var(--indigo);">Legend</div>
+      <div style="font-weight:bold; margin-bottom:6px; color:#22406B;">Legend</div>
       <div class="l-row"><span class="l-box" style="background:#8E4B62;"></span> Hotel</div>
       <div class="l-row"><span class="l-circ" style="background:#22406B;"></span> Meals</div>
       <div class="l-row"><span class="l-dia" style="background:#5E7F4C;"></span> POI</div>

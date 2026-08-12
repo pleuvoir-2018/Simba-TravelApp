@@ -179,7 +179,7 @@
   .train .route{font-family:var(--serif);font-size:15px;font-weight:700}
   .train .tmeta{font-family:var(--mono);font-size:10px;color:var(--grey);margin-top:2px}
   /* Map Legend Overlay */
-  .map-legend { background: rgba(241,236,226,0.9); backdrop-filter: blur(4px); border: 1px solid var(--rule); padding: 8px 10px; font-family: var(--mono); font-size: 9px; color: var(--ink); border-radius: 2px; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.4; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  .map-legend { background: rgba(241,236,226,0.9); backdrop-filter: blur(4px); border: 1px solid rgba(20,22,27,.18); padding: 8px 10px; font-family: var(--mono); font-size: 9px; color: #14161B; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.4; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
   .map-legend .l-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
   .map-legend .l-box { width: 9px; height: 9px; display: inline-block; border-radius: 1px; }
   .map-legend .l-circ { width: 9px; height: 9px; display: inline-block; border-radius: 50%; }

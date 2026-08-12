@@ -215,6 +215,7 @@ function renderHome(){
       </button>`).join('')}
   </div>
   <div class="home-foot">Photos via Wikimedia Commons under their stated licences.</div>
+  <div class="home-foot" style="margin-top:6px"><a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener license"><img src="https://licensebuttons.net/l/by-sa/2.0/88x31.png" alt="CC BY-SA 2.0" width="88" height="31" loading="lazy" style="opacity:.85;border-radius:2px" onerror="this.parentElement.textContent='CC BY-SA 2.0'"></a></div>
   <div class="home-foot"><a href="#" class="ab-link" onclick="openAbout();return false">About us →</a></div>`;
 }
 const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)'],done:['Trip completed','var(--grey)']};

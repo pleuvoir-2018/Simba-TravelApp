@@ -331,16 +331,6 @@ function renderCruise(c){
       <span class="tdo-main"><span style="font-size:13px">${esc(x.desc)}</span></span>
       <b style="font-family:var(--mono);font-size:12.5px;flex:0 0 auto">${money(x.amt)}</b>
       <button class="tdo-x" onclick="delMyExp('${x.id}')" style="color:var(--clay);font-size:17px">×</button></div>`).join('');
-    const myExpCard=`
-      <div class="card"><div class="chead"><span>My expenses</span><span>${money(myPersonal)} total</span></div>
-        <div class="plform"><div class="plrow1">
-          <input id="mx_date" type="date">
-          <input id="mx_desc" placeholder="Flight to MCO, hotel night, parking…" maxlength="60">
-          <input id="mx_amt" type="number" min="0" step="0.01" placeholder="$">
-          <button class="pladd" type="button" onclick="addMyExp()" style="flex:0 0 auto;padding:8px 13px">+ Add</button>
-        </div></div>
-        ${myRows||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing yet — flights, hotel nights, parking, whatever is yours alone.</div>'}
-        ${cvtLine([['total',myPersonal]])}</div>`;
     const myBlock=`
       <div class="card"><div class="chead"><span>My trip total</span><span style="display:flex;gap:8px;align-items:center">${money(myBilled+myPersonal)} ${curSel}</span></div>
         <div style="display:flex;gap:0;text-align:center">
@@ -350,7 +340,14 @@ function renderCruise(c){
         </div>${cvtLine([['billed',myBilled],['paid',myPaid],['own',myPersonal]])}</div>
       <div class="card"><div class="chead"><span>Charges from the organizer</span><span>${myCharges.length}</span></div>
         ${myCharges.map(chargeRow).join('')||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing billed to you yet.</div>'}</div>
-      `+myExpCard;
+      <div class="card"><div class="chead"><span>My expenses</span><span>${money(myPersonal)}</span></div>
+        <div class="plform"><div class="plrow1">
+          <input id="mx_date" type="date">
+          <input id="mx_desc" placeholder="Flight to MCO, hotel night, parking…" maxlength="60">
+          <input id="mx_amt" type="number" min="0" step="0.01" placeholder="$">
+          <button class="pladd" type="button" onclick="addMyExp()" style="flex:0 0 auto;padding:8px 13px">+ Add</button>
+        </div></div>
+        ${myRows||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing yet — flights, hotel nights, parking, whatever is yours alone.</div>'}</div>`;
     if(!admin){ body=myBlock; }
     else{
       const billed=charges.reduce((a,x)=>a+Number(x.amt||0),0);
@@ -407,7 +404,7 @@ function renderCruise(c){
           <button class="pladd" type="button" onclick="addMyExp()" style="flex:0 0 auto;padding:8px 13px">+ Add</button>
         </div></div>
         ${myRows||'<div style="padding:12px;font-size:12px;color:var(--grey)">Nothing yet.</div>'}
-      </div>`+myExpCard;
+      </div>`;
     }
   }
   if(c.cruiseTab==='clog'){

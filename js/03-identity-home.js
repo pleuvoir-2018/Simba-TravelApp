@@ -19,6 +19,13 @@ const TRIPS=[
   photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'wip'},
  {id:'hawaii-2029',country:'Spring Break',title:'Hawaii, March 2029',dates:'9–18 March 2029',emoji:'🏝',
   photo:wm('Waikiki_Beach_(2024)-L1004709.jpg'),credit:'Waikīkī & Diamond Head · Frank Schulenburg, CC BY-SA 4.0',status:'wip'},
+ /* tool:true — a card in the grid, not a trip: no TRIPS_REGISTRY entry, so the
+    engine never sees it; open() routes to the tool, and IAM lists it via the
+    dests filter's tool branch. Gated per user while it is being built. */
+ {id:'benefits',country:'Travel tools',emoji:'🧰',title:'Benefits Assistant',dates:'Tiers, perks & lounge doors',
+  blurb:'What your memberships get you',
+  photo:wm('Air_India_Heathrow_lounge.JPG'),
+  credit:'Airport lounge, Heathrow · Clayton Tang, CC BY-SA 3.0',status:'tool',tool:true},
  {id:'orlando-universal',country:'Theme-Park Trip',title:'Orlando — Universal',dates:'Dates TBD',emoji:'🎬',theme:'ocean',
   photo:wm('Universal_Studios_Florida_Gate.JPG'),credit:'Universal Studios Florida gate · Malpass93, public domain',status:'wip'}
 ];
@@ -31,14 +38,14 @@ function renderAdminPage(){
   document.body.classList.add('home');
   document.body.style.setProperty('--tripac','#22406B');
   const users=appUsers();
-  const dests=TRIPS.filter(t=>TRIP_DATA[t.id]);
+  const dests=TRIPS.filter(t=>TRIP_DATA[t.id]||t.tool);
   const labels=(store.app&&store.app.tripLabels)||{};
   /* Admins and designers need no grants for ACCESS — their role opens every
      door. This grid controls PARTICIPATION instead: whether they appear in a
      trip's roster, headcount and money split. Stored through the same
      u.access slot ('guest' on group trips, true elsewhere) so groupUsers()
      and the Participant badge pick it up with no new field or merge lane. */
-  const partCells=u=>{const acc=u.access||{};return dests.map(d=>{
+  const partCells=u=>{const acc=u.access||{};return dests.filter(d=>!d.tool).map(d=>{
     const td=TRIP_DATA[d.id];const pv=(td.cruise||td.group)?'guest':'yes';
     return `<label class="gcell"><span class="gname">${d.emoji||''} ${esc(d.country)}</span>
       <select onchange="appGrant('${u.uid}','${d.id}',this.value)">
@@ -222,7 +229,7 @@ function renderHome(){
   </div>
   <div class="trips">
     ${TRIPS.map(t=>`
-      <button class="trip ${t.theme==='ocean'?'ocean':''} ${t.status==='idea'||!canOpen(t.id)?'soon':''} ${tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="openTrip('${t.id}')"`}>
+      <button class="trip ${t.theme==='ocean'?'ocean':''} ${t.status==='idea'||!canOpen(t.id)?'soon':''} ${tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="${t.tool?`openTool('${t.id}')`:`openTrip('${t.id}')`}"`}>
         ${(()=>{const L=tripLabelOf(t);return `<span class="ribbon" style="background:${TRIP_LABELS[L][1]}">${TRIP_LABELS[L][0]}</span>`;})()}
         ${t.status!=='idea'&&canOpen(t.id)?'<span class="ribbon" style="top:34px;background:var(--moss)">✓ Access granted</span>':''}
         <div class="ph">
@@ -234,22 +241,15 @@ function renderHome(){
             <div class="cd">${esc(t.dates)}</div>
           </div>
         </div>
-        <div class="bar"><span title="${!canOpen(t.id)&&t.status!=='idea'?'Ask the organizer for access':''}">${t.status==='idea'?'Not planned yet':(!canOpen(t.id)?'🔒 No access':(tripArchived(t)?'Open · read-only →':'Open trip →'))}</span>
+        <div class="bar"><span title="${!canOpen(t.id)&&t.status!=='idea'?'Ask the organizer for access':''}">${t.status==='idea'?'Not planned yet':(!canOpen(t.id)?'🔒 No access':(tripArchived(t)?'Open · read-only →':t.tool?'Open tool →':'Open trip →'))}</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`).join('')}
   </div>
-  <div class="home-sec" style="margin-top:26px"><div class="kicker" style="text-align:center;margin-bottom:10px">TRAVEL TOOLS</div>
-    <button type="button" class="ba-entry" onclick="openBenefits()">
-      <span style="font-size:26px">🧰</span>
-      <span style="text-align:left"><b style="display:block;font:700 15px var(--serif)">Benefits Assistant</b>
-      <span style="font-size:11.5px;color:var(--grey)">Your hotel tiers, flight perks, and which lounge doors open — from the memberships in your profile</span></span>
-      <span style="margin-left:auto;font-size:16px">→</span>
-    </button></div>
   <div class="home-foot" style="padding:0">Photos via Wikimedia Commons under their stated licences.</div>
   <div class="home-foot" style="padding:4px 0 12px"><a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener license"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20132%2031%22%20width%3D%22132%22%20height%3D%2231%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2279%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ctext%20x%3D%2215%22%20y%3D%2219.5%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2211%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3ECC%3C/text%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2210.5%22%20r%3D%223.1%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M40.5%2022.5%20a6.5%206.5%200%200%201%2013%200%20z%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M85.5%2012%20a7%207%200%201%200%201%206%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Cpath%20d%3D%22M83%208%20l4.5%204.5%20-6%201.5%20z%22%20fill%3D%22%2314161B%22/%3E%3Ctext%20x%3D%2297%22%20y%3D%2213%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3EBY-SA%3C/text%3E%3Ctext%20x%3D%2297%22%20y%3D%2225%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3E2.0%3C/text%3E%3C/svg%3E" class="cclogo" alt="CC BY-SA 2.0" width="132" height="31" style="opacity:.8"></a></div>
   <div class="home-foot"><a href="#" class="ab-link" onclick="openAbout();return false">About us →</a></div>`;
 }
-const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)'],done:['Trip completed','var(--grey)']};
+const TRIP_LABELS={live:['Live','var(--moss)'],wip:['Work in progress','#B0761F'],group:['Group travel','#0B2545'],soon:['Coming soon','var(--plum)'],done:['Trip completed','var(--grey)'],tool:['Travel tool','#0E7C86']};
 function tripPastEnd(t){
   const d=t&&typeof TRIP_DATA!=='undefined'&&TRIP_DATA[t.id]&&TRIP_DATA[t.id].end;
   if(!d)return false;
@@ -259,6 +259,7 @@ function tripLabelOf(t){
   const ov=(store.app&&store.app.tripLabels)||{};
   if(ov[t.id]&&TRIP_LABELS[ov[t.id]])return ov[t.id];   // the admin's word is final
   if(tripPastEnd(t))return 'done';                       // default only — override to reopen
+  if(t.status==='tool')return 'tool';
   return t.status==='group'?'group':(t.status==='wip'?'wip':(t.status==='idea'?'soon':'live'));
 }
 /* A trip becomes read-only once its own end date has passed. Purely per trip:
@@ -323,11 +324,17 @@ function canOpen(id){
   const sAp=window._app;
   if(!sAp||!sAp.uid)return false;
   if(sAp.role==='admin')return true;
-  if(sAp.role==='designer')return !!TRIP_DATA[id];   // every destination — sensitive tabs are stripped elsewhere
+  if(sAp.role==='designer')return !!TRIP_DATA[id]||!!(TRIPS.find(x=>x.id===id)||{}).tool;   // every destination and tool — review is the job
   if(sAp.role!=='user')return false;
   const u=appUsers().find(x=>x.uid===sAp.uid);
   return !!(u&&u.access&&u.access[id]);
 }
+/* Tool launcher. The card's onclick comes through here, but so must any future
+   entry point: the gate lives in the function, not the button. */
+window.openTool=function(id){
+  if(!canOpen(id)){flash('Ask the organizer for access','err');return;}
+  if(id==='benefits'&&typeof openBenefits==='function'){openBenefits();return;}
+};
 function appGroupSession(tripId){
   const sAp=window._app;
   if(!sAp||!sAp.uid)return null;

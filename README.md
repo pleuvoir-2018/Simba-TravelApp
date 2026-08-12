@@ -1,140 +1,113 @@
 # Trip Command Center
 
-A self-contained, multi-trip travel planner. One HTML engine, per-trip data
-files, one serverless sync endpoint, zero build step. Deployed on Vercel;
-state syncs through Vercel Blob so everyone on a trip sees the same data on
-any device.
+A self-contained, multi-trip travel planner. One HTML shell, seven classic-script
+modules, per-trip data files, one serverless sync endpoint, zero build step.
+Deployed on Vercel; shared state syncs through Vercel Blob so everyone on a trip
+sees the same data on any device.
 
-Current trips:
+Built by a three-person team: **Wesley Cho** (Product Lead), **Jayden We**
+(UI/UX Designer) and **Fable 5 / Claude** (Developer, an AI assistant by
+Anthropic) — largely in late-night screenshot-driven sessions. There's an
+About-us page in the app itself, linked from the landing footer.
 
-| Trip | Dates | Status |
+## Current trips
+
+| Trip | Dates | Kind |
 |---|---|---|
-| 🇯🇵 **Japan** — Yokohama → Nara → Osaka (⇄ Kyoto) → Nagoya → Tokyo | 15–27 Nov 2026 | Planned, anniversary trip for two |
-| 🇰🇷 **Korea** — Seoul ⇄ Jeju (Westin Seoul Parnas · Parnas Hotel Jeju) | 7–18 May 2027 | Work in progress, behind an access code |
-| 🚢 **Icon Class Cruise** — Star of the Seas, Port Canaveral | 9–16 Jan 2028 | Group trip with per-person sign-in |
-| 🌺 **Hawaii** | Dec 2028 | Someday card |
-
----
+| ⛩ **Japan** — Vancouver → Yokohama → Nara → Osaka (⇄ Kyoto) → Nagoya → Tokyo | 15–27 Nov 2026 | Anniversary trip for two |
+| 🏯 **Korea** — Seoul | 7–18 May 2027 | Fully booked couple trip |
+| 🍊 **Jeju** | 10–14 May 2027 | Group trip (headcount 6) |
+| 🚢 **Icon Class Cruise** — Star of the Seas, Port Canaveral | 9–16 Jan 2028 | Group trip with rooms, quotes & billing |
+| 🌺 **Hawaii — the 10th anniversary** | 10–19 Dec 2028 | Work in progress |
+| 🌺 **Hawaii — spring break** | 9–18 Mar 2029 | Work in progress |
 
 ## Layout
 
 ```
 .
-├── index.html            # the engine: markup, styles, and all behaviour
-├── trips/
-│   ├── japan-2026.js     # DATA only: cities, hotels, meals, POIs, flights…
-│   ├── korea-2027.js
-│   └── cruise-2028.js    # cruise tabs, itinerary, stateroom categories
-├── api/
-│   └── sync.js           # Vercel function — GET/POST shared state to Vercel Blob
-├── package.json          # single dependency: @vercel/blob
-└── README.md
+├── index.html            # shell markup + versioned asset links (?v=<build>)
+├── css/app.css           # the entire design system
+├── js/
+│   ├── 01-core.js        # state, sync client, merge semantics (owned lists, tombstones)
+│   ├── 02-ui-shell.js    # sidebar/nav, meal cards, weather, header chrome
+│   ├── 03-identity-home.js  # sign-in, IAM, landing page, About us
+│   ├── 04-planner.js     # plans, to-dos, expenses, Add-restaurant (organizer tool)
+│   ├── 05-cruise.js      # cruise + Jeju group modules, city maps
+│   ├── 06-engine.js      # per-city itinerary engine + Today dashboard
+│   └── 07-boot.js        # boot order
+├── trips/                # DATA only — one file per trip
+│   ├── japan-2026.js  korea-2027.js  jeju-2027.js
+│   ├── cruise-2028.js    # + stateroom catalogue, seeded quotes, deck plans, dining/activities, fees
+│   └── hawaii-2028.js  hawaii-2029.js
+└── api/sync.js           # Vercel function — GET/POST shared state to Vercel Blob
 ```
 
-No framework, bundler, or install for the frontend. Each trip file is pure
-data and self-registers into `window.TRIPS_REGISTRY`; the engine points its
-live bindings (`CITIES`, `HOTELS`, `FLIGHTS`, weather, day maps, currency,
-timezone, theme) at whichever trip is opened. **Adding a trip = adding one
-file** and a landing-page card.
+No bundler, no framework. Modules are classic scripts loaded in order; every
+asset link carries a `?v=<build>` stamp that is bumped on each deploy, so a
+plain reload always fetches the current build.
 
-## Storage & sync
+## Identity & access
 
-The synced blob is namespaced per trip:
+Everyone signs in with a personal login code (self-serviceable; display names
+are Korean-mandated, 2–7 Hangul syllables). Roles:
 
-```json
-{ "_ts": 0, "trips": { "japan-2026": {…}, "korea-2027": {…}, "cruise-2028": {…} } }
-```
+| Role | Can |
+|---|---|
+| **App admin** (organizer) | Everything: all trips, Admin panel, grants, quotes, restaurant editing |
+| **Member** | Trips they're granted, with editing where the trip allows |
+| **Guest** (cruise) | Their own cruise data: cabin slot, requests, expenses |
+| **Designer** | Opens every trip read-only for design review; all writes hard-blocked |
 
-`overrides` is a live reference into the open trip's namespace, so trips can
-never see or overwrite each other; cloud merges happen per trip id. Saves are
-two-stage — instant to `localStorage`, debounced to the cloud — and legacy
-flat blobs migrate automatically.
+The Admin panel manages people, codes and per-trip grants, and includes
+**View-as** (👁): impersonate any user read-only, with a banner, to see exactly
+what they see. Locked trips grey out on the landing. Guest-facing copy always
+says "the organizer", never a personal name.
 
-Everything editable in the app is an **overlay** on the trip files: per-stop
-field edits, tombstoned removals, in-app-added restaurants, day plans,
-expenses, to-dos, vault entries. The files on disk are the canonical record
-and are never mutated by the app, so any in-app change is reversible.
+## The Today dashboard (pre-trip)
 
-## The city engine (Japan · Korea)
+A two-column dashboard (designed by Jayden, from his mock): hero card with the
+trip photo, accent-coloured countdown and flight chips; **To Book** list with
+one-line booking notes; prep to-dos; walk-ins. Right rail: **Trip Overview**,
+a live mini **Calendar** (trip days dotted — tap a day for a popover of that
+day's city and meals), and a 7-day **Weather** card for the longest-stay city
+(Open-Meteo, cached, 8s timeout). In-trip and post-trip states have their own
+hero layouts.
 
-Per-city tabs with a Leaflet map (meals, POIs, day-loop and transit lines),
-meal cards with booking status / cash warnings / cost tracking, day plans
-that flow into a planned-vs-actual expense tracker, live FX (¥ or ₩) with an
-ECB trend chart, a to-do list with a calendar view and per-trip seeded
-deadlines, weather, a flights board, and a Vault for confirmation numbers
-(passcode-gated, per session). **Edit Mode** unlocks meal costs, statuses,
-and actual spend for editing.
+## Group modules
 
-**Developer mode** (checkbox at the sidebar foot) reveals a 🛠 tab that
-manages all restaurants without touching code: full-form adds with
-coordinates parsed from a pasted Google Maps URL, prefill edits of built-ins
-(stored as overrides), tombstone removals with one-tap restore.
+**Cruise (Star of the Seas)** — Rooms tab: 16-category stateroom catalogue
+with official photos and specs; organizer quotes at 2- and 4-adult occupancy
+(Royal's live pricing seeded, fully editable — tombstones stop deleted seeds
+resurrecting); per-person maths on every card; occupancy filter; Fees & extras
+(deposit, gratuities). Cabins with slot claiming, room-type change requests,
+per-person billing with deposits, expense splitting. The Ship tab: facts,
+neighborhoods, dining (included vs specialty), things to do, and an
+interactive deck-plan explorer (18 official plans, native resolution, your
+cabin's deck badged).
 
-Trips archive automatically two days after their end date: read-only, badge
-on the landing card, data preserved.
+**Jeju** — shared schedule with day pins, votes, per-person flights, car
+splits, group expenses with insights, and a two-way linked island map
+(starter ideas ⇄ markers, Google Maps links everywhere).
 
-## The cruise module (group trips)
+## Design system
 
-A trip flagged `cruise: true` swaps in its own tab set, ocean theme, and a
-per-person sign-in: the organizer uses a master code; guests use 6-character
-codes generated (and revocable) on the Admin tab.
+Lora + Inter (from the design proposal), warm washi/indigo/clay palette,
+7px radii, chip family with 1px ink borders, first-class dark mode (every
+note flavour, nav, calendar and card has a dark variant). City maps never
+scroll-jack; popovers and drawers are mobile-safe. The engine renders
+everything from data — adding a trip is adding a `trips/*.js` file.
 
-- **Board** — announcements; organizer posts, optionally pinging a Discord
-  channel via a webhook configured on the Admin tab
-- **Schedule** — the sailing's day-by-day; organizer adds/edits plans per day
-- **Rooms** — numbered Room 1…N (actual cabin numbers optional, addable when
-  Royal assigns them), each with a stateroom category and **two slots**
-  claimed airline-seat style; claiming elsewhere releases your old slot
-- **Expenses** — per-person: charges from the organizer as single lines with
-  an itemized invoice view (categories, deposit milestone, PAID stamp), plus
-  a personal tracker. The organizer gets a collection dashboard
-  (billed / collected / outstanding), a line-item billing form, deposit
-  tracking (UNPAID → DEPOSIT PAID → PAID), and payment recording
-- **Logistics** — guests file their travel legs; the organizer sees all
-  arrivals/departures sorted for shuttle planning
-- **Admin** — guests & codes, Discord webhook (organizer only)
+## Development notes
 
-Cruise saves merge **role-aware** so simultaneous edits interleave: your own
-expense/logistics slice always wins locally, organizer-owned collections
-follow the organizer, and room slots merge individually so one person's
-claim can't clobber another's.
+- **Deploys**: push to `main` → Vercel. Always re-stamp the `?v=` build query
+  in `index.html` in the same commit as any css/js change.
+- **State**: one Blob document; `mergeApp`/`mergeCruise` in `01-core.js` do
+  role-aware merging — owned lists per user, admin-owned wholesale fields,
+  deletion tombstones (`removedUids`, `qSeedSkip`).
+- **Async in re-rendering panels** must resolve DOM targets at write time
+  (see `loadTodayWx` for the pattern and the bug it fixes).
+- Anything fetched can fail: inline it (About-page logo is an SVG data URI)
+  or fail beautifully (image `onerror` fallbacks everywhere).
 
-## Deploy
-
-Push to `main`; Vercel builds and serves. `BLOB_READ_WRITE_TOKEN` must be set
-in the Vercel project for `api/sync.js`.
-
-## Honest security model
-
-Access codes, the vault passcode, and the Discord webhook all live
-client-side or in the shared blob, and `/api/sync` is unauthenticated. This
-keeps honest people organized; it is not a defense against a motivated
-technical attacker. Don't store anything here that would matter if read.
-
-## Repository layout (v2 — modular)
-
-```
-index.html          markup + stylesheet/script links only (no inline code)
-css/app.css         the full stylesheet
-js/01-core.js       storage, cloud sync, role-aware merges, save pipeline
-js/02-ui-shell.js   nav shell, maps, meal cards, weather
-js/03-identity-home.js  IAM: sessions, login/pending, admin page, landing, profile/theme
-js/04-planner.js    to-dos, day plans, dev-mode restaurant manager
-js/05-cruise.js     the whole cruise module
-js/06-engine.js     trip switching, Today/city/expenses/vault views, master render()
-js/07-boot.js       boot sequence
-trips/*.js          DATA only — one file per destination, self-registering
-api/sync.js         Vercel Blob GET/POST
-```
-
-Load order matters (classic scripts, no build step): trips first, then js/01→07.
-Statement order inside the modules is exactly the pre-split engine's, so the
-split is behavior-preserving by construction.
-
-### Trip types
-- **Couple trips** (Japan, Hawaii ×2): full city engine.
-- **Seoul** (korea-2027): city engine; the Jeju days hand off to…
-- **Group land trip** (jeju-2027): collaborative Decisions (options+votes,
-  organizer picks), shared map/schedule (Google-Maps-link pinning), group-pot
-  vs personal money with even-share settle-up, and a Drive-links file vault.
-- **Cruise** (cruise-2028): rooms/quotes/billing module.
+Photos via Wikimedia Commons under their stated licences; stateroom and
+deck-plan imagery via Royal Caribbean's distributor assets.

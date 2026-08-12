@@ -437,8 +437,9 @@ body.dark .jrow-on{background:rgba(232,135,30,.20)}
 .td2-num{font-family:var(--serif);font-size:clamp(46px,6vw,66px);line-height:.95;color:var(--tripac,var(--indigo));font-weight:700;margin:2px 0 3px}
 .td2-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px}
 .td2-chip{font:600 10px var(--mono);letter-spacing:.04em;color:var(--ink);border:1px solid var(--rule);border-radius:5px;padding:5px 9px;background:var(--card,#fff)}
-.td2-h{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 8px;font:700 14.5px var(--serif);color:var(--ink)}
-.td2-h.tint{background:var(--washi2);border-bottom:1px solid var(--rule);padding:11px 16px;color:var(--indigo);font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.td2-h{display:flex;justify-content:space-between;align-items:center;padding:11px 16px 8px;font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--indigo)}
+body.dark .td2-h{color:var(--ink)}
+.td2-h.tint{background:var(--washi2);border-bottom:1px solid var(--rule);padding:11px 16px}
 body.dark .td2-h.tint{background:#252A33;color:var(--ink)}
 .td2-pill{font:600 9px var(--mono);letter-spacing:.06em;color:var(--clay);background:rgba(184,85,42,.1);border-radius:20px;padding:4px 10px}
 .tb-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-top:1px solid var(--rule);cursor:pointer}

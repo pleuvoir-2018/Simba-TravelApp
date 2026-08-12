@@ -276,7 +276,10 @@
   #cruPop .cruPopBack{position:fixed;inset:0;z-index:60}
   #cruPop .cruPopCard{position:fixed;top:88px;right:16px;z-index:61;width:264px;background:var(--card,#fff);border:1px solid #C4D6E6;border-radius:7px;box-shadow:0 8px 30px rgba(11,37,69,.25);padding:16px 16px 14px}
   #cruPop label{display:block;font:600 8.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:9px}
-  #cruPop input{width:100%;box-sizing:border-box;min-width:0;font:13.5px var(--sans);border:1px solid #C4D6E6;border-radius:3px;padding:7px 9px;margin-top:3px;-webkit-appearance:none;appearance:none;background:#fff}
+  /* :not([type=checkbox]) mirrors the global form baseline. Without it this
+     ID-scoped rule beat .tv-card input (1,1,0 vs 0,1,1) and rendered every
+     card checkbox as a full-width empty field with its label underneath. */
+  #cruPop input:not([type=checkbox]){width:100%;box-sizing:border-box;min-width:0;font:13.5px var(--sans);border:1px solid #C4D6E6;border-radius:3px;padding:7px 9px;margin-top:3px;-webkit-appearance:none;appearance:none;background:#fff}
   #cruPop input[type=date]{text-align:left}
   #cruPop .ro{font:12.5px var(--mono);color:#0D2033;background:#F0F5FA;border-radius:3px;padding:7px 9px;margin-top:3px;letter-spacing:.08em}
   body.dark{
@@ -619,9 +622,27 @@ body.dark .uc-badge.ub-pen{background:none}
 .tv-sec{font:600 9px var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--clay);margin:12px 0 5px}
 .tv-sec:first-of-type{margin-top:2px}
 .tv-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;font-size:12px}
-.tv-row select{max-width:170px;font:12px var(--sans);padding:5px 7px;border:1px solid var(--rule);border-radius:4px;background:#fff}
-body.dark .tv-row select{background:#242A33;color:var(--ink);border-color:var(--rule)}
-.tv-cards{display:flex;flex-direction:column;gap:5px}
-.tv-card{display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer}
-.tv-card input{width:14px;height:14px;accent-color:var(--indigo)}
+.tv-row>span{flex:1;min-width:0;line-height:1.3}
+/* Fixed basis, not max-width: a select sizes to its longest OPTION, so the
+   Korean Air ('Morning Calm Premium') and AA ('Executive Platinum') rows ran
+   wider than the rest and the right edge stopped lining up. */
+#cruPop .tv-row select{flex:0 0 132px;width:132px;height:32px;font:12px var(--sans);
+  padding:0 7px;border:1px solid var(--rule);border-radius:4px;background:#fff;color:var(--ink)}
+body.dark #cruPop .tv-row select{background:#242A33;color:var(--ink);border-color:var(--rule)}
+.tv-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:6px}
+#cruPop .tv-card{display:flex;align-items:center;gap:8px;padding:7px 9px;margin:0;cursor:pointer;
+  border:1px solid var(--rule);border-radius:5px;background:var(--card,#fff);
+  font:500 11.5px var(--sans);letter-spacing:0;text-transform:none;color:var(--ink);line-height:1.25}
+#cruPop .tv-card:hover{border-color:var(--indigo2)}
+#cruPop .tv-card:has(input:checked){border-color:var(--indigo);background:rgba(34,64,107,.06)}
+body.dark #cruPop .tv-card:has(input:checked){background:rgba(169,198,232,.10)}
+#cruPop .tv-card input[type=checkbox]{flex:0 0 14px;width:14px;height:14px;margin:0;
+  accent-color:var(--indigo);cursor:pointer}
+/* Below ~440px the popover is narrow enough that a 132px select would leave
+   ~70px for 'American AAdvantage'. Stack instead — still one width for every
+   row, just full-bleed. */
+@media(max-width:440px){
+  #cruPop .tv-row{flex-direction:column;align-items:stretch;gap:3px;padding:6px 0}
+  #cruPop .tv-row select{flex:0 0 auto;width:100%}
+}
 #pp_trav{max-height:56vh;overflow:auto;padding-right:4px}

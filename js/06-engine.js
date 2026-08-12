@@ -14,7 +14,7 @@ function applyTripData(id){
   const kk=document.getElementById('kickerTxt');if(kk)kk.textContent=t.kicker;
   const nbs=document.querySelector('.nb-sun');if(nbs)nbs.textContent=t.emoji||'🧭';
   document.body.style.setProperty('--tripac',t.accent||'#22406B');
-  document.body.classList.toggle('cruise',!!t.cruise);
+  document.body.classList.toggle('cruise',!!t.cruise||t.theme==='ocean');
   document.body.classList.toggle('itin',!(t.cruise||t.group));
   if(typeof updateAvatar==='function')updateAvatar();
   const eb=document.getElementById('editToggle');

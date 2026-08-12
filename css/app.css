@@ -527,7 +527,7 @@ body.dark .cal2-pop::after{border-top-color:#2A313B}
    theme-independent as before. */
 body.itin .card{background:#fff;border:none;border-radius:9px;box-shadow:0 1px 4px rgba(20,22,27,.07)}
 body.dark.itin .card{background:#1C2027;box-shadow:0 1px 5px rgba(0,0,0,.4)}
-body.itin .chead{background:var(--washi2);border-bottom:none;border-radius:6px;margin:10px 12px 4px;padding:10px 14px;color:var(--indigo)}
+body.itin .chead{background:var(--washi2);border-bottom:none;border-radius:6px;margin:10px 12px;padding:10px 14px;color:var(--indigo)}
 body.dark.itin .chead{background:#262B34;color:var(--indigo)}
 body.itin .maphead{background:#fff;border-bottom:1px solid rgba(20,22,27,.07)}
 body.dark.itin .maphead{background:#1C2027;border-bottom-color:rgba(231,226,214,.10)}

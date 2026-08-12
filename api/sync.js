@@ -62,11 +62,13 @@ export default async function handler(req, res) {
         contentType: 'application/json',
       });
 
-      // best-effort prune: keep the newest 3 versions
-      try {
+      // best-effort prune: keep the newest 8. Runs on ~1 save in 8 — pruning
+      // every save tripled advanced-op usage (put+list+del) against the Blob
+      // quota; occasional pruning keeps storage just as flat at ~1/3 the cost.
+      if (Math.random() < 0.125) try {
         const { blobs } = await list({ prefix: VER_PREFIX, limit: 100 });
         const sorted = blobs.slice().sort((a, b) => b.pathname.localeCompare(a.pathname));
-        const stale = sorted.slice(3);
+        const stale = sorted.slice(8);
         if (stale.length) await del(stale.map(b => b.url));
       } catch (_) {}
 

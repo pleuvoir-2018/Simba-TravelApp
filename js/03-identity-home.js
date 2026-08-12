@@ -462,5 +462,5 @@ window.openTrip=function(id){
   document.body.classList.remove('home');
   render();
 };
-window.backToTrips=function(){ tripSel=null; document.body.classList.remove('cruise','itin'); const pp=document.getElementById('cruPop'); if(pp)pp.remove(); if(typeof updateAvatar==='function')updateAvatar(); renderHome(); };
+window.backToTrips=function(){ tripSel=null; if(typeof exitEdit==='function')exitEdit(); document.body.classList.remove('cruise','itin'); const pp=document.getElementById('cruPop'); if(pp)pp.remove(); if(typeof updateAvatar==='function')updateAvatar(); renderHome(); };
 

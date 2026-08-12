@@ -46,6 +46,14 @@ navCollapse.onclick=()=>{
 };
 document.getElementById('navBurger').onclick=()=>shell.classList.add('drawer');
 document.getElementById('backdrop').onclick=()=>shell.classList.remove('drawer');
+window.exitEdit=function(){
+ if(!editMode)return false;
+ editMode=false;
+ const eb=document.getElementById('editToggle');if(eb)eb.classList.remove('on');
+ const sb=document.getElementById('savebar');if(sb)sb.classList.remove('show');
+ document.body.classList.remove('editing');
+ return true;
+};
 document.getElementById('editToggle').onclick=()=>{editMode=!editMode;
  document.getElementById('editToggle').classList.toggle('on',editMode);
  document.getElementById('savebar').classList.toggle('show',editMode);

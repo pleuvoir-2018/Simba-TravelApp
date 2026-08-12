@@ -461,6 +461,7 @@ window.cruProfile=function(){
   if(old){old.remove();return;}
   const me=window._app||{};
   if(!me.uid)return;
+  if(typeof exitEdit==='function'&&exitEdit())render(); // savebar (z1200) painted over the popup (z61); edit mode ends when profile opens
   const isMaster=me.uid==='admin';
   const u=appUsers().find(x=>x.uid===me.uid);
   const code=isMaster?CRUISE_MASTER:((u&&u.code)||'—');

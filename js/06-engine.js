@@ -19,7 +19,7 @@ function applyTripData(id){
   if(typeof updateAvatar==='function')updateAvatar();
   const eb=document.getElementById('editToggle');
   if(eb)eb.style.display=t.cruise?'none':'';
-  if(t.cruise&&editMode){editMode=false;document.body.classList.remove('editing');const sb=document.getElementById('savebar');if(sb)sb.classList.remove('show');}
+  if(t.cruise&&typeof exitEdit==='function')exitEdit();
   document.title=t.title;
   buildNav();
   drawCountdown();

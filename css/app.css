@@ -622,6 +622,21 @@ body.dark .pp-badge.none{background:none}
 body.dark .uc-badge.ub-sadm{background:#6E5CA6}
 body.dark .uc-badge.ub-adm{background:#9C55A3}
 body.dark .uc-badge.ub-dsg{background:#9E6A1C}
+/* Elevated-role glow (option B): one shared keyframe breathing box-shadow
+   through a per-class --glowc. Scoped to the hover card's badges only —
+   animated box-shadow repaints every frame, fine for one card, not for a
+   roster. Reduced-motion falls back to the static halo (option A). */
+.uc-badge.ub-sadm,.uc-badge.ub-adm,.uc-badge.ub-dsg{animation:badgeGlow 2.6s ease-in-out infinite}
+.uc-badge.ub-sadm{--glowc:rgba(91,74,140,.6)}
+.uc-badge.ub-adm{--glowc:rgba(138,67,144,.6)}
+.uc-badge.ub-dsg{--glowc:rgba(150,99,26,.6)}
+body.dark .uc-badge.ub-sadm{--glowc:rgba(110,92,166,.7)}
+body.dark .uc-badge.ub-adm{--glowc:rgba(156,85,163,.7)}
+body.dark .uc-badge.ub-dsg{--glowc:rgba(158,106,28,.7)}
+@keyframes badgeGlow{0%,100%{box-shadow:0 0 6px 0 var(--glowc)}50%{box-shadow:0 0 13px 3px var(--glowc)}}
+@media(prefers-reduced-motion:reduce){
+  .uc-badge.ub-sadm,.uc-badge.ub-adm,.uc-badge.ub-dsg{animation:none;box-shadow:0 0 10px 1px var(--glowc)}
+}
 body.dark .uc-badge.ub-mem{background:#2E5384}
 body.dark .uc-badge.ub-pen{background:none}
 /* Flair chips: outlined, not filled — the filled badge stays the role's alone.

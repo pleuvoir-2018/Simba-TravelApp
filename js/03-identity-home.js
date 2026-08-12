@@ -83,7 +83,10 @@ function renderAdminPage(){
           :u.role==='admin'?`<div style="margin-top:7px;font:10.5px var(--mono);color:#8A4390">🛡 Admin — full access everywhere regardless. Participation below controls which trips they are counted in — rosters, headcounts, the group pot. Only the Super Admin can change or remove this account.</div><div class="ggrid">${partCells(u)}</div>`
           :u.role==='pending'?'':`<div class="ggrid">
             ${dests.map(d=>{
-              const td=TRIP_DATA[d.id];
+              /* Tools have no registry entry — 85482d7 added them to dests
+                 but left this deref unguarded, and the throw mid-template
+                 blanked the whole IAM page. */
+              const td=TRIP_DATA[d.id]||{};
               const roled=td.cruise||td.group;
               return `<label class="gcell"><span class="gname">${d.emoji||''} ${esc(d.country)}</span>
                 <select onchange="appGrant('${u.uid}','${d.id}',this.value)">

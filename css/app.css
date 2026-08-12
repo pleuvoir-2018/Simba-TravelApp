@@ -546,5 +546,8 @@ body.itin .tdo-row{border-top:1px solid rgba(20,22,27,.07);border-bottom:none}
 body.dark.itin .tdo-row{border-top-color:rgba(231,226,214,.08)}
 body.itin input,body.itin select,body.itin textarea{border-radius:5px}
 body.itin .poitoggle,body.itin .catbtn{border-radius:20px}
+body.itin .td2-h.tint{background:var(--washi2);border-bottom:none;border-radius:6px;margin:10px 12px;padding:10px 14px;color:var(--indigo)}
+body.dark.itin .td2-h.tint{background:#262B34;color:var(--indigo)}
+body.itin .tb-row:first-of-type,body.itin .td2-h.tint+.tb-row{border-top:none}
 body.itin .mapcard{background:#fff;border:none;border-radius:9px;box-shadow:0 1px 4px rgba(20,22,27,.07)}
 body.dark.itin .mapcard{background:#1C2027}

@@ -140,7 +140,7 @@ function renderCruise(c){
       return `<div class="card"><div class="chead"><span>Day ${d.day} · ${esc(d.date)}</span><span>${esc(d.hrs)}</span></div>
         <div style="padding:9px 12px;font-size:13px;font-weight:600;color:var(--indigo)">${esc(d.port)}</div>
         ${its.map(p=>`<div class="tdo-row"><span class="tdo-time" style="flex:0 0 44px;font:600 10px var(--mono);color:var(--grey)">${p.t||'—'}</span>
-          <span class="tdo-main"><span style="font-size:13px">${esc(p.txt)}</span>${p.loc?`<span class="tdo-desc">${esc(p.loc)}</span>`:''}</span>
+          <span class="tdo-main"><span style="font-size:13px">${esc(p.txt)}</span>${p.loc?`<span class="tdo-desc" style="margin-left:9px">${esc(p.loc)}</span>`:''}</span>
           ${admin?`<button class="tdo-x" onclick="editSched('${p.id}')" style="color:var(--indigo)">✎</button><button class="tdo-x" onclick="delSched('${p.id}')" style="color:var(--clay);font-size:17px">×</button>`:''}</div>`).join('')||'<div style="padding:6px 12px 10px;font-size:11.5px;color:var(--grey)">Free day so far.</div>'}
       </div>`;
     }).join('');

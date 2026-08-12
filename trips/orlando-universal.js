@@ -111,7 +111,7 @@ window.TRIPS_REGISTRY['orlando-universal']={
  title:'Orlando — Universal',kicker:'THEME-PARK TRIP · DATES TBD',
  depart:[2029,0,1],arrive:[2029,0,1],end:[2029,0,5],   /* placeholder — update with real dates */
  navIcons:{orlando:'🎬'},navSecs:{},
- tz:'America/New_York',mon:'1',cur:'USD',
+ tz:'America/New_York',mon:1,cur:{code:'USD',sym:'$',key:'usd',fallback:1,name:'dollars'},
  departNote:'Dates TBD — scaffold only. Flights, hotel and park days to be planned once timing lands.',
  preLabel:'UNTIL THE PARKS',transitLabel:'GETTING THERE & AWAY',
  seedTodos:[

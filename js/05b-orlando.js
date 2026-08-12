@@ -209,8 +209,9 @@ function renderOrlando(c){
       </div>`;
   }
 
-  const el=document.getElementById('content');
-  el.innerHTML=`<div class="wrap">${body}</div>`;
+  const el=document.getElementById('panel');
+  if(!el)return;
+  el.innerHTML=`<div class="stack" style="max-width:980px;margin:0 auto">${body}</div>`;
 }
 
 /* ---------------- maps ---------------- */

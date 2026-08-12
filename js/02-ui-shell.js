@@ -135,11 +135,11 @@ function buildMap(c){
     const div = L.DomUtil.create('div', 'map-legend');
     div.innerHTML = `
       <div style="font-weight:bold; margin-bottom:6px; color:var(--indigo);">Legend</div>
-      <div class="l-row"><span class="l-box" style="background:var(--plum);"></span> Hotel</div>
-      <div class="l-row"><span class="l-circ" style="background:var(--indigo);"></span> Meals</div>
-      <div class="l-row"><span class="l-dia" style="background:var(--moss);"></span> POI</div>
-      <div class="l-row"><span style="color:var(--plum); font-weight:bold; font-size:12px; line-height:8px; margin-top:-4px;">⋯</span> Day loop</div>
-      <div class="l-row"><span style="color:var(--indigo); font-weight:bold; font-size:12px; line-height:8px; margin-top:-4px;">╌</span> Transit</div>
+      <div class="l-row"><span class="l-box" style="background:#8E4B62;"></span> Hotel</div>
+      <div class="l-row"><span class="l-circ" style="background:#22406B;"></span> Meals</div>
+      <div class="l-row"><span class="l-dia" style="background:#5E7F4C;"></span> POI</div>
+      <div class="l-row"><span style="color:#8E4B62; font-weight:bold; font-size:12px; line-height:8px; margin-top:-4px;">⋯</span> Day loop</div>
+      <div class="l-row"><span style="color:#22406B; font-weight:bold; font-size:12px; line-height:8px; margin-top:-4px;">╌</span> Transit</div>
     `;
     return div;
   };

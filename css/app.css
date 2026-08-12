@@ -116,11 +116,11 @@
 
   .mk{display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--indigo);border:2px solid var(--washi);box-shadow:0 1px 4px rgba(0,0,0,.3);color:#fff;font:700 10px var(--mono)}
   .mk.on{background:var(--clay)}
-  .mk-h{border-radius:3px;background:var(--plum)}
-  .mk-poi{transform:rotate(45deg);border-radius:2px;background:var(--moss)}
+  .mk-h{border-radius:3px;background:#8E4B62}
+  .mk-poi{transform:rotate(45deg);border-radius:2px;background:#5E7F4C}
   .mk-poi span{transform:rotate(-45deg);font-size:9px}
-  .mk-poi.on{background:var(--clay)}
-  .mk-air{border-radius:3px;background:var(--indigo2)}
+  .mk-poi.on{background:#B8552A}
+  .mk-air{border-radius:3px;background:#4A6E9E}
   .leaflet-popup-content-wrapper{border-radius:3px;font-family:var(--sans)}
   .leaflet-popup-content{margin:10px 12px;font-size:12px}
   .leaflet-popup-content b{font-family:var(--serif);font-size:14px}

@@ -268,7 +268,7 @@ var HOTELS = {
 {id:"tokyo",city:"Tokyo",sub:"11/26–11/27",hotel:"hyatt",
  legs:[
   {r:"Arrive: Tokyo Stn → Roppongi",m:"11/26 · Marunouchi → Kasumigaseki → Hibiya line ~25 min",n:"Off the Nozomi 16:15, at the hotel ~17:00. Roku Roku 18:00–19:00."},
-  {r:"Depart ✈: Roppongi → Tokyo Stn → Narita T1",m:"11/27 · taxi ~25 min, then N'EX ~13:00 → T1 ~14:00 — not yet booked",n:"Limousine from the hotel is suspended, so: hotel exit 11:30, taxi over the metro (two lines + bags), and budget 15 min inside Tokyo Stn — the N'EX leaves from B5. Booking opens Oct 27 (Oct 26 evening EDT)."},
+  {r:"Depart ✈: Roppongi → Tokyo Stn → Narita T1",m:"11/27 · N'EX ✓ dep 12:33 → T1 ~13:30",n:"Booked. Hotel exit 11:00 → taxi ~25 min (skip the two-line metro with bags) → 15 min inside Tokyo Stn down to the B5 Sōbu platforms. Lands you at T1 2.5 h before ZG022."},
   {r:"Depart: Grand Hyatt → NRT",m:"11/27 · leave 11:45 · N'EX from Tokyo Stn ~60 min",n:"ZG022 departs 16:00 — at NRT by 13:30. Bricolage at 10:30 is your send-off bite. TAX REFUND: from 11/1/26 Japan refunds at the airport, not the register — keep every receipt, allow 45–60 min extra at NRT, consider leaving the Hyatt before 11:45."}],
  metro:[["Hibiya Line","Roppongi is under the Hills; Ginza 10 min, Tsukiji 14 min"],["Ōedo Line","Roppongi → Shinjuku 9 min"]],
  pois:[
@@ -325,7 +325,7 @@ var TRAINS=[
  {d:"Nov 24",t:"10:35",route:"Tenn\u014dji \u2192 Shin-\u014csaka",train:"Kuroshio 12 \u2713 Japan Rail Tickets",note:"Arr 10:51 (16 min). Dep Platform 18 \u00b7 arr Platform 1. Connects to Nozomi 90 dep 11:30."},
  {d:"Nov 24",t:"11:30",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 90 ✓ Smart EX",note:"Arr 12:19 — Keitei inside the station. Leave hotel 10:40. Seats not finalized."},
  {d:"Nov 26",t:"14:36",route:"Nagoya → Tokyo",train:"Nozomi 24 ✓ Smart EX",note:"Arr 16:15, Roppongi ~17:00. SHUHARI ends 14:05 latest. Seats not finalized."},
- {d:"Nov 27",t:"~13:00",route:"Tokyo Stn → Narita T1",train:"N'EX — NOT YET BOOKED (opens Oct 27)",note:"DECIDED: N'EX (the Grand Hyatt limousine route is suspended). Hotel exit ~11:30 → taxi to Tokyo Stn ~25 min → allow 15 min down to the B5 Sōbu platforms → ~13:00 N'EX → T1 ~14:00, two clean hours before ZG022. Seats open Oct 27 10:00 JST (Oct 26, 9 PM EDT) on JR-EAST Train Reservation, same account as N'EX 30.",warn:true}
+ {d:"Nov 27",t:"12:33",route:"Tokyo Stn → Narita T1",train:"N'EX ✓ dep 12:33",note:"Booked. Arr T1 ~13:30 — 2.5 h before ZG022. Hotel exit 11:00 → taxi ~25 min → at Tokyo Stn by ~11:30 → 15 min down to the B5 Sōbu platforms with margin to spare. (Limousine from the hotel is suspended; this replaces it.)"}
 ];
 
 window.TRIPS_REGISTRY['japan-2026']={accent:'#B8552A',cities:CITIES,hotels:HOTELS,flights:FLIGHTS,trains:TRAINS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
@@ -339,7 +339,7 @@ window.TRIPS_REGISTRY['japan-2026']={accent:'#B8552A',cities:CITIES,hotels:HOTEL
      {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
      {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. Booking opens 10:30 JST, one month out.'},
      {id:'t9',d:'2026-10-19',cat:'transport',title:'Kintetsu Kyoto → Nara 11/19 opens — book it',url:'https://www.ticket.kintetsu.co.jp/vs/en/e-ticket/',desc:'Opens 10:30 JST = 9:30 PM EDT Oct 18. Kintetsu e-ticket portal (NOT Smart EX / JR — private railway, not bookable before the window). Pick a train marked THROUGH to Kintetsu-Nara — some require a Yamato-Saidaiji change. ~¥1,280/person combined fare+exp; e-ticket on your phone.'},
-     {id:'t10',d:'2026-10-26',cat:'transport',title:'N\'EX Tokyo → Narita 11/27 opens — book it',url:'https://www.eki-net.com/en/jreast-train-reservation/',desc:'Opens 10:00 JST Oct 27 = 9:00 PM EDT Oct 26. Same JR-EAST account as N\'EX 30. Book the ~13:00 departure to T1 (arr ~14:00). Limousine route from the hotel is suspended — this is the plan.'}],
+],
    vault:[['Flights',[['f_dl1015','Delta 1015 · IAD→SEA','Nov 15 · 07:00 · conf / seats'],['f_dl3748','Delta 3748 · SEA→YVR','Nov 15 · 13:30 · conf / seats · codeshare'],['f_zg021','Zip Air ZG021 · YVR→NRT','Nov 16 · booking ref / seats'],['f_zg022','Zip Air ZG022 · NRT→YVR','Nov 27 · booking ref / seats'],['f_ua2470','United UA2470 · YVR→DEN','Nov 27 · booking ref / seats'],['f_ua2408','United UA2408 · DEN→IAD','Nov 27 · booking ref / seats']]],
           ['Trains',[['t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats'],['t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats'],['t_aoni','Aoniyoshi · Kintetsu-Nara→Ōsaka-Namba','Nov 21 · 17:34 · Kintetsu res # / seats'],['t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats'],['t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats'],['t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats']]]],
    flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="180" fill="#bc002d"/></svg>'};

@@ -104,7 +104,7 @@ var HOTELS = {
 
 {id:"nara",city:"Nara",sub:"11/19–11/21",hotel:"shisui",
  legs:[
-  {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express ~35 min (16:20 → 16:55)",n:"Off the Nozomi at 16:00, Kintetsu platform is beneath Kyoto Stn. Shisui is a 12-min walk or short taxi."},
+  {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express 16:20 → 16:55 — all-reserved, NOT YET BOOKED",n:"Only a 20-min connection off the Nozomi (arr 16:00) — pre-book: seats open on Kintetsu online 1 month out (Oct 19), same site as the Aoniyoshi. Buying at the machine in that window with luggage is a gamble."},
   {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 · Aoniyoshi sightseeing ltd. exp · dep 17:34 → arr 18:12 (Sat/hol)",n:"Full final day in Nara — Fuku Sushi lunch, afternoon free. Aoniyoshi is all-reserved: seats open on Kintetsu ~1 month out (Oct 21). At Namba: Midōsuji to Tennōji, drop bags, then Ondoriya."}],
  metro:[["On foot","Shisui sits inside Nara Park — Tōdai-ji 12 min, Kōfuku-ji 10 min, Kintetsu-Nara 12 min"],["Loop bus","Nara City Loop stops at Kenchō-Higashi, 3 min from the hotel"]],
  pois:[
@@ -323,7 +323,8 @@ var TRAINS=[
  {d:"Nov 23",t:"20:30",route:"Kyoto \u2192 Tenn\u014dji",train:"Haruka 59 \u2713 Japan Rail Tickets",note:"Arr 21:16 (46 min). Dep Platform 30 \u00b7 arr Platform 15. Return after dinner \u2014 replaces the Keihan/T\u014dfukuji plan on the Kyoto tab."},
  {d:"Nov 24",t:"10:35",route:"Tenn\u014dji \u2192 Shin-\u014csaka",train:"Kuroshio 12 \u2713 Japan Rail Tickets",note:"Arr 10:51 (16 min). Dep Platform 18 \u00b7 arr Platform 1. Connects to Nozomi 90 dep 11:30."},
  {d:"Nov 24",t:"11:30",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 90 ✓ Smart EX",note:"Arr 12:19 — Keitei inside the station. Leave hotel 10:40. Seats not finalized."},
- {d:"Nov 26",t:"14:36",route:"Nagoya → Tokyo",train:"Nozomi 24 ✓ Smart EX",note:"Arr 16:15, Roppongi ~17:00. SHUHARI ends 14:05 latest. Seats not finalized."}
+ {d:"Nov 26",t:"14:36",route:"Nagoya → Tokyo",train:"Nozomi 24 ✓ Smart EX",note:"Arr 16:15, Roppongi ~17:00. SHUHARI ends 14:05 latest. Seats not finalized."},
+ {d:"Nov 27",t:"~11:45",route:"Roppongi → Narita T1",train:"NOT BOOKED — Limousine Bus vs N'EX",note:"ZG022 dep 16:00; be at NRT 13:30–14:00. Option A: Airport Limousine Bus from the Grand Hyatt itself (~100 min, ~¥3,600pp, bags handled, opens ~1 month out). Option B: N'EX from Tokyo Stn (~55 min) but add the Roppongi → Tokyo Stn hop with luggage. Bus is the comfortable pick.",warn:true}
 ];
 
 window.TRIPS_REGISTRY['japan-2026']={accent:'#B8552A',cities:CITIES,hotels:HOTELS,flights:FLIGHTS,trains:TRAINS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
@@ -335,7 +336,9 @@ window.TRIPS_REGISTRY['japan-2026']={accent:'#B8552A',cities:CITIES,hotels:HOTEL
    departNote:'Delta 1015 · IAD 07:00 · Nov 15',preLabel:'Positioning day',transitLabel:'In transit ✈',
    seedTodos:[
      {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
-     {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. Booking opens 10:30 JST, one month out.'}],
+     {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. Booking opens 10:30 JST, one month out.'},
+     {id:'t9',d:'2026-10-19',cat:'transport',title:'Kintetsu Kyoto → Nara 11/19 opens — book it',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'All-reserved ltd. exp 16:20 → 16:55 with only a 20-min connection off Nozomi 73. Same site as Aoniyoshi, two days earlier.'},
+     {id:'t10',d:'2026-10-27',cat:'transport',title:'Book Roppongi → Narita for 11/27',url:'https://webservice.limousinebus.co.jp/web/en/',desc:'Limousine Bus departs the Grand Hyatt itself (~100 min, bags handled) — or N\'EX from Tokyo Stn. Decide and book; be at NRT by 13:30–14:00 for ZG022.'}],
    vault:[['Flights',[['f_dl1015','Delta 1015 · IAD→SEA','Nov 15 · 07:00 · conf / seats'],['f_dl3748','Delta 3748 · SEA→YVR','Nov 15 · 13:30 · conf / seats · codeshare'],['f_zg021','Zip Air ZG021 · YVR→NRT','Nov 16 · booking ref / seats'],['f_zg022','Zip Air ZG022 · NRT→YVR','Nov 27 · booking ref / seats'],['f_ua2470','United UA2470 · YVR→DEN','Nov 27 · booking ref / seats'],['f_ua2408','United UA2408 · DEN→IAD','Nov 27 · booking ref / seats']]],
           ['Trains',[['t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats'],['t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats'],['t_aoni','Aoniyoshi · Kintetsu-Nara→Ōsaka-Namba','Nov 21 · 17:34 · Kintetsu res # / seats'],['t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats'],['t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats'],['t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats']]]],
    flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="180" fill="#bc002d"/></svg>'};

@@ -44,7 +44,7 @@ var HOTELS = {
    warn:"BOOK IT — 778-370-8600 or victor@parqvancouver.com, or let the JW concierge place it with the anniversary noted. Confirm the folio charge reaches the FHR credit."}]},
 {id:"yokohama",city:"Yokohama",sub:"11/17–11/19",hotel:"westin",showNRT:true,
  legs:[
-  {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX (Narita Express) direct ~90 min",n:"Land 12:45 → landside ~14:15 → N'EX to Yokohama Stn → 5-min taxi. Door-to-door ~16:45."},
+  {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX 30 ✓ · dep Narita T1 14:45 → arr Yokohama 16:16",n:"Land 12:45 → landside ~14:15 → Platform 1/2. Arr Platform 6, then 5-min taxi to the Westin. Door-to-door ~16:45 — booked on Japan Rail Tickets."},
   {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 73 · dep 14:07 → arr 16:00",n:"Lunch done by ~12:50 → JR Yokohama line Yokohama → Shin-Yokohama, 12 min. Bags: coin lockers at Yokohama Stn, or carry."}],
  metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["On foot","Shirahara is 3 min from the hotel · Hana Yori is at Yokohama Stn · Tenshichi is at Kannai (JR Negishi line, 2 stops from Sakuragichō)"]],
  pois:[
@@ -138,7 +138,7 @@ var HOTELS = {
 {id:"osaka",city:"Osaka",sub:"11/21–11/24",hotel:"miyako",
  legs:[
   {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 eve · Midōsuji line 6 min",n:"Aoniyoshi lands Namba 18:12. The Miyako has a direct elevator from Tennōji / Ōsaka-Abenobashi — bags first, then back up for dinner."},
-  {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Midōsuji ~25 min, then Nozomi 90 dep 11:30",n:"Leave the hotel by 10:40. Arrives Nagoya 12:19 — Keitei is inside the station."}],
+  {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Kuroshio 12 ✓ dep 10:35 → Shin-Ōsaka 10:51 · Nozomi 90 dep 11:30",n:"Booked — ride JR from Tennōji (Platform 18), not the Midōsuji. Arr Shin-Ōsaka Platform 1 with a 39-min cushion to the Nozomi. Leave the hotel by ~10:15; Nagoya 12:19, Keitei inside the station."}],
  metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min · every 2–4 min"],["JR Osaka Loop","backup ring from Tennōji; Osaka-jō 12 min"]],
  pois:[
   {c:"sight",ic:"🌃",n:"Hōzenji Yokochō",d:"lantern alley + moss-covered Fudō",a:"Namba",lat:34.6678,lng:135.5031},
@@ -178,9 +178,9 @@ var HOTELS = {
 
 {id:"kyoto",city:"Kyoto",sub:"11/23 · day trip from Osaka",hotel:"miyako",
  legs:[
-  {r:"Fastest: Tennōji → Kyoto",m:"JR Haruka Ltd. Express ~45 min direct",n:"Reserved seat recommended in foliage season."},
+  {r:"Out 11/23: Tennōji → Kyoto",m:"Haruka 12 ✓ · dep 10:20 → arr 11:04 (44 min)",n:"Booked on Japan Rail Tickets. Dep Platform 18 · arr Platform 30. Elevator down from the Miyako straight to Tennōji JR."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
-  {r:"Return 11/23 after dinner",m:"Keihan Gion-Shijō → Tōfukuji → JR → Tennōji",n:"Tousuiro is 8 min from Gion-Shijō. Trains run past midnight; a 19:30 finish is completely relaxed."}],
+  {r:"Return 11/23 after dinner",m:"Haruka 59 ✓ · dep Kyoto 20:30 → arr Tennōji 21:16 (46 min)",n:"Booked — replaces the old Keihan/Tōfukuji route. Dep Platform 30 · arr Platform 15. From Tousuiro, Kyoto Stn is ~12 min by taxi: a 19:30–19:45 finish is comfortable; don't linger past 20:00."}],
  // 11/22 is a full Osaka day (Katsugyu → Dōguyasuji/Namba → depachika in-room) — Kyoto is 11/23 only.
  metro:[["To Kiyomizu / Gion","Keihan via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Higashiyama on foot","Menzou (Okazaki) → Kiyomizu → Ishibei-kōji is walkable; bus 100/206 if legs give out"]],
  pois:[

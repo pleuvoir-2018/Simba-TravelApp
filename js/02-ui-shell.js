@@ -14,7 +14,8 @@ const DEV_TAB={id:'addrest',city:'Add restaurant',sub:'organizer tools',addrest:
 function navCities(){
   let list=CITIES.slice();
   if(list.some(c=>c.cruiseTab||c.jjTab||c.uoTab)&&!window._cru)return [];
-  if(typeof appRole==='function'&&appRole()==='designer'){
+  const _vwr=(typeof tripGrantOf==='function'&&typeof tripSel!=='undefined'&&tripSel&&tripGrantOf(tripSel)==='viewer');
+  if((typeof appRole==='function'&&appRole()==='designer')||_vwr){
     list=list.filter(c=>!c.vault&&!c.expenses&&c.cruiseTab!=='cexp'&&c.jjTab!=='jexp'&&c.uoTab!=='uoexp');
   }
   if(list.some(c=>c.adminOnly)&&cruRole()!=='admin')list=list.filter(c=>!c.adminOnly);

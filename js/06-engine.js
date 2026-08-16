@@ -19,7 +19,9 @@ function applyTripData(id){
   document.body.classList.toggle('itin',!(t.cruise||t.group));
   if(typeof updateAvatar==='function')updateAvatar();
   const eb=document.getElementById('editToggle');
-  if(eb)eb.style.display=t.cruise?'none':'';
+  const _vro=(typeof tripGrantOf==='function'&&tripGrantOf(tripSel)==='viewer');
+  if(eb)eb.style.display=(t.cruise||_vro)?'none':'';
+  if(_vro&&typeof exitEdit==='function')exitEdit();
   if(t.cruise&&typeof exitEdit==='function')exitEdit();
   document.title=t.title;
   buildNav();

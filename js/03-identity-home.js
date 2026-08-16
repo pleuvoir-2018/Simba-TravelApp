@@ -93,7 +93,8 @@ function renderAdminPage(){
                   <option value="" ${!acc[d.id]?'selected':''}>No access</option>
                   ${roled?`<option value="guest" ${acc[d.id]==='guest'?'selected':''}>Guest</option>
                   <option value="organizer" ${acc[d.id]==='organizer'?'selected':''}>Organizer</option>`
-                  :`<option value="yes" ${acc[d.id]?'selected':''}>Access</option>`}
+                  :`<option value="yes" ${acc[d.id]===true||acc[d.id]==='yes'?'selected':''}>Access</option>
+                  <option value="viewer" ${acc[d.id]==='viewer'?'selected':''}>View-only</option>`}
                 </select></label>`;
             }).join('')}
           </div>`}
@@ -404,6 +405,12 @@ function validateAppSession(){
   try{localStorage.removeItem('jt_app');}catch(e){}
   return false;
 }
+window.tripGrantOf=function(id){
+  const sAp=window._app; if(!sAp||!sAp.uid)return null;
+  if(sAp.role==='admin')return 'admin';
+  const u=appUsers().find(x=>x.uid===sAp.uid);
+  return (u&&u.access&&u.access[id])||null;
+};
 function canOpen(id){
   const sAp=window._app;
   if(!sAp||!sAp.uid)return false;

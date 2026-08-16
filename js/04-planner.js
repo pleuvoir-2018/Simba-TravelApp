@@ -476,6 +476,7 @@ window.cruProfile=function(){
      member/guest ladder is meaningless, so everyone reads Participant. */
   const isGroupTrip=id=>{const td=(typeof TRIP_DATA!=='undefined'&&TRIP_DATA[id])||null;return !!(td&&(td.cruise||td.group));};
   const badge=(r,id)=>id==='benefits'?'<span class="pp-badge part">Access</span>'
+    :r==='viewer'?'<span class="pp-badge">View-only</span>'
     :!isGroupTrip(id)?'<span class="pp-badge part">Participant</span>'
     :r==='organizer'?'<span class="pp-badge org">Organizer</span>'
     :r==='guest'?'<span class="pp-badge guest">Guest</span>'

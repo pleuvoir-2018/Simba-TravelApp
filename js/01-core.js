@@ -159,6 +159,7 @@ function saveOverrides(){
   if(window._realApp){flash('Viewing as '+((window._app||{}).name||'…')+' — read only, nothing saves','err');return;}
   if(typeof appRole==='function'&&appRole()==='designer'){flash('Design review account — read only, nothing saves','err');return;}
   if(tripSel&&typeof currentArchived==='function'&&currentArchived()){flash('This trip is archived — read only');return;}
+  if(tripSel&&typeof tripGrantOf==='function'&&tripGrantOf(tripSel)==='viewer'){flash('View-only access to this trip — nothing saves','err');return;}
   store.trips=store.trips||{};
   if(tripSel)store.trips[tripKey()]=overrides;
   store._ts=Date.now();

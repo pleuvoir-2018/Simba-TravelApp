@@ -312,6 +312,7 @@ function baSummaryData(trav,trips){
 }
 window.openBenefits=function(){ window._onAdmin=false; tripSel=null; renderBenefitsPage('sum'); };
 window.renderBenefitsPage=function(tab,keep){
+  saveLoc({ba:tab});
   document.body.classList.remove('cruise','itin');
   document.body.classList.add('home','tools');   // home-family chrome (no trip sidebar/header), tools palette
   document.body.style.setProperty('--tripac','#0E7C86');

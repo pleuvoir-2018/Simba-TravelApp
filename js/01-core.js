@@ -86,6 +86,12 @@ async function sDel(){
   mem=null;
 }
 
+window.saveLoc=function(loc){
+  try{ if(!loc)localStorage.removeItem('jt_loc'); else localStorage.setItem('jt_loc',JSON.stringify(loc)); }catch(e){}
+};
+window.loadLoc=function(){
+  try{ const s=localStorage.getItem('jt_loc'); return s?JSON.parse(s):null; }catch(e){ return null; }
+};
 function mergeTodos(rt,lt){
   if(!rt.todos&&!lt.todos)return {};
   const gone=[...new Set([...(rt.todoGone||[]),...(lt.todoGone||[])])];

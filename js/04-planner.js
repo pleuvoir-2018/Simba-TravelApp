@@ -148,6 +148,7 @@ window.toggleTodo=function(id,v){
 window.delTodo=function(id){
   if(!confirm('Remove this item?'))return;
   overrides.todos=(overrides.todos||[]).filter(t=>t.id!==id);
+  overrides.todoGone=[...new Set([...(overrides.todoGone||[]),id])];
   saveOverrides();refreshPanel();
 };
 window.editTodo=function(id){

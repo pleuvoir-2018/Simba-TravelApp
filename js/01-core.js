@@ -86,6 +86,18 @@ async function sDel(){
   mem=null;
 }
 
+function mergeTodos(rt,lt){
+  if(!rt.todos&&!lt.todos)return {};
+  const gone=[...new Set([...(rt.todoGone||[]),...(lt.todoGone||[])])];
+  const by={};
+  (rt.todos||[]).forEach(t=>{if(t&&t.id)by[t.id]=t;});
+  (lt.todos||[]).forEach(t=>{if(t&&t.id)by[t.id]=t;});     // local wins per id (your checkbox intent)
+  const todos=Object.values(by).filter(t=>!gone.includes(t.id));
+  const out={todos};
+  if(gone.length)out.todoGone=gone;
+  if(lt.todoSeed!==undefined||rt.todoSeed!==undefined)out.todoSeed=(lt.todoSeed!==undefined?lt.todoSeed:rt.todoSeed);
+  return out;
+}
 function mergeApp(rA,lA){
   const sAp=window._app||{}; const me=sAp.uid||null;
   /* Admin lanes must key off the REMOTE roster, not the session. A roster
@@ -285,7 +297,7 @@ async function flushSave(){
         const trips={...(remote.trips||{})};
         Object.keys(store.trips||{}).forEach(k=>{
           const rt=trips[k]||{}, lt=(store.trips||{})[k]||{};
-          let m={...rt,...lt,vault:{...(rt.vault||{}),...(lt.vault||{})}};
+          let m={...rt,...lt,vault:{...(rt.vault||{}),...(lt.vault||{})},...mergeTodos(rt,lt)};
           if(TRIP_DATA[k]&&(TRIP_DATA[k].cruise||TRIP_DATA[k].group))m=mergeCruise(rt,lt,m);
           trips[k]=m;
         });

@@ -292,7 +292,6 @@ window.openAbout=function(){
 };
 window.closeAbout=function(){const ov=document.getElementById('aboutOv');if(ov)ov.style.display='none';};
 function renderHome(){
-  saveLoc(null);
   window._onAdmin=false;
   document.body.classList.remove('tools');
   document.body.classList.add('home');

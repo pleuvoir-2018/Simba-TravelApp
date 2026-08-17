@@ -724,13 +724,23 @@ body.dark .ba-dd{background:#242A33}
 /* ==== SUBTLE PHOTO TREATMENT: landing foliage + Japan city banners ==== */
 body.home #panel{position:relative}
 body.home{overflow-x:hidden}
-.home-bgart{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:100vw;height:100vh;object-fit:cover;z-index:0;pointer-events:none;
+/* Backdrop is pinned to the VIEWPORT, not the document. The old absolute
+   100vh art covered exactly one screen of the page, so any landing taller
+   than a viewport (foldables, long trip lists) showed the image's raw
+   bottom edge mid-page. Fixed fills every screen edge-to-edge at every
+   scroll position with no edge to hit, and keeps the photo's real
+   composition instead of stretching it over the document. This is
+   position:fixed on an <img> — NOT background-attachment:fixed, the
+   variant that is broken on Android. The scrim is a steady veil (denser
+   at the top for the hero) rather than a fade-to-solid, which would
+   otherwise pin to the bottom of every screen. */
+.home-bgart{position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:0;pointer-events:none;
   filter:saturate(.55) brightness(1.05) contrast(.92)}
-.home-bgscrim{position:absolute;top:-18px;left:50%;transform:translateX(-50%);width:100vw;height:100vh;z-index:1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(251,248,241,.68) 0%,rgba(251,248,241,.6) 35%,rgba(251,248,241,.62) 72%,rgba(251,248,241,.85) 92%,rgba(251,248,241,1) 100%)}
+.home-bgscrim{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(251,248,241,.74) 0%,rgba(251,248,241,.6) 30%,rgba(251,248,241,.66) 100%)}
 body.home .home-hero,body.home .trips,body.home .home-sec,body.home .home-foot{position:relative;z-index:2}
 body.dark .home-bgart{filter:saturate(.5) brightness(.55) contrast(.95)}
-body.dark .home-bgscrim{background:linear-gradient(180deg,rgba(20,23,30,.72) 0%,rgba(20,23,30,.64) 35%,rgba(20,23,30,.66) 72%,rgba(20,23,30,.88) 92%,rgba(20,23,30,1) 100%)}
+body.dark .home-bgscrim{background:linear-gradient(180deg,rgba(20,23,30,.78) 0%,rgba(20,23,30,.66) 30%,rgba(20,23,30,.7) 100%)}
 .city-art{position:relative;height:132px;border-radius:9px;overflow:hidden;margin-bottom:0; /* spacing = .col-left gap:18px, matching map-to-hotel rhythm */box-shadow:0 2px 10px rgba(31,42,68,.12)}
 .city-art img{width:100%;height:100%;object-fit:cover;filter:saturate(.6) brightness(1.03) contrast(.94)}
 .city-art-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(251,248,241,.22) 0%,rgba(251,248,241,.05) 45%,rgba(20,23,30,.38) 100%)}

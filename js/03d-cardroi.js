@@ -167,9 +167,15 @@ function crMyCards(){
   (Y.extra||[]).forEach(id=>{ if(CR_CARDS[id]&&!mine.includes(id))mine.push(id); });
   return mine;
 }
-function crAF(id){
+/* crFee, not crAF: the mutator below is window.crAF, and in a browser a
+   top-level function declaration and window.<same name> are ONE binding —
+   the assignment overwrote this reader and every render recursed itself to
+   death. The new-Function harness masked it (sandbox 'window' is not the
+   script's global scope); vm-context loading is the standard now. */
+function crFee(id){
   const c=crCard(id);
-  return (c&&c.af!==undefined&&c.af!=='')?Number(c.af):CR_CARDS[id].af;
+  const o=(c&&c.af!==undefined&&c.af!==''&&Number(c.af)>0)?Number(c.af):null;   // af:0 = crash-loop residue, treat as unset
+  return o!==null?o:CR_CARDS[id].af;
 }
 function crCardVal(id){
   const c=crCard(id); if(!c)return 0;
@@ -201,7 +207,7 @@ window.renderCardRoiPage=function(keep){
   if(myPP.length&&!myPP.includes(pp.to))pp.to=myPP[0];
 
   const totVal=mine.reduce((a,id)=>a+crCardVal(id),0);
-  const totAF=mine.reduce((a,id)=>a+crAF(id),0);
+  const totAF=mine.reduce((a,id)=>a+crFee(id),0);
   const net=totVal-totAF;
 
   const lbl=t=>`<div style="padding:11px 15px 2px;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey)">${t}</div>`;
@@ -248,7 +254,7 @@ window.renderCardRoiPage=function(keep){
 
   /* -------- one card per card -------- */
   const cardCard=id=>{
-    const D=CR_CARDS[id], c=crCard(id), v=crCardVal(id), af=crAF(id);
+    const D=CR_CARDS[id], c=crCard(id), v=crCardVal(id), af=crFee(id);
     const credits=D.credits.map(([k,n,max])=>{const used=Number(c.credits[k]||0);const pct=Math.min(100,Math.round(used/max*100));
       return `<div style="display:flex;align-items:center;gap:9px;padding:4px 15px">
         <span style="flex:0 0 42%;min-width:150px;font-size:12px">${n}</span>
@@ -311,7 +317,7 @@ window.renderCardRoiPage=function(keep){
 /* ---------------- mutators — every one behind the wall, every one on MY ledger ---------------- */
 function crSave(){ saveOverrides(); renderCardRoiPage(true); }
 window.crYear=function(d){ const ui=window._crUI=window._crUI||{}; ui.year=crYearSel()+d; renderCardRoiPage(true); };
-window.crAF=function(id,v){ if(!crGuard())return; const c=crCard(id); if(!c)return; c.af=v===''?'':Math.max(0,Number(v)||0); crSave(); };
+window.crAF=function(id,v){ if(!crGuard())return; if(v===undefined)return; const c=crCard(id); if(!c)return; c.af=v===''?'':Math.max(0,Number(v)||0); crSave(); };
 window.crCredit=function(id,k,v){ if(!crGuard())return; const c=crCard(id); if(!c)return; c.credits[k]=Math.max(0,Number(v)||0); crSave(); };
 window.crCount=function(id,k,d,def){ if(!crGuard())return; const c=crCard(id); if(!c)return;
   c.counts[k]=c.counts[k]||{n:0,v:def};

@@ -74,7 +74,8 @@ const CR_CARDS={
    ['ride','Rideshare ($10/mo)',120,'m',10]],
   counts:[
    ['club','Sky Club visit (15/yr cap)',50],
-   ['comp','Companion certificate used',400]],
+   ['comp','Companion certificate used',400],
+   ['bag','Free first bag (DL, you + companions)',35]],
   note:'Sky Club is Delta\u2019s own network — it counts here, not in the shared lounge row.'},
  unitedclub:{n:'United Club Card',af:695,ver:'checked Aug 2026',pp:false,
   credits:[
@@ -83,7 +84,8 @@ const CR_CARDS={
    ['instacart','Instacart ($20/mo, thru 2027)',240,'m',20]],
   counts:[
    ['club','United Club visit',40],
-   ['award','10k-mile award discount (×2/yr)',135]],
+   ['award','10k-mile award discount (×2/yr)',135],
+   ['bag','Free checked bag (UA, you + companion, 1st & 2nd)',40]],
   note:'Membership itself retails near the AF — the per-visit counter is how it earns it back. JSX and Avis/Budget credits exist too; their splits aren’t seeded, log them however your statement pays.'},
  unitedquest:{n:'United Quest',af:350,ver:'checked Aug 2026 \u2014 2026 refresh, credits total \u0024860',pp:false,
   credits:[
@@ -94,7 +96,8 @@ const CR_CARDS={
    ['jsx','JSX flights',150],
    ['avis','Avis / Budget',80]],
   counts:[
-   ['award','10k-mile award discount (1/yr, +1 after \u002420k spend)',135]],
+   ['award','10k-mile award discount (1/yr, +1 after \u002420k spend)',135],
+   ['bag','Free checked bag (UA, you + companion, 1st & 2nd)',40]],
   note:'The mid-tier by name \u2014 in under the \u0024500 line like Bilt and VX. No lounge on this one; two free bags for you + a companion, 1,000 PQP boost, GE/TSA every 4 yrs. Rideshare cadence as reported \u2014 edit if your statement pays differently.'},
  aaexec:{n:'Citi AAdvantage Executive',af:695,ver:'checked Aug 2026 — $695 from Aug 23, $595 before; edit the AF to match your renewal',pp:false,
   credits:[
@@ -103,7 +106,8 @@ const CR_CARDS={
    ['avis','Avis / Budget',120],
    ['lyft','Lyft ($10/mo)',120,'m',10]],
   counts:[
-   ['club','Admirals Club visit',40]],
+   ['club','Admirals Club visit',40],
+   ['bag','Free first bag (AA, you + up to 8 companions)',40]],
   note:'Admirals Club membership alone now retails $1,200+.'},
  bilt:{n:'Bilt Palladium',af:495,ver:'checked Aug 2026 \u2014 Card 2.0 lineup, launched Feb 2026',pp:true,
   credits:[

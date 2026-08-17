@@ -202,11 +202,11 @@ window.renderEstimatorPage=function(keep){
      labeled sub-row that unfolds under the checkbox; unticking clears it.
      Mutator ids are UNCHANGED — this is a render rebuild, not a data one. */
   const LBL='font:600 8.5px var(--mono);letter-spacing:.08em;color:var(--grey)';
-  const esF=(lbl,inner,grow)=>`<span style="display:flex;flex-direction:column;gap:3px${grow?';flex:1;min-width:160px':''}"><label style="${LBL}">${lbl}</label>${inner}</span>`;
+  const esF=(lbl,inner,grow)=>`<span style="display:flex;flex-direction:column;gap:3px;${grow?'flex:1 1 auto;min-width:160px':'flex:0 0 auto'}"><label style="${LBL}">${lbl}</label>${inner}</span>`;
   const esBtnR=(fn,txt)=>`<button class="pladd" type="button" onclick="${fn}" style="flex:0 0 auto;margin-left:auto;padding:9px 20px;min-width:110px">${txt}</button>`;
-  const esChk=(idAttr,lbl,extra)=>`<label style="display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey);height:36px">${idAttr?`<input type="checkbox" id="${idAttr}" style="width:auto;height:auto">`:extra}${lbl}</label>`;
+  const esChk=(idAttr,lbl,extra)=>`<label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey);height:36px">${idAttr?`<input type="checkbox" id="${idAttr}" style="width:auto;height:auto">`:extra}${lbl}</label>`;
   const ptsRows=(pfx,word,cid)=>`<div class="plrow1">
-        <label style="display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey)"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plform').querySelector('.es-pts');w.style.display=this.checked?'flex':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Award ${word}</label>
+        <label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey)"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plform').querySelector('.es-pts');w.style.display=this.checked?'flex':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Award ${word}</label>
       </div>
       <div class="es-pts plrow1" style="display:none;padding-left:22px;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
         ${esF('POINTS',`<input id="${pfx}_pts_${cid}" type="number" min="0" step="1000" placeholder="85,000" style="width:110px">`)}

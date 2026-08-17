@@ -31,13 +31,16 @@ const CR_CARDS={
    ['ent','Digital entertainment ($25/mo)',300,'m',25],
    ['air','Airline fee credit',200],
    ['uber','Uber Cash ($15/mo, $35 in Dec)',200,'m',[15,15,15,15,15,15,15,15,15,15,15,35]],
+   ['uberone','Uber One membership',120],
+   ['lulu','lululemon ($75/q)',300,'q',75],
+   ['oura','Oura Ring',200],
    ['walmart','Walmart+ ($12.95/mo)',155,'m',12.95],
    ['clear','CLEAR Plus',209],
    ['equinox','Equinox',300]],
   counts:[
    ['fhr','FHR stay perks (breakfast, $100 prop credit…)',150],
    ['thc','THC stay perks',75]],
-  note:'Plus Hilton & Marriott Gold, Global Entry every 4 yrs. Saks credit ended Jul 2026.'},
+  note:'Plus Hilton & Marriott Gold, Global Entry every 4 yrs. Saks ended Jul 2026; Equinox cadence varies \u2014 meter it as your statements show.'},
  csr:{n:'Chase Sapphire Reserve',af:795,ver:'checked Aug 2026',pp:true,
   credits:[
    ['travel','Travel credit (automatic)',300],
@@ -45,7 +48,9 @@ const CR_CARDS={
    ['dining','Exclusive Tables dining ($150×2)',300,'h',150],
    ['stubhub','StubHub ($150×2)',300,'h',150],
    ['doordash','DoorDash (monthly)',300,'m',25],
-   ['apple','Apple TV+ & Music',250]],
+   ['apple','Apple TV+ & Music',250],
+   ['lyft','Lyft in-app ($10/mo, thru 9/2027)',120,'m',10],
+   ['peloton','Peloton membership ($10/mo, thru 2027)',120,'m',10]],
   counts:[],
   note:'Plus IHG Platinum status and Sapphire Lounges (count those visits in the shared lounge row). One-time $250 select-hotel credit runs through 2026.'},
  venturex:{n:'Capital One Venture X',af:395,ver:'checked Aug 2026',pp:true,
@@ -79,7 +84,7 @@ const CR_CARDS={
   counts:[
    ['club','United Club visit',40],
    ['award','10k-mile award discount (×2/yr)',135]],
-  note:'Membership itself retails near the AF — the per-visit counter is how it earns it back.'},
+  note:'Membership itself retails near the AF — the per-visit counter is how it earns it back. JSX and Avis/Budget credits exist too; their splits aren’t seeded, log them however your statement pays.'},
  aaexec:{n:'Citi AAdvantage Executive',af:695,ver:'checked Aug 2026 — $695 from Aug 23, $595 before; edit the AF to match your renewal',pp:false,
   credits:[
    ['vacations','AA Vacations credit ($250×2)',500,'h',250],

@@ -110,7 +110,7 @@ const CR_CARDS={
    ['hotel','Bilt Travel hotel credit ($200\u00d72)',400,'h',200]],
   counts:[],
   note:'Under the $500 line but in by name \u2014 the VX rule. Annual Bilt Cash and Gold status ride along; edit values as the young program settles.'},
- bonvoybrill:{n:'Bonvoy Brilliant',af:650,ver:'curated',pp:false,
+ bonvoybrill:{n:'Amex Bonvoy Brilliant',af:650,ver:'curated',pp:false,
   credits:[
    ['dining','Dining credit ($25/mo)',300,'m',25]],
   counts:[

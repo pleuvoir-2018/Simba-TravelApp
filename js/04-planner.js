@@ -553,14 +553,20 @@ const TRAV_CAT={
   {id:'ihg',   n:'IHG One Rewards', tiers:['No membership','Club','Silver','Gold','Platinum','Diamond']}
  ],
  cards:[
-  {id:'amexplat',n:'Amex Platinum'},{id:'csr',n:'Chase Sapphire Reserve'},
-  {id:'venturex',n:'Capital One Venture X'},{id:'amexgold',n:'Amex Gold'},
-  {id:'deltares',n:'Delta Reserve'},{id:'unitedclub',n:'United Club Infinite'},
+  {id:'amexplat',n:'Amex Platinum'},
+  {id:'amexbizplat',n:'Amex Business Platinum'},
+  {id:'amexgold',n:'Amex Gold'},
+  {id:'deltares',n:'Delta Reserve'},
+  {id:'bonvoybrill',n:'Amex Bonvoy Brilliant'},
+  {id:'hiltonaspire',n:'Hilton Aspire'},
+  {id:'csr',n:'Chase Sapphire Reserve'},
+  {id:'unitedclub',n:'United Club Infinite'},
+  {id:'unitedquest',n:'United Quest'},
+  {id:'venturex',n:'Capital One Venture X'},
   {id:'aaexec',n:'Citi / AAdvantage Executive'},
-  {id:'bilt',n:'Bilt Palladium'},{id:'bonvoybrill',n:'Bonvoy Brilliant'},
-  {id:'hiltonaspire',n:'Hilton Aspire'},{id:'strataelite',n:'Citi Strata Elite'},
-  {id:'boaelite',n:'BofA Premium Rewards Elite'},{id:'amexbizplat',n:'Amex Business Platinum'},
-  {id:'unitedquest',n:'United Quest'}
+  {id:'strataelite',n:'Citi Strata Elite'},
+  {id:'boaelite',n:'BofA Premium Rewards Elite'},
+  {id:'bilt',n:'Bilt Palladium'}
  ]
 };
 function travOf(me){

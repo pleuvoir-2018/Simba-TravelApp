@@ -288,28 +288,72 @@ function baSummaryData(trav,trips){
       const cabin=baCabinOf((f.train||f.f||'')+' '+(f.note||''));
       const L=BA_LOUNGES[dep];
       if(L){
-        const ok=L.map(l=>({l,why:baLoungeCheck(l,{trav,air:carrier,cabin,intl})})).filter(x=>x.why).slice(0,3);
-        if(ok.length)card.items.push({k:'lounge',t:(f.d||'')+' · departing '+dep+' ('+BA_AIRPORTS[dep].city+')',
-          d:ok.map(x=>x.l.n+' — '+x.why).join(' · ')});
+        /* Keep the structure: each open door is a part carrying the lounge's
+           INDEX in BA_LOUNGES[dep] plus the why — the hover card resolves the
+           full record (loc, hrs, rating, amenities) from those two keys at
+           hover time instead of flattening everything into one sentence. */
+        const ok=L.map((l,li)=>({l,li,why:baLoungeCheck(l,{trav,air:carrier,cabin,intl})})).filter(x=>x.why).slice(0,3);
+        if(ok.length)card.items.push({k:'lounge',t:ok.length+(ok.length>1?' doors open at ':' door opens at ')+dep,
+          sub:(f.d||'')+' · '+BA_AIRPORTS[dep].city,
+          parts:ok.map(x=>({t:'✓ '+x.l.n,cls:'ok',ap:dep,li:x.li,why:x.why}))});
       }
       if(carrier&&(trav.air||{})[carrier]){
         const tier=(trav.air||{})[carrier];
         const rank=baTierRank(carrier,tier);
-        if(rank>0)card.items.push({k:'air',t:(f.d||'')+' · '+BA_AIRLINE_NAMES[carrier]+' as '+tier,
-          d:['priority check-in & boarding',rank>=2?'priority security where offered':null,intl&&((carrier==='ua'&&rank>=2)||(carrier==='nh'&&rank>=2)||(carrier==='oz'&&rank>=1)||(carrier==='ac'&&rank>=3))?'Star Gold lounges on this itinerary':null,intl&&carrier==='ke'&&rank>=1?'KAL Prestige lounges':null,intl&&carrier==='jl'&&rank>=2?'oneworld Sapphire lounges':null].filter(Boolean).join(' · ')});
+        if(rank>0)card.items.push({k:'air',t:BA_AIRLINE_NAMES[carrier]+' as '+tier,sub:(f.d||'')+' · flight perks',
+          parts:['priority check-in','priority boarding',rank>=2?'priority security where offered':null,intl&&((carrier==='ua'&&rank>=2)||(carrier==='nh'&&rank>=2)||(carrier==='oz'&&rank>=1)||(carrier==='ac'&&rank>=3))?'Star Gold lounges on this itinerary':null,intl&&carrier==='ke'&&rank>=1?'KAL Prestige lounges':null,intl&&carrier==='jl'&&rank>=2?'oneworld Sapphire lounges':null].filter(Boolean).map(p=>({t:p,cls:'perk'}))});
       }
     });
     Object.values(T.hotels||{}).forEach(h=>{
       const chain=baChainOf(h.n); if(!chain)return;
       const H=BA_HOTEL[chain]; const tier=(trav.hotel||{})[chain];
-      if(tier){ card.items.push({k:'hotel',t:h.n+' · your '+H.n+' '+tier,
-        d:(H.ben[tier]||[]).slice(0,3).join(' · ')}); }
-      else card.items.push({k:'hotel',t:h.n+' · '+H.n,d:'Base member benefits apply — add your tier under Avatar → 🎫 Travel to personalise'});
+      if(tier){ card.items.push({k:'hotel',t:h.n,sub:'your '+H.n+' '+tier,
+        parts:(H.ben[tier]||[]).slice(0,4).map(p=>({t:p,cls:'perk'}))}); }
+      else card.items.push({k:'hotel',t:h.n,sub:H.n+' · no tier on file',
+        parts:[{t:'base member rates',cls:'base',why:'Add your tier under Avatar → 🎫 Travel to personalise'}]});
     });
     if(card.items.length)out.push(card);
   });
   return out;
 }
+/* Lounge hover card — same body-mounted fixed-position pattern as the person
+   card (uCard): measure after paint, clamp into the viewport, tap toggles on
+   touch, Escape and outer scroll dismiss. The chip carries only (airport,
+   index, why); the full record is resolved from BA_LOUNGES here. */
+function baCardEl(){let c=document.getElementById('baCard');
+  if(!c){c=document.createElement('div');c.id='baCard';document.body.appendChild(c);}return c;}
+function baCardShow(el){
+  const L=(BA_LOUNGES[el.dataset.ap]||[])[+el.dataset.li]; const c=baCardEl();
+  if(!L){c.style.display='none';return;}
+  c.innerHTML=`<div class="bac-n">${esc(L.n)}</div>
+    <div class="bac-meta">${esc(L.loc)} · ${esc(L.hrs)}<span class="bac-rate">${esc(L.rate)}</span></div>
+    <div class="bac-am">${esc(L.am)}</div>
+    <div class="bac-why">✓ ${esc(el.dataset.why||'')}</div>
+    ${L.ver==='curated'?'<div class="bac-ver">curated — verify hours before you fly</div>':''}`;
+  c.style.display='block';
+  const r=el.getBoundingClientRect(), b=c.getBoundingClientRect(), G=10;
+  let left=r.left, top=r.bottom+7;
+  if(left+b.width>innerWidth-G)left=innerWidth-G-b.width;
+  if(left<G)left=G;
+  if(top+b.height>innerHeight-G)top=Math.max(G,r.top-b.height-7);
+  c.style.left=left+'px'; c.style.top=top+'px';
+}
+function baCardHide(){const c=document.getElementById('baCard');if(c)c.style.display='none';}
+document.addEventListener('mouseover',e=>{
+  const el=e.target.closest&&e.target.closest('.ba-lc');
+  if(el)baCardShow(el); else if(!(e.target.closest&&e.target.closest('#baCard')))baCardHide();
+});
+document.addEventListener('focusin',e=>{const el=e.target.closest&&e.target.closest('.ba-lc');if(el)baCardShow(el);});
+document.addEventListener('click',e=>{
+  const el=e.target.closest&&e.target.closest('.ba-lc');
+  const c=document.getElementById('baCard');
+  if(el){e.stopPropagation();
+    if(c&&c.style.display==='block'&&c.dataset.for===el.dataset.ap+el.dataset.li){baCardHide();c.dataset.for='';return;}
+    baCardShow(el);baCardEl().dataset.for=el.dataset.ap+el.dataset.li;return;}
+  baCardHide();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')baCardHide();});
+addEventListener('scroll',e=>{if(!(e.target&&e.target.id==='baCard'))baCardHide();},true);
 window.openBenefits=function(){ window._onAdmin=false; tripSel=null; renderBenefitsPage('sum'); };
 window.renderBenefitsPage=function(tab,keep){
   saveLoc({ba:tab});
@@ -325,13 +369,26 @@ window.renderBenefitsPage=function(tab,keep){
     const data=baSummaryData(t,trips);
     const ICO={lounge:'🛋',air:'✈',hotel:'🏨'};
     const hasProfile=(t.cards||[]).length||Object.keys(t.air||{}).length||Object.keys(t.hotel||{}).length;
-    pane=(hasProfile?'':`<div class="card"><div style="padding:13px 16px;font-size:12.5px">No memberships on file yet — add cards and statuses under <b>Avatar → 🎫 Travel</b> and this page starts predicting your trips.</div></div>`)
-     +(data.length?data.map(c=>`<div class="card"><div class="chead"><span>${c.emoji||'🧭'} ${esc(c.title||c.id)}</span><span>heads up</span></div>
-        ${c.items.map(i=>`<div class="ba-lounge"><div style="font:600 10px var(--mono);letter-spacing:.08em;color:var(--grey)">${ICO[i.k]} ${esc(i.t)}</div>
-          <div style="font-size:12.5px;margin-top:3px;line-height:1.55">${esc(i.d)}</div></div>`).join('')}
+    const strip=[];
+    Object.entries(t.hotel||{}).forEach(([k,tier])=>{if(tier&&BA_HOTEL[k])strip.push('🏨 '+BA_HOTEL[k].n.replace('Marriott ','').replace(' Honors','')+' '+tier);});
+    Object.entries(t.air||{}).forEach(([k,tier])=>{if(tier&&BA_AIRLINE_NAMES[k])strip.push('✈ '+BA_AIRLINE_NAMES[k]+' '+tier);});
+    (t.cards||[]).forEach(id=>{const cd=(typeof TRAV_CAT!=='undefined'?TRAV_CAT.cards:[]).find(x=>x.id===id);if(cd)strip.push('💳 '+cd.n);});
+    const counts=c=>{const doors=c.items.filter(i=>i.k==='lounge').reduce((a,i)=>a+i.parts.length,0),
+      air=c.items.filter(i=>i.k==='air').length,hot=c.items.filter(i=>i.k==='hotel').length;
+      return [doors?doors+(doors>1?' lounges':' lounge'):null,air?air+(air>1?' flights':' flight'):null,hot?hot+(hot>1?' hotels':' hotel'):null].filter(Boolean).join(' · ')||'heads up';};
+    const chip=p=>p.ap!==undefined
+      ?`<span class="ba-chip ${p.cls} ba-lc" tabindex="0" data-ap="${p.ap}" data-li="${p.li}" data-why="${esc(p.why)}">${esc(p.t)}</span>`
+      :`<span class="ba-chip ${p.cls}" ${p.why?`title="${esc(p.why)}"`:''}>${esc(p.t)}</span>`;
+    pane=(hasProfile?`<div class="card"><div class="chead"><span>🎫 What the engine reads</span><span>from Avatar → Travel</span></div>
+        <div class="ba-strip">${strip.map(s=>`<span class="ba-pchip">${esc(s)}</span>`).join('')}</div></div>`
+      :`<div class="card"><div style="padding:13px 16px;font-size:12.5px">No memberships on file yet — add cards and statuses under <b>Avatar → 🎫 Travel</b> and this page starts predicting your trips.</div></div>`)
+     +(data.length?data.map(c=>`<div class="card"><div class="chead"><span>${c.emoji||'🧭'} ${esc(c.title||c.id)}</span><span>${counts(c)}</span></div>
+        ${c.items.map(i=>`<div class="ba-row"><span class="ba-ric">${ICO[i.k]}</span><span style="min-width:0">
+          <div class="ba-rh">${esc(i.t)}</div><div class="ba-rsub">${esc(i.sub||'')}</div>
+          <div class="ba-chips">${(i.parts||[]).map(chip).join('')}</div></span></div>`).join('')}
       </div>`).join('')
      :`<div class="card"><div style="padding:13px 16px;font-size:12.5px;color:var(--grey)">Nothing to predict yet — trips with flights or chain hotels will surface here.</div></div>`)
-     +`<div class="ba-note" style="padding:0 4px">Built from the flights and hotels already in your trips, crossed with your saved memberships. Lounge lines cover the seeded airports; carriers are read from booking notes.</div>`;
+     +`<div class="ba-note" style="padding:0 4px">Hover a lounge chip for the room itself — hours, rating, what's inside. Built from the flights and hotels already in your trips.</div>`;
   }
   if(tab==='hotel'){
     pane=Object.keys(BA_HOTEL).map(k=>{

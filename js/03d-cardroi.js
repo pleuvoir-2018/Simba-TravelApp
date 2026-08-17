@@ -152,7 +152,9 @@ function crCanEdit(){
   return !window._realApp&&typeof appRole==='function'&&appRole()!=='designer'&&!!(window._app&&window._app.uid);
 }
 function crGuard(){ if(crCanEdit())return true; flash('Read-only here','err'); return false; }
-function crYearSel(){ const ui=window._crUI=window._crUI||{}; return ui.year||(ui.year=new Date().getFullYear()); }
+const CR_YEAR0=2026;   // the tool's floor — no ledgers exist before it
+function crYearSel(){ const ui=window._crUI=window._crUI||{}; return ui.year||(ui.year=Math.max(CR_YEAR0,new Date().getFullYear())); }
+function crYears(){ const top=Math.max(CR_YEAR0,new Date().getFullYear())+1; const a=[]; for(let y=CR_YEAR0;y<=top;y++)a.push(y); return a; }
 function crY(){
   const s=crStore(); if(!s)return null;
   const y=crYearSel();
@@ -258,7 +260,7 @@ window.renderCardRoiPage=function(keep){
 
   /* -------- dashboard -------- */
   const dash=`<div class="card"><div class="chead"><span>📊 ${year} — value received vs annual fees</span>
-      <span>${edit?`<button class="plx" onclick="crYear(-1)" style="color:#DCEAF9">◀</button> ${year} <button class="plx" onclick="crYear(1)" style="color:#DCEAF9">▶</button>`:year}</span></div>
+      <span><select onchange="crYearSet(+this.value)" style="height:26px;font:600 11px var(--mono);background:rgba(255,255,255,.14);color:#DCEAF9;border:1px solid rgba(220,234,249,.5);border-radius:3px">${crYears().map(y=>`<option value="${y}" ${y===year?'selected':''} style="color:var(--ink)">${y}</option>`).join('')}</select></span></div>
     <div style="padding:14px 15px 6px;display:flex;gap:26px;flex-wrap:wrap;align-items:flex-end">
       <div><div style="font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey)">Benefits used</div>
         <div style="font-family:var(--serif);font-size:clamp(30px,6vw,44px);line-height:1;color:var(--indigo);padding-bottom:8px">${crMoney(totVal)}</div></div>
@@ -267,7 +269,7 @@ window.renderCardRoiPage=function(keep){
       <div><div style="font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey)">Net</div>
         <div style="font-family:var(--serif);font-size:clamp(30px,6vw,44px);line-height:1;color:${net>=0?'var(--moss)':'var(--clay)'};padding-bottom:8px">${crMoney(net)}</div></div>
     </div>
-    ${mine.map(id=>{const v=crCardVal(id),af=crAF(id);return `<div style="padding:5px 15px;border-top:1px dotted var(--rule)">
+    ${mine.map(id=>{const v=crCardVal(id),af=crFee(id);return `<div style="padding:5px 15px;border-top:1px dotted var(--rule)">
       <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:4px">
         <b style="font-family:var(--serif)">${CR_CARDS[id].n}</b>
         <span style="font:600 10.5px var(--mono)">${crMoney(v)} / ${crMoney(af)} &nbsp;${verdict(v,af)}</span></div>
@@ -373,7 +375,7 @@ window.renderCardRoiPage=function(keep){
 
 /* ---------------- mutators — every one behind the wall, every one on MY ledger ---------------- */
 function crSave(){ saveOverrides(); renderCardRoiPage(true); }
-window.crYear=function(d){ const ui=window._crUI=window._crUI||{}; ui.year=crYearSel()+d; renderCardRoiPage(true); };
+window.crYearSet=function(y){ const ui=window._crUI=window._crUI||{}; ui.year=Math.max(CR_YEAR0,Number(y)||CR_YEAR0); renderCardRoiPage(true); };
 window.crAF=function(id,v){ if(!crGuard())return; if(v===undefined)return; const c=crCard(id); if(!c)return; c.af=v===''?'':Math.max(0,Number(v)||0); crSave(); };
 window.crCredit=function(id,k,v){ if(!crGuard())return; const c=crCard(id); if(!c)return; c.credits[k]=Math.max(0,Number(v)||0); crSave(); };
 window.crCreditP=function(id,k,i){

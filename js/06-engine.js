@@ -237,20 +237,24 @@ function renderToday(){
 }
 
 /* ---------------- FX TREND (Frankfurter/ECB, no key) ---------------- */
-let fxRange='1m';
+let fxRange='1m', fxPin=null;
 const fxCache={};
+const FX_DAYS={'1w':7,'1m':30,'3m':91,'6m':182,'1y':365};
+/* nearest sample for a horizontal fraction — pure, harness-tested */
+function fxNearestIdx(frac,len){ return Math.max(0,Math.min(len-1,Math.round(frac*(len-1)))); }
 async function loadFx(range){
   const el=document.getElementById('fxchart');
   if(!el)return;
-  el.innerHTML='<div class="note">Loading rate history…</div>';
+  el.innerHTML='<div class="note">Loading rate history\u2026</div>';
   try{
     const ck=CUR.code+':'+range;
     if(!fxCache[ck]){
+      const days=FX_DAYS[range]||30;
       const end=new Date();
-      const start=new Date(end.getTime()-(range==='1w'?7:30)*86400000);
+      const start=new Date(end.getTime()-days*86400000);
       const fmt=d=>d.toISOString().slice(0,10);
       let pts=null;
-      // Primary: Frankfurter v1 time series (ECB, single request)
+      // Primary: Frankfurter v1 time series (ECB, one request even for a year)
       try{
         const r=await fetch(`https://api.frankfurter.dev/v1/${fmt(start)}..${fmt(end)}?base=USD&symbols=${CUR.code}`);
         if(r.ok){
@@ -259,8 +263,8 @@ async function loadFx(range){
           if(arr.length>=2)pts=arr;
         }
       }catch(e){}
-      // Fallback: daily snapshots from the same API the live converter uses
-      if(!pts){
+      // Fallback: daily snapshots \u2014 only sane for short ranges
+      if(!pts&&days<=31){
         const dates=[];
         for(let ts=start.getTime();ts<=end.getTime();ts+=86400000)dates.push(fmt(new Date(ts)));
         const got=await Promise.all(dates.map(dt=>
@@ -275,35 +279,103 @@ async function loadFx(range){
       if(!pts)throw new Error('fx unavailable');
       fxCache[ck]=pts;
     }
-    const pts=fxCache[ck];
-    const vs=pts.map(x=>x.v), min=Math.min(...vs), max=Math.max(...vs), span=(max-min)||1;
-    const W=320,H=110,T=8,B=18,L=6,R=6;
-    const X=i=>L+(W-L-R)*i/(pts.length-1);
-    const Y=v=>T+(H-T-B)*(1-(v-min)/span);
-    const line=pts.map((x,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(x.v).toFixed(1)}`).join(' ');
-    const area=line+` L${X(pts.length-1).toFixed(1)},${H-B} L${X(0).toFixed(1)},${H-B} Z`;
-    const first=pts[0].v, last=pts[pts.length-1].v, chg=(last-first)/first*100;
-    const md=k=>k.slice(5).replace('-','/');
-    el.innerHTML=`
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
-        <span style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--indigo);">${CUR.sym}${last.toFixed(2)}</span>
-        <span style="font:600 10px var(--mono);color:${chg>=0?'var(--moss)':'var(--clay)'};">${chg>=0?'▲':'▼'} ${Math.abs(chg).toFixed(2)}% over ${range==='1w'?'1 week':'1 month'}</span>
-      </div>
-      <svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block;" role="img" aria-label="USD trend">
-        <line x1="${L}" y1="${Y(max)}" x2="${W-R}" y2="${Y(max)}" stroke="rgba(20,22,27,.1)" stroke-dasharray="2 4"/>
-        <line x1="${L}" y1="${Y(min)}" x2="${W-R}" y2="${Y(min)}" stroke="rgba(20,22,27,.1)" stroke-dasharray="2 4"/>
-        <path d="${area}" fill="rgba(34,64,107,.08)"/>
-        <path d="${line}" fill="none" stroke="#22406B" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
-        <circle cx="${X(pts.length-1).toFixed(1)}" cy="${Y(last).toFixed(1)}" r="3" fill="#B8552A"/>
-      </svg>
-      <div style="display:flex;justify-content:space-between;font:9px var(--mono);color:var(--grey);margin-top:4px;">
-        <span>${md(pts[0].d)}</span>
-        <span>L ${CUR.sym}${min.toFixed(2)} · H ${CUR.sym}${max.toFixed(2)} · ECB daily</span>
-        <span>${md(pts[pts.length-1].d)}</span>
-      </div>`;
+    fxPin=null;
+    renderFxChart(el,fxCache[ck],range);
   }catch(e){
-    el.innerHTML='<div class="note">Rate history unavailable right now — check again when online.</div>';
+    el.innerHTML='<div class="note">Rate history unavailable right now \u2014 check again when online.</div>';
   }
+}
+/* Interactive chart: crosshair + tooltip on hover/touch, tap to PIN a day and
+   read it against today, min/max markers, and a dashed plan-rate line at the
+   trip's budgeted rate when it falls in view. UI surface \u2014 themed via
+   variables (accent line, --rule grid), never hardcoded to the light palette. */
+function renderFxChart(el,pts,range){
+  const vs=pts.map(x=>x.v);
+  let min=Math.min(...vs), max=Math.max(...vs);
+  const plan=Number(CUR.fallback)||0;
+  const planIn=plan>=min*0.985&&plan<=max*1.015;      // show when near the window
+  if(planIn){ min=Math.min(min,plan); max=Math.max(max,plan); }
+  const span=(max-min)||1;
+  const W=320,H=118,T=10,B=18,L=6,R=6;
+  const X=i=>L+(W-L-R)*i/(pts.length-1);
+  const Y=v=>T+(H-T-B)*(1-(v-min)/span);
+  const line=pts.map((x,i)=>`${i?'L':'M'}${X(i).toFixed(1)},${Y(x.v).toFixed(1)}`).join(' ');
+  const area=line+` L${X(pts.length-1).toFixed(1)},${H-B} L${X(0).toFixed(1)},${H-B} Z`;
+  const first=pts[0].v, last=pts[pts.length-1].v, chg=(last-first)/first*100;
+  const iMin=vs.indexOf(Math.min(...vs)), iMax=vs.indexOf(Math.max(...vs));
+  const md=k=>k.slice(5).replace('-','/');
+  const RL={'1w':'1 week','1m':'1 month','3m':'3 months','6m':'6 months','1y':'1 year'}[range]||range;
+  const fmtR=v=>CUR.sym+(CUR.code==='KRW'?Math.round(v).toLocaleString():v.toFixed(2));
+  el.style.position='relative';
+  el.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+      <span id="fxBig" style="font-family:var(--serif);font-size:22px;font-weight:700;color:var(--indigo);padding-bottom:2px;">${fmtR(last)}</span>
+      <span id="fxChg" style="font:600 10px var(--mono);color:${chg>=0?'var(--moss)':'var(--clay)'};">${chg>=0?'\u25B2':'\u25BC'} ${Math.abs(chg).toFixed(2)}% over ${RL}</span>
+    </div>
+    <svg id="fxSvg" viewBox="0 0 ${W} ${H}" style="width:100%;display:block;touch-action:pan-y;cursor:crosshair" role="img" aria-label="USD to ${CUR.code}, ${RL}">
+      <line x1="${L}" y1="${Y(pts[iMax].v)}" x2="${W-R}" y2="${Y(pts[iMax].v)}" style="stroke:var(--rule)" stroke-dasharray="2 4"/>
+      <line x1="${L}" y1="${Y(pts[iMin].v)}" x2="${W-R}" y2="${Y(pts[iMin].v)}" style="stroke:var(--rule)" stroke-dasharray="2 4"/>
+      ${planIn?`<line x1="${L}" y1="${Y(plan).toFixed(1)}" x2="${W-R}" y2="${Y(plan).toFixed(1)}" style="stroke:var(--clay)" stroke-width="1" stroke-dasharray="5 4" opacity=".75"/>
+      <text x="${W-R}" y="${(Y(plan)-3).toFixed(1)}" text-anchor="end" style="fill:var(--clay);font:600 8px var(--mono)">plan ${fmtR(plan)}</text>`:''}
+      <path d="${area}" style="fill:var(--tripac,#22406B)" opacity=".09"/>
+      <path d="${line}" fill="none" style="stroke:var(--tripac,#22406B)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="${X(iMax).toFixed(1)}" cy="${Y(pts[iMax].v).toFixed(1)}" r="2.2" style="fill:var(--grey)"/>
+      <circle cx="${X(iMin).toFixed(1)}" cy="${Y(pts[iMin].v).toFixed(1)}" r="2.2" style="fill:var(--grey)"/>
+      <circle cx="${X(pts.length-1).toFixed(1)}" cy="${Y(last).toFixed(1)}" r="3" style="fill:var(--clay)"/>
+      <g id="fxHover" style="display:none">
+        <line id="fxHx" y1="${T}" y2="${H-B}" style="stroke:var(--grey)" stroke-width=".8" stroke-dasharray="3 3"/>
+        <circle id="fxHd" r="3.2" style="fill:var(--ink);stroke:var(--card,#fff)" stroke-width="1.2"/>
+      </g>
+      <g id="fxPinG" style="display:none">
+        <circle id="fxPd" r="3.2" fill="none" style="stroke:var(--clay)" stroke-width="1.6"/>
+      </g>
+    </svg>
+    <div id="fxTip" style="position:absolute;display:none;pointer-events:none;background:var(--ink);color:var(--washi);font:600 9.5px var(--mono);letter-spacing:.03em;padding:5px 8px;border-radius:4px;white-space:nowrap;z-index:5;box-shadow:0 2px 8px rgba(20,22,27,.25)"></div>
+    <div id="fxFoot" style="display:flex;justify-content:space-between;font:9px var(--mono);color:var(--grey);margin-top:4px;">
+      <span>${md(pts[0].d)}</span>
+      <span id="fxMid">L ${fmtR(pts[iMin].v)} \u00b7 H ${fmtR(pts[iMax].v)} \u00b7 tap to pin \u00b7 ECB daily</span>
+      <span>${md(pts[pts.length-1].d)}</span>
+    </div>`;
+  const svg=el.querySelector('#fxSvg'), tip=el.querySelector('#fxTip');
+  const hov=el.querySelector('#fxHover'), hx=el.querySelector('#fxHx'), hd=el.querySelector('#fxHd');
+  const pinG=el.querySelector('#fxPinG'), pd=el.querySelector('#fxPd'), mid=el.querySelector('#fxMid');
+  const idxFromEvent=ev=>{
+    const r=svg.getBoundingClientRect();
+    return fxNearestIdx((ev.clientX-r.left)/r.width,pts.length);
+  };
+  const conv=v=>{
+    const amt=Number((document.getElementById('quickJpy')||{}).value||0);
+    return amt>0?` \u00b7 ${CUR.sym}${amt.toLocaleString()} = $${(amt/v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`:'';
+  };
+  const show=i=>{
+    const p=pts[i], x=X(i), y=Y(p.v);
+    hov.style.display='';
+    hx.setAttribute('x1',x); hx.setAttribute('x2',x);
+    hd.setAttribute('cx',x); hd.setAttribute('cy',y);
+    const dNow=(p.v-last)/last*100;
+    tip.textContent=`${md(p.d)} \u00b7 ${fmtR(p.v)} \u00b7 ${dNow>=0?'+':''}${dNow.toFixed(2)}% vs now${conv(p.v)}`;
+    tip.style.display='block';
+    const r=svg.getBoundingClientRect(), er=el.getBoundingClientRect();
+    let left=(r.left-er.left)+x/W*r.width-tip.offsetWidth/2;
+    left=Math.max(2,Math.min(el.clientWidth-tip.offsetWidth-2,left));
+    tip.style.left=left+'px';
+    tip.style.top=((r.top-er.top)+y/H*r.height-tip.offsetHeight-10)+'px';
+  };
+  const hide=()=>{ hov.style.display='none'; if(fxPin==null)tip.style.display='none'; else show(fxPin); };
+  svg.addEventListener('pointermove',ev=>show(idxFromEvent(ev)));
+  svg.addEventListener('pointerleave',hide);
+  svg.addEventListener('click',ev=>{
+    const i=idxFromEvent(ev);
+    fxPin=(fxPin===i)?null:i;
+    if(fxPin==null){ pinG.style.display='none'; mid.textContent=`L ${fmtR(pts[iMin].v)} \u00b7 H ${fmtR(pts[iMax].v)} \u00b7 tap to pin \u00b7 ECB daily`; hide(); }
+    else{
+      const p=pts[fxPin], dNow=(p.v-last)/last*100;
+      pinG.style.display='';
+      pd.setAttribute('cx',X(fxPin)); pd.setAttribute('cy',Y(p.v));
+      mid.textContent=`\u{1F4CC} ${md(p.d)} ${fmtR(p.v)} \u00b7 ${dNow>=0?'+':''}${dNow.toFixed(2)}% vs now \u00b7 tap again to clear`;
+      show(fxPin);
+    }
+  });
 }
 
 function renderCalc() {
@@ -330,6 +402,9 @@ function renderCalc() {
       <span style="display:flex;gap:5px;">
         <button class="chip fx-r ${fxRange==='1w'?'on':''}" data-r="1w" type="button">1W</button>
         <button class="chip fx-r ${fxRange==='1m'?'on':''}" data-r="1m" type="button">1M</button>
+        <button class="chip fx-r ${fxRange==='3m'?'on':''}" data-r="3m" type="button">3M</button>
+        <button class="chip fx-r ${fxRange==='6m'?'on':''}" data-r="6m" type="button">6M</button>
+        <button class="chip fx-r ${fxRange==='1y'?'on':''}" data-r="1y" type="button">1Y</button>
       </span>
     </div>
     <div id="fxchart" style="padding:12px 16px;"></div>
@@ -344,6 +419,8 @@ function renderCalc() {
     } else {
       usdDisplay.textContent = '$0.00';
     }
+    // keep a pinned tooltip's converted amount in step with the input
+    if(typeof fxPin!=='undefined'&&fxPin!=null){const el2=document.getElementById('fxSvg');if(el2)el2.dispatchEvent(new Event('pointerleave'));}
   });
 
   document.querySelectorAll('.fx-r').forEach(b=>b.onclick=()=>{

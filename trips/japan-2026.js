@@ -333,7 +333,7 @@ window.TRIPS_REGISTRY['japan-2026']={accent:'#B8552A',cities:CITIES,hotels:HOTEL
    title:"Japan, November 2026",kicker:"Anniversary trip · 15–27 Nov 2026",depart:[2026,10,15],arrive:[2026,10,17],end:[2026,10,27],
    navIcons:{today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'},
    navSecs:{yokohama:'Itinerary',flights:'Tools'},
-   tz:'Asia/Tokyo',mon:11,cur:{code:'JPY',sym:'¥',key:'jpy',fallback:150,name:'yen'},
+   tz:'Asia/Tokyo',mon:11,cur:{code:'JPY',sym:'¥',key:'jpy',fallback:150,plan:160,name:'yen'},
    departNote:'Delta 1015 · IAD 07:00 · Nov 15',preLabel:'Positioning day',transitLabel:'In transit ✈',
    seedTodos:[
      {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},

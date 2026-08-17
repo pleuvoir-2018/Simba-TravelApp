@@ -292,8 +292,11 @@ async function loadFx(range){
 function renderFxChart(el,pts,range){
   const vs=pts.map(x=>x.v);
   let min=Math.min(...vs), max=Math.max(...vs);
-  const plan=Number(CUR.fallback)||0;
-  const planIn=plan>=min*0.985&&plan<=max*1.015;      // show when near the window
+  const plan=Number(CUR.plan!==undefined?CUR.plan:CUR.fallback)||0;   // budgeted rate; fallback doubles as plan only when none is set
+  /* The plan line matters MOST when live has drifted from budget — draw it
+     within ~12% of the window and let the scale stretch honestly; beyond
+     that the stretch would flatten the data into a ribbon, so skip. */
+  const planIn=plan>=min*0.88&&plan<=max*1.12;
   if(planIn){ min=Math.min(min,plan); max=Math.max(max,plan); }
   const span=(max-min)||1;
   const W=320,H=118,T=10,B=18,L=6,R=6;

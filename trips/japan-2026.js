@@ -12,7 +12,7 @@ var HOTELS = {
 };var CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
 {id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
-{id:"vancouver",city:"Vancouver",photo:"Vancouver_ib.jpg",sub:"11/15–11/16 · repositioning",hotel:"parq",
+{id:"vancouver",city:"Vancouver",photo:"English_Bay,_Vancouver,_BC.jpg",sub:"11/15–11/16 · repositioning",hotel:"parq",
  legs:[
   {r:"✈ YVR → JW Marriott Parq",m:"11/15 · Canada Line ~25 min, or 20-min taxi",n:"Off DL3748, clear Canadian customs, then Canada Line from the airport to Yaletown–Roundhouse and a 7-min walk. Taxi is ~C$40 and simpler with luggage after a long day."},
   {r:"JW Marriott Parq → YVR ✈",m:"11/16 · Canada Line ~25 min from Yaletown–Roundhouse",n:"Leave the hotel ~7:45 for ZG021 at 10:30 — a 2-hour international cushion. Board a YVR-bound train, NOT a Richmond–Brighouse one; they alternate."}],
@@ -42,7 +42,7 @@ var HOTELS = {
    hrs:"Sun 17:00–23:00",res:"book",jpy:0,cost:"~C$250 for two, before the FHR credit",lat:49.27523,lng:-123.11313,area:"Parq Vancouver, 6F rooftop — upstairs from your room",
    note:"Reviews single out the onion milk bread, beef tartare and the sauce trio with the striploin. Charge it to the room so the FHR dining credit applies.",
    warn:"BOOK IT — 778-370-8600 or victor@parqvancouver.com, or let the JW concierge place it with the anniversary noted. Confirm the folio charge reaches the FHR credit."}]},
-{id:"yokohama",city:"Yokohama",photo:"Yokohama_Minato_Mirai_21.jpg",sub:"11/17–11/19",hotel:"westin",showNRT:true,
+{id:"yokohama",city:"Yokohama",photo:"Minato-mirai_from_Yamashita_Park_at_night.jpg",sub:"11/17–11/19",hotel:"westin",showNRT:true,
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX 30 ✓ · dep Narita T1 14:45 → arr Yokohama 16:16",n:"Land 12:45 → landside ~14:15 → Platform 1/2. Arr Platform 6, then 5-min taxi to the Westin. Door-to-door ~16:45 — booked on Japan Rail Tickets."},
   {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 73 · dep 14:07 → arr 16:00",n:"Lunch done by ~12:50 → JR Yokohama line Yokohama → Shin-Yokohama, 12 min. Bags: coin lockers at Yokohama Stn, or carry."}],
@@ -176,7 +176,7 @@ var HOTELS = {
    note:"B2 = sōzai, bentō, sashimi, fresh food · B1 = bakery, wagashi, patisserie. One of Japan's largest depachika and it's in your own building.",
    warn:"Go after ~19:00 — sōzai counters mark down unsold food (半額 stickers) in the last hour before 20:30 close."}]},
 
-{id:"kyoto",city:"Kyoto",photo:"Arashiyama_Bamboo_Grove,_Kyoto.jpg",sub:"11/23 · day trip from Osaka",hotel:"miyako",
+{id:"kyoto",city:"Kyoto",photo:"Bamboo_Forest,_Arashiyama,_Kyoto,_Japan.jpg",sub:"11/23 · day trip from Osaka",hotel:"miyako",
  legs:[
   {r:"Out 11/23: Tennōji → Kyoto",m:"Haruka 12 ✓ · dep 10:20 → arr 11:04 (44 min)",n:"Booked on Japan Rail Tickets. Dep Platform 18 · arr Platform 30. Elevator down from the Miyako straight to Tennōji JR."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
@@ -232,7 +232,7 @@ var HOTELS = {
    note:"Multi-course tofu — house-made yudōfu with free refills, yuba, seasonal plates; vegetarian course available and English explained at the table.",
    warn:"THE ANNIVERSARY DINNER — ¥24,000 for two. Small room (roughly 8 seats plus a table) — book well ahead: 075-561-0035. A 17:00–17:30 seating leaves Kōdai-ji's light-up (to 21:30) afterwards."}]},
 
-{id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle_02.jpg",sub:"11/24–11/26",hotel:"tiad",
+{id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle(Larger).jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[
   {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 90 · dep 11:30 → arr 12:19",n:"Keitei lunch is inside the station complex, then Higashiyama line to Sakae."},
   {r:"Depart: Nagoya → Tokyo",m:"11/26 · Nozomi 24 · dep 14:36 → arr 16:15",n:"SHUHARI must end by 14:05 — book 11:30/12:00 and mention the train."}],

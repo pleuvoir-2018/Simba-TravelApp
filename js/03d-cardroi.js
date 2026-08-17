@@ -67,7 +67,7 @@ const CR_CARDS={
    ['dunkin','Dunkin ($7/mo)',84,'m',7]],
   counts:[],
   note:'No lounge network on this one.'},
- deltares:{n:'Delta Reserve',af:650,ver:'checked Aug 2026',pp:false,
+ deltares:{n:'Amex Delta Reserve',af:650,ver:'checked Aug 2026',pp:false,
   credits:[
    ['stays','Delta Stays credit',200],
    ['resy','Resy dining',240,'m',20],
@@ -121,7 +121,7 @@ const CR_CARDS={
    ['fna','Free-night award used (\u226485k)',500],
    ['prop','$100 Ritz/St. Regis property credit (2-night min)',100]],
   note:'Plus Bonvoy Platinum Elite outright \u2014 which is why it pairs with the Japan hotels.'},
- hiltonaspire:{n:'Hilton Aspire',af:550,ver:'curated',pp:false,
+ hiltonaspire:{n:'Amex Hilton Aspire',af:550,ver:'curated',pp:false,
   credits:[
    ['resort','Hilton resort credit ($200\u00d72)',400,'h',200],
    ['flight','Flight credit ($50/q)',200,'q',50]],

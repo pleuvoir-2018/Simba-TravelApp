@@ -723,9 +723,10 @@ body.dark .ba-dd{background:#242A33}
 
 /* ==== SUBTLE PHOTO TREATMENT: landing foliage + Japan city banners ==== */
 body.home #panel{position:relative}
-.home-bgart{position:absolute;top:0;left:0;width:100%;height:100vh;object-fit:cover;z-index:0;pointer-events:none;
+body.home{overflow-x:hidden}
+.home-bgart{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100vw;height:100vh;object-fit:cover;z-index:0;pointer-events:none;
   filter:saturate(.55) brightness(1.05) contrast(.92)}
-.home-bgscrim{position:absolute;top:0;left:0;width:100%;height:100vh;z-index:1;pointer-events:none;
+.home-bgscrim{position:absolute;top:0;left:50%;transform:translateX(-50%);width:100vw;height:100vh;z-index:1;pointer-events:none;
   background:linear-gradient(180deg,rgba(251,248,241,.93) 0%,rgba(251,248,241,.86) 30%,rgba(251,248,241,.8) 62%,rgba(251,248,241,.92) 88%,rgba(251,248,241,1) 100%)}
 body.home .home-hero,body.home .trips,body.home .home-sec,body.home .home-foot{position:relative;z-index:2}
 body.dark .home-bgart{filter:saturate(.5) brightness(.55) contrast(.95)}

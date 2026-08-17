@@ -28,6 +28,7 @@ const BA_AIRPORTS={
  YYZ:{city:'Toronto Pearson',cc:'CA'},YVR:{city:'Vancouver',cc:'CA'},YUL:{city:'Montr\u00e9al',cc:'CA'},YYC:{city:'Calgary',cc:'CA'},
  YEG:{city:'Edmonton',cc:'CA'},YOW:{city:'Ottawa',cc:'CA'},YWG:{city:'Winnipeg',cc:'CA'},YHZ:{city:'Halifax',cc:'CA'},
  /* Korea */
+ CUN:{city:'Canc\u00fan',cc:'MX'},
  ICN:{city:'Seoul Incheon',cc:'KR'},GMP:{city:'Seoul Gimpo',cc:'KR'},CJU:{city:'Jeju',cc:'KR'},PUS:{city:'Busan Gimhae',cc:'KR'},
  TAE:{city:'Daegu',cc:'KR'},CJJ:{city:'Cheongju',cc:'KR'}
 };
@@ -210,8 +211,163 @@ const BA_LOUNGES={
    rules:[{cards:['amexplat'],why:'Amex Platinum — Plaza Premium network'},{pp:true,why:'Priority Pass'}],ver:'curated'},
   {n:'Air Canada Maple Leaf Lounges & Signature Suite',loc:'T1 · domestic, transborder and international piers',hrs:'per bank',rate:'4.3★',am:'AC\u2019s home hub — the Signature Suite is à-la-carte dining for intl Signature Class',
    rules:[{airline:{id:'ac',cabins:['business','first']},why:'Air Canada Signature / Maple Leaf home hub'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold)'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business (Maple Leaf)'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'}
+ ],
+ SEA:[
+  {n:'The Centurion Lounge',loc:'Central Terminal, mezzanine level',hrs:'05:00–22:00',rate:'4.2★',am:'Big bar as you enter, Pacific-NW menu',
+   rules:[{cards:['amexplat'],why:'Amex Platinum — 3-hour window'}],ver:'curated'},
+  {n:'Delta Sky Clubs (A & B)',loc:'Concourses A and B',hrs:'per bank',rate:'4.1★',am:'Two clubs — the A club is the newer, bigger one',
+   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'}
+ ],
+ LAX:[
+  {n:'The Centurion Lounge',loc:'Tom Bradley Intl (TBIT) — airside-reachable from T4–8',hrs:'06:00–22:00',rate:'4.0★',am:'The connector walk from T7 is real — budget 15 min',
+   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+  {n:'Delta Sky Club',loc:'Terminal 3',hrs:'per bank',rate:'4.3★',am:'Post-renovation flagship with the sunset deck',
+   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'},
+  {n:'United Club',loc:'Terminals 7/8',hrs:'per bank',rate:'3.8★',am:'Two clubs on the United side',
+   rules:[{cards:['unitedclub'],flying:'ua',why:'United Club Card membership'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance intl business'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
+  {n:'Star Alliance Business Lounge',loc:'TBIT, above the great hall',hrs:'per bank',rate:'4.4★',am:'The outdoor terrace is the best airside space at LAX',
+   rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star intl business'},{airline:{id:'ac',cabins:['business','first'],intlOnly:true},why:'Air Canada Signature'},{airline:{id:'nh',cabins:['business','first']},why:'ANA premium'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+'}],ver:'curated'},
+  {n:'Korean Air KAL Business Class Lounge',loc:'TBIT',hrs:'per KE banks',rate:'3.7★',am:'Quieter fallback when the alliance lounges queue',
+   rules:[{airline:{id:'ke',cabins:['business','first']},why:'KE Prestige/First'},{tier:{air:'ke',min:'Morning Calm'},why:'SKYPASS elite'},{pp:true,why:'Priority Pass'}],ver:'curated'}
+ ],
+ SFO:[
+  {n:'The Centurion Lounge (temporary)',loc:'Terminal 3 — interim space during the T3 West project; permanent room reopens 2027',hrs:'reduced — check the app',rate:'3.6★',am:'Napa tasting wall is on pause in the temp space',
+   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+  {n:'United Polaris Lounge',loc:'Intl Terminal G',hrs:'per intl banks',rate:'4.6★',am:'Sit-down dining — the best UA lounge anywhere',
+   rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Polaris — intl business/first only'}],ver:'curated'},
+  {n:'United Clubs',loc:'Terminal 3 & Intl G',hrs:'per bank',rate:'3.9★',am:'Hub-sized, hub-crowded',
+   rules:[{cards:['unitedclub'],flying:'ua',why:'United Club Card membership'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star intl business'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
+  {n:'The Club SFO',loc:'Terminal A',hrs:'~06:00–23:00',rate:'3.5★',am:'The independent fallback',
+   rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat'],why:'Amex Global Lounge Collection'}],ver:'curated'}
+ ],
+ CUN:[
+  {n:'Mera Business Lounges (T3 & T4)',loc:'Terminals 3 and 4, airside',hrs:'~06:00–22:00',rate:'3.4★',am:'The workhorse pair — T4 is the newer room',
+   rules:[{pp:true,why:'Priority Pass'}],ver:'curated'},
+  {n:'The Grand Lounge Elite',loc:'Terminal 3',hrs:'~07:00–21:00',rate:'3.6★',am:'Calmer than the Meras when charter banks surge',
+   rules:[{pp:true,why:'Priority Pass'}],ver:'curated'}
+ ],
+ DFW:[
+  {n:'The Centurion Lounge',loc:'Terminal D, near D12 — expansion in the works',hrs:'05:30–22:00',rate:'4.1★',am:'Texas BBQ station; Skylink reaches it from every terminal',
+   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+  {n:'Capital One Lounge',loc:'Terminal D, near D22',hrs:'~05:00–22:00',rate:'4.5★',am:'The original C1 lounge — grab-and-go wall included',
+   rules:[{cards:['venturex'],why:'Venture X — guests are paid since Feb 2026'}],ver:'curated'},
+  {n:'Admirals Clubs',loc:'Every terminal — AA’s fortress',hrs:'per bank',rate:'3.9★',am:'A/B/C/D rooms; D is the flagship-adjacent one',
+   rules:[{cards:['aaexec'],flying:'aa',why:'AAdvantage Exec — Admirals membership, AA/oneworld same day'},{airline:{id:'aa',cabins:['business','first'],intlOnly:true},why:'AA intl premium'},{tier:{air:'jl',min:'Sapphire',intlOnly:true},why:'oneworld Sapphire (JMB) intl'}],ver:'curated'},
+  {n:'Flagship Lounge',loc:'Terminal D',hrs:'per intl banks',rate:'4.4★',am:'The intl-premium room — worth skipping Admirals for',
+   rules:[{airline:{id:'aa',cabins:['business','first'],intlOnly:true},why:'AA intl business/first'},{tier:{air:'jl',min:'Sapphire',intlOnly:true},why:'oneworld Sapphire intl'}],ver:'curated'}
+ ],
+ JFK:[
+  {n:'The Centurion Lounge',loc:'Terminal 4, mezzanine above the A gates',hrs:'per T4 banks',rate:'4.2★',am:'Two floors and the mini spa',
+   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+  {n:'Chase Sapphire Lounge by The Club',loc:'Terminal 4, adjacent to the Centurion',hrs:'per T4 banks',rate:'4.3★',am:'The ex-Etihad space, Chase-run',
+   rules:[{cards:['csr'],why:'Sapphire Reserve — ordinary Priority Pass no longer admits'}],ver:'curated'},
+  {n:'Delta Sky Club & Delta One Lounge',loc:'Terminal 4',hrs:'per bank',rate:'4.4★',am:'The Delta One room (2024) is the prize if the ticket qualifies',
+   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One — the dedicated lounge'}],ver:'curated'},
+  {n:'Admirals Club & Flagship Lounge',loc:'Terminal 8',hrs:'per bank',rate:'4.0★',am:'Flagship for intl premium; Admirals for the membership',
+   rules:[{cards:['aaexec'],flying:'aa',why:'AAdvantage Exec membership'},{airline:{id:'aa',cabins:['business','first'],intlOnly:true},why:'AA intl premium → Flagship'},{tier:{air:'jl',min:'Sapphire',intlOnly:true},why:'oneworld Sapphire intl'}],ver:'curated'}
+ ],
+ LGA:[
+  {n:'The Centurion Lounge',loc:'Terminal B, fourth floor',hrs:'05:00–22:00 (Sat to 21:00)',rate:'4.0★',am:'Above the food hall — the escalator hides behind the water wall',
+   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+  {n:'Chase Sapphire Lounge',loc:'Terminal B',hrs:'per bank',rate:'4.5★',am:'Chase’s showcase room',
+   rules:[{cards:['csr'],why:'Sapphire Reserve — ordinary Priority Pass no longer admits'}],ver:'curated'},
+  {n:'Capital One Landing',loc:'Terminal B — opened Feb 2026',hrs:'per bank',rate:'4.2★',am:'Small-plates concept, brand-new',
+   rules:[{cards:['venturex'],why:'Venture X — guests are paid extras'}],ver:'curated'},
+  {n:'Delta Sky Club',loc:'Terminal C',hrs:'per bank',rate:'4.1★',am:'The big C-terminal club from the rebuild',
+   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'}
+ ],
+ EWR:[
+  {n:'United Polaris Lounge',loc:'Terminal C, near C120',hrs:'per intl banks',rate:'4.5★',am:'Sit-down dining before the transatlantic bank',
+   rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Polaris — intl business/first only'}],ver:'curated'},
+  {n:'United Clubs',loc:'Terminal C (several)',hrs:'per bank',rate:'3.7★',am:'Fortress-hub rooms — C123 is usually the calmest',
+   rules:[{cards:['unitedclub'],flying:'ua',why:'United Club Card membership'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star intl business'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'}
+ ],
+ DCA:[
+  {n:'The Centurion Lounge',loc:'Between concourses D and E, mezzanine by the central atrium',hrs:'05:00–21:00',rate:'4.3★',am:'The newest US Centurion — and the home-field one',
+   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+  {n:'Admirals Club',loc:'National Hall, E gates side',hrs:'per bank',rate:'3.6★',am:'DCA is otherwise thin — this and the Centurion are the field',
+   rules:[{cards:['aaexec'],flying:'aa',why:'AAdvantage Exec membership, AA same day'}],ver:'curated'}
+ ],
+ BWI:[
+  {n:'The Club BWI',loc:'Concourse D, airside',hrs:'~05:00–21:00',rate:'3.3★',am:'The one independent door — BWI has no bank-brand lounges',
+   rules:[{pp:true,why:'Priority Pass'}],ver:'curated'}
  ]
 };
+/* ---- per-airport freshness: shown on the Airports tab; status derives from
+   the lounges themselves (any 'verified…' entry lifts the airport). ---- */
+const BA_AP_META={
+ IAD:{checked:'Aug 2026'},MCO:{checked:'Aug 2026'},
+ ICN:{checked:'Aug 2026'},HND:{checked:'Aug 2026'},NRT:{checked:'Aug 2026'},KIX:{checked:'Aug 2026'},
+ HNL:{checked:'Aug 2026'},YVR:{checked:'Aug 2026'},YYZ:{checked:'Aug 17, 2026'},
+ SEA:{checked:'Aug 17, 2026'},LAX:{checked:'Aug 17, 2026'},
+ SFO:{checked:'Aug 17, 2026',note:'Centurion in a temporary space until the T3 rebuild lands (2027).'},
+ CUN:{checked:'Aug 17, 2026'},DFW:{checked:'Aug 17, 2026'},JFK:{checked:'Aug 17, 2026'},
+ LGA:{checked:'Aug 17, 2026'},
+ EWR:{checked:'Aug 17, 2026',note:'A Centurion Lounge (Terminal A) is slated to open later in 2026 \u2014 not a door yet.'},
+ DCA:{checked:'Aug 17, 2026'},BWI:{checked:'Aug 17, 2026'}
+};
+function baApStatus(code){
+  const L=BA_LOUNGES[code]||[];
+  return L.some(l=>String(l.ver||'').startsWith('verified'))?'verified':'curated';
+}
+/* Requests ride the existing tickets lane \u2014 append-mostly, admin-triaged,
+   merge-safe by construction. One open request per subject per person. */
+function baFileReq(title,detail){
+  const me=window._app||{};
+  if(!me.uid){flash('Sign in first','err');return false;}
+  if(typeof appRole==='function'&&appRole()==='designer'){flash('Design review account \u2014 requests don\u2019t save','err');return false;}
+  const dup=appTickets().some(t=>t.by===me.uid&&t.title===title&&(t.status==='received'||t.status==='progress'));
+  if(dup){flash('Already requested \u2014 it\u2019s in the organizer\u2019s queue','ok');return false;}
+  APP().tickets=appTickets().concat([{id:'t'+Date.now(),kind:'airport',title,detail,
+    by:me.uid,byName:me.name||'',ts:Date.now(),status:'received'}]);
+  saveOverrides();
+  flash('Request filed \u2014 the organizer will see it \u2713','ok');
+  return true;
+}
+window.baReqRefresh=function(code){
+  baFileReq('Airport data refresh: '+code,'Lounge data for '+code+' ('+((BA_AIRPORTS[code]||{}).city||'')+') last checked '+((BA_AP_META[code]||{}).checked||'unknown')+' \u2014 please re-verify.');
+  renderBenefitsPage('ap',true);
+};
+window.baReqAirport=function(){
+  const el=document.getElementById('ba_req_ap'); const raw=(el?el.value:'').trim();
+  if(!raw){el&&el.focus();return;}
+  const r=baApValue('ba_req_ap');
+  const code=r.code||(/^[A-Za-z]{3}$/.test(raw)?raw.toUpperCase():null);
+  const label=code?(code+((BA_AIRPORTS[code]||{}).city?' \u00b7 '+BA_AIRPORTS[code].city:'')):raw;
+  if(code&&BA_LOUNGES[code]){flash(code+' is already covered \u2014 ask for a refresh instead','err');return;}
+  if(baFileReq('Airport request: '+label,'Please add lounge data for '+label+'.'))
+    {el.value='';renderBenefitsPage('ap',true);}
+};
+function baAirportsPane(){
+  const me=window._app||{};
+  const canReq=!!me.uid&&!(typeof appRole==='function'&&appRole()==='designer');
+  const codes=Object.keys(BA_LOUNGES).sort();
+  const mine=appTickets().filter(t=>t.kind==='airport'&&t.by===me.uid&&(t.status==='received'||t.status==='progress'));
+  const chip=st=>st==='verified'
+    ?'<span style="font:700 8.5px var(--mono);letter-spacing:.05em;color:var(--moss);border:1px solid var(--moss);border-radius:3px;padding:1px 5px">VERIFIED</span>'
+    :'<span style="font:700 8.5px var(--mono);letter-spacing:.05em;color:var(--grey);border:1px solid var(--rule);border-radius:3px;padding:1px 5px">CURATED</span>';
+  return `<div class="card"><div class="chead"><span>\u{1F5FA} Available airports</span><span>${codes.length} airports \u00b7 ${Object.values(BA_LOUNGES).reduce((a,l)=>a+l.length,0)} lounges</span></div>
+    ${codes.map(c=>{const M=BA_AP_META[c]||{};const pend=mine.some(t=>t.title==='Airport data refresh: '+c);
+      return `<div style="display:flex;align-items:center;gap:9px;padding:6px 15px;border-bottom:1px dotted var(--rule);flex-wrap:wrap">
+        <b style="font-family:var(--mono);letter-spacing:.04em;min-width:38px">${c}</b>
+        <span style="flex:1;min-width:120px;font-size:12.5px">${esc((BA_AIRPORTS[c]||{}).city||'\u2014')}
+          <span style="display:block;font:9.5px var(--mono);color:var(--grey)">${(BA_LOUNGES[c]||[]).length} lounge${(BA_LOUNGES[c]||[]).length===1?'':'s'} \u00b7 checked ${esc(M.checked||'\u2014')}${M.note?' \u00b7 '+esc(M.note):''}</span></span>
+        ${chip(baApStatus(c))}
+        ${canReq?(pend?'<span style="font:600 9px var(--mono);color:var(--clay)">refresh requested</span>'
+          :`<button type="button" onclick="baReqRefresh('${c}')" style="border:1px solid var(--rule);background:none;border-radius:3px;font:600 9px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:4px 8px;cursor:pointer;color:var(--indigo)">\u21BB Refresh</button>`):''}
+      </div>`;}).join('')}
+    <div class="ba-note" style="padding:9px 15px 12px">Verified means checked against issuer/operator pages on the date shown; curated means built from good sources but rules shift \u2014 the door decides. A refresh request lands in the organizer\u2019s ticket queue.</div>
+  </div>
+  <div class="card"><div class="chead"><span>\u2795 Request an airport</span></div>
+    <div class="plform"><div class="plrow1">
+      ${baApField('ba_req_ap','Code or city \u2014 anywhere','')}
+      <button class="pladd" type="button" ${canReq?'onclick="baReqAirport()"':'disabled'} style="padding:8px 14px">Request</button>
+    </div>
+    <div class="plhint">${canReq?'Unknown codes are fine \u2014 a bare 3-letter code goes through as-is.':'Sign in with a member account to file requests.'}</div>
+    ${mine.filter(t=>t.title.startsWith('Airport request:')).map(t=>`<div style="font:600 10px var(--mono);color:var(--grey)">\u23F3 ${esc(t.title)} \u2014 ${t.status}</div>`).join('')}
+    </div>
+  </div>`;
+}
 
 /* ---- smart airport field: one box, code or name, system figures it out ---- */
 function baApMatches(q){
@@ -466,6 +622,7 @@ window.renderBenefitsPage=function(tab,keep){
        :'<div style="padding:10px 15px 14px;font-size:12px;color:var(--grey)">Your saved airline tiers apply automatically.</div>'}
     </div>`;
   }
+  if(tab==='ap'){ pane=baAirportsPane(); }
   if(tab==='lounge'){
     const r=st.lRes;
     pane=`<div class="card"><div class="chead"><span>🛋 Which doors open for me?</span></div>
@@ -480,8 +637,8 @@ window.renderBenefitsPage=function(tab,keep){
           <div class="ba-meta">${x.l.loc} · ${x.l.hrs}</div>
           <div class="ba-meta">${x.l.am}</div>
           <div class="${x.ok?'ba-yes':'ba-nope'}">${x.ok?'✓ '+x.ok:'✕ Not with your current memberships'}${x.l.ver==='curated'?' · <i>curated — verify hours</i>':''}</div>
-        </div>`).join('')+`<div class="ba-note">${r.known?'':'Airport not in the database yet — the seeded set covers this group\u2019s routes (IAD, MCO, ICN, HND, NRT, KIX, HNL, YVR, YYZ). More on request. '}IAD & MCO verified against Aug 2026 sources; ✈-marked lounges depend on the ticket, not the wallet.</div>`
-        :'<div style="padding:12px 15px;font-size:12px;color:var(--grey)">No lounge data for that code yet — seeded airports: IAD, MCO, ICN, HND, NRT, KIX, HNL, YVR, YYZ.</div>')
+        </div>`).join('')+`<div class="ba-note">${r.known?'':'Airport not in the database yet — the seeded set now covers 19 airports \u2014 the 🗺 Airports tab lists them all and takes requests. '}IAD & MCO verified against Aug 2026 sources; ✈-marked lounges depend on the ticket, not the wallet.</div>`
+        :'<div style="padding:12px 15px;font-size:12px;color:var(--grey)">No lounge data for that code yet — see the 🗺 Airports tab for the 19 seeded airports \u2014 and to request this one.</div>')
       :'<div style="padding:10px 15px 14px;font-size:12px;color:var(--grey)">Combines the ticket you\u2019ll fly with the cards and statuses in your Travel profile.</div>'}
     </div>`;
   }
@@ -493,7 +650,7 @@ window.renderBenefitsPage=function(tab,keep){
       </div>
       <div style="display:flex;gap:16px;align-items:flex-start">
         <div class="pp-menu" style="flex:0 0 118px;border-radius:9px;padding:10px 0">
-          ${[['sum','💡 Summary'],['hotel','🏨 Hotel'],['air','✈ Airline'],['lounge','🛋 Lounge']].map(([k,l])=>`<button type="button" class="${k===tab?'on':''}" onclick="renderBenefitsPage('${k}',true)">${l}</button>`).join('')}
+          ${[['sum','💡 Summary'],['hotel','🏨 Hotel'],['air','✈ Airline'],['lounge','🛋 Lounge'],['ap','🗺 Airports']].map(([k,l])=>`<button type="button" class="${k===tab?'on':''}" onclick="renderBenefitsPage('${k}',true)">${l}</button>`).join('')}
         </div>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:14px">${pane}</div>
       </div>

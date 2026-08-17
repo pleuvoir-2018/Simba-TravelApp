@@ -232,12 +232,18 @@ window.renderEstimatorPage=function(keep){
       <span style="font:600 11px var(--mono);align-self:center;color:var(--moss)">${esMoney(-Number(x.amt||0))}</span>
       ${xbtn(`esDelCredit('${c.id}','${x.id}')`)}
     </div>`).join('');
+    /* Points mirrors the FHR pattern: a checkbox first, fields only when
+       ticked. Unticking CLEARS the trio before hiding it — values left in
+       hidden inputs would silently submit a cash stay as an award. */
     const ptsRow=pfx=>`<div class="plrow1">
+          <label style="display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey)"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plrow1').querySelector('.es-pts');w.style.display=this.checked?'contents':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Points</label>
+          <span class="es-pts" style="display:none">
           <input id="${pfx}_pts_${c.id}" type="number" min="0" step="1000" placeholder="✨ Points" style="width:110px">
           <select id="${pfx}_prog_${c.id}">${ES_PROGS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
-          <input id="${pfx}_val_${c.id}" type="number" min="0" step="1" placeholder="Cash value $" style="width:110px" title="What it would have cost in cash — for ¢/pt">`;
+          <input id="${pfx}_val_${c.id}" type="number" min="0" step="1" placeholder="Cash value $" style="width:110px" title="What it would have cost in cash — for ¢/pt">
+          </span>`;
     return `<div class="card"><div class="chead"><span>🏙 ${esc(c.name)}${c.ap?' · '+esc(c.ap):''}</span><span>${esMoney(esCityNet(c))}
-      ${edit?`&nbsp;<button class="plx" onclick="esEditCity('${c.id}')" title="Edit city" style="color:#DCEAF9">✎</button><button class="plx" onclick="esDelCity('${c.id}')" title="Remove city" style="color:#DCEAF9;font-size:16px">×</button>`:''}</span></div>
+      ${edit?`&nbsp;<button class="plx" onclick="esEditCity('${c.id}')" title="Edit city" style="appearance:none;-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:0 4px;color:#DCEAF9;font-size:13px">✎</button><button class="plx" onclick="esDelCity('${c.id}')" title="Remove city" style="appearance:none;-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:0 4px;color:#DCEAF9;font-size:16px">×</button>`:''}</span></div>
 
       ${lbl('🏨 Hotels — '+esMoney(esHotelSum(c)))}
       ${hotels||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">No stays yet.</div>'}
@@ -248,7 +254,7 @@ window.renderEstimatorPage=function(keep){
         </div>${ptsRow('eh')}
           <input id="eh_cost_${c.id}" type="number" min="0" step="1" placeholder="Cash / fees $" style="width:110px">
           <button class="pladd" type="button" onclick="esAddHotel('${c.id}')" style="padding:8px 12px">+ Stay</button>
-        </div><div class="plhint">Cash stay: leave points empty. Award stay: fill points — the $ field is then just taxes/fees, and cash value feeds ¢/pt.</div></div>`:''}
+        </div><div class="plhint">Cash stay: leave ✨ unticked. Award stay: tick ✨ and fill points — the $ field is then just taxes/fees, and cash value feeds ¢/pt.</div></div>`:''}
 
       ${lbl('✈ Flights — '+esMoney(esFlightSum(c)))}
       ${flights||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">No flights yet.</div>'}
@@ -261,7 +267,7 @@ window.renderEstimatorPage=function(keep){
         </div>${ptsRow('ef')}
           <input id="ef_cost_${c.id}" type="number" min="0" step="1" placeholder="Fare / fees $" style="width:110px">
           <button class="pladd" type="button" onclick="esAddFlight('${c.id}')" style="padding:8px 12px">+ Flight</button>
-        </div><div class="plhint">One row per ticket — add connections afterwards with the ＋ on the flight. Award ticket: fill points, the $ field is taxes/fees.</div></div>`:''}
+        </div><div class="plhint">One row per ticket — add connections afterwards with the ＋ on the flight. Award ticket: tick ✨, the $ field is then taxes/fees.</div></div>`:''}
 
       ${lbl('🧾 Other line items — '+esMoney(esItemSum(c)))}
       ${items||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">Nothing yet — daily food, trains, tickets…</div>'}

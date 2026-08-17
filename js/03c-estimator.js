@@ -1,32 +1,77 @@
 /* MODULE js/03c-estimator.js — Travel Estimator (travel tools).
    Staff-only: admins write, designers review read-only; regular users have no
    grant path (canOpen blocks staff tools before the grant lookup, and the IAM
-   grid never offers one). Rough-costs a future trip city by city — flights
-   with layover legs, hotel stays with FHR flags, and free line items — before
-   the trip earns a data file.
+   grid never offers one). Rough-costs a future trip city by city before it
+   earns a trip file: flights with layover legs, hotel stays with FHR flags,
+   free line items, a CREDITS lane (FHR/THC/card credits as subtractions),
+   POINTS-aware costing on hotels & flights (pts + program + cash value → cpp,
+   the cost field becomes out-of-pocket fees), and NAMED SCENARIOS — parallel
+   drafts of the same trip with a delta view, the spreadsheet's side-by-side
+   columns, computed.
+   Lounge cross-wire: each flight leg's departure airport is run through the
+   Benefits engine (baCarrierOf / baLoungeCheck / BA_LOUNGES + the admin's
+   Travel profile) and accessible doors print under the ticket. travOf lives
+   in 04-planner which loads later — call-time typeof guards, never load-time.
    Data: store.app.estimator, USD. It rides the ADMIN-OWNED lane in 01-core's
    mergeApp (listed next to tripLabels) so a stale non-admin blob can never
-   clobber the admin's numbers.
-   Reuses the Benefits Assistant airport combobox (baApField / baApValue /
-   BA_AIRPORTS) — this file must load AFTER 03b-benefits.js. */
+   clobber the admin's numbers. Old single-estimate blobs migrate in ES().
+   Reuses the Benefits Assistant airport combobox — must load AFTER 03b. */
 
 const ES_CATS=['Food','POI & Cafe','Transit','Omiyage','Other'];   // free line items — Flight & Hotel are automatic lanes
 const ES_ICO={'Flight':'✈','Hotel':'🏨','Food':'🍜','POI & Cafe':'☕','Transit':'🚇','Omiyage':'🎁','Other':'📦'};
 const ES_CLS=['Economy','Premium Economy','Business','First'];
+const ES_PROGS=[['mr','Amex MR'],['bonvoy','Bonvoy'],['ua','United'],['ac','Aeroplan'],['jl','JAL JMB'],['dl','Delta'],['other','Other']];
+const ES_CABIN={'Economy':'economy','Premium Economy':'premium','Business':'business','First':'first'};
 
-function ES(){ const a=APP(); if(!a.estimator||typeof a.estimator!=='object')a.estimator={}; a.estimator.cities=a.estimator.cities||[]; return a.estimator; }
+function ES(){
+  const a=APP();
+  if(!a.estimator||typeof a.estimator!=='object')a.estimator={};
+  const E=a.estimator;
+  /* migration: the first shipped shape was one flat {cities:[…]} — wrap it as
+     scenario #1 rather than losing it. Two-shapes, one home. */
+  if(E.cities&&!E.scens){ E.scens=[{id:'s1',name:'Estimate 1',cities:E.cities}]; E.cur='s1'; delete E.cities; }
+  E.scens=E.scens||[];
+  if(!E.scens.length)E.scens.push({id:'s'+Date.now(),name:'Estimate 1',cities:[]});
+  if(!E.scens.some(s=>s.id===E.cur))E.cur=E.scens[0].id;
+  return E;
+}
+/* Designers may browse other scenarios without writing: their switch lives in
+   UI state, the admin's in the saved blob. */
+function esScen(){
+  const E=ES(), ui=window._esUI||{};
+  return E.scens.find(s=>s.id===(ui.scenView||E.cur))||E.scens[0];
+}
 /* The write wall — every mutator checks it, mirroring the block the save
    layer enforces for designers. UI hiding alone is not protection. */
 function esCanEdit(){ return typeof appRole==='function'&&appRole()==='admin'&&!window._realApp; }
 function esGuard(){ if(esCanEdit())return true; flash('Read-only here — estimates are the organizer\u2019s','err'); return false; }
-function esMoney(n){ return '$'+Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0}); }
+function esMoney(n){ return (n<0?'\u2212$':'$')+Math.abs(Number(n||0)).toLocaleString('en-US',{maximumFractionDigits:0}); }
+function esPts(n){ return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:0}); }
 function esNights(ci,co){ const a=Date.parse(ci),b=Date.parse(co); return (a&&b&&b>a)?Math.round((b-a)/864e5):0; }
-function esCity(id){ return ES().cities.find(c=>c.id===id); }
+function esCity(id){ return esScen().cities.find(c=>c.id===id); }
+function esFmtD(d){ if(!d)return ''; const p=String(d).split('-'); return p.length===3?(+p[1])+'/'+(+p[2]):d; }
+function esProgName(id){ const p=ES_PROGS.find(x=>x[0]===id); return p?p[1]:id; }
+function esCpp(x){ return (x.pts>0&&x.val>0)?(x.val/x.pts*100):0; }
+
 function esHotelSum(c){ return (c.hotels||[]).reduce((a,h)=>a+Number(h.cost||0),0); }
 function esFlightSum(c){ return (c.flights||[]).reduce((a,f)=>a+Number(f.cost||0),0); }
 function esItemSum(c,cat){ return (c.items||[]).filter(x=>!cat||(x.cat||'Other')===cat).reduce((a,x)=>a+Number(x.cost||0),0); }
-function esCitySum(c){ return esHotelSum(c)+esFlightSum(c)+esItemSum(c); }
-function esFmtD(d){ if(!d)return ''; const p=String(d).split('-'); return p.length===3?(+p[1])+'/'+(+p[2]):d; }
+function esCredSum(c){ return (c.credits||[]).reduce((a,x)=>a+Number(x.amt||0),0); }
+function esCityGross(c){ return esHotelSum(c)+esFlightSum(c)+esItemSum(c); }
+function esCityNet(c){ return esCityGross(c)-esCredSum(c); }
+function esScenNet(s){ return (s.cities||[]).reduce((a,c)=>a+esCityNet(c),0); }
+/* Points ledger: everything paid in miles/points across the scenario,
+   per program — pts, stated cash value, out-of-pocket fees, weighted cpp. */
+function esPtsLedger(cities){
+  const led={};
+  cities.forEach(c=>[...(c.hotels||[]),...(c.flights||[])].forEach(x=>{
+    if(!(Number(x.pts)>0))return;
+    const p=x.prog||'other';
+    led[p]=led[p]||{pts:0,val:0,fees:0};
+    led[p].pts+=Number(x.pts); led[p].val+=Number(x.val||0); led[p].fees+=Number(x.cost||0);
+  }));
+  return led;
+}
 
 /* Airport field value: resolve through the Benefits matcher; an unlisted but
    code-shaped entry (DOH, LIS…) passes through verbatim — the estimator is
@@ -43,13 +88,36 @@ function esAp(id,label,required){
 }
 function esApCity(code){ return (typeof BA_AIRPORTS!=='undefined'&&BA_AIRPORTS[code])?BA_AIRPORTS[code].city:''; }
 
+/* ---- lounge cross-wire: which doors open on this ticket, per departure ----
+   Same engine the Benefits Lounge tab runs, fed from the estimate's own
+   airline text and cabin — zero extra data entry. Curated-DB caveat rides
+   along from the lounge records themselves. */
+function esLoungeLines(f){
+  if(typeof baLoungeCheck!=='function'||typeof BA_LOUNGES==='undefined'||typeof travOf!=='function')return '';
+  const trav=travOf(window._app||{});
+  const air=(typeof baCarrierOf==='function')?baCarrierOf(f.airline):null;
+  const cabin=ES_CABIN[f.cls]||'economy';
+  const seen={};
+  return (f.segs||[]).map(s=>{
+    const code=s.f;
+    if(!code||seen[code]||!BA_LOUNGES[code])return '';
+    seen[code]=1;
+    const A=(typeof BA_AIRPORTS!=='undefined'&&BA_AIRPORTS[code])||{}, B=(typeof BA_AIRPORTS!=='undefined'&&BA_AIRPORTS[s.t])||{};
+    const intl=!A.cc||!B.cc||A.cc!==B.cc;
+    const hits=BA_LOUNGES[code].map(l=>({l,why:baLoungeCheck(l,{trav,air,cabin,intl})})).filter(x=>x.why).slice(0,2);
+    if(!hits.length)return '';
+    return `<span class="pl-jpy" style="color:#0E7C86">🛋 ${esc(code)} · ${hits.map(x=>esc(x.l.n)+' — '+esc(x.why)).join(' · ')}</span>`;
+  }).join('');
+}
+
 /* ---------------- breakdown bars — same language as the Japan/Jeju money tabs ---------------- */
 function esBars(cities){
   const lanes=[['Flight',cities.reduce((a,c)=>a+esFlightSum(c),0)],
                ['Hotel',cities.reduce((a,c)=>a+esHotelSum(c),0)]]
     .concat(ES_CATS.map(cat=>[cat,cities.reduce((a,c)=>a+esItemSum(c,cat),0)]));
   const total=lanes.reduce((a,x)=>a+x[1],0);
-  if(!(total>0))return '<div style="padding:10px 15px 12px;font-size:11.5px;color:var(--grey)">Nothing to break down yet.</div>';
+  const cred=cities.reduce((a,c)=>a+esCredSum(c),0);
+  if(!(total>0)&&!(cred>0))return '<div style="padding:10px 15px 12px;font-size:11.5px;color:var(--grey)">Nothing to break down yet.</div>';
   return lanes.map(([n,v])=>{
     if(!(v>0))return '';
     const pct=Math.round(v/total*100);
@@ -58,7 +126,9 @@ function esBars(cities){
       <span style="flex:1;height:9px;background:var(--rule);border-radius:2px;overflow:hidden"><span style="display:block;height:100%;width:${pct}%;background:var(--tripac,#0E7C86)"></span></span>
       <span style="flex:0 0 96px;text-align:right;font:600 10.5px var(--mono)">${esMoney(v)} · ${pct}%</span>
     </div>`;
-  }).join('');
+  }).join('')
+  +(cred>0?`<div style="display:flex;justify-content:space-between;padding:6px 15px 2px;font:600 10px var(--mono);color:var(--moss)">
+      <span style="letter-spacing:.05em;text-transform:uppercase">🎟 Credits</span><span>${esMoney(-cred)}</span></div>`:'');
 }
 
 /* ---------------- page ---------------- */
@@ -72,27 +142,53 @@ window.renderEstimatorPage=function(keep){
   document.body.style.setProperty('--tripac','#0E7C86');
   if(!keep)window._esUI={};
   const ui=window._esUI=window._esUI||{};
-  const E=ES(), edit=esCanEdit();
-  const cities=E.cities;
-  const grand=cities.reduce((a,c)=>a+esCitySum(c),0);
+  const E=ES(), S=esScen(), edit=esCanEdit();
+  const cities=S.cities;
+  const gross=cities.reduce((a,c)=>a+esCityGross(c),0);
+  const cred=cities.reduce((a,c)=>a+esCredSum(c),0);
+  const net=gross-cred;
   const fhrN=cities.reduce((a,c)=>a+(c.hotels||[]).filter(h=>h.fhr).length,0);
+  const led=esPtsLedger(cities);
+  const ledKeys=Object.keys(led);
 
   const lbl=t=>`<div style="padding:11px 15px 2px;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey)">${t}</div>`;
   const xbtn=(fn,ttl)=>edit?`<button class="plx" onclick="${fn}" title="${ttl||'Remove'}" style="color:var(--clay);font-size:17px">×</button>`:'';
+  const ptsTag=x=>Number(x.pts)>0?`<span class="pl-jpy" style="color:var(--plum)">✨ ${esPts(x.pts)} ${esc(esProgName(x.prog||'other'))} pts${x.val>0?` · ${esMoney(x.val)} value · ${esCpp(x).toFixed(1)}¢/pt`:''}${Number(x.cost)>0?' · '+esMoney(x.cost)+' fees':''}</span>`:'';
+
+  /* -------- scenario bar -------- */
+  const scenBar=`<div class="card"><div class="plform" style="padding:10px 15px"><div class="plrow1">
+      <select onchange="esScenSet(this.value)" style="min-width:170px">${E.scens.map(s=>`<option value="${s.id}" ${s.id===S.id?'selected':''}>${esc(s.name)} — ${esMoney(esScenNet(s))}</option>`).join('')}</select>
+      ${edit?`<button class="pladd" type="button" onclick="esScenNew()" style="padding:8px 12px">＋ New</button>
+      <button class="pladd" type="button" onclick="esScenDup()" style="padding:8px 12px">⧉ Duplicate</button>
+      <button class="pladd" type="button" onclick="esScenRen()" style="padding:8px 12px;background:none;color:var(--indigo);border:1px solid var(--indigo)">✎ Rename</button>
+      ${E.scens.length>1?`<button class="pladd" type="button" onclick="esScenDel()" style="padding:8px 12px;background:none;color:var(--clay);border:1px solid var(--clay)">× Delete</button>`:''}`:''}
+    </div>
+    ${E.scens.length>1?`<div class="plhint">Scenarios are parallel drafts of the same trip — duplicate one, change the levers, compare below.</div>`:''}
+  </div></div>`;
 
   /* -------- summary card -------- */
-  const sumCard=`<div class="card"><div class="chead"><span>Σ Whole estimate</span><span>${cities.length} cit${cities.length===1?'y':'ies'}</span></div>
+  const sumCard=`<div class="card"><div class="chead"><span>Σ ${esc(S.name)}</span><span>${cities.length} cit${cities.length===1?'y':'ies'}</span></div>
     <div style="padding:14px 15px 4px">
-      <div style="font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey)">Estimated total</div>
-      <div style="font-family:var(--serif);font-size:clamp(34px,7vw,52px);line-height:1;color:var(--indigo);padding-bottom:8px">${esMoney(grand)}</div>
+      <div style="font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey)">Estimated total${cred>0?' · net of credits':''}</div>
+      <div style="font-family:var(--serif);font-size:clamp(34px,7vw,52px);line-height:1;color:var(--indigo);padding-bottom:8px">${esMoney(net)}</div>
+      ${cred>0?`<div style="font:600 10px var(--mono);color:var(--grey);padding-bottom:6px">Gross ${esMoney(gross)} · 🎟 Credits ${esMoney(-cred)}</div>`:''}
     </div>
-    ${cities.map(c=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 15px;border-top:1px dotted var(--rule)">
+    ${cities.map(c=>{const n2=esNights(c.from,c.to);return `<div style="display:flex;justify-content:space-between;gap:10px;padding:5px 15px;border-top:1px dotted var(--rule)">
       <span style="font-size:12.5px"><b style="font-family:var(--serif)">${esc(c.name)}</b>${c.ap?` <span style="font:600 9.5px var(--mono);color:var(--plum)">${esc(c.ap)}</span>`:''}${c.from?` <span style="font:9.5px var(--mono);color:var(--grey)">${esFmtD(c.from)}${c.to?'–'+esFmtD(c.to):''}</span>`:''}</span>
-      <span style="font:600 11px var(--mono)">${esMoney(esCitySum(c))}</span>
-    </div>`).join('')}
+      <span style="font:600 11px var(--mono)">${esMoney(esCityNet(c))}${n2?` <span style="color:var(--grey)">· ${esMoney(esCityNet(c)/n2)}/day</span>`:''}</span>
+    </div>`;}).join('')}
     ${lbl('By category')}
     ${esBars(cities)}
-    ${fhrN?`<div class="ba-note" style="padding:2px 15px 12px">🏨 ${fhrN} FHR-eligible stay${fhrN>1?'s':''} — breakfast for two, $100 property credit, noon check-in. The credit is not deducted from the numbers above.</div>`:''}
+    ${ledKeys.length?lbl('✨ Points spent')+ledKeys.map(p=>{const L=led[p];const cpp=L.val>0&&L.pts>0?(L.val/L.pts*100).toFixed(1):null;
+      return `<div style="display:flex;justify-content:space-between;gap:10px;padding:4px 15px;font:600 10.5px var(--mono)">
+        <span style="color:var(--plum)">${esc(esProgName(p))}</span>
+        <span>${esPts(L.pts)} pts${L.val>0?' · '+esMoney(L.val)+' value':''}${cpp?' · '+cpp+'¢/pt':''}${L.fees>0?' · '+esMoney(L.fees)+' fees':''}</span>
+      </div>`;}).join('')+'<div class="ba-note" style="padding:2px 15px 4px">Only the cash side (fees) is in the dollar totals — points ride their own ledger.</div>':''}
+    ${fhrN?`<div class="ba-note" style="padding:2px 15px 12px">🏨 ${fhrN} FHR-eligible stay${fhrN>1?'s':''} — breakfast for two, $100 property credit, noon check-in. Log the credit in the 🎟 Credits lane to net it out.</div>`:''}
+    ${E.scens.length>1?lbl('⇄ Other scenarios')+E.scens.filter(x=>x.id!==S.id).map(x=>{const d=esScenNet(x)-net;
+      return `<div style="display:flex;justify-content:space-between;gap:10px;padding:4px 15px 8px;font:600 10.5px var(--mono)">
+        <span>${esc(x.name)}</span><span>${esMoney(esScenNet(x))} <span style="color:${d>0?'var(--clay)':'var(--moss)'}">(${d>=0?'+':''}${esMoney(d)} vs this)</span></span>
+      </div>`;}).join(''):''}
   </div>`;
 
   /* -------- one card per city -------- */
@@ -100,14 +196,17 @@ window.renderEstimatorPage=function(keep){
     const hotels=(c.hotels||[]).map(h=>{const n=esNights(h.ci,h.co);return `<div class="pl-row">
       <span class="pl-ic">🏨</span>
       <span class="pl-main">${esc(h.n)}${h.fhr?' <span style="font:700 8.5px var(--mono);letter-spacing:.05em;color:#0E7C86;border:1px solid #0E7C86;border-radius:3px;padding:1px 4px">FHR</span>':''}
-        <span class="pl-jpy">${esFmtD(h.ci)} → ${esFmtD(h.co)}${n?` · ${n} night${n>1?'s':''} (${esMoney(Number(h.cost||0)/n)}/nt)`:''}</span></span>
+        <span class="pl-jpy">${esFmtD(h.ci)} → ${esFmtD(h.co)}${n&&!(Number(h.pts)>0)?` · ${n} night${n>1?'s':''} (${esMoney(Number(h.cost||0)/n)}/nt)`:n?` · ${n} night${n>1?'s':''}`:''}</span>
+        ${ptsTag(h)}</span>
       <span style="font:600 11px var(--mono);align-self:center">${esMoney(h.cost)}</span>
       ${xbtn(`esDelHotel('${c.id}','${h.id}')`)}
     </div>`;}).join('');
     const flights=(c.flights||[]).map(f=>`<div class="pl-row" style="flex-wrap:wrap">
       <span class="pl-ic">✈</span>
       <span class="pl-main">${esc(f.airline||'—')} <span style="font:600 9.5px var(--mono);color:var(--plum)">${esc(f.cls||'')}</span>
-        ${(f.segs||[]).map((s,i)=>`<span class="pl-jpy">${esc(s.f)} → ${esc(s.t)} · ${esFmtD(s.d)}${s.tm?' '+esc(s.tm):''}${(f.segs.length>1&&edit)?` <a href="#" onclick="esDelLeg('${c.id}','${f.id}',${i});return false" style="color:var(--clay);text-decoration:none" title="Remove leg">×</a>`:''}</span>`).join('')}</span>
+        ${(f.segs||[]).map((s,i)=>`<span class="pl-jpy">${esc(s.f)} → ${esc(s.t)} · ${esFmtD(s.d)}${s.tm?' '+esc(s.tm):''}${(f.segs.length>1&&edit)?` <a href="#" onclick="esDelLeg('${c.id}','${f.id}',${i});return false" style="color:var(--clay);text-decoration:none" title="Remove leg">×</a>`:''}</span>`).join('')}
+        ${ptsTag(f)}
+        ${esLoungeLines(f)}</span>
       <span style="font:600 11px var(--mono);align-self:center">${esMoney(f.cost)}</span>
       ${edit?`<button class="plx" onclick="esLayForm('${c.id}','${f.id}')" title="Add a layover leg" style="color:var(--indigo)">＋</button>`:''}
       ${xbtn(`esDelFlight('${c.id}','${f.id}')`)}
@@ -127,7 +226,17 @@ window.renderEstimatorPage=function(keep){
       <span style="font:600 11px var(--mono);align-self:center">${esMoney(x.cost)}</span>
       ${xbtn(`esDelItem('${c.id}','${x.id}')`)}
     </div>`).join('');
-    return `<div class="card"><div class="chead"><span>🏙 ${esc(c.name)}${c.ap?' · '+esc(c.ap):''}</span><span>${esMoney(esCitySum(c))}
+    const credits=(c.credits||[]).map(x=>`<div class="pl-row">
+      <span class="pl-ic">🎟</span>
+      <span class="pl-main">${esc(x.desc)}<span class="pl-jpy">credit — subtracted from the total</span></span>
+      <span style="font:600 11px var(--mono);align-self:center;color:var(--moss)">${esMoney(-Number(x.amt||0))}</span>
+      ${xbtn(`esDelCredit('${c.id}','${x.id}')`)}
+    </div>`).join('');
+    const ptsRow=pfx=>`<div class="plrow1">
+          <input id="${pfx}_pts_${c.id}" type="number" min="0" step="1000" placeholder="✨ Points" style="width:110px">
+          <select id="${pfx}_prog_${c.id}">${ES_PROGS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
+          <input id="${pfx}_val_${c.id}" type="number" min="0" step="1" placeholder="Cash value $" style="width:110px" title="What it would have cost in cash — for ¢/pt">`;
+    return `<div class="card"><div class="chead"><span>🏙 ${esc(c.name)}${c.ap?' · '+esc(c.ap):''}</span><span>${esMoney(esCityNet(c))}
       ${edit?`&nbsp;<button class="plx" onclick="esEditCity('${c.id}')" title="Edit city" style="color:#DCEAF9">✎</button><button class="plx" onclick="esDelCity('${c.id}')" title="Remove city" style="color:#DCEAF9;font-size:16px">×</button>`:''}</span></div>
 
       ${lbl('🏨 Hotels — '+esMoney(esHotelSum(c)))}
@@ -135,10 +244,11 @@ window.renderEstimatorPage=function(keep){
       ${edit?`<div class="plform"><div class="plrow1">
           <input id="eh_n_${c.id}" placeholder="Hotel" maxlength="60" style="flex:1;min-width:150px">
           <input id="eh_ci_${c.id}" type="date" title="Check-in"><input id="eh_co_${c.id}" type="date" title="Check-out">
-          <input id="eh_cost_${c.id}" type="number" min="0" step="1" placeholder="Cost $" style="width:92px">
           <label style="display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey)"><input type="checkbox" id="eh_fhr_${c.id}" style="width:auto;height:auto">FHR</label>
+        </div>${ptsRow('eh')}
+          <input id="eh_cost_${c.id}" type="number" min="0" step="1" placeholder="Cash / fees $" style="width:110px">
           <button class="pladd" type="button" onclick="esAddHotel('${c.id}')" style="padding:8px 12px">+ Stay</button>
-        </div></div>`:''}
+        </div><div class="plhint">Cash stay: leave points empty. Award stay: fill points — the $ field is then just taxes/fees, and cash value feeds ¢/pt.</div></div>`:''}
 
       ${lbl('✈ Flights — '+esMoney(esFlightSum(c)))}
       ${flights||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">No flights yet.</div>'}
@@ -147,11 +257,11 @@ window.renderEstimatorPage=function(keep){
           <select id="ef_cls_${c.id}">${ES_CLS.map(x=>`<option>${x}</option>`).join('')}</select>
           ${baApField('ef_from_'+c.id,'From — code or city','')}
           ${baApField('ef_to_'+c.id,'To — code or city','')}
-        </div><div class="plrow1">
           <input id="ef_date_${c.id}" type="date"><input id="ef_time_${c.id}" type="time" title="Departure">
-          <input id="ef_cost_${c.id}" type="number" min="0" step="1" placeholder="Fare $" style="width:92px">
+        </div>${ptsRow('ef')}
+          <input id="ef_cost_${c.id}" type="number" min="0" step="1" placeholder="Fare / fees $" style="width:110px">
           <button class="pladd" type="button" onclick="esAddFlight('${c.id}')" style="padding:8px 12px">+ Flight</button>
-        </div><div class="plhint">One row per ticket — add connections afterwards with the ＋ on the flight.</div></div>`:''}
+        </div><div class="plhint">One row per ticket — add connections afterwards with the ＋ on the flight. Award ticket: fill points, the $ field is taxes/fees.</div></div>`:''}
 
       ${lbl('🧾 Other line items — '+esMoney(esItemSum(c)))}
       ${items||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">Nothing yet — daily food, trains, tickets…</div>'}
@@ -160,6 +270,14 @@ window.renderEstimatorPage=function(keep){
           <select id="ei_cat_${c.id}">${ES_CATS.map(x=>`<option>${x}</option>`).join('')}</select>
           <input id="ei_cost_${c.id}" type="number" min="0" step="1" placeholder="Cost $" style="width:92px">
           <button class="pladd" type="button" onclick="esAddItem('${c.id}')" style="padding:8px 12px">+ Item</button>
+        </div></div>`:''}
+
+      ${lbl('🎟 Credits — '+esMoney(-esCredSum(c)))}
+      ${credits||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">None yet — FHR $100/stay, THC, card travel credits.</div>'}
+      ${edit?`<div class="plform"><div class="plrow1">
+          <input id="ecr_d_${c.id}" placeholder="Credit (FHR dining, THC…)" maxlength="60" style="flex:1;min-width:150px">
+          <input id="ecr_a_${c.id}" type="number" min="0" step="1" placeholder="Amount $" style="width:92px">
+          <button class="pladd" type="button" onclick="esAddCredit('${c.id}')" style="padding:8px 12px">+ Credit</button>
         </div></div>`:''}
 
       ${lbl('By category — this city')}
@@ -180,7 +298,7 @@ window.renderEstimatorPage=function(keep){
       <button class="pladd" type="button" onclick="esAddCity()" style="padding:8px 14px;${ec?'background:var(--moss);border-color:var(--moss)':''}">${ec?'✓ Update':'+ Add city'}</button>
       ${ec?'<button class="pladd" type="button" onclick="window._esUI.editCity=null;renderEstimatorPage(true)" style="padding:8px 14px;background:none;color:var(--grey);border:1px solid var(--rule)">Cancel</button>':''}
     </div>
-    <div class="plhint">Each city is its own block of the same template — stays, flights, line items, its own subtotal. Dates are optional.</div></div>
+    <div class="plhint">Each city is its own block of the same template — stays, flights, line items, credits, its own subtotal. Dates are optional but unlock the per-day burn.</div></div>
   </div>`:'';
 
   panel.innerHTML=`
@@ -191,6 +309,7 @@ window.renderEstimatorPage=function(keep){
       </div>
       ${edit?'':'<div class="ba-note" style="padding:0 4px 10px">Design review — read only, the numbers are the organizer\u2019s.</div>'}
       <div style="display:flex;flex-direction:column;gap:14px">
+        ${scenBar}
         ${sumCard}
         ${cities.map(cityCard).join('')||'<div class="card"><div style="padding:13px 16px;font-size:12.5px;color:var(--grey)">No cities yet — every estimate starts with one below.</div></div>'}
         ${addCard}
@@ -198,7 +317,56 @@ window.renderEstimatorPage=function(keep){
     </div>`;
 };
 
-/* ---------------- mutators — every one behind the wall ---------------- */
+/* ---------------- scenario mutators ---------------- */
+window.esScenSet=function(id){
+  const ui=window._esUI=window._esUI||{};
+  if(esCanEdit()){ ES().cur=id; ui.scenView=null; saveOverrides(); }
+  else ui.scenView=id;   // designers browse without writing
+  ui.editCity=null; ui.layFor=null;
+  renderEstimatorPage(true);
+};
+window.esScenNew=function(){
+  if(!esGuard())return;
+  const name=prompt('Name the scenario:','Estimate '+(ES().scens.length+1));
+  if(name===null||!name.trim())return;
+  const s={id:'s'+Date.now(),name:name.trim().slice(0,40),cities:[]};
+  ES().scens.push(s); ES().cur=s.id;
+  saveOverrides(); renderEstimatorPage(true);
+};
+window.esScenDup=function(){
+  if(!esGuard())return;
+  const S=esScen();
+  const s=JSON.parse(JSON.stringify(S));   // deep copy — drafts must not share objects
+  s.id='s'+Date.now(); s.name=(S.name+' copy').slice(0,40);
+  ES().scens.push(s); ES().cur=s.id;
+  saveOverrides(); renderEstimatorPage(true);
+};
+window.esScenRen=function(){
+  if(!esGuard())return;
+  const S=esScen();
+  const v=prompt('Rename scenario:',S.name);
+  if(v===null||!v.trim())return;
+  S.name=v.trim().slice(0,40);
+  saveOverrides(); renderEstimatorPage(true);
+};
+window.esScenDel=function(){
+  if(!esGuard())return;
+  const E=ES(); if(E.scens.length<2){flash('The last scenario stays','err');return;}
+  const S=esScen();
+  if(!confirm('Delete scenario "'+S.name+'" and everything in it?'))return;
+  E.scens=E.scens.filter(x=>x.id!==S.id);
+  E.cur=E.scens[0].id;
+  saveOverrides(); renderEstimatorPage(true);
+};
+
+/* ---------------- city & line mutators — every one behind the wall ---------------- */
+/* Read the points trio from a form; empty points → cash mode, no fields stored. */
+function esReadPts(pfx,cid){
+  const g=i=>document.getElementById(pfx+'_'+i+'_'+cid);
+  const pts=Number((g('pts')||{}).value||0);
+  if(!(pts>0))return {};
+  return {pts,prog:(g('prog')||{}).value||'other',val:Number((g('val')||{}).value||0)};
+}
 window.esAddCity=function(){
   if(!esGuard())return;
   const g=i=>document.getElementById(i);
@@ -211,7 +379,7 @@ window.esAddCity=function(){
     c.name=name; c.ap=ap.code; c.from=g('es_cfrom').value||''; c.to=g('es_cto').value||'';
     ui.editCity=null;
   }else{
-    ES().cities.push({id:'ec'+Date.now(),name,ap:ap.code,from:g('es_cfrom').value||'',to:g('es_cto').value||'',hotels:[],flights:[],items:[]});
+    esScen().cities.push({id:'ec'+Date.now(),name,ap:ap.code,from:g('es_cfrom').value||'',to:g('es_cto').value||'',hotels:[],flights:[],items:[],credits:[]});
   }
   saveOverrides(); renderEstimatorPage(true);
 };
@@ -221,7 +389,7 @@ window.esDelCity=function(id){
   if(!esGuard())return;
   const c=esCity(id); if(!c)return;
   if(!confirm('Remove '+c.name+' and everything estimated under it?'))return;
-  ES().cities=ES().cities.filter(x=>x.id!==id);
+  const S=esScen(); S.cities=S.cities.filter(x=>x.id!==id);
   saveOverrides(); renderEstimatorPage(true);
 };
 window.esAddHotel=function(cid){
@@ -232,7 +400,7 @@ window.esAddHotel=function(cid){
   const ci=g('eh_ci').value,co=g('eh_co').value;
   if(ci&&co&&!(Date.parse(co)>Date.parse(ci))){flash('Check-out must be after check-in','err');return;}
   c.hotels=c.hotels||[];
-  c.hotels.push({id:'h'+Date.now(),n,ci,co,cost:Number(g('eh_cost').value||0),fhr:!!g('eh_fhr').checked});
+  c.hotels.push(Object.assign({id:'h'+Date.now(),n,ci,co,cost:Number(g('eh_cost').value||0),fhr:!!g('eh_fhr').checked},esReadPts('eh',cid)));
   saveOverrides(); renderEstimatorPage(true);
 };
 window.esDelHotel=function(cid,hid){
@@ -249,8 +417,8 @@ window.esAddFlight=function(cid){
   const F=esAp('ef_from_'+cid,'From',true); if(!F.ok)return;
   const T=esAp('ef_to_'+cid,'To',true); if(!T.ok)return;
   c.flights=c.flights||[];
-  c.flights.push({id:'f'+Date.now(),airline:air,cls:g('ef_cls').value,cost:Number(g('ef_cost').value||0),
-    segs:[{f:F.code,t:T.code,d:g('ef_date').value||'',tm:g('ef_time').value||''}]});
+  c.flights.push(Object.assign({id:'f'+Date.now(),airline:air,cls:g('ef_cls').value,cost:Number(g('ef_cost').value||0),
+    segs:[{f:F.code,t:T.code,d:g('ef_date').value||'',tm:g('ef_time').value||''}]},esReadPts('ef',cid)));
   saveOverrides(); renderEstimatorPage(true);
 };
 window.esDelFlight=function(cid,fid){
@@ -299,5 +467,21 @@ window.esDelItem=function(cid,iid){
   if(!esGuard())return;
   const c=esCity(cid); if(!c)return;
   c.items=(c.items||[]).filter(x=>x.id!==iid);
+  saveOverrides(); renderEstimatorPage(true);
+};
+window.esAddCredit=function(cid){
+  if(!esGuard())return;
+  const c=esCity(cid); if(!c)return;
+  const g=i=>document.getElementById(i+'_'+cid);
+  const d=(g('ecr_d').value||'').trim(); if(!d){g('ecr_d').focus();return;}
+  const a=Number(g('ecr_a').value||0); if(!(a>0)){g('ecr_a').focus();return;}
+  c.credits=c.credits||[];
+  c.credits.push({id:'cr'+Date.now(),desc:d,amt:a});
+  saveOverrides(); renderEstimatorPage(true);
+};
+window.esDelCredit=function(cid,crid){
+  if(!esGuard())return;
+  const c=esCity(cid); if(!c)return;
+  c.credits=(c.credits||[]).filter(x=>x.id!==crid);
   saveOverrides(); renderEstimatorPage(true);
 };

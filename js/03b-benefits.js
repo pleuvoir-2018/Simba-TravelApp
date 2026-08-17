@@ -202,6 +202,14 @@ const BA_LOUNGES={
    rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat'],why:'Amex Platinum — Plaza Premium network'}],ver:'curated'},
   {n:'SKYTEAM / Air Canada Maple Leaf Lounges',loc:'Intl & transborder piers',hrs:'per bank',rate:'4.2★',am:'Alliance doors before the Yokohama-bound legs',
    rules:[{airline:{id:'ac',cabins:['business','first']},why:'Air Canada Signature / Maple Leaf home hub'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold)'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business (Maple Leaf)'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'},{airline:{id:'dl',cabins:['business'],intlOnly:true},why:'SkyTeam business (SkyTeam lounge)'},{airline:{id:'ke',cabins:['business','first']},why:'SkyTeam — KE Prestige uses SkyTeam/contract door'}],ver:'curated'}
+ ],
+ YYZ:[
+  {n:'American Express Lounge',loc:'T1 · international departures, near the E-gates (post-security)',hrs:'~05:30–21:00',rate:'4.0★',am:'Table-service plates, espresso bar — the calm room before AC/UA banks',
+   rules:[{cards:['amexplat'],why:'Amex Platinum — Global Lounge Collection'}],ver:'curated'},
+  {n:'Plaza Premium Lounges (T1 & T3)',loc:'T1 Intl E-gates · T3 Intl and Domestic',hrs:'per terminal, ~04:30–23:00',rate:'3.8★',am:'Hot buffet and showers, several rooms — busiest before the evening transatlantic bank',
+   rules:[{cards:['amexplat'],why:'Amex Platinum — Plaza Premium network'},{pp:true,why:'Priority Pass'}],ver:'curated'},
+  {n:'Air Canada Maple Leaf Lounges & Signature Suite',loc:'T1 · domestic, transborder and international piers',hrs:'per bank',rate:'4.3★',am:'AC\u2019s home hub — the Signature Suite is à-la-carte dining for intl Signature Class',
+   rules:[{airline:{id:'ac',cabins:['business','first']},why:'Air Canada Signature / Maple Leaf home hub'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold)'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business (Maple Leaf)'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'}
  ]
 };
 
@@ -472,8 +480,8 @@ window.renderBenefitsPage=function(tab,keep){
           <div class="ba-meta">${x.l.loc} · ${x.l.hrs}</div>
           <div class="ba-meta">${x.l.am}</div>
           <div class="${x.ok?'ba-yes':'ba-nope'}">${x.ok?'✓ '+x.ok:'✕ Not with your current memberships'}${x.l.ver==='curated'?' · <i>curated — verify hours</i>':''}</div>
-        </div>`).join('')+`<div class="ba-note">${r.known?'':'Airport not in the database yet — the seeded set covers this group\u2019s routes (IAD, MCO, ICN, HND, NRT, KIX, HNL, YVR). More on request. '}IAD & MCO verified against Aug 2026 sources; ✈-marked lounges depend on the ticket, not the wallet.</div>`
-        :'<div style="padding:12px 15px;font-size:12px;color:var(--grey)">No lounge data for that code yet — seeded airports: IAD, MCO, ICN, HND, NRT, KIX, HNL, YVR.</div>')
+        </div>`).join('')+`<div class="ba-note">${r.known?'':'Airport not in the database yet — the seeded set covers this group\u2019s routes (IAD, MCO, ICN, HND, NRT, KIX, HNL, YVR, YYZ). More on request. '}IAD & MCO verified against Aug 2026 sources; ✈-marked lounges depend on the ticket, not the wallet.</div>`
+        :'<div style="padding:12px 15px;font-size:12px;color:var(--grey)">No lounge data for that code yet — seeded airports: IAD, MCO, ICN, HND, NRT, KIX, HNL, YVR, YYZ.</div>')
       :'<div style="padding:10px 15px 14px;font-size:12px;color:var(--grey)">Combines the ticket you\u2019ll fly with the cards and statuses in your Travel profile.</div>'}
     </div>`;
   }

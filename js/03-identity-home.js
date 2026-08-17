@@ -27,17 +27,16 @@ const TRIPS=[
   photo:wm('Air_India_Heathrow_lounge.JPG'),
   credit:'Airport lounge, Heathrow · Clayton Tang, CC BY-SA 3.0',status:'wip',tool:true},
  /* staff:true — a tool for admin & designer only. canOpen refuses the grant
-    path for staff tools, the IAM grid never offers one, and renderHome hides
-    the card from everyone else entirely. Inline SVG art — never a hot-linked
-    image for chrome. */
+    path for staff tools and the IAM grid never offers one; the landing shows
+    the card padlocked (🔒 No access) like any other gated tool. */
  {id:'estimator',country:'Travel tools',emoji:'🧮',title:'Travel Estimator',dates:'Cost a trip before it exists',
   blurb:'Flights, stays & dailies, city by city',
   photo:wm('Compass_on_the_Brig_Roald_Amundsen.jpg'),
   credit:'Ship\u2019s compass, brig Roald Amundsen \u00b7 Wikimedia Commons',status:'wip',tool:true,staff:true},
  {id:'cardroi',country:'Travel tools',emoji:'💳',title:'Card ROI',dates:'Is the annual fee earning its keep?',
   blurb:'Track every credit, visit and point against the AF',
-  photo:wm('Credit-cards.jpg'),
-  credit:'Payment cards \u00b7 Lotus Head, CC BY-SA 2.5',status:'wip',tool:true},
+  photo:wm('American_Express_Centurion_Card_front.jpg'),
+  credit:'Amex Centurion \u00b7 Wikimedia Commons, CC BY 2.0',status:'wip',tool:true},
  {id:'orlando-universal',country:'Theme-Park Trip',title:'Orlando — Universal',dates:'Dates TBD',emoji:'🎬',theme:'ocean',
   photo:wm('Universal_Studios_Florida_Gate.JPG'),credit:'Universal Studios Florida gate · Malpass93, public domain',status:'wip'}
 ];
@@ -324,7 +323,7 @@ function renderHome(){
         <div class="bar"><span title="${!canOpen(t.id)&&t.status!=='idea'?'Ask the organizer for access':''}">${t.status==='idea'?'Not planned yet':(!canOpen(t.id)?'🔒 No access':(tripArchived(t)?'Open · read-only →':t.tool?'Open tool →':'Open trip →'))}</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`;
-  const homeTools=TRIPS.filter(t=>t.tool&&(!t.staff||canOpen(t.id)));   // staff tools invisible, not padlocked
+  const homeTools=TRIPS.filter(t=>t.tool);   // staff tools show padlocked (🔒 No access) like any gated tool; canOpen still walls the open
   panel.innerHTML=`
   <img class="home-bgart" src="${wm('Eikan-do_Zenrin-ji,_November_2016_-03.jpg')}" alt=""
        onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg')}';}else{this.style.display='none';}">

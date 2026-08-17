@@ -1042,22 +1042,29 @@ function renderVault(){
   });
 }
 
+function expUsd(e){
+  if(e&&e.planned===true&&e.pid&&typeof liveRate!=='undefined'&&liveRate>0){
+    const p=(overrides.plans||[]).find(x=>x.id===e.pid);
+    if(p&&p.jpy)return Number(p.jpy)/liveRate;
+  }
+  return Number(e.usd);
+}
 function renderExpenses() {
   const exps = overrides.expenses || [];
 
   // Partial-payment helpers: paidUsd (number) is the source of truth; legacy boolean `paid` still honored
   const paidAmt = e => {
-    if (e.paidUsd !== undefined && e.paidUsd !== '') return Math.min(Number(e.paidUsd), Number(e.usd));
-    return e.paid ? Number(e.usd) : 0;          // legacy boolean fallback
+    if (e.paidUsd !== undefined && e.paidUsd !== '') return Math.min(Number(e.paidUsd), expUsd(e));
+    return e.paid ? expUsd(e) : 0;          // legacy boolean fallback
   };
-  const isFullyPaid = e => paidAmt(e) >= Number(e.usd) - 0.005;
+  const isFullyPaid = e => paidAmt(e) >= expUsd(e) - 0.005;
 
   const isPlanned = e => e.planned === true;
   const actuals = exps.filter(e => !isPlanned(e));
   const plannedExps = exps.filter(isPlanned);
-  const plannedTotal = plannedExps.reduce((s, e) => s + Number(e.usd), 0);
+  const plannedTotal = plannedExps.reduce((s, e) => s + expUsd(e), 0);
 
-  const total = actuals.reduce((sum, e) => sum + Number(e.usd), 0);
+  const total = actuals.reduce((sum, e) => sum + expUsd(e), 0);
   const totalPaid = actuals.reduce((sum, e) => sum + paidAmt(e), 0);
   const totalUnpaid = Math.max(0, total - totalPaid);
   const paidPct = total > 0 ? Math.min(100, (totalPaid / total) * 100) : 0;
@@ -1067,7 +1074,7 @@ function renderExpenses() {
       .reduce((a,s)=>a+Number(eff(s).jpy),0);
   const mealBudgetUsd = mealBudgetJpy / liveRate;
   const foodSpentUsd  = actuals.filter(e=>e.cat==="Food"||e.cat==="POI & Cafe")
-      .reduce((a,e)=>a+Number(e.usd),0);
+      .reduce((a,e)=>a+expUsd(e),0);
   const foodPct  = mealBudgetUsd>0 ? Math.min(100,(foodSpentUsd/mealBudgetUsd)*100) : 0;
   const foodOver = foodSpentUsd > mealBudgetUsd;
   
@@ -1081,7 +1088,7 @@ function renderExpenses() {
   cards.forEach(c => cardTotals[c] = { paid: 0, unpaid: 0, total: 0 });
 
   actuals.forEach(e => {
-    const amt = Number(e.usd);
+    const amt = expUsd(e);
     if(catTotals[e.cat] !== undefined) catTotals[e.cat] += amt;
     if(cardTotals[e.card] !== undefined) {
       const p = paidAmt(e);
@@ -1189,7 +1196,7 @@ function renderExpenses() {
         ${exps.length === 0 ? '<div class="note">No expenses logged yet.</div>' : ''}
         ${(() => {
           const expRow = (e, i) => {
-            const amt = Number(e.usd), p = paidAmt(e);
+            const amt = expUsd(e), p = paidAmt(e);
             const planned = isPlanned(e);
             const full = !planned && isFullyPaid(e), partial = !planned && p > 0.005 && !full;
             return `

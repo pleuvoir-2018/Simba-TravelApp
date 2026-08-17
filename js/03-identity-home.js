@@ -313,7 +313,8 @@ function renderHome(){
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`;
   panel.innerHTML=`
-  <img class="home-bgart" src="${wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg')}" alt="" onerror="this.style.display='none'">
+  <img class="home-bgart" src="${wm('Eikan-do_Zenrin-ji,_November_2016_-03.jpg')}" alt=""
+       onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg')}';}else{this.style.display='none';}">
   <div class="home-bgscrim"></div>
   <div class="home-hero" style="position:relative">
     <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">

@@ -120,7 +120,10 @@ function baAirlineBenefits(air,cabin,fromCode,toCode,tier){
      Sapphire Lounge seeded in future.
    — United Clubs: domestic first does NOT get in; the airline rules on every
      United Club row are intlOnly for that reason. */
-const BA_PP_CARDS=['amexplat','csr','venturex'];
+const BA_PP_CARDS=['amexplat','csr','venturex','bilt','strataelite','boaelite','amexbizplat'];
+/* amexbizplat rides every amexplat door rule (Centurion, GLC, Plaza Premium,
+   flying-Delta Sky Clubs) — the why-strings keep the shorter 'Amex Platinum'
+   label for both. */
 const BA_LOUNGES={
  IAD:[
   {n:'Capital One Lounge',loc:'Ticketing level, post-TSA PreCheck between East/West checkpoints',hrs:'06:00–22:00',rate:'4.5★',am:'Hot food, bar, grab-and-go, showers, nursing room',
@@ -148,9 +151,9 @@ const BA_LOUNGES={
   {n:'The Club MCO — Airside 4',loc:'Gates 70–99 near gate 91',hrs:'~08:00–20:00',rate:'4.0★',am:'3-hour stay cap at peak',
    rules:[{pp:true,why:'Priority Pass'}],ver:'verified Aug 2026'},
   {n:'Plaza Premium Lounge',loc:'Terminal C, level 2 near gate 241',hrs:'daily, ~2-hour cap',rate:'4.2★',am:'10,000 sq ft, hot food, calmer than the north complex',
-   rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat'],why:'Amex Platinum — Plaza Premium network'}],ver:'verified Aug 2026'},
+   rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat','amexbizplat'],why:'Amex Platinum — Plaza Premium network'}],ver:'verified Aug 2026'},
   {n:'Delta Sky Club',loc:'Terminal B / Airside 3',hrs:'per DL bank',rate:'4.2★',am:'Strictest door at MCO; no day passes',
-   rules:[{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta same-day (visit limits apply)'},{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta'},{airline:{id:'dl',cabins:['business','first']},why:'Delta One / First (route rules)'}],ver:'verified Aug 2026'},
+   rules:[{cards:['amexplat','amexbizplat'],flying:'dl',why:'Amex Platinum flying Delta same-day (visit limits apply)'},{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta'},{airline:{id:'dl',cabins:['business','first']},why:'Delta One / First (route rules)'}],ver:'verified Aug 2026'},
   {n:'Admirals Club',loc:'Terminal B / Airside 3 near gate 55',hrs:'~05:00–20:00 (fills by mid-morning at peak)',rate:'3.9★',am:'Undersized for the traffic; day pass ~$79',
    rules:[{cards:['aaexec'],why:'Citi / AAdvantage Executive'},{airline:{id:'aa',cabins:['business','first'],intlOnly:true},why:'oneworld intl premium cabin'},{tier:{air:'aa',min:'Platinum',intlOnly:true},why:'oneworld Sapphire+ on qualifying intl'}],ver:'verified Aug 2026'},
   {n:'United Club',loc:'Terminal B / Airside 3',hrs:'per UA bank',rate:'3.8★',am:'Small; standard Club spread',
@@ -196,33 +199,33 @@ const BA_LOUNGES={
   {n:'United Club',loc:'Terminal 2 near G gates',hrs:'per UA bank',rate:'3.9★',am:'Open-air walkway to it — very Honolulu',
    rules:[{cards:['unitedclub'],why:'United Club Infinite'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'UA intl premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
   {n:'Delta Sky Club',loc:'Terminal 2',hrs:'per DL bank',rate:'4.0★',am:'Compact Sky Club',
-   rules:[{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta'},{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta'},{airline:{id:'dl',cabins:['business','first']},why:'Delta premium cabin'}],ver:'curated'}
+   rules:[{cards:['amexplat','amexbizplat'],flying:'dl',why:'Amex Platinum flying Delta'},{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta'},{airline:{id:'dl',cabins:['business','first']},why:'Delta premium cabin'}],ver:'curated'}
  ],
  YVR:[
   {n:'Plaza Premium Lounge (Intl & Transborder)',loc:'Intl departures + US transborder',hrs:'~05:00–22:00',rate:'4.1★',am:'Plaza Premium\u2019s home airport — hot food, showers',
-   rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat'],why:'Amex Platinum — Plaza Premium network'}],ver:'curated'},
+   rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat','amexbizplat'],why:'Amex Platinum — Plaza Premium network'}],ver:'curated'},
   {n:'SKYTEAM / Air Canada Maple Leaf Lounges',loc:'Intl & transborder piers',hrs:'per bank',rate:'4.2★',am:'Alliance doors before the Yokohama-bound legs',
    rules:[{airline:{id:'ac',cabins:['business','first']},why:'Air Canada Signature / Maple Leaf home hub'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold)'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business (Maple Leaf)'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'},{airline:{id:'dl',cabins:['business'],intlOnly:true},why:'SkyTeam business (SkyTeam lounge)'},{airline:{id:'ke',cabins:['business','first']},why:'SkyTeam — KE Prestige uses SkyTeam/contract door'}],ver:'curated'}
  ],
  YYZ:[
   {n:'American Express Lounge',loc:'T1 · international departures, near the E-gates (post-security)',hrs:'~05:30–21:00',rate:'4.0★',am:'Table-service plates, espresso bar — the calm room before AC/UA banks',
-   rules:[{cards:['amexplat'],why:'Amex Platinum — Global Lounge Collection'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum — Global Lounge Collection'}],ver:'curated'},
   {n:'Plaza Premium Lounges (T1 & T3)',loc:'T1 Intl E-gates · T3 Intl and Domestic',hrs:'per terminal, ~04:30–23:00',rate:'3.8★',am:'Hot buffet and showers, several rooms — busiest before the evening transatlantic bank',
-   rules:[{cards:['amexplat'],why:'Amex Platinum — Plaza Premium network'},{pp:true,why:'Priority Pass'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum — Plaza Premium network'},{pp:true,why:'Priority Pass'}],ver:'curated'},
   {n:'Air Canada Maple Leaf Lounges & Signature Suite',loc:'T1 · domestic, transborder and international piers',hrs:'per bank',rate:'4.3★',am:'AC\u2019s home hub — the Signature Suite is à-la-carte dining for intl Signature Class',
    rules:[{airline:{id:'ac',cabins:['business','first']},why:'Air Canada Signature / Maple Leaf home hub'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold)'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business (Maple Leaf)'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'}
  ],
  SEA:[
   {n:'The Centurion Lounge',loc:'Central Terminal, mezzanine level',hrs:'05:00–22:00',rate:'4.2★',am:'Big bar as you enter, Pacific-NW menu',
-   rules:[{cards:['amexplat'],why:'Amex Platinum — 3-hour window'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum — 3-hour window'}],ver:'curated'},
   {n:'Delta Sky Clubs (A & B)',loc:'Concourses A and B',hrs:'per bank',rate:'4.1★',am:'Two clubs — the A club is the newer, bigger one',
-   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'}
+   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat','amexbizplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'}
  ],
  LAX:[
   {n:'The Centurion Lounge',loc:'Tom Bradley Intl (TBIT) — airside-reachable from T4–8',hrs:'06:00–22:00',rate:'4.0★',am:'The connector walk from T7 is real — budget 15 min',
-   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum'}],ver:'curated'},
   {n:'Delta Sky Club',loc:'Terminal 3',hrs:'per bank',rate:'4.3★',am:'Post-renovation flagship with the sunset deck',
-   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'},
+   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat','amexbizplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'},
   {n:'United Club',loc:'Terminals 7/8',hrs:'per bank',rate:'3.8★',am:'Two clubs on the United side',
    rules:[{cards:['unitedclub'],flying:'ua',why:'United Club Card membership'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance intl business'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
   {n:'Star Alliance Business Lounge',loc:'TBIT, above the great hall',hrs:'per bank',rate:'4.4★',am:'The outdoor terrace is the best airside space at LAX',
@@ -232,13 +235,13 @@ const BA_LOUNGES={
  ],
  SFO:[
   {n:'The Centurion Lounge (temporary)',loc:'Terminal 3 — interim space during the T3 West project; permanent room reopens 2027',hrs:'reduced — check the app',rate:'3.6★',am:'Napa tasting wall is on pause in the temp space',
-   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum'}],ver:'curated'},
   {n:'United Polaris Lounge',loc:'Intl Terminal G',hrs:'per intl banks',rate:'4.6★',am:'Sit-down dining — the best UA lounge anywhere',
    rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Polaris — intl business/first only'}],ver:'curated'},
   {n:'United Clubs',loc:'Terminal 3 & Intl G',hrs:'per bank',rate:'3.9★',am:'Hub-sized, hub-crowded',
    rules:[{cards:['unitedclub'],flying:'ua',why:'United Club Card membership'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star intl business'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
   {n:'The Club SFO',loc:'Terminal A',hrs:'~06:00–23:00',rate:'3.5★',am:'The independent fallback',
-   rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat'],why:'Amex Global Lounge Collection'}],ver:'curated'}
+   rules:[{pp:true,why:'Priority Pass'},{cards:['amexplat','amexbizplat'],why:'Amex Global Lounge Collection'}],ver:'curated'}
  ],
  CUN:[
   {n:'Mera Business Lounges (T3 & T4)',loc:'Terminals 3 and 4, airside',hrs:'~06:00–22:00',rate:'3.4★',am:'The workhorse pair — T4 is the newer room',
@@ -248,7 +251,7 @@ const BA_LOUNGES={
  ],
  DFW:[
   {n:'The Centurion Lounge',loc:'Terminal D, near D12 — expansion in the works',hrs:'05:30–22:00',rate:'4.1★',am:'Texas BBQ station; Skylink reaches it from every terminal',
-   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum'}],ver:'curated'},
   {n:'Capital One Lounge',loc:'Terminal D, near D22',hrs:'~05:00–22:00',rate:'4.5★',am:'The original C1 lounge — grab-and-go wall included',
    rules:[{cards:['venturex'],why:'Venture X — guests are paid since Feb 2026'}],ver:'curated'},
   {n:'Admirals Clubs',loc:'Every terminal — AA’s fortress',hrs:'per bank',rate:'3.9★',am:'A/B/C/D rooms; D is the flagship-adjacent one',
@@ -258,23 +261,23 @@ const BA_LOUNGES={
  ],
  JFK:[
   {n:'The Centurion Lounge',loc:'Terminal 4, mezzanine above the A gates',hrs:'per T4 banks',rate:'4.2★',am:'Two floors and the mini spa',
-   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum'}],ver:'curated'},
   {n:'Chase Sapphire Lounge by The Club',loc:'Terminal 4, adjacent to the Centurion',hrs:'per T4 banks',rate:'4.3★',am:'The ex-Etihad space, Chase-run',
    rules:[{cards:['csr'],why:'Sapphire Reserve — ordinary Priority Pass no longer admits'}],ver:'curated'},
   {n:'Delta Sky Club & Delta One Lounge',loc:'Terminal 4',hrs:'per bank',rate:'4.4★',am:'The Delta One room (2024) is the prize if the ticket qualifies',
-   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One — the dedicated lounge'}],ver:'curated'},
+   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat','amexbizplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One — the dedicated lounge'}],ver:'curated'},
   {n:'Admirals Club & Flagship Lounge',loc:'Terminal 8',hrs:'per bank',rate:'4.0★',am:'Flagship for intl premium; Admirals for the membership',
    rules:[{cards:['aaexec'],flying:'aa',why:'AAdvantage Exec membership'},{airline:{id:'aa',cabins:['business','first'],intlOnly:true},why:'AA intl premium → Flagship'},{tier:{air:'jl',min:'Sapphire',intlOnly:true},why:'oneworld Sapphire intl'}],ver:'curated'}
  ],
  LGA:[
   {n:'The Centurion Lounge',loc:'Terminal B, fourth floor',hrs:'05:00–22:00 (Sat to 21:00)',rate:'4.0★',am:'Above the food hall — the escalator hides behind the water wall',
-   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum'}],ver:'curated'},
   {n:'Chase Sapphire Lounge',loc:'Terminal B',hrs:'per bank',rate:'4.5★',am:'Chase’s showcase room',
    rules:[{cards:['csr'],why:'Sapphire Reserve — ordinary Priority Pass no longer admits'}],ver:'curated'},
   {n:'Capital One Landing',loc:'Terminal B — opened Feb 2026',hrs:'per bank',rate:'4.2★',am:'Small-plates concept, brand-new',
    rules:[{cards:['venturex'],why:'Venture X — guests are paid extras'}],ver:'curated'},
   {n:'Delta Sky Club',loc:'Terminal C',hrs:'per bank',rate:'4.1★',am:'The big C-terminal club from the rebuild',
-   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'}
+   rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat','amexbizplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One'}],ver:'curated'}
  ],
  EWR:[
   {n:'United Polaris Lounge',loc:'Terminal C, near C120',hrs:'per intl banks',rate:'4.5★',am:'Sit-down dining before the transatlantic bank',
@@ -284,7 +287,7 @@ const BA_LOUNGES={
  ],
  DCA:[
   {n:'The Centurion Lounge',loc:'Between concourses D and E, mezzanine by the central atrium',hrs:'05:00–21:00',rate:'4.3★',am:'The newest US Centurion — and the home-field one',
-   rules:[{cards:['amexplat'],why:'Amex Platinum'}],ver:'curated'},
+   rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum'}],ver:'curated'},
   {n:'Admirals Club',loc:'National Hall, E gates side',hrs:'per bank',rate:'3.6★',am:'DCA is otherwise thin — this and the Centurion are the field',
    rules:[{cards:['aaexec'],flying:'aa',why:'AAdvantage Exec membership, AA same day'}],ver:'curated'}
  ],

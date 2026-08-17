@@ -556,7 +556,10 @@ const TRAV_CAT={
   {id:'amexplat',n:'Amex Platinum'},{id:'csr',n:'Chase Sapphire Reserve'},
   {id:'venturex',n:'Capital One Venture X'},{id:'amexgold',n:'Amex Gold'},
   {id:'deltares',n:'Delta Reserve'},{id:'unitedclub',n:'United Club Infinite'},
-  {id:'aaexec',n:'Citi / AAdvantage Executive'}
+  {id:'aaexec',n:'Citi / AAdvantage Executive'},
+  {id:'bilt',n:'Bilt Palladium'},{id:'bonvoybrill',n:'Bonvoy Brilliant'},
+  {id:'hiltonaspire',n:'Hilton Aspire'},{id:'strataelite',n:'Citi Strata Elite'},
+  {id:'boaelite',n:'BofA Premium Rewards Elite'},{id:'amexbizplat',n:'Amex Business Platinum'}
  ]
 };
 function travOf(me){

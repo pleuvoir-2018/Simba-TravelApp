@@ -13,7 +13,8 @@
    never a cage. ver tags mark confidence like the lounge DB does.
 
    Priority Pass–network visits are ONE shared counter no matter how many
-   cards in the wallet carry PP (Plat / CSR / Venture X all do) — the visit
+   cards in the wallet carry PP (Plat, Biz Plat, CSR, Venture X, Bilt
+   Palladium, Strata Elite and the BofA Elite all do) — the visit
    only happened once, so its value attributes to a single card of the
    user's choosing. Airline clubs (Sky Club, United Club, Admirals) are
    card-specific networks and count on their own cards.
@@ -87,7 +88,46 @@ const CR_CARDS={
    ['lyft','Lyft ($10/mo)',120]],
   counts:[
    ['club','Admirals Club visit',40]],
-  note:'Admirals Club membership alone now retails $1,200+.'}
+  note:'Admirals Club membership alone now retails $1,200+.'},
+ bilt:{n:'Bilt Palladium',af:495,ver:'checked Aug 2026 \u2014 Card 2.0 lineup, launched Feb 2026',pp:true,
+  credits:[
+   ['hotel','Bilt Travel hotel credit ($200\u00d72)',400]],
+  counts:[],
+  note:'Under the $500 line but in by name \u2014 the VX rule. Annual Bilt Cash and Gold status ride along; edit values as the young program settles.'},
+ bonvoybrill:{n:'Bonvoy Brilliant',af:650,ver:'curated',pp:false,
+  credits:[
+   ['dining','Dining credit ($25/mo)',300]],
+  counts:[
+   ['fna','Free-night award used (\u226485k)',500],
+   ['prop','$100 Ritz/St. Regis property credit (2-night min)',100]],
+  note:'Plus Bonvoy Platinum Elite outright \u2014 which is why it pairs with the Japan hotels.'},
+ hiltonaspire:{n:'Hilton Aspire',af:550,ver:'curated',pp:false,
+  credits:[
+   ['resort','Hilton resort credit ($200\u00d72)',400],
+   ['flight','Flight credit ($50/q)',200]],
+  counts:[
+   ['fnr','Free-night reward used',500]],
+  note:'Hilton Diamond outright \u2014 the status is half the card.'},
+ strataelite:{n:'Citi Strata Elite',af:595,ver:'checked Aug 2026',pp:true,
+  credits:[
+   ['hotel','Citi Travel hotel credit (2-night min)',300],
+   ['splurge','Splurge credit (pick-2 merchants)',200],
+   ['blacklane','Blacklane chauffeur ($100\u00d72)',200]],
+  counts:[
+   ['admirals','Admirals Club one-day pass (4/yr)',40]],
+  note:'PP Select is lounges only \u2014 no restaurant credits. Marriott + Hilton Gold ride along; GE/TSA every 4 yrs.'},
+ boaelite:{n:'BofA Premium Rewards Elite',af:550,ver:'curated',pp:true,
+  credits:[
+   ['airline','Airline incidental credits',300],
+   ['lifestyle','Lifestyle credits',150]],
+  counts:[],
+  note:'Quiet card \u2014 the credits and PP are the whole story; Preferred Rewards multipliers are where it earns.'},
+ amexbizplat:{n:'Amex Business Platinum',af:895,ver:'curated \u2014 business credits churn; edit to your statement',pp:true,
+  credits:[
+   ['air','Airline fee credit',200],
+   ['clear','CLEAR Plus',209]],
+  counts:[],
+  note:'Opens every amexplat lounge door (Centurion, GLC, Sky Clubs flying Delta). The business-side credits (Dell-style, wireless\u2026) churn too fast to seed \u2014 add them as you use them via the meters you edit.'}
 };
 const CR_PPCARDS=Object.keys(CR_CARDS).filter(k=>CR_CARDS[k].pp);
 

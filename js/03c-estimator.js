@@ -236,14 +236,14 @@ window.renderEstimatorPage=function(keep){
        ticked. Unticking CLEARS the trio before hiding it — values left in
        hidden inputs would silently submit a cash stay as an award. */
     const ptsRow=pfx=>`<div class="plrow1">
-          <label style="display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey)"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plrow1').querySelector('.es-pts');w.style.display=this.checked?'contents':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Points</label>
-          <span class="es-pts" style="display:none">
+          <label style="display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey)"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plform').querySelector('.es-pts');w.style.display=this.checked?'flex':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Points</label>
+          <span class="es-pts" style="display:none;flex-basis:100%;flex-wrap:wrap;gap:8px;align-items:center;padding:2px 0 0 22px">
           <input id="${pfx}_pts_${c.id}" type="number" min="0" step="1000" placeholder="✨ Points" style="width:110px">
-          <select id="${pfx}_prog_${c.id}">${ES_PROGS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
-          <input id="${pfx}_val_${c.id}" type="number" min="0" step="1" placeholder="Cash value $" style="width:110px" title="What it would have cost in cash — for ¢/pt">
+          <select id="${pfx}_prog_${c.id}" style="width:150px">${ES_PROGS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>
+          <input id="${pfx}_val_${c.id}" type="number" min="0" step="1" placeholder="Cash value $" style="width:120px" title="What it would have cost in cash — for ¢/pt">
           </span>`;
     return `<div class="card"><div class="chead"><span>🏙 ${esc(c.name)}${c.ap?' · '+esc(c.ap):''}</span><span>${esMoney(esCityNet(c))}
-      ${edit?`&nbsp;<button class="plx" onclick="esEditCity('${c.id}')" title="Edit city" style="appearance:none;-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:0 4px;color:#DCEAF9;font-size:13px">✎</button><button class="plx" onclick="esDelCity('${c.id}')" title="Remove city" style="appearance:none;-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:0 4px;color:#DCEAF9;font-size:16px">×</button>`:''}</span></div>
+      ${edit?`&nbsp;<button class="plx" onclick="esEditCity('${c.id}')" title="Edit city" style="appearance:none;-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:0 4px;color:var(--indigo);font-size:13px">✎</button><button class="plx" onclick="esDelCity('${c.id}')" title="Remove city" style="appearance:none;-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:0 4px;color:var(--indigo);font-size:16px">×</button>`:''}</span></div>
 
       ${lbl('🏨 Hotels — '+esMoney(esHotelSum(c)))}
       ${hotels||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">No stays yet.</div>'}

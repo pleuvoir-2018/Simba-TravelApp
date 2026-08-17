@@ -275,7 +275,7 @@ window.renderCardRoiPage=function(keep){
 
   /* -------- dashboard -------- */
   const dash=`<div class="card"><div class="chead"><span>📊 ${year} — value received vs annual fees</span>
-      <span><select onchange="crYearSet(+this.value)" style="height:26px;font:600 11px var(--mono);background:rgba(255,255,255,.14);color:#DCEAF9;border:1px solid rgba(220,234,249,.5);border-radius:3px">${crYears().map(y=>`<option value="${y}" ${y===year?'selected':''} style="color:var(--ink)">${y}</option>`).join('')}</select></span></div>
+      <span><select onchange="crYearSet(+this.value)" style="height:26px;font:600 11px var(--mono);background:none;color:var(--indigo);border:1px solid var(--indigo);border-radius:3px">${crYears().map(y=>`<option value="${y}" ${y===year?'selected':''}>${y}</option>`).join('')}</select></span></div>
     <div style="padding:14px 15px 6px;display:flex;gap:26px;flex-wrap:wrap;align-items:flex-end">
       <div><div style="font:600 10px var(--mono);letter-spacing:.15em;text-transform:uppercase;color:var(--grey)">Benefits used</div>
         <div style="font-family:var(--serif);font-size:clamp(30px,6vw,44px);line-height:1;color:var(--indigo);padding-bottom:8px">${crMoney(totVal)}</div></div>

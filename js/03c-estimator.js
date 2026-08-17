@@ -201,25 +201,27 @@ window.renderEstimatorPage=function(keep){
      the buttons form one column down the card. The ✨ award trio is its own
      labeled sub-row that unfolds under the checkbox; unticking clears it.
      Mutator ids are UNCHANGED — this is a render rebuild, not a data one. */
-  const LBL='font:600 8.5px var(--mono);letter-spacing:.08em;color:var(--grey)';
-  const esF=(lbl,inner,grow)=>`<span style="display:flex;flex-direction:column;gap:3px;${grow?'flex:1 1 auto;min-width:160px':'flex:0 0 auto'}"><label style="${LBL}">${lbl}</label>${inner}</span>`;
-  const esBtnR=(fn,txt)=>`<button class="pladd" type="button" onclick="${fn}" style="flex:0 0 auto;margin-left:auto;padding:9px 20px;min-width:110px">${txt}</button>`;
-  const esChk=(idAttr,lbl,extra)=>`<label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey);height:36px">${idAttr?`<input type="checkbox" id="${idAttr}" style="width:auto;height:auto">`:extra}${lbl}</label>`;
+  const FIELD='width:100%;font:13px var(--sans);border:1px solid var(--rule);border-radius:2px;padding:7px 9px;background:var(--card,#fff)';
+  /* Add-restaurant language: the label WRAPS the input — uppercase 9px
+     caption, 3px under, input width:100% inside a flex-basis-sized label. */
+  const esF=(lbl,inner,basis)=>`<label style="flex:${basis||'1 1 120px'};min-width:0"><span style="display:block;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);margin-bottom:3px">${lbl}</span>${inner}</label>`;
+  const esBtnR=(fn,txt)=>`<button class="pladd" type="button" onclick="${fn}" style="flex:0 0 auto;margin-left:auto;padding:9px 16px;min-width:104px">${txt}</button>`;
+  const esChk=(idAttr,lbl,extra)=>`<label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);height:36px">${idAttr?`<input type="checkbox" id="${idAttr}" style="width:auto;height:auto">`:extra}${lbl}</label>`;
   /* Award ✨ lives at the RIGHT EDGE of each form's first row, next to FHR
      where present; ticking it swaps the points cells INTO the money row
      ahead of the fees field (display:contents — safe now that every cell
      pins its own flex against the .plrow1 grow rule). Untick clears. */
-  const esAwardChk=word=>`<label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey);height:36px"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plform').querySelector('.es-pts');w.style.display=this.checked?'contents':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Award ${word}</label>`;
+  const esAwardChk=word=>`<label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9px var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--grey);height:36px"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plform').querySelector('.es-pts');w.style.display=this.checked?'contents':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Award ${word}</label>`;
   const esPtsCells=(pfx,cid)=>`<span class="es-pts" style="display:none">
-        ${esF('POINTS',`<input id="${pfx}_pts_${cid}" type="number" min="0" step="1000" placeholder="85,000" style="width:110px">`)}
-        ${esF('PROGRAM',`<select id="${pfx}_prog_${cid}" style="width:150px">${ES_PROGS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>`)}
-        ${esF('CASH VALUE $',`<input id="${pfx}_val_${cid}" type="number" min="0" step="1" placeholder="0" style="width:120px" title="What it would have cost in cash — for ¢/pt">`)}
+        ${esF('POINTS',`<input id="${pfx}_pts_${cid}" type="number" min="0" step="1000" placeholder="85,000" style="${FIELD}">`,'1 1 110px')}
+        ${esF('PROGRAM',`<select id="${pfx}_prog_${cid}" style="${FIELD}">${ES_PROGS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>`,'1 1 140px')}
+        ${esF('CASH VALUE $',`<input id="${pfx}_val_${cid}" type="number" min="0" step="1" placeholder="0" style="${FIELD}" title="What it would have cost in cash — for ¢/pt">`,'1 1 110px')}
       </span>`;
   const cityCard=c=>{
     const hotels=(c.hotels||[]).map(h=>{const n=esNights(h.ci,h.co);return `<div class="pl-row">
       <span class="pl-ic">🏨</span>
       <span class="pl-main">${esc(h.n)}${h.fhr?' <span style="font:700 8.5px var(--mono);letter-spacing:.05em;color:#0E7C86;border:1px solid #0E7C86;border-radius:3px;padding:1px 4px">FHR</span>':''}
-        <span class="pl-jpy">${esFmtD(h.ci)} → ${esFmtD(h.co)}${n&&!(Number(h.pts)>0)?` · ${n} night${n>1?'s':''} (${esMoney(Number(h.cost||0)/n)}/nt)`:n?` · ${n} night${n>1?'s':''}`:''}</span>
+        <span class="pl-jpy">${h.room?esc(h.room)+' · ':''}${esFmtD(h.ci)} → ${esFmtD(h.co)}${n&&!(Number(h.pts)>0)?` · ${n} night${n>1?'s':''} (${esMoney(Number(h.cost||0)/n)}/nt)`:n?` · ${n} night${n>1?'s':''}`:''}</span>
         ${ptsTag(h)}</span>
       <span style="font:600 11px var(--mono);align-self:center">${esMoney(h.cost)}</span>
       ${xbtn(`esDelHotel('${c.id}','${h.id}')`)}
@@ -235,10 +237,10 @@ window.renderEstimatorPage=function(keep){
       ${xbtn(`esDelFlight('${c.id}','${f.id}')`)}
       ${ui.layFor===f.id&&edit?`<div class="plform" style="flex-basis:100%;padding:8px 0 2px 30px">
         <div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esF('FROM',baApField('el_from_'+f.id,'Code or city',''))}
-          ${esF('TO',baApField('el_to_'+f.id,'Code or city',''))}
-          ${esF('DATE',`<input id="el_date_${f.id}" type="date" style="width:135px">`)}
-          ${esF('DEPART',`<input id="el_time_${f.id}" type="time" style="width:100px">`)}
+          ${esF('FROM',baApField('el_from_'+f.id,'Code or city',''),'1 1 170px')}
+          ${esF('TO',baApField('el_to_'+f.id,'Code or city',''),'1 1 170px')}
+          ${esF('DATE',`<input id="el_date_${f.id}" type="date" style="${FIELD}">`,'1 1 130px')}
+          ${esF('DEPART',`<input id="el_time_${f.id}" type="time" style="${FIELD}">`,'1 1 100px')}
           ${esBtnR(`esAddLeg('${c.id}','${f.id}')`,'+ Leg')}
         </div>
         <div class="plhint">Layovers are routing lines under the same ticket — the fare stays one number on the flight.</div>
@@ -263,13 +265,14 @@ window.renderEstimatorPage=function(keep){
       ${hotels||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">No stays yet.</div>'}
       ${edit?`<div class="plform">
         <div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esF('HOTEL',`<input id="eh_n_${c.id}" placeholder="Grand Hyatt…" maxlength="60">`,1)}
-          ${esF('CHECK-IN',`<input id="eh_ci_${c.id}" type="date" style="width:135px">`)}
-          ${esF('CHECK-OUT',`<input id="eh_co_${c.id}" type="date" style="width:135px">`)}
+          ${esF('HOTEL',`<input id="eh_n_${c.id}" style="${FIELD}" placeholder="Grand Hyatt…" maxlength="60">`,'2 1 190px')}
+          ${esF('ROOM / CATEGORY',`<input id="eh_room_${c.id}" placeholder="Ocean Suite, Corner King\u2026" maxlength="40" style="${FIELD}">`,'1 1 150px')}
+          ${esF('CHECK-IN',`<input id="eh_ci_${c.id}" type="date" style="${FIELD}">`,'1 1 130px')}
+          ${esF('CHECK-OUT',`<input id="eh_co_${c.id}" type="date" style="${FIELD}">`,'1 1 130px')}
           <span style="margin-left:auto;display:flex;gap:14px;align-items:center;flex:0 0 auto">${esChk('eh_fhr_'+c.id,'FHR')}${esAwardChk('stay')}</span>
         </div>
         <div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esPtsCells('eh',c.id)}${esF('CASH / FEES $',`<input id="eh_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="width:120px">`)}
+          ${esPtsCells('eh',c.id)}${esF('CASH / FEES $',`<input id="eh_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="${FIELD}">`,'1 1 110px')}
           ${esBtnR(`esAddHotel('${c.id}')`,'+ Stay')}
         </div>
         <div class="plhint">Cash stay: leave ✨ unticked. Award stay: tick ✨ — the $ field is then just taxes/fees, and cash value feeds ¢/pt.</div>
@@ -279,16 +282,16 @@ window.renderEstimatorPage=function(keep){
       ${flights||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">No flights yet.</div>'}
       ${edit?`<div class="plform">
         <div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esF('AIRLINE',`<input id="ef_air_${c.id}" placeholder="Delta" maxlength="30" style="width:130px">`)}
-          ${esF('CLASS',`<select id="ef_cls_${c.id}" style="width:130px">${ES_CLS.map(x=>`<option>${x}</option>`).join('')}</select>`)}
-          ${esF('FROM',baApField('ef_from_'+c.id,'Code or city',''))}
-          ${esF('TO',baApField('ef_to_'+c.id,'Code or city',''))}
-          ${esF('DATE',`<input id="ef_date_${c.id}" type="date" style="width:135px">`)}
-          ${esF('DEPART',`<input id="ef_time_${c.id}" type="time" style="width:100px">`)}
+          ${esF('AIRLINE',`<input id="ef_air_${c.id}" placeholder="Delta" maxlength="30" style="${FIELD}">`,'1 1 130px')}
+          ${esF('CLASS',`<select id="ef_cls_${c.id}" style="${FIELD}">${ES_CLS.map(x=>`<option>${x}</option>`).join('')}</select>`,'1 1 130px')}
+          ${esF('FROM',baApField('ef_from_'+c.id,'Code or city',''),'1 1 170px')}
+          ${esF('TO',baApField('ef_to_'+c.id,'Code or city',''),'1 1 170px')}
+          ${esF('DATE',`<input id="ef_date_${c.id}" type="date" style="${FIELD}">`,'1 1 130px')}
+          ${esF('DEPART',`<input id="ef_time_${c.id}" type="time" style="${FIELD}">`,'1 1 100px')}
           <span style="margin-left:auto;display:flex;gap:14px;align-items:center;flex:0 0 auto">${esAwardChk('ticket')}</span>
         </div>
         <div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esPtsCells('ef',c.id)}${esF('FARE / FEES $',`<input id="ef_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="width:120px">`)}
+          ${esPtsCells('ef',c.id)}${esF('FARE / FEES $',`<input id="ef_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="${FIELD}">`,'1 1 110px')}
           ${esBtnR(`esAddFlight('${c.id}')`,'+ Flight')}
         </div>
         <div class="plhint">One row per ticket — add connections afterwards with the ＋ on the flight. Award ticket: tick ✨, the $ field is then taxes/fees.</div>
@@ -297,17 +300,17 @@ window.renderEstimatorPage=function(keep){
       ${lbl('🧾 Other line items — '+esMoney(esItemSum(c)))}
       ${items||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">Nothing yet — daily food, trains, tickets…</div>'}
       ${edit?`<div class="plform"><div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esF('WHAT',`<input id="ei_d_${c.id}" placeholder="Daily food ×4" maxlength="60">`,1)}
-          ${esF('CATEGORY',`<select id="ei_cat_${c.id}" style="width:140px">${ES_CATS.map(x=>`<option>${x}</option>`).join('')}</select>`)}
-          ${esF('COST $',`<input id="ei_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="width:110px">`)}
+          ${esF('WHAT',`<input id="ei_d_${c.id}" style="${FIELD}" placeholder="Daily food ×4" maxlength="60">`,'2 1 190px')}
+          ${esF('CATEGORY',`<select id="ei_cat_${c.id}" style="${FIELD}">${ES_CATS.map(x=>`<option>${x}</option>`).join('')}</select>`,'1 1 130px')}
+          ${esF('COST $',`<input id="ei_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="${FIELD}">`,'1 1 110px')}
           ${esBtnR(`esAddItem('${c.id}')`,'+ Item')}
         </div></div>`:''}
 
       ${lbl('🎟 Credits — '+esMoney(-esCredSum(c)))}
       ${credits||'<div style="padding:6px 15px;font-size:11.5px;color:var(--grey)">None yet — FHR $100/stay, THC, card travel credits.</div>'}
       ${edit?`<div class="plform"><div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esF('CREDIT',`<input id="ecr_d_${c.id}" placeholder="FHR dining" maxlength="60">`,1)}
-          ${esF('AMOUNT $',`<input id="ecr_a_${c.id}" type="number" min="0" step="1" placeholder="100" style="width:110px">`)}
+          ${esF('CREDIT',`<input id="ecr_d_${c.id}" style="${FIELD}" placeholder="FHR dining" maxlength="60">`,'2 1 190px')}
+          ${esF('AMOUNT $',`<input id="ecr_a_${c.id}" type="number" min="0" step="1" placeholder="100" style="${FIELD}">`,'1 1 110px')}
           ${esBtnR(`esAddCredit('${c.id}')`,'+ Credit')}
         </div></div>`:''}
 
@@ -322,12 +325,12 @@ window.renderEstimatorPage=function(keep){
   const addCard=edit?`<div class="card" id="es_addcity"><div class="chead"><span>${ec?'✎ Edit city — '+esc(ec.name):'🗺 Add a city'}</span></div>
     <div class="plform">
       <div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-        ${esF('CITY',`<input id="es_cname" placeholder="Lisbon, Sapporo…" maxlength="40" value="${ec?esc(ec.name):''}">`,1)}
-        ${esF('AIRPORT',baApField('es_cap','Code or city',ec&&ec.ap?(esApCity(ec.ap)?ec.ap+' · '+esApCity(ec.ap):ec.ap):''))}
-        ${esF('ARRIVE',`<input id="es_cfrom" type="date" style="width:135px" value="${ec?(ec.from||''):''}">`)}
-        ${esF('LEAVE',`<input id="es_cto" type="date" style="width:135px" value="${ec?(ec.to||''):''}">`)}
+        ${esF('CITY',`<input id="es_cname" style="${FIELD}" placeholder="Lisbon, Sapporo…" maxlength="40" value="${ec?esc(ec.name):''}">`,'2 1 190px')}
+        ${esF('AIRPORT',baApField('es_cap','Code or city',ec&&ec.ap?(esApCity(ec.ap)?ec.ap+' · '+esApCity(ec.ap):ec.ap):''),'1 1 170px')}
+        ${esF('ARRIVE',`<input id="es_cfrom" type="date" style="${FIELD}" value="${ec?(ec.from||''):''}">`,'1 1 130px')}
+        ${esF('LEAVE',`<input id="es_cto" type="date" style="${FIELD}" value="${ec?(ec.to||''):''}">`,'1 1 130px')}
         <span style="display:flex;gap:8px;margin-left:auto">
-          <button class="pladd" type="button" onclick="esAddCity()" style="flex:0 0 auto;padding:9px 20px;min-width:110px;${ec?'background:var(--moss);border-color:var(--moss)':''}">${ec?'✓ Update':'+ Add city'}</button>
+          <button class="pladd" type="button" onclick="esAddCity()" style="flex:0 0 auto;padding:9px 16px;min-width:104px;${ec?'background:var(--moss);border-color:var(--moss)':''}">${ec?'✓ Update':'+ Add city'}</button>
           ${ec?'<button class="pladd" type="button" onclick="window._esUI.editCity=null;renderEstimatorPage(true)" style="flex:0 0 auto;padding:9px 14px;background:none;color:var(--grey);border:1px solid var(--rule)">Cancel</button>':''}
         </span>
       </div>
@@ -434,7 +437,7 @@ window.esAddHotel=function(cid){
   const ci=g('eh_ci').value,co=g('eh_co').value;
   if(ci&&co&&!(Date.parse(co)>Date.parse(ci))){flash('Check-out must be after check-in','err');return;}
   c.hotels=c.hotels||[];
-  c.hotels.push(Object.assign({id:'h'+Date.now(),n,ci,co,cost:Number(g('eh_cost').value||0),fhr:!!g('eh_fhr').checked},esReadPts('eh',cid)));
+  c.hotels.push(Object.assign({id:'h'+Date.now(),n,room:((g('eh_room')||{}).value||'').trim(),ci,co,cost:Number(g('eh_cost').value||0),fhr:!!g('eh_fhr').checked},esReadPts('eh',cid)));
   saveOverrides(); renderEstimatorPage(true);
 };
 window.esDelHotel=function(cid,hid){

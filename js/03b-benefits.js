@@ -114,9 +114,9 @@ function baAirlineBenefits(air,cabin,fromCode,toCode,tier){
 /* Priority Pass reality checks (Aug 2026, per Wesley):
    — Chase SAPPHIRE LOUNGES no longer honour the one-free-visit for ordinary
      Priority Pass members; entry is Chase-issued PP Select / cardholders.
-     No Sapphire Lounge is seeded yet (none at IAD/MCO/ICN/HND/NRT/KIX/HNL/
-     YVR) — when one is added, it must NOT carry a pp rule; give it a
-     cards:['csr'] rule instead.
+     One IS seeded: IAD Concourse A (the ex-Etihad space). Its rules carry
+     cards:['csr'] and must NOT carry a pp rule; the same applies to any
+     Sapphire Lounge seeded in future.
    — United Clubs: domestic first does NOT get in; the airline rules on every
      United Club row are intlOnly for that reason. */
 const BA_PP_CARDS=['amexplat','csr','venturex'];
@@ -132,8 +132,10 @@ const BA_LOUNGES={
    rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'United intl premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold on intl itinerary'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold) intl'},{airline:{id:'ac',cabins:['business','first'],intlOnly:true},why:'Star premium cabin'},{cards:['unitedclub'],why:'United Club Infinite card'}],ver:'verified Aug 2026'},
   {n:'Air France–KLM Lounge',loc:'Concourse A (upper level)',hrs:'afternoon bank ~12:00–22:00',rate:'4.3★',am:'Taittinger champagne, French bites',
    rules:[{pp:true,why:'Priority Pass (capacity-controlled)'}],ver:'verified Aug 2026'},
-  {n:'Etihad Lounge',loc:'Concourse A near A14',hrs:'06:00–22:00',rate:'4.4★',am:'Revamped with Chase; à la carte at peak',
-   rules:[{pp:true,why:'Priority Pass — one visit/calendar year'}],ver:'verified Aug 2026'},
+  {n:'Chase Sapphire Lounge (ex-Etihad)',loc:'Concourse A near A14',hrs:'06:00–22:00',rate:'4.4★',am:'The Chase build-out of the old Etihad space; à la carte at peak',
+   /* Sapphire Lounges no longer honour the PP one-free-visit (Aug 2026):
+      entry is Sapphire Reserve cardholders, not Priority Pass. */
+   rules:[{cards:['csr'],why:'Sapphire Reserve cardholder'}],ver:'verified Aug 2026'},
   {n:'Lufthansa Business Lounge',loc:'Concourse B (B49–B51)',hrs:'CLOSED for renovation → end 2026',rate:'—',am:'Reopening with Dulles Next; TK/BA lounges cover LH premium pax meanwhile',
    rules:[],ver:'verified Aug 2026'},
   {n:'Virgin Atlantic Clubhouse',loc:'Concourse A (upper level)',hrs:'per VS departure bank',rate:'4.7★',am:'Premium-cabin only — no cards, no PP',
@@ -289,10 +291,26 @@ function baSummaryData(trav,trips){
   trips.forEach(T=>{
     const card={id:T.id,title:T.title,emoji:T.emoji,items:[]};
     (T.flights||[]).forEach(f=>{
-      const codes=baCodesIn((f.route||f.r||'')+' '+(f.note||f.n||''));
-      const dep=codes[0]; if(!dep)return;
+      /* Departure is what's LEFT of the arrow — never 'first code found
+         anywhere'. Route strings mix city names and codes ('Tokyo Narita →
+         Vancouver YVR'), so the old codes[0] read the DESTINATION of an
+         arrival as a departure and minted a phantom lounge row (the YVR
+         twin). If the left segment carries no code, resolve the city name
+         through the same matcher the airport combobox uses; if that is
+         ambiguous, skip the flight rather than guess. */
+      const route=String(f.route||f.r||'');
+      const seg=route.split('→')[0];
+      let dep=baCodesIn(seg)[0]||null;
+      if(!dep){
+        const m=baApMatches(seg.trim());
+        if(m.length===1)dep=m[0].c;
+        else{const hit=m.filter(a=>seg.toLowerCase().includes(a.city.toLowerCase()));
+          if(hit.length===1)dep=hit[0].c;}
+      }
+      if(!dep)return;
+      const codes=[...new Set([dep,...baCodesIn(route+' '+(f.note||f.n||''))])];
       const carrier=baCarrierOf((f.train||f.f||'')+' '+(f.route||f.r||''));
-      const intl=codes.some(c=>BA_AIRPORTS[c].cc!==BA_AIRPORTS[dep].cc);
+      const intl=codes.some(c=>BA_AIRPORTS[c]&&BA_AIRPORTS[c].cc!==BA_AIRPORTS[dep].cc);
       const cabin=baCabinOf((f.train||f.f||'')+' '+(f.note||''));
       const L=BA_LOUNGES[dep];
       if(L){

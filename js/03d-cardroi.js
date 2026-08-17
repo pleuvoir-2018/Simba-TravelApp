@@ -26,9 +26,9 @@ const CR_PP_VAL=35;   // default $/visit for a Priority Pass–network door
 const CR_CARDS={
  amexplat:{n:'Amex Platinum',af:895,ver:'checked Aug 2026',pp:true,
   credits:[
-   ['hotel','Hotel credit (FHR/THC, $300×2)',600],
-   ['resy','Resy dining ($100/q)',400],
-   ['ent','Digital entertainment ($25/mo)',300],
+   ['hotel','Hotel credit (FHR/THC, $300×2)',600,'h',300],
+   ['resy','Resy dining ($100/q)',400,'q',100],
+   ['ent','Digital entertainment ($25/mo)',300,'m',25],
    ['air','Airline fee credit',200],
    ['uber','Uber Cash',200],
    ['walmart','Walmart+',155],
@@ -41,10 +41,10 @@ const CR_CARDS={
  csr:{n:'Chase Sapphire Reserve',af:795,ver:'checked Aug 2026',pp:true,
   credits:[
    ['travel','Travel credit (automatic)',300],
-   ['edit','The Edit hotel credit',500],
-   ['dining','Exclusive Tables dining ($150×2)',300],
-   ['stubhub','StubHub ($150×2)',300],
-   ['doordash','DoorDash (monthly)',300],
+   ['edit','The Edit hotel credit',500,'h',250],
+   ['dining','Exclusive Tables dining ($150×2)',300,'h',150],
+   ['stubhub','StubHub ($150×2)',300,'h',150],
+   ['doordash','DoorDash (monthly)',300,'m',25],
    ['apple','Apple TV+ & Music',250]],
   counts:[],
   note:'Plus IHG Platinum status and Sapphire Lounges (count those visits in the shared lounge row). One-time $250 select-hotel credit runs through 2026.'},
@@ -56,17 +56,17 @@ const CR_CARDS={
   note:'Lounge guests cost extra since Feb 2026 — count your own visits in the shared lounge row.'},
  amexgold:{n:'Amex Gold',af:325,ver:'curated',pp:false,
   credits:[
-   ['dining','Dining credit ($10/mo)',120],
-   ['uber','Uber Cash ($10/mo)',120],
-   ['resy','Resy ($50×2)',100],
-   ['dunkin','Dunkin ($7/mo)',84]],
+   ['dining','Dining credit ($10/mo)',120,'m',10],
+   ['uber','Uber Cash ($10/mo)',120,'m',10],
+   ['resy','Resy ($50×2)',100,'h',50],
+   ['dunkin','Dunkin ($7/mo)',84,'m',7]],
   counts:[],
   note:'No lounge network on this one.'},
  deltares:{n:'Delta Reserve',af:650,ver:'checked Aug 2026',pp:false,
   credits:[
    ['stays','Delta Stays credit',200],
-   ['resy','Resy dining',240],
-   ['ride','Rideshare ($10/mo)',120]],
+   ['resy','Resy dining',240,'m',20],
+   ['ride','Rideshare ($10/mo)',120,'m',10]],
   counts:[
    ['club','Sky Club visit (15/yr cap)',50],
    ['comp','Companion certificate used',400]],
@@ -75,36 +75,36 @@ const CR_CARDS={
   credits:[
    ['renowned','Renowned Hotels credit',200],
    ['ride','Rideshare credits',150],
-   ['instacart','Instacart ($20/mo, thru 2027)',240]],
+   ['instacart','Instacart ($20/mo, thru 2027)',240,'m',20]],
   counts:[
    ['club','United Club visit',40],
    ['award','10k-mile award discount (×2/yr)',135]],
   note:'Membership itself retails near the AF — the per-visit counter is how it earns it back.'},
  aaexec:{n:'Citi AAdvantage Executive',af:695,ver:'checked Aug 2026 — $695 from Aug 23, $595 before; edit the AF to match your renewal',pp:false,
   credits:[
-   ['vacations','AA Vacations credit ($250×2)',500],
+   ['vacations','AA Vacations credit ($250×2)',500,'h',250],
    ['inflight','Inflight & Admirals Club credit',100],
    ['avis','Avis / Budget',120],
-   ['lyft','Lyft ($10/mo)',120]],
+   ['lyft','Lyft ($10/mo)',120,'m',10]],
   counts:[
    ['club','Admirals Club visit',40]],
   note:'Admirals Club membership alone now retails $1,200+.'},
  bilt:{n:'Bilt Palladium',af:495,ver:'checked Aug 2026 \u2014 Card 2.0 lineup, launched Feb 2026',pp:true,
   credits:[
-   ['hotel','Bilt Travel hotel credit ($200\u00d72)',400]],
+   ['hotel','Bilt Travel hotel credit ($200\u00d72)',400,'h',200]],
   counts:[],
   note:'Under the $500 line but in by name \u2014 the VX rule. Annual Bilt Cash and Gold status ride along; edit values as the young program settles.'},
  bonvoybrill:{n:'Bonvoy Brilliant',af:650,ver:'curated',pp:false,
   credits:[
-   ['dining','Dining credit ($25/mo)',300]],
+   ['dining','Dining credit ($25/mo)',300,'m',25]],
   counts:[
    ['fna','Free-night award used (\u226485k)',500],
    ['prop','$100 Ritz/St. Regis property credit (2-night min)',100]],
   note:'Plus Bonvoy Platinum Elite outright \u2014 which is why it pairs with the Japan hotels.'},
  hiltonaspire:{n:'Hilton Aspire',af:550,ver:'curated',pp:false,
   credits:[
-   ['resort','Hilton resort credit ($200\u00d72)',400],
-   ['flight','Flight credit ($50/q)',200]],
+   ['resort','Hilton resort credit ($200\u00d72)',400,'h',200],
+   ['flight','Flight credit ($50/q)',200,'q',50]],
   counts:[
    ['fnr','Free-night reward used',500]],
   note:'Hilton Diamond outright \u2014 the status is half the card.'},
@@ -112,7 +112,7 @@ const CR_CARDS={
   credits:[
    ['hotel','Citi Travel hotel credit (2-night min)',300],
    ['splurge','Splurge credit (pick-2 merchants)',200],
-   ['blacklane','Blacklane chauffeur ($100\u00d72)',200]],
+   ['blacklane','Blacklane chauffeur ($100\u00d72)',200,'h',100]],
   counts:[
    ['admirals','Admirals Club one-day pass (4/yr)',40]],
   note:'PP Select is lounges only \u2014 no restaurant credits. Marriott + Hilton Gold ride along; GE/TSA every 4 yrs.'},
@@ -156,6 +156,38 @@ function crY(){
   return s[y];
 }
 function crCard(id){ const Y=crY(); if(!Y)return null; Y.cards[id]=Y.cards[id]||{credits:{},counts:{},pts:0,cpp:1.2}; return Y.cards[id]; }
+/* ---- periodized credits ----
+   A credit def is [key,label,max] (annual meter, number input) or
+   [key,label,max,per,slice] with per m|q|h — those render as tap pills, one
+   per period, each worth the fixed slice. Storage: annual keeps a Number;
+   periodized keeps {p:[bool...], r:carry} where r preserves any dollars from
+   a legacy Number that didn't divide into whole slices — migration must
+   never silently drop money. Future periods are locked: the calendar, not
+   the user, opens them. */
+function crPerN(per){ return per==='m'?12:per==='q'?4:2; }
+function crPerLabels(per){ return per==='m'?['J','F','M','A','M','J','J','A','S','O','N','D']:per==='q'?['Q1','Q2','Q3','Q4']:['H1','H2']; }
+function crCurPeriod(per,year){
+  const now=new Date();
+  if(year<now.getFullYear())return crPerN(per)-1;      // past year: everything open
+  if(year>now.getFullYear())return -1;                 // future year: nothing open yet
+  const m=now.getMonth();
+  return per==='m'?m:per==='q'?Math.floor(m/3):(m<6?0:1);
+}
+function crCredNorm(c,k,def){
+  const per=def[3], N=crPerN(per);
+  let v=c.credits[k];
+  if(v&&typeof v==='object'&&Array.isArray(v.p)){ while(v.p.length<N)v.p.push(false); return v; }
+  const num=Number(v||0), slice=def[4]||1;
+  const whole=Math.min(N,Math.floor(num/slice));
+  const p=[...Array(N)].map((_,i)=>i<whole);
+  return {p,r:Math.max(0,num-whole*slice)};            // carry keeps the odd dollars
+}
+function crCreditVal(c,def){
+  const k=def[0];
+  if(!def[3])return Number(c.credits[k]||0);
+  const o=crCredNorm(c,k,def);
+  return o.p.filter(Boolean).length*(def[4]||0)+Number(o.r||0);
+}
 function crMoney(n){ return (n<0?'\u2212$':'$')+Math.abs(Number(n||0)).toLocaleString('en-US',{maximumFractionDigits:0}); }
 
 /* Which cards this person tracks: their Travel-profile wallet plus anything
@@ -181,7 +213,7 @@ function crCardVal(id){
   const c=crCard(id); if(!c)return 0;
   const D=CR_CARDS[id];
   let v=0;
-  D.credits.forEach(([k])=>{ v+=Number(c.credits[k]||0); });   // the user's own ledger — count what they entered; the meter bar caps visually, not the math
+  D.credits.forEach(def=>{ v+=crCreditVal(c,def); });   // annual meters count as entered; periodized count used periods x slice + any migrated carry
   D.counts.forEach(([k,,def])=>{ const e=c.counts[k]||{}; v+=Number(e.n||0)*Number(e.v!==undefined?e.v:def); });
   v+=Number(c.pts||0)*Number(c.cpp||0)/100;
   const pp=(crY()||{}).pp||{};
@@ -255,13 +287,31 @@ window.renderCardRoiPage=function(keep){
   /* -------- one card per card -------- */
   const cardCard=id=>{
     const D=CR_CARDS[id], c=crCard(id), v=crCardVal(id), af=crFee(id);
-    const credits=D.credits.map(([k,n,max])=>{const used=Number(c.credits[k]||0);const pct=Math.min(100,Math.round(used/max*100));
-      return `<div style="display:flex;align-items:center;gap:9px;padding:4px 15px">
+    const credits=D.credits.map(def=>{const [k,n,max]=def;const used=crCreditVal(c,def);const pct=Math.min(100,Math.round(used/max*100));
+      const meter=`<span style="flex:1;min-width:60px;height:8px;background:var(--rule);border-radius:2px;overflow:hidden"><span style="display:block;height:100%;width:${pct}%;background:${used>=max?'var(--moss)':'var(--tripac,#0E7C86)'}"></span></span>`;
+      if(!def[3])return `<div style="display:flex;align-items:center;gap:9px;padding:4px 15px">
         <span style="flex:0 0 42%;min-width:150px;font-size:12px">${n}</span>
         ${num(`crCredit('${id}','${k}',this.value)`,used,74,5)}
         <span style="font:600 9.5px var(--mono);color:var(--grey)">/ $${max}</span>
-        <span style="flex:1;height:8px;background:var(--rule);border-radius:2px;overflow:hidden"><span style="display:block;height:100%;width:${pct}%;background:${used>=max?'var(--moss)':'var(--tripac,#0E7C86)'}"></span></span>
-      </div>`;}).join('');
+        ${meter}
+      </div>`;
+      const per=def[3], o=crCredNorm(c,k,def), cur=crCurPeriod(per,year), labels=crPerLabels(per);
+      const pills=o.p.map((on,i)=>{
+        const future=i>cur;
+        const isCur=i===cur;
+        const base='display:inline-flex;align-items:center;justify-content:center;border-radius:'+(per==='m'?'50%':'3px')+';font:700 '+(per==='m'?'8px':'8.5px')+' var(--mono);cursor:'+((edit&&!future)?'pointer':'default')+';min-width:'+(per==='m'?'19px':'27px')+';height:19px;padding:0 '+(per==='m'?'0':'4px')+';';
+        const look=on?'background:var(--tripac,#0E7C86);color:#fff;border:1.5px solid var(--tripac,#0E7C86)'
+          :future?'background:none;color:var(--rule);border:1.5px dashed var(--rule)'
+          :'background:none;color:var(--grey);border:1.5px solid '+(isCur?'var(--clay)':'var(--rule)');
+        return `<button type="button" ${edit&&!future?`onclick="crCreditP('${id}','${k}',${i})"`:'disabled'} title="${labels[i]}${future?' — not yet':isCur?' — current':''}" style="${base}${look}">${labels[i]}</button>`;
+      }).join('');
+      return `<div style="display:flex;align-items:center;gap:7px;padding:4px 15px;flex-wrap:wrap">
+        <span style="flex:0 0 42%;min-width:150px;font-size:12px">${n}${o.r>0?` <span style=\"font:600 8.5px var(--mono);color:var(--grey)\" title=\"carried from earlier tracking\">+$${o.r}</span>`:''}</span>
+        <span style="display:flex;gap:3px;flex-wrap:wrap">${pills}</span>
+        <span style="font:600 9.5px var(--mono);color:var(--grey);margin-left:auto">$${used} / $${max}</span>
+        ${meter}
+      </div>`;
+    }).join('');
     const counts=D.counts.map(([k,n,def])=>{const e=c.counts[k]||{};const cnt=Number(e.n||0),val=e.v!==undefined?e.v:def;
       return `<div style="display:flex;align-items:center;gap:9px;padding:4px 15px">
         <span style="flex:0 0 42%;min-width:150px;font-size:12px">${n}</span>
@@ -319,6 +369,16 @@ function crSave(){ saveOverrides(); renderCardRoiPage(true); }
 window.crYear=function(d){ const ui=window._crUI=window._crUI||{}; ui.year=crYearSel()+d; renderCardRoiPage(true); };
 window.crAF=function(id,v){ if(!crGuard())return; if(v===undefined)return; const c=crCard(id); if(!c)return; c.af=v===''?'':Math.max(0,Number(v)||0); crSave(); };
 window.crCredit=function(id,k,v){ if(!crGuard())return; const c=crCard(id); if(!c)return; c.credits[k]=Math.max(0,Number(v)||0); crSave(); };
+window.crCreditP=function(id,k,i){
+  if(!crGuard())return;
+  const c=crCard(id); if(!c)return;
+  const def=CR_CARDS[id].credits.find(d=>d[0]===k); if(!def||!def[3])return;
+  if(i>crCurPeriod(def[3],crYearSel())){flash('That period hasn\u2019t started yet','err');return;}
+  const o=crCredNorm(c,k,def);
+  o.p[i]=!o.p[i];
+  c.credits[k]=o;                                      // migration persists on first touch
+  crSave();
+};
 window.crCount=function(id,k,d,def){ if(!crGuard())return; const c=crCard(id); if(!c)return;
   c.counts[k]=c.counts[k]||{n:0,v:def};
   c.counts[k].n=Math.max(0,Number(c.counts[k].n||0)+d);

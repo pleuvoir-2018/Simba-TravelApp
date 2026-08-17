@@ -111,6 +111,14 @@ function baAirlineBenefits(air,cabin,fromCode,toCode,tier){
    cards:[ids] · pp:true (Priority Pass via amexplat/csr/venturex)
    airline:{id,cabins:[..],intlOnly?} · tier:{air:id,min:'TierName',intlOnly?}
    note per lounge; ver:'verified Aug 2026'|'curated' */
+/* Priority Pass reality checks (Aug 2026, per Wesley):
+   — Chase SAPPHIRE LOUNGES no longer honour the one-free-visit for ordinary
+     Priority Pass members; entry is Chase-issued PP Select / cardholders.
+     No Sapphire Lounge is seeded yet (none at IAD/MCO/ICN/HND/NRT/KIX/HNL/
+     YVR) — when one is added, it must NOT carry a pp rule; give it a
+     cards:['csr'] rule instead.
+   — United Clubs: domestic first does NOT get in; the airline rules on every
+     United Club row are intlOnly for that reason. */
 const BA_PP_CARDS=['amexplat','csr','venturex'];
 const BA_LOUNGES={
  IAD:[
@@ -121,7 +129,7 @@ const BA_LOUNGES={
   {n:'United Polaris Lounge',loc:'Concourse C',hrs:'from ~05:30 to last departure',rate:'4.6★',am:'À la carte dining, showers, quiet suites',
    rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'United/Star long-haul business — 2026: basic business fares excluded'},{airline:{id:'nh',cabins:['business','first'],intlOnly:true},why:'ANA long-haul premium cabin'},{airline:{id:'ac',cabins:['business','first'],intlOnly:true},why:'Air Canada Signature (Star long-haul J)'}],ver:'verified Aug 2026'},
   {n:'United Club (C7 · C17 · D)',loc:'Concourses C & D',hrs:'05:30–22:00',rate:'4.0★',am:'Standard Club fare, multiple locations',
-   rules:[{airline:{id:'ua',cabins:['business','first']},why:'United premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold on intl itinerary'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold) intl'},{airline:{id:'ac',cabins:['business','first'],intlOnly:true},why:'Star premium cabin'},{cards:['unitedclub'],why:'United Club Infinite card'}],ver:'verified Aug 2026'},
+   rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'United intl premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold on intl itinerary'},{tier:{air:'ac',min:'50K',intlOnly:true},why:'Aeroplan 50K+ (Star Gold) intl'},{airline:{id:'ac',cabins:['business','first'],intlOnly:true},why:'Star premium cabin'},{cards:['unitedclub'],why:'United Club Infinite card'}],ver:'verified Aug 2026'},
   {n:'Air France–KLM Lounge',loc:'Concourse A (upper level)',hrs:'afternoon bank ~12:00–22:00',rate:'4.3★',am:'Taittinger champagne, French bites',
    rules:[{pp:true,why:'Priority Pass (capacity-controlled)'}],ver:'verified Aug 2026'},
   {n:'Etihad Lounge',loc:'Concourse A near A14',hrs:'06:00–22:00',rate:'4.4★',am:'Revamped with Chase; à la carte at peak',
@@ -143,7 +151,7 @@ const BA_LOUNGES={
   {n:'Admirals Club',loc:'Terminal B / Airside 3 near gate 55',hrs:'~05:00–20:00 (fills by mid-morning at peak)',rate:'3.9★',am:'Undersized for the traffic; day pass ~$79',
    rules:[{cards:['aaexec'],why:'Citi / AAdvantage Executive'},{airline:{id:'aa',cabins:['business','first'],intlOnly:true},why:'oneworld intl premium cabin'},{tier:{air:'aa',min:'Platinum',intlOnly:true},why:'oneworld Sapphire+ on qualifying intl'}],ver:'verified Aug 2026'},
   {n:'United Club',loc:'Terminal B / Airside 3',hrs:'per UA bank',rate:'3.8★',am:'Small; standard Club spread',
-   rules:[{cards:['unitedclub'],why:'United Club Infinite'},{airline:{id:'ua',cabins:['business','first']},why:'UA premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold on intl itinerary'}],ver:'verified Aug 2026'}
+   rules:[{cards:['unitedclub'],why:'United Club Infinite'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'UA intl premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold on intl itinerary'}],ver:'verified Aug 2026'}
  ],
  ICN:[
   {n:'KAL Prestige Lounge (T2, East & West)',loc:'Terminal 2 after security',hrs:'~05:00–22:00',rate:'4.2★',am:'Korean & western buffet, showers, nap zones',
@@ -167,7 +175,7 @@ const BA_LOUNGES={
   {n:'ANA Lounge (T1)',loc:'Satellite 4 & 5',hrs:'per bank',rate:'4.3★',am:'Noodle bar, showers',
    rules:[{airline:{id:'nh',cabins:['business','first'],intlOnly:true},why:'ANA intl premium cabin'},{tier:{air:'nh',min:'Platinum',intlOnly:true},why:'ANA Platinum+/Star Gold'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Star Alliance business'}],ver:'curated'},
   {n:'United Club (T1)',loc:'Terminal 1 Satellite',hrs:'per UA bank',rate:'3.9★',am:'The UA door at Narita',
-   rules:[{cards:['unitedclub'],why:'United Club Infinite'},{airline:{id:'ua',cabins:['business','first']},why:'UA premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
+   rules:[{cards:['unitedclub'],why:'United Club Infinite'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'UA intl premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
   {n:'IASS / KAL / independent lounges',loc:'T1 & T2',hrs:'~07:00–21:00',rate:'3.7★',am:'Modest but reliable PP options',
    rules:[{pp:true,why:'Priority Pass'}],ver:'curated'}
  ],
@@ -183,7 +191,7 @@ const BA_LOUNGES={
   {n:'Plumeria Lounge (Hawaiian) & IASS Hawaii',loc:'Main overseas terminal',hrs:'~07:00–21:00',rate:'3.7★',am:'The PP doors at HNL',
    rules:[{pp:true,why:'Priority Pass'}],ver:'curated'},
   {n:'United Club',loc:'Terminal 2 near G gates',hrs:'per UA bank',rate:'3.9★',am:'Open-air walkway to it — very Honolulu',
-   rules:[{cards:['unitedclub'],why:'United Club Infinite'},{airline:{id:'ua',cabins:['business','first']},why:'UA premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
+   rules:[{cards:['unitedclub'],why:'United Club Infinite'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'UA intl premium cabin'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold intl'}],ver:'curated'},
   {n:'Delta Sky Club',loc:'Terminal 2',hrs:'per DL bank',rate:'4.0★',am:'Compact Sky Club',
    rules:[{cards:['amexplat'],flying:'dl',why:'Amex Platinum flying Delta'},{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta'},{airline:{id:'dl',cabins:['business','first']},why:'Delta premium cabin'}],ver:'curated'}
  ],
@@ -394,12 +402,26 @@ window.renderBenefitsPage=function(tab,keep){
     pane=Object.keys(BA_HOTEL).map(k=>{
       const H=BA_HOTEL[k]; const myTier=(t.hotel||{})[k];
       const tier=myTier||H.order[0];
-      const list=(H.ben[tier]||[]).map(b=>`<div class="ba-ben">· ${b}</div>`).join('');
-      return `<div class="card"><div class="chead"><span>${H.n}</span><span>${myTier?('your tier: '+myTier):'no membership — base benefits shown'}</span></div>
-        <div style="padding:11px 15px">${list}
-        ${!myTier?'<div class="ba-note">Add your tier under Avatar → 🎫 Travel and this personalises.</div>':''}
-        ${myTier&&H.order.indexOf(myTier)<H.order.length-1?`<div class="ba-note">Next tier (${H.order[H.order.indexOf(myTier)+1]}) adds: ${(H.ben[H.order[H.order.indexOf(myTier)+1]]||[])[H.ben[H.order[H.order.indexOf(myTier)+1]].length>1?1:0]||'—'}…</div>`:''}
-        </div></div>`;
+      const mi=H.order.indexOf(tier);
+      /* Ladder: your rung filled, climbed rungs quiet moss, the rest outline.
+         Then your tier's benefits as chips; then what the NEXT rung adds —
+         only the delta, each new benefit a grey chip. Same chip language as
+         the Summary so the two tabs read as one system. */
+      const ladder=H.order.map((tr,i)=>`<span class="ba-chip ${myTier?(i===mi?'now':i<mi?'past':'base'):'base'}">${esc(tr)}</span>`).join('');
+      const bens=(H.ben[tier]||[]).map(b=>`<span class="ba-chip perk">${esc(b)}</span>`).join('');
+      let next='';
+      if(myTier&&mi<H.order.length-1){
+        const nt=H.order[mi+1];
+        const delta=(H.ben[nt]||[]).filter(b=>!(H.ben[tier]||[]).includes(b));
+        if(delta.length)next=`<div class="ba-hsec"><div class="ba-rsub">${esc(nt)} adds</div>
+          <div class="ba-chips">${delta.map(b=>`<span class="ba-chip base">${esc(b)}</span>`).join('')}</div></div>`;
+      }
+      return `<div class="card"><div class="chead"><span>${H.n}</span><span>${myTier?'your tier':'no membership — base shown'}</span></div>
+        <div class="ba-hsec"><div class="ba-rsub">Tier ladder</div><div class="ba-chips">${ladder}</div></div>
+        <div class="ba-hsec"><div class="ba-rsub">${myTier?('at '+esc(myTier)):'base benefits'}</div><div class="ba-chips">${bens}</div></div>
+        ${next}
+        ${!myTier?'<div class="ba-note" style="padding:0 15px 12px">Add your tier under Avatar → 🎫 Travel and this personalises.</div>':''}
+      </div>`;
     }).join('');
   }
   if(tab==='air'){

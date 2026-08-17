@@ -708,6 +708,11 @@ body.dark .ba-ric{background:#262B34}
 .ba-chip.ok{border-color:var(--moss);color:var(--moss)}
 .ba-chip.perk{border-color:var(--indigo2);color:var(--indigo2)}
 .ba-chip.base{border-color:var(--rule);color:var(--grey)}
+.ba-chip.now{background:var(--moss);border-color:var(--moss);color:#fff}
+.ba-chip.past{border-color:var(--moss);color:var(--moss);opacity:.55}
+.ba-hsec{padding:10px 15px;border-top:1px solid rgba(20,22,27,.07)}
+.ba-hsec:first-of-type{border-top:none}
+body.dark .ba-hsec{border-top-color:rgba(231,226,214,.08)}
 .ba-chip.ba-lc{cursor:help;outline:none}
 .ba-chip.ba-lc:hover,.ba-chip.ba-lc:focus{background:rgba(94,127,76,.1)}
 /* Lounge hover card — body-mounted like #uCard, so no ancestor clip applies */

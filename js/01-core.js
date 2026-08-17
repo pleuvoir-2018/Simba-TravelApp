@@ -115,12 +115,26 @@ function mergeApp(rA,lA){
      uid: they have no roster row and can never be demoted remotely. */
   const admin=me==='admin'||((rA&&rA.users)||[]).some(u=>u.uid===me&&u.role==='admin');
   const out={...rA,...lA};
-  ['adminName','adminLegal','tripLabels','estimator'].forEach(k=>{
+  ['adminName','adminLegal','tripLabels','estimator','adminTrav','adminCardTrack'].forEach(k=>{
     const v=admin?(lA[k]!==undefined?lA[k]:rA[k]):(rA[k]!==undefined?rA[k]:lA[k]);
     if(v!==undefined)out[k]=v;
   });
   const R=rA.users, L=lA.users;
-  if(admin){ if(L!==undefined||R!==undefined)out.users=L!==undefined?L:R; }
+  if(admin){ if(L!==undefined||R!==undefined){
+    /* Roster SHAPE is the admin's (adds, removals, roles, grants) — but the
+       self-owned payloads inside each row (trav, cardTrack) are written by
+       the members themselves, so the freshest copy is remote, not the
+       admin's possibly-stale pull. Exception: the merging user's own row,
+       whose local edits are by definition the newest. Without this fold,
+       every admin save silently rolled back whatever members had tracked
+       since the admin last loaded. */
+    const base=L!==undefined?L:R;
+    out.users=(base||[]).map(u=>{
+      if(u.uid===me)return u;
+      const r=(R||[]).find(x=>x.uid===u.uid);
+      return r?{...u,trav:r.trav!==undefined?r.trav:u.trav,cardTrack:r.cardTrack!==undefined?r.cardTrack:u.cardTrack}:u;
+    });
+  } }
   else if(R!==undefined||L!==undefined){
     const meLocal=(L||[]).find(u=>u.uid===me);
     let list=(R||[]).map(u=>(u.uid===me&&meLocal)

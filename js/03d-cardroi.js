@@ -135,7 +135,7 @@ function crCardVal(id){
   const c=crCard(id); if(!c)return 0;
   const D=CR_CARDS[id];
   let v=0;
-  D.credits.forEach(([k,,max])=>{ v+=Math.min(Number(c.credits[k]||0),max*4); });   // soft ceiling; issuers occasionally over-deliver
+  D.credits.forEach(([k])=>{ v+=Number(c.credits[k]||0); });   // the user's own ledger — count what they entered; the meter bar caps visually, not the math
   D.counts.forEach(([k,,def])=>{ const e=c.counts[k]||{}; v+=Number(e.n||0)*Number(e.v!==undefined?e.v:def); });
   v+=Number(c.pts||0)*Number(c.cpp||0)/100;
   const pp=(crY()||{}).pp||{};

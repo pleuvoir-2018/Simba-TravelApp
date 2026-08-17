@@ -27,7 +27,7 @@ var KR_TONIGHT={7:'westin_parnas',8:'westin_parnas',9:'westin_parnas',
 var KR_CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
 {id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
-{id:"seoul",city:"Seoul",sub:"5/7–5/10 · 5/14–5/18",hotel:"westin_parnas",
+{id:"seoul",city:"Seoul",photo:"Bukchon-ro_11-gil_street_with_hanok_houses_at_sunrise_in_Bukchon_Hanok_Village_Seoul.jpg",sub:"5/7–5/10 · 5/14–5/18",hotel:"westin_parnas",
  legs:[
   {r:"✈ ICN → Gangnam",m:"5/7 · AREX to Seoul Stn then Line 2, or the 6703 limousine bus",n:"The 6703 stops at COEX North Gate, two minutes from the hotel — easiest with luggage. A taxi runs about ₩70,000 and 60–80 min."},
   {r:"Seoul → Jeju",m:"5/10 · fly from Gimpo",n:"Line 9 runs express straight to Gimpo from Bongeunsa — one of the reasons this hotel is well placed."},

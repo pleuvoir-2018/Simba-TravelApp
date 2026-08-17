@@ -355,6 +355,7 @@ function renderCalc() {
 }
 
 function render(){
+  if(tripSel)saveLoc({trip:tripSel,ci});
   if(!tripSel){renderHome();return;}
   refreshNav();
   if(!window._app){ renderLogin(); return; }

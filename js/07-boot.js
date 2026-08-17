@@ -8,7 +8,15 @@ loadOverrides().then(()=>{
   if(!window._app)renderLogin();
   else if(appRole()==='pending')renderPendingApp();
   else if(tripSel)render();
-  else renderHome();
+  else{
+    const loc=window._bootLoc;
+    if(loc&&loc.ba&&typeof renderBenefitsPage==='function'){ tripSel=null; renderBenefitsPage(loc.ba); }
+    else if(loc&&loc.trip&&TRIP_DATA[loc.trip]&&canOpen(loc.trip)){
+      openTrip(loc.trip);
+      if(tripSel===loc.trip&&Number.isInteger(loc.ci)&&loc.ci>0&&loc.ci<navCities().length){ ci=loc.ci; render(); }
+    }
+    else renderHome();
+  }
 });
 
 /* ---------------- COUNTDOWN ---------------- */

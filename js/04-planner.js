@@ -559,7 +559,8 @@ const TRAV_CAT={
   {id:'aaexec',n:'Citi / AAdvantage Executive'},
   {id:'bilt',n:'Bilt Palladium'},{id:'bonvoybrill',n:'Bonvoy Brilliant'},
   {id:'hiltonaspire',n:'Hilton Aspire'},{id:'strataelite',n:'Citi Strata Elite'},
-  {id:'boaelite',n:'BofA Premium Rewards Elite'},{id:'amexbizplat',n:'Amex Business Platinum'}
+  {id:'boaelite',n:'BofA Premium Rewards Elite'},{id:'amexbizplat',n:'Amex Business Platinum'},
+  {id:'unitedquest',n:'United Quest'}
  ]
 };
 function travOf(me){

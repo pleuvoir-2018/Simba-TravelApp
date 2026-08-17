@@ -85,6 +85,17 @@ const CR_CARDS={
    ['club','United Club visit',40],
    ['award','10k-mile award discount (×2/yr)',135]],
   note:'Membership itself retails near the AF — the per-visit counter is how it earns it back. JSX and Avis/Budget credits exist too; their splits aren’t seeded, log them however your statement pays.'},
+ unitedquest:{n:'United Quest',af:350,ver:'checked Aug 2026 \u2014 2026 refresh, credits total \u0024860',pp:false,
+  credits:[
+   ['travelbank','United TravelBank credit',200],
+   ['ride','Rideshare ($8/mo, $12 in Dec)',100,'m',[8,8,8,8,8,8,8,8,8,8,8,12]],
+   ['instacart','Instacart ($10+$5/mo, thru 2027)',180,'m',15],
+   ['renowned','Renowned Hotels credit',150],
+   ['jsx','JSX flights',150],
+   ['avis','Avis / Budget',80]],
+  counts:[
+   ['award','10k-mile award discount (1/yr, +1 after \u002420k spend)',135]],
+  note:'The mid-tier by name \u2014 in under the \u0024500 line like Bilt and VX. No lounge on this one; two free bags for you + a companion, 1,000 PQP boost, GE/TSA every 4 yrs. Rideshare cadence as reported \u2014 edit if your statement pays differently.'},
  aaexec:{n:'Citi AAdvantage Executive',af:695,ver:'checked Aug 2026 — $695 from Aug 23, $595 before; edit the AF to match your renewal',pp:false,
   credits:[
    ['vacations','AA Vacations credit ($250×2)',500,'h',250],

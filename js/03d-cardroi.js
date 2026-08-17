@@ -30,8 +30,8 @@ const CR_CARDS={
    ['resy','Resy dining ($100/q)',400,'q',100],
    ['ent','Digital entertainment ($25/mo)',300,'m',25],
    ['air','Airline fee credit',200],
-   ['uber','Uber Cash',200],
-   ['walmart','Walmart+',155],
+   ['uber','Uber Cash ($15/mo, $35 in Dec)',200,'m',[15,15,15,15,15,15,15,15,15,15,15,35]],
+   ['walmart','Walmart+ ($12.95/mo)',155,'m',12.95],
    ['clear','CLEAR Plus',209],
    ['equinox','Equinox',300]],
   counts:[
@@ -165,6 +165,7 @@ function crCard(id){ const Y=crY(); if(!Y)return null; Y.cards[id]=Y.cards[id]||
    never silently drop money. Future periods are locked: the calendar, not
    the user, opens them. */
 function crPerN(per){ return per==='m'?12:per==='q'?4:2; }
+function crPerSlice(def,i){ return Array.isArray(def[4])?Number(def[4][i]||0):Number(def[4]||0); }   // slice arrays: uneven months (Uber's \u002435 December)
 function crPerLabels(per){ return per==='m'?['J','F','M','A','M','J','J','A','S','O','N','D']:per==='q'?['Q1','Q2','Q3','Q4']:['H1','H2']; }
 function crCurPeriod(per,year){
   const now=new Date();
@@ -177,16 +178,17 @@ function crCredNorm(c,k,def){
   const per=def[3], N=crPerN(per);
   let v=c.credits[k];
   if(v&&typeof v==='object'&&Array.isArray(v.p)){ while(v.p.length<N)v.p.push(false); return v; }
-  const num=Number(v||0), slice=def[4]||1;
-  const whole=Math.min(N,Math.floor(num/slice));
-  const p=[...Array(N)].map((_,i)=>i<whole);
-  return {p,r:Math.max(0,num-whole*slice)};            // carry keeps the odd dollars
+  let num=Number(v||0);
+  const p=[...Array(N)].map(()=>false);
+  for(let i=0;i<N;i++){ const sl=crPerSlice(def,i); if(sl>0&&num>=sl){p[i]=true;num=Math.round((num-sl)*100)/100;} else break; }
+  return {p,r:Math.max(0,num)};                        // greedy fill front-to-back; carry keeps the odd dollars
 }
 function crCreditVal(c,def){
   const k=def[0];
   if(!def[3])return Number(c.credits[k]||0);
   const o=crCredNorm(c,k,def);
-  return o.p.filter(Boolean).length*(def[4]||0)+Number(o.r||0);
+  const raw=o.p.reduce((a,on,i)=>a+(on?crPerSlice(def,i):0),0)+Number(o.r||0);
+  return Math.min(raw,def[2]);                         // cap: \u002412.95\u00d712 lands at exactly the \u0024155 the issuer pays
 }
 function crMoney(n){ return (n<0?'\u2212$':'$')+Math.abs(Number(n||0)).toLocaleString('en-US',{maximumFractionDigits:0}); }
 
@@ -303,7 +305,7 @@ window.renderCardRoiPage=function(keep){
         const look=on?'background:var(--tripac,#0E7C86);color:#fff;border:1.5px solid var(--tripac,#0E7C86)'
           :future?'background:none;color:var(--rule);border:1.5px dashed var(--rule)'
           :'background:none;color:var(--grey);border:1.5px solid '+(isCur?'var(--clay)':'var(--rule)');
-        return `<button type="button" ${edit&&!future?`onclick="crCreditP('${id}','${k}',${i})"`:'disabled'} title="${labels[i]}${future?' — not yet':isCur?' — current':''}" style="${base}${look}">${labels[i]}</button>`;
+        return `<button type="button" ${edit&&!future?`onclick="crCreditP('${id}','${k}',${i})"`:'disabled'} title="${labels[i]}${Array.isArray(def[4])?' · $'+crPerSlice(def,i):''}${future?' — not yet':isCur?' — current':''}" style="${base}${look}">${labels[i]}</button>`;
       }).join('');
       return `<div style="display:flex;align-items:center;gap:7px;padding:4px 15px;flex-wrap:wrap">
         <span style="flex:0 0 42%;min-width:150px;font-size:12px">${n}${o.r>0?` <span style=\"font:600 8.5px var(--mono);color:var(--grey)\" title=\"carried from earlier tracking\">+$${o.r}</span>`:''}</span>

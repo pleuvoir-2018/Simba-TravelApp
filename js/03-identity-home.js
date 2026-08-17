@@ -295,6 +295,12 @@ function renderHome(){
   window._onAdmin=false;
   document.body.classList.remove('tools');
   document.body.classList.add('home');
+  // activate painted heroes only when the art actually exists in the deployment
+  if(window._artProbe===undefined){ window._artProbe=false;
+    const im=new Image();
+    im.onload=()=>{ window._artProbe=true; document.body.classList.add('has-art'); };
+    im.src='img/landing-day.jpg?v=1'; }
+  else if(window._artProbe)document.body.classList.add('has-art');
   document.body.style.setProperty('--tripac','#22406B');
   const tripCard=t=>`
       <button class="trip ${t.theme==='ocean'?'ocean':''} ${t.status==='idea'||!canOpen(t.id)?'soon':''} ${tripArchived(t)?'soon':''}" type="button" ${t.status==='idea'?'disabled aria-disabled="true"':`onclick="${t.tool?`openTool('${t.id}')`:`openTrip('${t.id}')`}"`}>
@@ -313,6 +319,8 @@ function renderHome(){
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`;
   panel.innerHTML=`
+  <div class="hero-art day"></div><div class="hero-art night"></div><div class="scrim"></div>
+  <div class="art-credit">art: kapit0n · vandesart / Pixabay</div>
   <div class="home-hero" style="position:relative">
     <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">
       ${appRole()==='admin'?'<button type="button" onclick="openAdmin()" title="Access & labels" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;height:34px;display:inline-flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--ink)">⚙ Admin</button>':''}

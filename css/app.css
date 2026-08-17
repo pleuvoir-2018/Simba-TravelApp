@@ -719,3 +719,26 @@ body.dark .ba-dd{background:#242A33}
 .ba-dd-i{padding:8px 12px;font-size:12px;cursor:pointer}
 .ba-dd-i:hover{background:var(--washi2)}
 .ba-dd-i b{font-family:var(--mono);letter-spacing:.04em}
+
+
+/* ==== PAINTED LANDING (activates via body.has-art once img/ art exists) ==== */
+.hero-art,.scrim,.art-credit{display:none}
+body.home.has-art .hero-art{display:block;position:fixed;inset:0;z-index:0;background-size:cover;background-position:center 30%;
+  animation:kb 32s ease-in-out infinite alternate;will-change:transform;pointer-events:none}
+body.home.has-art .hero-art.day{background-image:url('img/landing-day.jpg?v=1')}
+body.home.has-art .hero-art.night{background-image:url('img/landing-night.jpg?v=1');display:none}
+body.dark.home.has-art .hero-art.day{display:none}
+body.dark.home.has-art .hero-art.night{display:block}
+@keyframes kb{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.12) translate(-2%,-1.6%)}}
+@media (prefers-reduced-motion:reduce){body.home.has-art .hero-art{animation:none}}
+body.home.has-art .scrim{display:block;position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(251,248,241,.88) 0%,rgba(251,248,241,.72) 26%,rgba(251,248,241,.45) 55%,rgba(251,248,241,.25) 100%)}
+body.dark.home.has-art .scrim{background:linear-gradient(180deg,rgba(10,14,24,.90) 0%,rgba(10,14,24,.74) 26%,rgba(10,14,24,.5) 55%,rgba(10,14,24,.3) 100%)}
+body.home.has-art .home-hero,body.home.has-art .trips,body.home.has-art .home-sec,body.home.has-art .home-foot{position:relative;z-index:2}
+body.home.has-art .trip{box-shadow:0 6px 22px rgba(31,42,68,.18)}
+body.home.has-art .trip:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(31,42,68,.26);transition:all .22s ease}
+body.dark.home.has-art .trip{box-shadow:0 6px 24px rgba(0,0,0,.45)}
+body.dark.home.has-art .home-hero h1{color:#C9CFF0;text-shadow:0 2px 14px rgba(0,0,0,.6)}
+body.dark.home.has-art .home-hero .hk{color:#EFCEF2}
+body.home.has-art .art-credit{display:block;position:fixed;bottom:8px;right:12px;z-index:3;font:500 9px var(--mono);letter-spacing:.04em;color:rgba(120,120,120,.85);background:rgba(255,255,255,.5);padding:3px 8px;border-radius:3px}
+body.dark.home.has-art .art-credit{background:rgba(0,0,0,.4);color:rgba(200,205,220,.8)}

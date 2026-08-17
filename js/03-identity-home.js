@@ -34,6 +34,10 @@ const TRIPS=[
   blurb:'Flights, stays & dailies, city by city',
   photo:'data:image/svg+xml;utf8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 viewBox%3D%220 0 900 560%22%3E%3Crect width%3D%22900%22 height%3D%22560%22 fill%3D%22%230E7C86%22/%3E%3Ccircle cx%3D%22740%22 cy%3D%22120%22 r%3D%22210%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.07%22/%3E%3Ccircle cx%3D%22120%22 cy%3D%22500%22 r%3D%22170%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.06%22/%3E%3Cg fill%3D%22%23FFFFFF%22 opacity%3D%22.9%22%3E%3Crect x%3D%22150%22 y%3D%22330%22 width%3D%2270%22 height%3D%22130%22 rx%3D%226%22/%3E%3Crect x%3D%22250%22 y%3D%22270%22 width%3D%2270%22 height%3D%22190%22 rx%3D%226%22/%3E%3Crect x%3D%22350%22 y%3D%22210%22 width%3D%2270%22 height%3D%22250%22 rx%3D%226%22/%3E%3C/g%3E%3Cpath d%3D%22M470 200 C 560 120, 660 110, 760 140%22 stroke%3D%22%23FFFFFF%22 stroke-width%3D%226%22 stroke-dasharray%3D%222 18%22 stroke-linecap%3D%22round%22 fill%3D%22none%22 opacity%3D%22.85%22/%3E%3Cpath d%3D%22M760 140 l70 -28 -34 66 -12 -26 -24 -12 z%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.95%22/%3E%3C/svg%3E',
   credit:'Original artwork',status:'wip',tool:true,staff:true},
+ {id:'cardroi',country:'Travel tools',emoji:'💳',title:'Card ROI',dates:'Is the annual fee earning its keep?',
+  blurb:'Track every credit, visit and point against the AF',
+  photo:'data:image/svg+xml;utf8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 viewBox%3D%220 0 900 560%22%3E%3Crect width%3D%22900%22 height%3D%22560%22 fill%3D%22%230E7C86%22/%3E%3Ccircle cx%3D%22150%22 cy%3D%22110%22 r%3D%22190%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.06%22/%3E%3Ccircle cx%3D%22780%22 cy%3D%22470%22 r%3D%22200%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.07%22/%3E%3Crect x%3D%22140%22 y%3D%22180%22 width%3D%22330%22 height%3D%22205%22 rx%3D%2218%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.92%22/%3E%3Crect x%3D%22140%22 y%3D%22225%22 width%3D%22330%22 height%3D%2242%22 fill%3D%22%230B5E66%22/%3E%3Crect x%3D%22168%22 y%3D%22300%22 width%3D%22120%22 height%3D%2216%22 rx%3D%228%22 fill%3D%22%230E7C86%22 opacity%3D%22.55%22/%3E%3Crect x%3D%22168%22 y%3D%22330%22 width%3D%2280%22 height%3D%2216%22 rx%3D%228%22 fill%3D%22%230E7C86%22 opacity%3D%22.35%22/%3E%3Cg fill%3D%22%23FFFFFF%22 opacity%3D%22.9%22%3E%3Crect x%3D%22560%22 y%3D%22330%22 width%3D%2258%22 height%3D%22110%22 rx%3D%226%22/%3E%3Crect x%3D%22646%22 y%3D%22270%22 width%3D%2258%22 height%3D%22170%22 rx%3D%226%22/%3E%3Crect x%3D%22732%22 y%3D%22200%22 width%3D%2258%22 height%3D%22240%22 rx%3D%226%22/%3E%3C/g%3E%3Cpath d%3D%22M560 300 L668 235 L790 160%22 stroke%3D%22%23FFFFFF%22 stroke-width%3D%227%22 stroke-linecap%3D%22round%22 fill%3D%22none%22 opacity%3D%22.85%22/%3E%3Cpath d%3D%22M790 160 l34 -8 -12 33 -10 -14 z%22 fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E',
+  credit:'Original artwork',status:'wip',tool:true},
  {id:'orlando-universal',country:'Theme-Park Trip',title:'Orlando — Universal',dates:'Dates TBD',emoji:'🎬',theme:'ocean',
   photo:wm('Universal_Studios_Florida_Gate.JPG'),credit:'Universal Studios Florida gate · Malpass93, public domain',status:'wip'}
 ];
@@ -439,6 +443,7 @@ window.openTool=function(id){
   if(!canOpen(id)){flash('Ask the organizer for access','err');return;}
   if(id==='benefits'&&typeof openBenefits==='function'){openBenefits();return;}
   if(id==='estimator'&&typeof openEstimator==='function'){openEstimator();return;}
+  if(id==='cardroi'&&typeof openCardRoi==='function'){openCardRoi();return;}
 };
 function appGroupSession(tripId){
   const sAp=window._app;

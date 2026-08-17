@@ -124,7 +124,11 @@ function mergeApp(rA,lA){
   else if(R!==undefined||L!==undefined){
     const meLocal=(L||[]).find(u=>u.uid===me);
     let list=(R||[]).map(u=>(u.uid===me&&meLocal)
-      ?{...u,name:meLocal.name??u.name,code:meLocal.code??u.code,legalFirst:meLocal.legalFirst??u.legalFirst,legalLast:meLocal.legalLast??u.legalLast,dob:meLocal.dob??u.dob}
+      ?{...u,name:meLocal.name??u.name,code:meLocal.code??u.code,legalFirst:meLocal.legalFirst??u.legalFirst,legalLast:meLocal.legalLast??u.legalLast,dob:meLocal.dob??u.dob,
+        /* self-owned payloads: without these the member's own saves roll
+           back at the next merge — trav had exactly that bug before the
+           Card ROI tool needed the same lane. */
+        trav:meLocal.trav??u.trav,cardTrack:meLocal.cardTrack??u.cardTrack}
       :u);
     // self-registration lands only ever as pending with NO grants
     if(meLocal&&!list.some(u=>u.uid===me))list=list.concat([{...meLocal,role:'pending',access:{}}]);

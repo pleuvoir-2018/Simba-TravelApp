@@ -102,7 +102,7 @@ var HOTELS = {
    note:"Departure-day lunch: check out, Minatomirai Line to Yokohama Stn (2 min), eat, then JR to Shin-Yokohama. You grill the patty yourself at the table.",
    warn:"Be seated at 11:30 opening and done by ~12:50 for the 14:07 Nozomi. The Yokohama Front branch (THE YOKOHAMA FRONT 2F, east side) is closer to the JR gates if you are running tight."}]},
 
-{id:"nara",city:"Nara",photo:"Todaiji18s3200.jpg",sub:"11/19–11/21",hotel:"shisui",
+{id:"nara",city:"Nara",photo:"Sika_deer_in_Nara_05.jpg",sub:"11/19–11/21",hotel:"shisui",
  legs:[
   {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express 16:20 → 16:55 — all-reserved, NOT YET BOOKED",n:"Only a 20-min connection off the Nozomi (arr 16:00) — pre-book: seats open on Kintetsu online 1 month out (Oct 19). At the gates: tap Suica for the base fare and hold the ¥520 express e-ticket on your phone — buy the express-ticket-only option online, not the combined one, or the base fare is paid twice."},
   {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 · Aoniyoshi sightseeing ltd. exp · dep 17:34 → arr 18:12 (Sat/hol)",n:"Full final day in Nara — Fuku Sushi lunch, afternoon free. Aoniyoshi is all-reserved: seats open on Kintetsu ~1 month out (Oct 21). At Namba: Midōsuji to Tennōji, drop bags, then Ondoriya."}],
@@ -176,7 +176,7 @@ var HOTELS = {
    note:"B2 = sōzai, bentō, sashimi, fresh food · B1 = bakery, wagashi, patisserie. One of Japan's largest depachika and it's in your own building.",
    warn:"Go after ~19:00 — sōzai counters mark down unsold food (半額 stickers) in the last hour before 20:30 close."}]},
 
-{id:"kyoto",city:"Kyoto",photo:"Bamboo_Forest,_Arashiyama,_Kyoto,_Japan.jpg",sub:"11/23 · day trip from Osaka",hotel:"miyako",
+{id:"kyoto",city:"Kyoto",photo:"Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine,_Kyoto,_Japan.jpg",sub:"11/23 · day trip from Osaka",hotel:"miyako",
  legs:[
   {r:"Out 11/23: Tennōji → Kyoto",m:"Haruka 12 ✓ · dep 10:20 → arr 11:04 (44 min)",n:"Booked on Japan Rail Tickets. Dep Platform 18 · arr Platform 30. Elevator down from the Miyako straight to Tennōji JR."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},

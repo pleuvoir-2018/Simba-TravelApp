@@ -205,14 +205,16 @@ window.renderEstimatorPage=function(keep){
   const esF=(lbl,inner,grow)=>`<span style="display:flex;flex-direction:column;gap:3px;${grow?'flex:1 1 auto;min-width:160px':'flex:0 0 auto'}"><label style="${LBL}">${lbl}</label>${inner}</span>`;
   const esBtnR=(fn,txt)=>`<button class="pladd" type="button" onclick="${fn}" style="flex:0 0 auto;margin-left:auto;padding:9px 20px;min-width:110px">${txt}</button>`;
   const esChk=(idAttr,lbl,extra)=>`<label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey);height:36px">${idAttr?`<input type="checkbox" id="${idAttr}" style="width:auto;height:auto">`:extra}${lbl}</label>`;
-  const ptsRows=(pfx,word,cid)=>`<div class="plrow1">
-        <label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey)"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plform').querySelector('.es-pts');w.style.display=this.checked?'flex':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Award ${word}</label>
-      </div>
-      <div class="es-pts plrow1" style="display:none;padding-left:22px;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
+  /* Award ✨ lives at the RIGHT EDGE of each form's first row, next to FHR
+     where present; ticking it swaps the points cells INTO the money row
+     ahead of the fees field (display:contents — safe now that every cell
+     pins its own flex against the .plrow1 grow rule). Untick clears. */
+  const esAwardChk=word=>`<label style="flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font:600 9.5px var(--mono);letter-spacing:.05em;color:var(--grey);height:36px"><input type="checkbox" style="width:auto;height:auto" onchange="var w=this.closest('.plform').querySelector('.es-pts');w.style.display=this.checked?'contents':'none';if(!this.checked)w.querySelectorAll('input').forEach(function(i){i.value='';})">✨ Award ${word}</label>`;
+  const esPtsCells=(pfx,cid)=>`<span class="es-pts" style="display:none">
         ${esF('POINTS',`<input id="${pfx}_pts_${cid}" type="number" min="0" step="1000" placeholder="85,000" style="width:110px">`)}
         ${esF('PROGRAM',`<select id="${pfx}_prog_${cid}" style="width:150px">${ES_PROGS.map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}</select>`)}
         ${esF('CASH VALUE $',`<input id="${pfx}_val_${cid}" type="number" min="0" step="1" placeholder="0" style="width:120px" title="What it would have cost in cash — for ¢/pt">`)}
-      </div>`;
+      </span>`;
   const cityCard=c=>{
     const hotels=(c.hotels||[]).map(h=>{const n=esNights(h.ci,h.co);return `<div class="pl-row">
       <span class="pl-ic">🏨</span>
@@ -264,11 +266,10 @@ window.renderEstimatorPage=function(keep){
           ${esF('HOTEL',`<input id="eh_n_${c.id}" placeholder="Grand Hyatt…" maxlength="60">`,1)}
           ${esF('CHECK-IN',`<input id="eh_ci_${c.id}" type="date" style="width:135px">`)}
           ${esF('CHECK-OUT',`<input id="eh_co_${c.id}" type="date" style="width:135px">`)}
-          ${esChk('eh_fhr_'+c.id,'FHR')}
+          <span style="margin-left:auto;display:flex;gap:14px;align-items:center;flex:0 0 auto">${esChk('eh_fhr_'+c.id,'FHR')}${esAwardChk('stay')}</span>
         </div>
-        ${ptsRows('eh','stay',c.id)}
         <div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esF('CASH / FEES $',`<input id="eh_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="width:120px">`)}
+          ${esPtsCells('eh',c.id)}${esF('CASH / FEES $',`<input id="eh_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="width:120px">`)}
           ${esBtnR(`esAddHotel('${c.id}')`,'+ Stay')}
         </div>
         <div class="plhint">Cash stay: leave ✨ unticked. Award stay: tick ✨ — the $ field is then just taxes/fees, and cash value feeds ¢/pt.</div>
@@ -284,10 +285,10 @@ window.renderEstimatorPage=function(keep){
           ${esF('TO',baApField('ef_to_'+c.id,'Code or city',''))}
           ${esF('DATE',`<input id="ef_date_${c.id}" type="date" style="width:135px">`)}
           ${esF('DEPART',`<input id="ef_time_${c.id}" type="time" style="width:100px">`)}
+          <span style="margin-left:auto;display:flex;gap:14px;align-items:center;flex:0 0 auto">${esAwardChk('ticket')}</span>
         </div>
-        ${ptsRows('ef','ticket',c.id)}
         <div class="plrow1" style="display:flex;flex-wrap:wrap;gap:12px;justify-content:flex-start;align-items:flex-end">
-          ${esF('FARE / FEES $',`<input id="ef_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="width:120px">`)}
+          ${esPtsCells('ef',c.id)}${esF('FARE / FEES $',`<input id="ef_cost_${c.id}" type="number" min="0" step="1" placeholder="0" style="width:120px">`)}
           ${esBtnR(`esAddFlight('${c.id}')`,'+ Flight')}
         </div>
         <div class="plhint">One row per ticket — add connections afterwards with the ＋ on the flight. Award ticket: tick ✨, the $ field is then taxes/fees.</div>

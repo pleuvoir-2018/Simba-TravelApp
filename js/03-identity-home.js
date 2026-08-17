@@ -26,6 +26,14 @@ const TRIPS=[
   blurb:'What your memberships get you',
   photo:wm('Air_India_Heathrow_lounge.JPG'),
   credit:'Airport lounge, Heathrow · Clayton Tang, CC BY-SA 3.0',status:'wip',tool:true},
+ /* staff:true — a tool for admin & designer only. canOpen refuses the grant
+    path for staff tools, the IAM grid never offers one, and renderHome hides
+    the card from everyone else entirely. Inline SVG art — never a hot-linked
+    image for chrome. */
+ {id:'estimator',country:'Travel tools',emoji:'🧮',title:'Travel Estimator',dates:'Cost a trip before it exists',
+  blurb:'Flights, stays & dailies, city by city',
+  photo:'data:image/svg+xml;utf8,%3Csvg xmlns%3D%22http://www.w3.org/2000/svg%22 viewBox%3D%220 0 900 560%22%3E%3Crect width%3D%22900%22 height%3D%22560%22 fill%3D%22%230E7C86%22/%3E%3Ccircle cx%3D%22740%22 cy%3D%22120%22 r%3D%22210%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.07%22/%3E%3Ccircle cx%3D%22120%22 cy%3D%22500%22 r%3D%22170%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.06%22/%3E%3Cg fill%3D%22%23FFFFFF%22 opacity%3D%22.9%22%3E%3Crect x%3D%22150%22 y%3D%22330%22 width%3D%2270%22 height%3D%22130%22 rx%3D%226%22/%3E%3Crect x%3D%22250%22 y%3D%22270%22 width%3D%2270%22 height%3D%22190%22 rx%3D%226%22/%3E%3Crect x%3D%22350%22 y%3D%22210%22 width%3D%2270%22 height%3D%22250%22 rx%3D%226%22/%3E%3C/g%3E%3Cpath d%3D%22M470 200 C 560 120, 660 110, 760 140%22 stroke%3D%22%23FFFFFF%22 stroke-width%3D%226%22 stroke-dasharray%3D%222 18%22 stroke-linecap%3D%22round%22 fill%3D%22none%22 opacity%3D%22.85%22/%3E%3Cpath d%3D%22M760 140 l70 -28 -34 66 -12 -26 -24 -12 z%22 fill%3D%22%23FFFFFF%22 opacity%3D%22.95%22/%3E%3C/svg%3E',
+  credit:'Original artwork',status:'wip',tool:true,staff:true},
  {id:'orlando-universal',country:'Theme-Park Trip',title:'Orlando — Universal',dates:'Dates TBD',emoji:'🎬',theme:'ocean',
   photo:wm('Universal_Studios_Florida_Gate.JPG'),credit:'Universal Studios Florida gate · Malpass93, public domain',status:'wip'}
 ];
@@ -82,7 +90,7 @@ function renderAdminPage(){
           ${u.role==='designer'?`<div style="margin-top:7px;font:10.5px var(--mono);color:var(--indigo2)">🎨 Designer — opens every destination for review; nothing they do saves. Participation below only adds them to rosters and splits.</div><div class="ggrid">${partCells(u)}</div>`
           :u.role==='admin'?`<div style="margin-top:7px;font:10.5px var(--mono);color:#8A4390">🛡 Admin — full access everywhere regardless. Participation below controls which trips they are counted in — rosters, headcounts, the group pot. Only the Super Admin can change or remove this account.</div><div class="ggrid">${partCells(u)}</div>`
           :u.role==='pending'?'':`<div class="ggrid">
-            ${dests.map(d=>{
+            ${dests.filter(d=>!d.staff).map(d=>{
               /* Tools have no registry entry — 85482d7 added them to dests
                  but left this deref unguarded, and the throw mid-template
                  blanked the whole IAM page. */
@@ -312,6 +320,7 @@ function renderHome(){
         <div class="bar"><span title="${!canOpen(t.id)&&t.status!=='idea'?'Ask the organizer for access':''}">${t.status==='idea'?'Not planned yet':(!canOpen(t.id)?'🔒 No access':(tripArchived(t)?'Open · read-only →':t.tool?'Open tool →':'Open trip →'))}</span>
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`;
+  const homeTools=TRIPS.filter(t=>t.tool&&(!t.staff||canOpen(t.id)));   // staff tools invisible, not padlocked
   panel.innerHTML=`
   <img class="home-bgart" src="${wm('Eikan-do_Zenrin-ji,_November_2016_-03.jpg')}" alt=""
        onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg')}';}else{this.style.display='none';}">
@@ -329,10 +338,10 @@ function renderHome(){
   <div class="trips">
     ${TRIPS.filter(t=>!t.tool).map(tripCard).join('')}
   </div>
-  ${TRIPS.some(t=>t.tool)?`<div class="home-sec">
+  ${homeTools.length?`<div class="home-sec">
     <div style="text-align:center;font:600 10px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--clay)">Travel tools</div>
     <p style="text-align:center;font-size:13px;color:var(--grey);max-width:460px;margin:6px auto 16px">Utilities built on your travel profile — tiers, perks and which doors open.</p>
-    <div class="trips tools">${TRIPS.filter(t=>t.tool).map(tripCard).join('')}</div>
+    <div class="trips tools">${homeTools.map(tripCard).join('')}</div>
   </div>`:''}
   <div class="home-foot" style="padding:0">Photos via Wikimedia Commons under their stated licences.</div>
   <div class="home-foot" style="padding:4px 0 12px"><a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener license"><img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20132%2031%22%20width%3D%22132%22%20height%3D%2231%22%3E%3Ccircle%20cx%3D%2215%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ccircle%20cx%3D%2279%22%20cy%3D%2215%22%20r%3D%2212%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Ctext%20x%3D%2215%22%20y%3D%2219.5%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2211%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3ECC%3C/text%3E%3Ccircle%20cx%3D%2247%22%20cy%3D%2210.5%22%20r%3D%223.1%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M40.5%2022.5%20a6.5%206.5%200%200%201%2013%200%20z%22%20fill%3D%22%2314161B%22/%3E%3Cpath%20d%3D%22M85.5%2012%20a7%207%200%201%200%201%206%22%20fill%3D%22none%22%20stroke%3D%22%2314161B%22%20stroke-width%3D%222.4%22/%3E%3Cpath%20d%3D%22M83%208%20l4.5%204.5%20-6%201.5%20z%22%20fill%3D%22%2314161B%22/%3E%3Ctext%20x%3D%2297%22%20y%3D%2213%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3EBY-SA%3C/text%3E%3Ctext%20x%3D%2297%22%20y%3D%2225%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2210.5%22%20font-weight%3D%22700%22%20fill%3D%22%2314161B%22%3E2.0%3C/text%3E%3C/svg%3E" class="cclogo" alt="CC BY-SA 2.0" width="132" height="31" style="opacity:.8"></a></div>
@@ -420,6 +429,7 @@ function canOpen(id){
   if(sAp.role==='admin')return true;
   if(sAp.role==='designer')return !!TRIP_DATA[id]||!!(TRIPS.find(x=>x.id===id)||{}).tool;   // every destination and tool — review is the job
   if(sAp.role!=='user')return false;
+  if((TRIPS.find(x=>x.id===id)||{}).staff)return false;   // staff tools: admin & designer only — no grant can open them
   const u=appUsers().find(x=>x.uid===sAp.uid);
   return !!(u&&u.access&&u.access[id]);
 }
@@ -428,6 +438,7 @@ function canOpen(id){
 window.openTool=function(id){
   if(!canOpen(id)){flash('Ask the organizer for access','err');return;}
   if(id==='benefits'&&typeof openBenefits==='function'){openBenefits();return;}
+  if(id==='estimator'&&typeof openEstimator==='function'){openEstimator();return;}
 };
 function appGroupSession(tripId){
   const sAp=window._app;

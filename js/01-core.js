@@ -115,7 +115,7 @@ function mergeApp(rA,lA){
      uid: they have no roster row and can never be demoted remotely. */
   const admin=me==='admin'||((rA&&rA.users)||[]).some(u=>u.uid===me&&u.role==='admin');
   const out={...rA,...lA};
-  ['adminName','adminLegal','tripLabels'].forEach(k=>{
+  ['adminName','adminLegal','tripLabels','estimator'].forEach(k=>{
     const v=admin?(lA[k]!==undefined?lA[k]:rA[k]):(rA[k]!==undefined?rA[k]:lA[k]);
     if(v!==undefined)out[k]=v;
   });

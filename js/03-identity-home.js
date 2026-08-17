@@ -313,6 +313,8 @@ function renderHome(){
           <span class="credit">${esc(t.credit)}</span></div>
       </button>`;
   panel.innerHTML=`
+  <img class="home-bgart" src="${wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg')}" alt="" onerror="this.style.display='none'">
+  <div class="home-bgscrim"></div>
   <div class="home-hero" style="position:relative">
     <div style="position:absolute;top:0;right:0;display:flex;gap:8px;align-items:center">
       ${appRole()==='admin'?'<button type="button" onclick="openAdmin()" title="Access & labels" style="background:none;border:1.5px solid var(--ink);border-radius:2px;font:600 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;height:34px;display:inline-flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--ink)">⚙ Admin</button>':''}

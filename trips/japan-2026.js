@@ -12,7 +12,7 @@ var HOTELS = {
 };var CITIES=[
 {id:"today",city:"Today",sub:"live day view",today:true},
 {id:"todo",city:"To-do",sub:"Prep & deadlines",todo:true},
-{id:"vancouver",city:"Vancouver",sub:"11/15–11/16 · repositioning",hotel:"parq",
+{id:"vancouver",city:"Vancouver",photo:"Vancouver_ib.jpg",sub:"11/15–11/16 · repositioning",hotel:"parq",
  legs:[
   {r:"✈ YVR → JW Marriott Parq",m:"11/15 · Canada Line ~25 min, or 20-min taxi",n:"Off DL3748, clear Canadian customs, then Canada Line from the airport to Yaletown–Roundhouse and a 7-min walk. Taxi is ~C$40 and simpler with luggage after a long day."},
   {r:"JW Marriott Parq → YVR ✈",m:"11/16 · Canada Line ~25 min from Yaletown–Roundhouse",n:"Leave the hotel ~7:45 for ZG021 at 10:30 — a 2-hour international cushion. Board a YVR-bound train, NOT a Richmond–Brighouse one; they alternate."}],
@@ -42,7 +42,7 @@ var HOTELS = {
    hrs:"Sun 17:00–23:00",res:"book",jpy:0,cost:"~C$250 for two, before the FHR credit",lat:49.27523,lng:-123.11313,area:"Parq Vancouver, 6F rooftop — upstairs from your room",
    note:"Reviews single out the onion milk bread, beef tartare and the sauce trio with the striploin. Charge it to the room so the FHR dining credit applies.",
    warn:"BOOK IT — 778-370-8600 or victor@parqvancouver.com, or let the JW concierge place it with the anniversary noted. Confirm the folio charge reaches the FHR credit."}]},
-{id:"yokohama",city:"Yokohama",sub:"11/17–11/19",hotel:"westin",showNRT:true,
+{id:"yokohama",city:"Yokohama",photo:"Yokohama_Minato_Mirai_21.jpg",sub:"11/17–11/19",hotel:"westin",showNRT:true,
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX 30 ✓ · dep Narita T1 14:45 → arr Yokohama 16:16",n:"Land 12:45 → landside ~14:15 → Platform 1/2. Arr Platform 6, then 5-min taxi to the Westin. Door-to-door ~16:45 — booked on Japan Rail Tickets."},
   {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 73 · dep 14:07 → arr 16:00",n:"Lunch done by ~12:50 → JR Yokohama line Yokohama → Shin-Yokohama, 12 min. Bags: coin lockers at Yokohama Stn, or carry."}],
@@ -102,7 +102,7 @@ var HOTELS = {
    note:"Departure-day lunch: check out, Minatomirai Line to Yokohama Stn (2 min), eat, then JR to Shin-Yokohama. You grill the patty yourself at the table.",
    warn:"Be seated at 11:30 opening and done by ~12:50 for the 14:07 Nozomi. The Yokohama Front branch (THE YOKOHAMA FRONT 2F, east side) is closer to the JR gates if you are running tight."}]},
 
-{id:"nara",city:"Nara",sub:"11/19–11/21",hotel:"shisui",
+{id:"nara",city:"Nara",photo:"Todaiji18s3200.jpg",sub:"11/19–11/21",hotel:"shisui",
  legs:[
   {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express 16:20 → 16:55 — all-reserved, NOT YET BOOKED",n:"Only a 20-min connection off the Nozomi (arr 16:00) — pre-book: seats open on Kintetsu online 1 month out (Oct 19). At the gates: tap Suica for the base fare and hold the ¥520 express e-ticket on your phone — buy the express-ticket-only option online, not the combined one, or the base fare is paid twice."},
   {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 · Aoniyoshi sightseeing ltd. exp · dep 17:34 → arr 18:12 (Sat/hol)",n:"Full final day in Nara — Fuku Sushi lunch, afternoon free. Aoniyoshi is all-reserved: seats open on Kintetsu ~1 month out (Oct 21). At Namba: Midōsuji to Tennōji, drop bags, then Ondoriya."}],
@@ -135,7 +135,7 @@ var HOTELS = {
   {id:7,d:"11/20 Fri",m:"Dinner",name:"Kitsune",dish:"Sukiyaki",hrs:"17:00–21:00 · closed Wed",res:"book",jpy:31900,lat:34.6811,lng:135.8299,area:"Ganriinchō",warn:"Tablecheck booking still on 11/19 — move it."},
   {id:20,d:"11/21 Sat",m:"Lunch",name:"Fuku Sushi",q:"福寿司 奈良",dish:"Nigiri & chirashi sets",hrs:"11:30–13:30 L · closed Thu",res:"book",jpy:10000,lat:34.6779,lng:135.8295,area:"Shimomikado arcade / Naramachi",warn:"Tiny 15-seat couple-run counter — call 0742-26-5677 ahead.",note:"Lunch ends 13:30 → whole afternoon free in Nara before the 17:34 Aoniyoshi."}]},
 
-{id:"osaka",city:"Osaka",sub:"11/21–11/24",hotel:"miyako",
+{id:"osaka",city:"Osaka",photo:"Osaka_Castle_02bs3200.jpg",sub:"11/21–11/24",hotel:"miyako",
  legs:[
   {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 eve · Midōsuji line 6 min",n:"Aoniyoshi lands Namba 18:12. The Miyako has a direct elevator from Tennōji / Ōsaka-Abenobashi — bags first, then back up for dinner."},
   {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Kuroshio 12 ✓ dep 10:35 → Shin-Ōsaka 10:51 · Nozomi 90 dep 11:30",n:"Booked — ride JR from Tennōji (Platform 18), not the Midōsuji. Arr Shin-Ōsaka Platform 1 with a 39-min cushion to the Nozomi. Leave the hotel by ~10:15; Nagoya 12:19, Keitei inside the station."}],
@@ -176,7 +176,7 @@ var HOTELS = {
    note:"B2 = sōzai, bentō, sashimi, fresh food · B1 = bakery, wagashi, patisserie. One of Japan's largest depachika and it's in your own building.",
    warn:"Go after ~19:00 — sōzai counters mark down unsold food (半額 stickers) in the last hour before 20:30 close."}]},
 
-{id:"kyoto",city:"Kyoto",sub:"11/23 · day trip from Osaka",hotel:"miyako",
+{id:"kyoto",city:"Kyoto",photo:"Arashiyama_Bamboo_Grove,_Kyoto.jpg",sub:"11/23 · day trip from Osaka",hotel:"miyako",
  legs:[
   {r:"Out 11/23: Tennōji → Kyoto",m:"Haruka 12 ✓ · dep 10:20 → arr 11:04 (44 min)",n:"Booked on Japan Rail Tickets. Dep Platform 18 · arr Platform 30. Elevator down from the Miyako straight to Tennōji JR."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
@@ -232,7 +232,7 @@ var HOTELS = {
    note:"Multi-course tofu — house-made yudōfu with free refills, yuba, seasonal plates; vegetarian course available and English explained at the table.",
    warn:"THE ANNIVERSARY DINNER — ¥24,000 for two. Small room (roughly 8 seats plus a table) — book well ahead: 075-561-0035. A 17:00–17:30 seating leaves Kōdai-ji's light-up (to 21:30) afterwards."}]},
 
-{id:"nagoya",city:"Nagoya",sub:"11/24–11/26",hotel:"tiad",
+{id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle_02.jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[
   {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 90 · dep 11:30 → arr 12:19",n:"Keitei lunch is inside the station complex, then Higashiyama line to Sakae."},
   {r:"Depart: Nagoya → Tokyo",m:"11/26 · Nozomi 24 · dep 14:36 → arr 16:15",n:"SHUHARI must end by 14:05 — book 11:30/12:00 and mention the train."}],
@@ -265,7 +265,7 @@ var HOTELS = {
   {id:17,d:"11/25 Wed",m:"Dinner",name:"Unagi Yondaime Kikukawa",dish:"Unagi hitsumabushi",hrs:"17:00–22:00 daily",res:"book",jpy:15000,lat:35.1697,lng:136.8853,area:"Midland Square 4F",warn:"Book 18:30/19:00 on Tabelog — fix the 7/29 date filter."},
   {id:18,d:"11/26 Thu",m:"Lunch",name:"SHUHARI",dish:"Kaiseki",hrs:"11:30–14:30 · closed Wed",res:"book",jpy:24000,lat:35.1639,lng:136.9098,area:"TIAD 5F",warn:"Book 12:00 latest — Nozomi 24 leaves 14:36; be done by 14:05."}]},
 
-{id:"tokyo",city:"Tokyo",sub:"11/26–11/27",hotel:"hyatt",
+{id:"tokyo",city:"Tokyo",photo:"Skyscrapers_of_Shinjuku_2009_January.jpg",sub:"11/26–11/27",hotel:"hyatt",
  legs:[
   {r:"Arrive: Tokyo Stn → Roppongi",m:"11/26 · Marunouchi → Kasumigaseki → Hibiya line ~25 min",n:"Off the Nozomi 16:15, at the hotel ~17:00. Roku Roku 18:00–19:00."},
   {r:"Depart ✈: Roppongi → Tokyo Stn → Narita T1",m:"11/27 · N'EX ✓ dep 12:33 → T1 ~13:30",n:"Booked. Hotel exit 11:00 → taxi ~25 min (skip the two-line metro with bags) → 15 min inside Tokyo Stn down to the B5 Sōbu platforms. Lands you at T1 2.5 h before ZG022."},

@@ -404,6 +404,7 @@ function render(){
   }
   panel.innerHTML=`<div class="grid">
     <div class="col-left">
+    ${c.photo?`<div class="city-art"><img src="${wm(c.photo)}" alt="" onerror="this.closest('.city-art').style.display='none'"><div class="city-art-scrim"></div><span class="city-art-name">${c.city}</span></div>`:''}
     <div class="mapcard"><div class="maphead"><h2>${c.city}</h2>
       <button class="poitoggle ${showPoi?'on':''}" id="poiT" type="button">◆ POI ${showPoi?'on':'off'}</button></div>
       <div id="map"></div></div>

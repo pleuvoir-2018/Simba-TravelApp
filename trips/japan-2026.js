@@ -58,6 +58,7 @@ var HOTELS = {
  {c:"sight",ic:"🍥",n:"Shin-Yokohama Ramen Museum",d:"1958 streetscape underground — AT your 11/19 departure station",a:"Shin-Yokohama",lat:35.5100,lng:139.6152},
  {c:"sight",ic:"🚡",n:"Yokohama Air Cabin",d:"urban ropeway Sakuragicho → Unga Park (¥1,000) — lands at Cup Noodles",a:"Afuri",lat:35.4511,lng:139.6320},   // NEW
  {c:"sight",ic:"🐋",n:"Osanbashi Pier rooftop",d:"free 360° wood-deck 'whale's back' — best night skyline shot in the city",a:"Chinatown",lat:35.4489,lng:139.6480},   // NEW
+ {c:"shop",ic:"✒️",n:"Itoya Motomachi",q:"横浜元町 伊東屋",d:"the Ginza stationery house's Motomachi shop — pens, washi, travel notebooks; stacks with the Chinatown walk",a:"Chinatown",lat:35.4433,lng:139.6490},   // NEW
  {c:"sight",ic:"🌃",n:"OMO5 Bashamichi 46F lobby",q:"OMO5横浜馬車道",d:"free 150m observation floor, opened Jan 2026 — Bashamichi Stn direct",a:"Afuri",lat:35.4507,lng:139.6352},   // NEW
  {c:"sight",ic:"⛵",n:"Nippon Maru + Port Museum",q:"日本丸メモリアルパーク",d:"1930 tall ship in dry dock, 2-min from Landmark Tower",a:"Afuri",lat:35.4538,lng:139.6292},   // NEW
  // ── cafés ──

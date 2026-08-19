@@ -86,6 +86,29 @@ async function sDel(){
   mem=null;
 }
 
+// ==== Stage B: one money lane ====
+// Every yen-planned amount resolves through these two functions, whatever
+// link schema carried it (pid=planner row, mid=seeded city stop).
+window.expSource=function(e){
+  if(!e)return null;
+  if(e.pid!==undefined){
+    const p=((window.overrides||{}).plans||[]).find(x=>x.id===e.pid);
+    if(p&&p.jpy)return {jpy:Number(p.jpy),fhr:Number(p.fhr)||0,kind:'plan'};
+  }
+  if(e.mid!==undefined&&typeof allCityStops==='function'){
+    const s=allCityStops().find(x=>x.id===e.mid);
+    if(s&&s.jpy)return {jpy:Number(s.jpy),fhr:Number(s.fhr)||0,kind:'stop'};
+  }
+  return null;
+};
+// USD net of a yen source at today's rate, minus dollar-fixed credits.
+// Returns null when no usable rate — callers fall back to stored amounts.
+window.netUsd=function(src){
+  if(!src||!(Number(src.jpy)>0))return null;
+  const r=window.liveRate;
+  if(!(typeof r==='number'&&r>0))return null;
+  return Math.max(0, Number(src.jpy)/r-(Number(src.fhr)||0));
+};
 window.saveLoc=function(loc){
   try{ if(!loc)localStorage.removeItem('jt_loc'); else localStorage.setItem('jt_loc',JSON.stringify(loc)); }catch(e){}
 };

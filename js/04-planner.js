@@ -242,7 +242,8 @@ function syncPlanExpense(p){
     Object.assign(prev,{date:'2026-'+p.d.replace('/','-'),cat:PLAN_CAT_TO_EXP[p.cat]||'Other',desc:p.name});
     return;
   }
-  const usdVal=Math.max(0,Number((Number(p.jpy)/liveRate-(Number(p.fhr)||0)).toFixed(2)));
+  const _n=netUsd({jpy:p.jpy,fhr:p.fhr});
+  const usdVal=_n===null?Number((Number(p.jpy)/(CUR.fallback||150)).toFixed(2)):Number(_n.toFixed(2));
   const card=p.card||'AMEX Platinum';
   const exp={pid:p.id,date:'2026-'+p.d.replace('/','-'),usd:usdVal.toFixed(2),cat:PLAN_CAT_TO_EXP[p.cat]||'Other',card,desc:p.name+(p.fhr?` (after $${p.fhr} FHR credit)`:''),planned:true,paidUsd:0,paid:false};
   if(i>-1)overrides.expenses[i]=exp;else overrides.expenses.push(exp);

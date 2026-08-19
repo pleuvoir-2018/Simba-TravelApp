@@ -989,7 +989,8 @@ function syncMealExpense(id){
 
   const card = o.actualCard || 'AMEX Platinum';
   const fhr = Number(stop.fhr)||0;
-  const usdVal = Math.max(0, Number((Number(o.actualJpy)/liveRate - fhr).toFixed(2)));
+  const _n = netUsd({jpy:o.actualJpy,fhr:fhr});
+  const usdVal = _n===null ? Number((Number(o.actualJpy)/(CUR.fallback||150)).toFixed(2)) : Number(_n.toFixed(2));
   const prev = i>-1 ? overrides.expenses[i] : null;
   const prevPaid = prev ? (prev.paidUsd!==undefined ? Number(prev.paidUsd) : (prev.paid ? Number(prev.usd) : 0)) : 0;
   const paidUsd = card==='Cash' ? usdVal : Math.min(prevPaid, usdVal);
@@ -1044,9 +1045,9 @@ function renderVault(){
 }
 
 function expUsd(e){
-  if(e&&e.planned===true&&e.pid&&typeof liveRate!=='undefined'&&liveRate>0){
-    const p=(overrides.plans||[]).find(x=>x.id===e.pid);
-    if(p&&p.jpy)return Math.max(0,Number(p.jpy)/liveRate-(Number(p.fhr)||0));
+  if(e&&e.planned===true){
+    const n=netUsd(expSource(e));
+    if(n!==null)return n;
   }
   return Number(e.usd);
 }
@@ -1075,7 +1076,10 @@ function renderExpenses() {
       .reduce((a,s)=>a+Number(eff(s).jpy),0);
   const mealFhrUsd = allCityStops()
       .reduce((a,s)=>a+(Number(eff(s).fhr||s.fhr)||0),0);
-  const mealBudgetUsd = Math.max(0, mealBudgetJpy / liveRate - mealFhrUsd);
+  // per-meal netting: an over-credited meal clamps at zero rather than
+  // subsidizing the rest of the budget
+  const mealBudgetUsd = allCityStops()
+      .reduce((a,s)=>{const es=eff(s);const n=netUsd({jpy:es.jpy,fhr:es.fhr!==undefined?es.fhr:s.fhr});return a+(n===null?Number(es.jpy||0)/(CUR.fallback||150):n);},0);
   const foodSpentUsd  = actuals.filter(e=>e.cat==="Food"||e.cat==="POI & Cafe")
       .reduce((a,e)=>a+expUsd(e),0);
   const foodPct  = mealBudgetUsd>0 ? Math.min(100,(foodSpentUsd/mealBudgetUsd)*100) : 0;

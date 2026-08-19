@@ -988,7 +988,8 @@ function syncMealExpense(id){
   if(!o.actualJpy){ if(i>-1) overrides.expenses.splice(i,1); saveOverrides(); return; }
 
   const card = o.actualCard || 'AMEX Platinum';
-  const usdVal = Number((Number(o.actualJpy)/liveRate).toFixed(2));
+  const fhr = Number(stop.fhr)||0;
+  const usdVal = Math.max(0, Number((Number(o.actualJpy)/liveRate - fhr).toFixed(2)));
   const prev = i>-1 ? overrides.expenses[i] : null;
   const prevPaid = prev ? (prev.paidUsd!==undefined ? Number(prev.paidUsd) : (prev.paid ? Number(prev.usd) : 0)) : 0;
   const paidUsd = card==='Cash' ? usdVal : Math.min(prevPaid, usdVal);
@@ -998,7 +999,7 @@ function syncMealExpense(id){
     usd: usdVal.toFixed(2),
     cat: 'Food',
     card,
-    desc: stop.name,
+    desc: stop.name+(fhr?` (after $${fhr} FHR credit)`:''),
     paidUsd,
     paid: paidUsd >= usdVal - 0.005
   };
@@ -1072,7 +1073,9 @@ function renderExpenses() {
   // Budget vs. actual — meal plan (live, respects your edits) vs. logged Food + POI & Cafe spend
   const mealBudgetJpy = allCityStops()
       .reduce((a,s)=>a+Number(eff(s).jpy),0);
-  const mealBudgetUsd = mealBudgetJpy / liveRate;
+  const mealFhrUsd = allCityStops()
+      .reduce((a,s)=>a+(Number(eff(s).fhr||s.fhr)||0),0);
+  const mealBudgetUsd = Math.max(0, mealBudgetJpy / liveRate - mealFhrUsd);
   const foodSpentUsd  = actuals.filter(e=>e.cat==="Food"||e.cat==="POI & Cafe")
       .reduce((a,e)=>a+expUsd(e),0);
   const foodPct  = mealBudgetUsd>0 ? Math.min(100,(foodSpentUsd/mealBudgetUsd)*100) : 0;
@@ -1126,7 +1129,7 @@ function renderExpenses() {
         <div style="height:100%; width:${foodPct}%; background:${foodOver?'var(--clay)':foodPct>80?'#C9A227':'var(--moss)'}; transition:width .3s;"></div>
       </div>
       <div style="font:9px var(--mono); color:var(--grey); margin-top:5px;">
-        Budget = your ${allCityStops().length} planned meals (${CUR.sym}${mealBudgetJpy.toLocaleString()})${CUR.code==='USD'?'':" at today's rate"} · counts Food + POI & Cafe expenses
+        Budget = your ${allCityStops().length} planned meals (${CUR.sym}${mealBudgetJpy.toLocaleString()})${CUR.code==='USD'?'':" at today's rate"}${mealFhrUsd>0?` − $${mealFhrUsd} FHR credits`:''} · counts Food + POI & Cafe expenses
       </div>
     </div>
     

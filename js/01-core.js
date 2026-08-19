@@ -116,6 +116,49 @@ window.loadLoc=function(){
   try{ const s=localStorage.getItem('jt_loc'); return s?JSON.parse(s):null; }catch(e){ return null; }
 };
 window._bootLoc=window.loadLoc();   // snapshot BEFORE any render can touch storage
+/* ==== Stage C: every synced field declares its merge lane ====
+   Adding a shared field to overrides REQUIRES a row here (or membership in a
+   group lane below); tests/merge-invariants.js fails the build otherwise —
+   the silent-drop class of bug (a new field wiped by the next sync) is welded
+   shut. Lanes: localWins (this device's copy wins when present), shallow
+   (object spread remote-then-local), unionTodos (union by id + tombstones).
+   Group-trip lanes (applied by mergeCruise on cruise|group trips only):
+   perPerson (each uid's slice from its owner), adminWins, ownedUnion (union
+   by id with owner rules + admin stale-copy protection), special (bespoke:
+   reqs, rooms, removedUids). Dynamic numeric keys (per-stop meal overrides)
+   and _meta keys default to localWins silently. */
+window.MERGE_LANES={
+  fields:{todos:'unionTodos',todoGone:'unionTodos',vault:'shallow',
+    expenses:'localWins',plans:'localWins',stops:'localWins',removedStops:'localWins',
+    todoSeed:'localWins',discordHook:'localWins'},
+  perPerson:['cexp','logi','uoexp'],
+  adminWins:['charges','sched','ann','quotes','qSeedSkip','headcount','uoflights','uofees','uohotel','uotodoDone'],
+  ownedUnion:['options','pins','gexp','links','uosched'],
+  special:['reqs','rooms','removedUids']
+};
+window._mergeUnknown=window._mergeUnknown||[];
+function mlLane(k){
+  const M=window.MERGE_LANES;
+  if(M.fields[k])return M.fields[k];
+  if(M.perPerson.includes(k)||M.adminWins.includes(k)||M.ownedUnion.includes(k)||M.special.includes(k))return 'localWins'; // group lanes re-merge in mergeCruise on group trips
+  if(/^\d+$/.test(k)||k.charAt(0)==='_')return 'localWins';   // dynamic stop keys & meta
+  if(!window._mergeUnknown.includes(k)){window._mergeUnknown.push(k);try{console.warn('[merge] field without a lane, defaulting localWins:',k);}catch(e){}}
+  return 'localWins';
+}
+function mergeTripBase(rt,lt){
+  rt=rt||{};lt=lt||{};
+  const out={};
+  const t=mergeTodos(rt,lt);
+  new Set([...Object.keys(rt),...Object.keys(lt)]).forEach(k=>{
+    if(k==='todos'||k==='todoGone')return;
+    if(mlLane(k)==='shallow'){out[k]={...(rt[k]||{}),...(lt[k]||{})};return;}
+    out[k]=(k in lt)?lt[k]:rt[k];
+  });
+  if(t.todos!==undefined)out.todos=t.todos;
+  if(t.todoGone!==undefined)out.todoGone=t.todoGone;
+  return out;
+}
+window.mergeTripBase=mergeTripBase;
 function mergeTodos(rt,lt){
   if(!rt.todos&&!lt.todos)return {};
   const gone=[...new Set([...(rt.todoGone||[]),...(lt.todoGone||[])])];
@@ -242,13 +285,13 @@ function mergeCruise(rt,lt,base){
   const me=(window._cru||{}).uid||null;
   const admin=((window._cru||{}).role==='admin')||((window._app||{}).role==='admin');  // the app master is a cruise organizer wherever they act from
   const out={...base};
-  ['cexp','logi','uoexp'].forEach(key=>{
+  MERGE_LANES.perPerson.forEach(key=>{
     const R=rt[key]||{}, L=lt[key]||{};
     const m={...L};
     Object.keys(R).forEach(uid=>{ if(uid!==me)m[uid]=R[uid]; });
     if(Object.keys(m).length)out[key]=m;
   });
-  ['charges','sched','ann','quotes','qSeedSkip','headcount','uoflights','uofees','uohotel','uotodoDone'].forEach(key=>{
+  MERGE_LANES.adminWins.forEach(key=>{
     const v=admin?(lt[key]!==undefined?lt[key]:rt[key]):(rt[key]!==undefined?rt[key]:lt[key]);
     if(v!==undefined)out[key]=v;
   });
@@ -282,7 +325,7 @@ function mergeCruise(rt,lt,base){
   // stale copy cannot drop a guest's new item); otherwise each item follows
   // its owner (.by) — mine local, everyone else's remote. Votes are a per-uid
   // map merged separately: my vote is mine, everyone else's comes from remote.
-  ['options','pins','gexp','links','uosched'].forEach(key=>{
+  MERGE_LANES.ownedUnion.forEach(key=>{
     const R=rt[key], L=lt[key];
     if(R===undefined&&L===undefined)return;
     const Ra=R||[], La=L||[];
@@ -345,7 +388,7 @@ async function flushSave(){
         const trips={...(remote.trips||{})};
         Object.keys(store.trips||{}).forEach(k=>{
           const rt=trips[k]||{}, lt=(store.trips||{})[k]||{};
-          let m={...rt,...lt,vault:{...(rt.vault||{}),...(lt.vault||{})},...mergeTodos(rt,lt)};
+          let m=mergeTripBase(rt,lt);
           if(TRIP_DATA[k]&&(TRIP_DATA[k].cruise||TRIP_DATA[k].group))m=mergeCruise(rt,lt,m);
           trips[k]=m;
         });

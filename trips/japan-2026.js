@@ -329,7 +329,7 @@ var TRAINS=[
  {d:"Nov 27",t:"12:33",route:"Tokyo Stn → Narita T1",train:"N'EX ✓ dep 12:33",note:"Booked. Arr T1 ~13:30 — 2.5 h before ZG022. Hotel exit 11:00 → taxi ~25 min → at Tokyo Stn by ~11:30 → 15 min down to the B5 Sōbu platforms with margin to spare. (Limousine from the hotel is suspended; this replaces it.)"}
 ];
 
-window.TRIPS_REGISTRY['japan-2026']={accent:'#B8552A',cities:CITIES,hotels:HOTELS,flights:FLIGHTS,trains:TRAINS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
+window.TRIPS_REGISTRY['japan-2026']={card:{ord:1,country:'Japan',emoji:'⛩',title:'Japan, November 2026',dates:'15\u201327 November 2026',blurb:'Vancouver \u00b7 Yokohama \u00b7 Nara \u00b7 Osaka \u00b7 Kyoto \u00b7 Nagoya \u00b7 Tokyo',photo:'Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg',credit:'Kiyomizu-dera in autumn \u00b7 Martin Falbisoner, CC BY-SA 4.0',status:'active'},accent:'#B8552A',cities:CITIES,hotels:HOTELS,flights:FLIGHTS,trains:TRAINS,wx:WX_CFG,todayCity:TODAY_CITY,tonight:TONIGHT,
    emoji:'⛩',brand:"Japan · Nov '26",foot:"15–27 Nov · 6 cities · 19 meals",
    title:"Japan, November 2026",kicker:"Anniversary trip · 15–27 Nov 2026",depart:[2026,10,15],arrive:[2026,10,17],end:[2026,10,27],
    navIcons:{today:'🗓️',todo:'✅',vancouver:'🍁',yokohama:'⚓',nara:'🦌',osaka:'🐙',kyoto:'⛩️',nagoya:'🏯',tokyo:'🗼',flights:'✈️',rail:'🚄',vault:'🗂️',expenses:'💳',calc:'💱'},

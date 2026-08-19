@@ -45,7 +45,7 @@ var HI29_CITIES=[
 {id:"expenses",city:"Expenses",sub:"budget tracker",expenses:true}
 ];
 
-window.TRIPS_REGISTRY['hawaii-2029']={accent:'#2E7D5B',cities:HI29_CITIES,hotels:HI29_HOTELS,flights:HI29_FLIGHTS,wx:HI29_WX,todayCity:HI29_TODAY_CITY,tonight:HI29_TONIGHT,
+window.TRIPS_REGISTRY['hawaii-2029']={card:{ord:6,country:'Spring Break',emoji:'🏝',title:'Hawaii, March 2029',dates:'9–18 March 2029',photo:'Waikiki_Beach_(2024)-L1004709.jpg',credit:'Waikīkī & Diamond Head · Frank Schulenburg, CC BY-SA 4.0',status:'wip'},accent:'#2E7D5B',cities:HI29_CITIES,hotels:HI29_HOTELS,flights:HI29_FLIGHTS,wx:HI29_WX,todayCity:HI29_TODAY_CITY,tonight:HI29_TONIGHT,
    emoji:'🏝',brand:"Hawaii · Mar '29",foot:"9–18 Mar · Oʻahu (TBD)",
    title:"Hawaii, March 2029",kicker:"9–18 March 2029 · spring trip",depart:[2029,2,9],arrive:[2029,2,9],end:[2029,2,18],
    navIcons:{today:'🗓️',todo:'✅',oahu:'🌺',flights:'✈️',vault:'🗂️',expenses:'💳'},

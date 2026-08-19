@@ -2,44 +2,28 @@
    Split from index.html with statement order preserved; load order matters. */
 /* ---------------- TRIPS / LANDING ---------------- */
 const wm=f=>`https://commons.wikimedia.org/wiki/Special:FilePath/${f}?width=900`;
-const TRIPS=[
- {id:'japan-2026',country:'Japan',emoji:'⛩',title:'Japan, November 2026',dates:'15–27 November 2026',
-  blurb:'Vancouver · Yokohama · Nara · Osaka · Kyoto · Nagoya · Tokyo',
-  photo:wm('Kiyomizu-dera,_Kyoto,_November_2016_-02.jpg'),
-  credit:'Kiyomizu-dera in autumn · Martin Falbisoner, CC BY-SA 4.0',status:'active'},
- {id:'korea-2027',country:'South Korea',emoji:'🏯',title:'Korea, May 2027',dates:'7–18 May 2027',
-  blurb:'Planning starts later — Seoul and beyond',
-  photo:wm('Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg'),
-  credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'},
- {id:'jeju-2027',country:'South Korea · Jeju',title:'Jeju, May 2027',dates:'10–14 May 2027 · group trip',emoji:'🍊',
-  photo:wm('Seongsan_Ilchulbong_from_the_air.jpg'),credit:'Seongsan Ilchulbong · KOCIS, CC BY-SA 2.0',status:'group',theme:'ocean'},
- {id:'cruise-2028',country:'Caribbean',title:'Icon Class Cruise, January 2028',dates:'9–16 January 2028 · Star of the Seas',emoji:'🚢',
-  photo:wm('Icon_of_the_Seas.jpg'),credit:'Icon of the Seas · Wikimedia Commons',status:'group',theme:'ocean'},
- {id:'hawaii-2028',country:'The 10th Anniversary',title:'Hawaii, December 2028',dates:'10–19 December 2028',emoji:'🌺',
-  photo:wm('Coast_of_Kauai,_Hawaii.jpg'),credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'wip'},
- {id:'hawaii-2029',country:'Spring Break',title:'Hawaii, March 2029',dates:'9–18 March 2029',emoji:'🏝',
-  photo:wm('Waikiki_Beach_(2024)-L1004709.jpg'),credit:'Waikīkī & Diamond Head · Frank Schulenburg, CC BY-SA 4.0',status:'wip'},
- /* tool:true — a card in the grid, not a trip: no TRIPS_REGISTRY entry, so the
-    engine never sees it; open() routes to the tool, and IAM lists it via the
-    dests filter's tool branch. Gated per user while it is being built. */
- {id:'benefits',country:'Travel tools',emoji:'🧰',title:'Benefits Assistant',dates:'Tiers, perks & lounge doors',
+const TOOL_CARDS=[
+ {id:'benefits',country:'Travel tools',emoji:'\ud83e\uddf0',title:'Benefits Assistant',dates:'Tiers, perks & lounge doors',
   blurb:'What your memberships get you',
   photo:wm('Air_India_Heathrow_lounge.JPG'),
-  credit:'Airport lounge, Heathrow · Clayton Tang, CC BY-SA 3.0',status:'wip',tool:true},
- /* staff:true — a tool for admin & designer only. canOpen refuses the grant
-    path for staff tools and the IAM grid never offers one; the landing shows
-    the card padlocked (🔒 No access) like any other gated tool. */
- {id:'estimator',country:'Travel tools',emoji:'🧮',title:'Travel Estimator',dates:'Cost a trip before it exists',
+  credit:'Airport lounge, Heathrow \u00b7 Clayton Tang, CC BY-SA 3.0',status:'wip',tool:true},
+ {id:'estimator',country:'Travel tools',emoji:'\ud83e\uddee',title:'Travel Estimator',dates:'Cost a trip before it exists',
   blurb:'Flights, stays & dailies, city by city',
   photo:wm('Compass_on_the_Brig_Roald_Amundsen.jpg'),
   credit:'Ship\u2019s compass, brig Roald Amundsen \u00b7 Wikimedia Commons',status:'wip',tool:true,staff:true},
- {id:'cardroi',country:'Travel tools',emoji:'💳',title:'Card ROI',dates:'Is the annual fee earning its keep?',
+ {id:'cardroi',country:'Travel tools',emoji:'\ud83d\udcb3',title:'Card ROI',dates:'Is the annual fee earning its keep?',
   blurb:'Track every credit, visit and point against the AF',
   photo:wm('American_Express_Centurion_Card_front.jpg'),
-  credit:'Amex Centurion \u00b7 Wikimedia Commons, CC BY 2.0',status:'wip',tool:true},
- {id:'orlando-universal',country:'Theme-Park Trip',title:'Orlando — Universal',dates:'Dates TBD',emoji:'🎬',theme:'ocean',
-  photo:wm('Universal_Studios_Florida_Gate.JPG'),credit:'Universal Studios Florida gate · Malpass93, public domain',status:'wip'}
+  credit:'Amex Centurion \u00b7 Wikimedia Commons, CC BY 2.0',status:'wip',tool:true}
 ];
+/* Stage A: trip cards are DERIVED from TRIPS_REGISTRY (trip files load first,
+   so the registry is complete here). A trip's landing card lives in its own
+   file under card:{}; nothing trip-shaped is duplicated in this file. */
+const TRIPS=Object.entries(window.TRIPS_REGISTRY||{})
+  .filter(([,r])=>r&&r.card)
+  .map(([id,r])=>Object.assign({id},r.card,{photo:wm(r.card.photo),theme:r.card.theme||r.theme}))
+  .sort((a,b)=>(a.ord||99)-(b.ord||99))
+  .concat(TOOL_CARDS);
 let tripSel=null;                 // never restored from storage: every reload
 
 window.openAdmin=function(){ window._onAdmin=true; renderAdminPage(); };

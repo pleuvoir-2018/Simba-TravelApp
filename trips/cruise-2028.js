@@ -66,7 +66,7 @@ var CR_SHIP={
   ["Suite Neighborhood","Dedicated decks with Coastal Kitchen and the suite sun deck"]],
  note:"Details worth confirming on Royal's site once your sailing's brochure is out — venues occasionally differ between sisters."};
 
-window.TRIPS_REGISTRY['cruise-2028']={accent:'#0E7C86',cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
+window.TRIPS_REGISTRY['cruise-2028']={card:{ord:4,country:'Caribbean',emoji:'🚢',title:'Icon Class Cruise, January 2028',dates:'9–16 January 2028 · Star of the Seas',photo:'Icon_of_the_Seas.jpg',credit:'Icon of the Seas · Wikimedia Commons',status:'group',theme:'ocean'},accent:'#0E7C86',cruise:true,cities:CR_TABS,hotels:{},flights:[],wx:{},todayCity:{},tonight:{},
  itinerary:CR_ITIN,cats:CR_CATS,ship:'Star of the Seas',shipInfo:CR_SHIP,
  dining:{
   inc:['Windjammer','Dining Room (3 decks)','AquaDome Market','Surfside Eatery','Surfside Bites','Basecamp','Pearl Café','Sorrento\'s','Park Café','El Loco Fresh','Pier 7'],

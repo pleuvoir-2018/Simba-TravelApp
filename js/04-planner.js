@@ -473,9 +473,10 @@ window.cruProfile=function(){
   const TRIP_TITLES=[['japan-2026','⛩ Japan · Nov 2026'],['korea-2027','🏯 Korea · May 2027'],['jeju-2027','🍊 Jeju · May 2027'],['cruise-2028','🚢 Star of the Seas · Jan 2028'],['hawaii-2028','🌺 Hawaii · Dec 2028'],['hawaii-2029','🏝 Hawaii · Mar 2029'],['orlando-universal','🎬 Orlando Universal · TBD'],['benefits','🧰 Benefits Assistant · tool']];
   const uAcc=(isMaster?null:(appUsers().find(x=>x.uid===me.uid)||{}).access)||{};
   /* Group-ness comes from the registry (cruise|group) — the same test 01-core,
-     03 and 06 use. TRIPS[].status is the landing-card copy and disagrees:
-     Orlando is status:'wip' but group:true. Off a group trip the organizer/
-     member/guest ladder is meaningless, so everyone reads Participant. */
+     03 and 06 use. Since Stage A the landing card (incl. status) also lives in
+     the registry under card:{}, so status vs group-ness can no longer drift
+     across files. Off a group trip the organizer/member/guest ladder is
+     meaningless, so everyone reads Participant. */
   const isGroupTrip=id=>{const td=(typeof TRIP_DATA!=='undefined'&&TRIP_DATA[id])||null;return !!(td&&(td.cruise||td.group));};
   const badge=(r,id)=>id==='benefits'?'<span class="pp-badge part">Access</span>'
     :r==='viewer'?'<span class="pp-badge">View-only</span>'

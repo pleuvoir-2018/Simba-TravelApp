@@ -92,7 +92,7 @@ var UO_CITIES=[
 ];
 
 window.TRIPS_REGISTRY['orlando-universal']={
- group:true, theme:'ocean',
+card:{ord:7,country:'Theme-Park Trip',emoji:'🎬',title:'Orlando — Universal',dates:'Dates TBD',photo:'Universal_Studios_Florida_Gate.JPG',credit:'Universal Studios Florida gate · Malpass93, public domain',status:'wip',theme:'ocean'}, group:true, theme:'ocean',
  attr:UO_ATTR, rest:UO_REST, parks:UO_PARKS, points:UO_POINTS,
  hotelDefault:{name:'JW Marriott Orlando Bonnet Creek',addr:'14900 Chelonia Pkwy, Orlando, FL 32821',
    lat:28.4023,lng:-81.5157,nights:3,roomCost:0,note:'Bonvoy property — Platinum breakfast + upgrade odds good. ~15 min drive to Universal; budget rideshare or rental.'},

@@ -54,7 +54,7 @@ var KR_CITIES=[
 {id:"calc",city:"Calc",sub:"₩ ⇄ $",calc:true}
 ];
 
-window.TRIPS_REGISTRY['korea-2027']={accent:'#2E5FA3',cities:KR_CITIES,hotels:KR_HOTELS,flights:KR_FLIGHTS,wx:KR_WX,todayCity:KR_TODAY_CITY,tonight:KR_TONIGHT,
+window.TRIPS_REGISTRY['korea-2027']={card:{ord:2,country:'South Korea',emoji:'🏯',title:'Korea, May 2027',dates:'7–18 May 2027',blurb:'Planning starts later — Seoul and beyond',photo:'Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg',credit:'Gyeonghoeru, Gyeongbokgung · Wikimedia Commons',status:'wip',code:'THEO1218'},accent:'#2E5FA3',cities:KR_CITIES,hotels:KR_HOTELS,flights:KR_FLIGHTS,wx:KR_WX,todayCity:KR_TODAY_CITY,tonight:KR_TONIGHT,
    emoji:'🏯',brand:"Korea · May '27",foot:"7–18 May · Seoul (Jeju is its own trip)",
    title:"Korea, May 2027",kicker:"7–18 May 2027",depart:[2027,4,7],arrive:[2027,4,7],end:[2027,4,18],
    navIcons:{today:'🗓️',todo:'✅',seoul:'🏯',flights:'✈️',vault:'🗂️',expenses:'💳',calc:'💱'},

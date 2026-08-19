@@ -45,7 +45,7 @@ var HI28_CITIES=[
 {id:"expenses",city:"Expenses",sub:"budget tracker",expenses:true}
 ];
 
-window.TRIPS_REGISTRY['hawaii-2028']={accent:'#C2497B',cities:HI28_CITIES,hotels:HI28_HOTELS,flights:HI28_FLIGHTS,wx:HI28_WX,todayCity:HI28_TODAY_CITY,tonight:HI28_TONIGHT,
+window.TRIPS_REGISTRY['hawaii-2028']={card:{ord:5,country:'The 10th Anniversary',emoji:'🌺',title:'Hawaii, December 2028',dates:'10–19 December 2028',photo:'Coast_of_Kauai,_Hawaii.jpg',credit:'Nā Pali coast, Kauaʻi · Paul Bica, CC BY 2.0',status:'wip'},accent:'#C2497B',cities:HI28_CITIES,hotels:HI28_HOTELS,flights:HI28_FLIGHTS,wx:HI28_WX,todayCity:HI28_TODAY_CITY,tonight:HI28_TONIGHT,
    emoji:'🌺',brand:"Hawaii · Dec '28",foot:"10–19 Dec · 10th anniversary 🎉",
    title:"Hawaii, December 2028",kicker:"10–19 December 2028 · the 10th-anniversary trip",depart:[2028,11,10],arrive:[2028,11,10],end:[2028,11,19],
    navIcons:{today:'🗓️',todo:'✅',oahu:'🌺',flights:'✈️',vault:'🗂️',expenses:'💳'},

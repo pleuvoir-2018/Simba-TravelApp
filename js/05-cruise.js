@@ -1045,7 +1045,7 @@ function renderVault(){
 function expUsd(e){
   if(e&&e.planned===true&&e.pid&&typeof liveRate!=='undefined'&&liveRate>0){
     const p=(overrides.plans||[]).find(x=>x.id===e.pid);
-    if(p&&p.jpy)return Number(p.jpy)/liveRate;
+    if(p&&p.jpy)return Math.max(0,Number(p.jpy)/liveRate-(Number(p.fhr)||0));
   }
   return Number(e.usd);
 }

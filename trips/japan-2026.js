@@ -99,7 +99,7 @@ var HOTELS = {
     "area": "Minato Mirai"
   },
   {id:4,d:"11/19 Thu",m:"Lunch",name:"Hana Yori Hanbagu",q:"花より肉バーグ 横浜",dish:"Grill-your-own hamburg",
-   hrs:"11:30–22:00 daily",res:"walk",jpy:5000,lat:35.46816,lng:139.62292,area:"Tsuruyachō 2-16-4, 2F · Yokohama Stn west",
+   hrs:"11:30–22:00 daily",res:"walk",jpy:7500,lat:35.46816,lng:139.62292,area:"Tsuruyachō 2-16-4, 2F · Yokohama Stn west",
    note:"Departure-day lunch: check out, Minatomirai Line to Yokohama Stn (2 min), eat, then JR to Shin-Yokohama. You grill the patty yourself at the table.",
    warn:"Be seated at 11:30 opening and done by ~12:50 for the 14:07 Nozomi. The Yokohama Front branch (THE YOKOHAMA FRONT 2F, east side) is closer to the JR gates if you are running tight."}]},
 
@@ -264,7 +264,7 @@ var HOTELS = {
   {id:15,d:"11/24 Tue",m:"Dinner",name:"Moumoutei Hirokoji",dish:"Beef hitsumabushi",hrs:"18:00–22:30 · closed Sun",res:"ok",jpy:20000,lat:35.1679,lng:136.8954,area:"Sakae",note:"Signature set is reservation-only — confirm the course."},
   {id:16,d:"11/25 Wed",m:"Lunch",name:"Takara",dish:"Miso nikomi udon",hrs:"11:30–14:45 · closed Thu",res:"walk",jpy:5000,lat:35.1595,lng:136.9016,area:"Ōsu"},
   {id:17,d:"11/25 Wed",m:"Dinner",name:"Unagi Yondaime Kikukawa",dish:"Unagi hitsumabushi",hrs:"17:00–22:00 daily",res:"book",jpy:15000,lat:35.1697,lng:136.8853,area:"Midland Square 4F",warn:"Book 18:30/19:00 on Tabelog — fix the 7/29 date filter."},
-  {id:18,d:"11/26 Thu",m:"Lunch",name:"SHUHARI",dish:"Kaiseki",hrs:"11:30–14:30 · closed Wed",res:"book",jpy:24000,lat:35.1639,lng:136.9098,area:"TIAD 5F",warn:"Book 12:00 latest — Nozomi 24 leaves 14:36; be done by 14:05."}]},
+  {id:18,d:"11/26 Thu",m:"Lunch",name:"SHUHARI",dish:"Kaiseki",hrs:"11:30–14:30 · closed Wed",res:"book",jpy:24000,fhr:100,lat:35.1639,lng:136.9098,area:"TIAD 5F",warn:"Book 12:00 latest — Nozomi 24 leaves 14:36; be done by 14:05."}]},
 
 {id:"tokyo",city:"Tokyo",photo:"Skyscrapers_of_Shinjuku_2009_January.jpg",sub:"11/26–11/27",hotel:"hyatt",
  legs:[
@@ -294,7 +294,7 @@ var HOTELS = {
   {c:"conv",ic:"🏪",n:"7-Eleven Roppongi 6-chōme",d:"across Roppongi-dōri, 24h · reliable foreign-card ATM",a:"hotel",lat:35.6608,lng:139.7318},
   {c:"conv",ic:"🏪",n:"Lawson Nishi-Azabu",d:"quiet side, on the Keyakizaka end",a:"hotel",lat:35.6588,lng:139.7260}],
  stops:[
-  {id:19,d:"11/26 Thu",m:"Dinner",name:"Roku Roku",dish:"Omakase sushi",hrs:"18:00–21:00 daily",res:"ok",jpy:39160,lat:35.6601,lng:139.7283,area:"Grand Hyatt",note:"$125 FHR dining credit applies here."}]},
+  {id:19,d:"11/26 Thu",m:"Dinner",name:"Roku Roku",dish:"Omakase sushi",hrs:"18:00–21:00 daily",res:"ok",jpy:39160,fhr:125,lat:35.6601,lng:139.7283,area:"Grand Hyatt",note:"$125 FHR dining credit applies here."}]},
 
 {id:"flights",city:"Flights",sub:"Zip Air",flights:true},
 {id:"rail",city:"Rail",sub:"Shinkansen legs",rail_only:true},

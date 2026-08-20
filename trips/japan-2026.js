@@ -169,9 +169,10 @@ var HOTELS = {
   {c:"conv",ic:"🏪",n:"Lawson (Q's Mall side)",d:"across the crossing, 24h",a:"hotel",lat:34.6455,lng:135.5105}],
  stops:[
   {id:9,d:"11/21 Sat",m:"Dinner",name:"Ondoriya",dish:"Yakitori",hrs:"18:00–03:00 daily",res:"ok",jpy:7500,lat:34.6732,lng:135.5034,area:"Shinsaibashi",note:"Aoniyoshi lands 18:12 → bags at the Miyako → aim ~19:30. Open to 03:00, zero pressure."},
-  {id:21,d:"11/22 Sun",m:"Lunch",name:"Gyukatsu Kyoto Katsugyu",q:"牛カツ京都勝牛 あべの新宿ごちそうビル店",dish:"Beef katsu — grill it yourself",
-   hrs:"11:00–22:00 daily (LO 21:30)",res:"walk",jpy:5000,lat:34.6459,lng:135.5151,area:"Shinjuku Gochiso Bldg 1F, next to Harukas",
-   note:"2 min from the Miyako — rice, cabbage & miso are free refills. Six sauces; the tongue katsu is the standout.",warn:"Counter-heavy and very popular — arrive by 11:15 or expect a queue."},
+  {id:21,d:"11/22 Sun",m:"Lunch",name:"Yugen",q:"日本料理 幽玄 上本町",dish:"Kaiseki — 2 Michelin stars",
+   hrs:"Lunch seating 12:00–13:00 · lunch Tue/Sat/Sun only · closed Wed",res:"book",jpy:30030,lat:34.6656,lng:135.5180,area:"Ishigatsuji-chō 14-14, Tennōji-ku · 2 min from Ōsaka-Uehommachi Stn",
+   note:"Chef Keisuke Mifune (13 yrs at Ajikitchō) — 6-seat hinoki counter + one private room. ¥15,015/pp is the ¥13,000 lunch course with tax & service included. From the Miyako: Tanimachi line Tennōji → Tanimachi 9-chōme (4 min) + 6-min walk, or a 10-min taxi. Book via TableCheck or Pocket Concierge; OMAKASE charges the card up front.",
+   warn:"Reservations essential — 12 seats total and it books out weeks ahead. Sunday lunch exists (Tue/Sat/Sun); do not slide this to a Mon/Thu."},
   {id:10,d:"11/22 Sun",m:"Dinner",name:"Harukas depachika → in-room",q:"あべのハルカス近鉄本店 あべのフード・シティ",dish:"Sōzai, bentō & pastries — eaten upstairs",
    hrs:"B1/B2 food halls 10:00–20:30 · Abeno Ichiba Shokudō to 22:00",res:"walk",jpy:6000,lat:34.6458,lng:135.5136,area:"Kintetsu Abeno Harukas B1–B2 — directly below the hotel",
    note:"B2 = sōzai, bentō, sashimi, fresh food · B1 = bakery, wagashi, patisserie. One of Japan's largest depachika and it's in your own building.",

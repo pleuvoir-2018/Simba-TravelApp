@@ -87,6 +87,14 @@ const CR_CARDS={
    ['award','10k-mile award discount (×2/yr)',135],
    ['bag','Free checked bag (UA, you + companion, 1st & 2nd)',40]],
   note:'Membership itself retails near the AF — the per-visit counter is how it earns it back. JSX and Avis/Budget credits exist too; their splits aren’t seeded, log them however your statement pays.'},
+ ritz:{n:'Chase Ritz-Carlton',af:450,ver:'checked Aug 2026 \u2014 closed to applications, product-change only',pp:true,
+  credits:[
+   ['air','Airline incidental credit ($300 \u2014 message Chase to apply)',300]],
+  counts:[
+   ['fna','Free-night award used (\u226485k, +25k top-off ok)',500],
+   ['prop','$100 Ritz/St. Regis property credit (2-night min)',100],
+   ['club','Ritz Club Level upgrade (3/yr, \u22647 nights)',200]],
+  note:'The sleeper keeper \u2014 in by name like Bilt, VX and Quest. Free authorized users EACH get their own Priority Pass (+2 guests), and this card opens Chase Sapphire Lounges too. Gold Elite + 15 elite nights, GE/TSA every 4 yrs. PP restaurants ended for this card in 2024. Club upgrade value varies wildly by property \u2014 edit the \u0024200 default to taste.'},
  unitedquest:{n:'United Quest',af:350,ver:'checked Aug 2026 \u2014 2026 refresh, credits total \u0024860',pp:false,
   credits:[
    ['travelbank','United TravelBank credit',200],

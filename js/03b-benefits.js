@@ -120,7 +120,7 @@ function baAirlineBenefits(air,cabin,fromCode,toCode,tier){
      Sapphire Lounge seeded in future.
    — United Clubs: domestic first does NOT get in; the airline rules on every
      United Club row are intlOnly for that reason. */
-const BA_PP_CARDS=['amexplat','csr','venturex','bilt','strataelite','boaelite','amexbizplat'];
+const BA_PP_CARDS=['amexplat','csr','venturex','bilt','strataelite','boaelite','amexbizplat','ritz'];
 /* amexbizplat rides every amexplat door rule (Centurion, GLC, Plaza Premium,
    flying-Delta Sky Clubs) — the why-strings keep the shorter 'Amex Platinum'
    label for both. */
@@ -263,7 +263,7 @@ const BA_LOUNGES={
   {n:'The Centurion Lounge',loc:'Terminal 4, mezzanine above the A gates',hrs:'per T4 banks',rate:'4.2★',am:'Two floors and the mini spa',
    rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum'}],ver:'curated'},
   {n:'Chase Sapphire Lounge by The Club',loc:'Terminal 4, adjacent to the Centurion',hrs:'per T4 banks',rate:'4.3★',am:'The ex-Etihad space, Chase-run',
-   rules:[{cards:['csr'],why:'Sapphire Reserve — ordinary Priority Pass no longer admits'}],ver:'curated'},
+   rules:[{cards:['csr','ritz'],why:'Sapphire Reserve or Ritz-Carlton card — ordinary Priority Pass no longer admits'}],ver:'curated'},
   {n:'Delta Sky Club & Delta One Lounge',loc:'Terminal 4',hrs:'per bank',rate:'4.4★',am:'The Delta One room (2024) is the prize if the ticket qualifies',
    rules:[{cards:['deltares'],flying:'dl',why:'Delta Reserve flying Delta (15 visits/yr)'},{cards:['amexplat','amexbizplat'],flying:'dl',why:'Amex Platinum flying Delta — 10 visits/yr cap'},{airline:{id:'dl',cabins:['business']},why:'Delta One — the dedicated lounge'}],ver:'curated'},
   {n:'Admirals Club & Flagship Lounge',loc:'Terminal 8',hrs:'per bank',rate:'4.0★',am:'Flagship for intl premium; Admirals for the membership',
@@ -273,7 +273,7 @@ const BA_LOUNGES={
   {n:'The Centurion Lounge',loc:'Terminal B, fourth floor',hrs:'05:00–22:00 (Sat to 21:00)',rate:'4.0★',am:'Above the food hall — the escalator hides behind the water wall',
    rules:[{cards:['amexplat','amexbizplat'],why:'Amex Platinum'}],ver:'curated'},
   {n:'Chase Sapphire Lounge',loc:'Terminal B',hrs:'per bank',rate:'4.5★',am:'Chase’s showcase room',
-   rules:[{cards:['csr'],why:'Sapphire Reserve — ordinary Priority Pass no longer admits'}],ver:'curated'},
+   rules:[{cards:['csr','ritz'],why:'Sapphire Reserve or Ritz-Carlton card — ordinary Priority Pass no longer admits'}],ver:'curated'},
   {n:'Capital One Landing',loc:'Terminal B — opened Feb 2026',hrs:'per bank',rate:'4.2★',am:'Small-plates concept, brand-new',
    rules:[{cards:['venturex'],why:'Venture X — guests are paid extras'}],ver:'curated'},
   {n:'Delta Sky Club',loc:'Terminal C',hrs:'per bank',rate:'4.1★',am:'The big C-terminal club from the rebuild',

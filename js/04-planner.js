@@ -561,7 +561,7 @@ const TRAV_CAT={
   {id:'deltares',n:'Amex Delta Reserve'},
   {id:'bonvoybrill',n:'Amex Bonvoy Brilliant'},
   {id:'hiltonaspire',n:'Amex Hilton Aspire'},
-  {id:'csr',n:'Chase Sapphire Reserve'},
+  {id:'csr',n:'Chase Sapphire Reserve'},{id:'ritz',n:'Chase Ritz-Carlton'},
   {id:'unitedclub',n:'United Club Infinite'},
   {id:'unitedquest',n:'United Quest'},
   {id:'venturex',n:'Capital One Venture X'},

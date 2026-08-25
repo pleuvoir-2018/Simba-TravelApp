@@ -40,6 +40,7 @@ const CR_CARDS={
   counts:[
    ['fhr','FHR stay perks (breakfast, $100 prop credit…)',150],
    ['cent','Centurion Lounge visit',50],
+   ['dsc','Sky Club visit (flying Delta, 10/yr cap)',50],
    ['thc','THC stay perks',75]],
   note:'Plus Hilton & Marriott Gold, Global Entry every 4 yrs. Saks ended Jul 2026; Equinox cadence varies \u2014 meter it as your statements show.'},
  csr:{n:'Chase Sapphire Reserve',af:795,ver:'checked Aug 2026',pp:true,
@@ -158,7 +159,8 @@ const CR_CARDS={
    ['air','Airline fee credit',200],
    ['clear','CLEAR Plus',209]],
   counts:[
-   ['cent','Centurion Lounge visit',50]],
+   ['cent','Centurion Lounge visit',50],
+   ['dsc','Sky Club visit (flying Delta, 10/yr cap)',50]],
   note:'Opens every amexplat lounge door (Centurion, GLC, Sky Clubs flying Delta). The business-side credits (Dell-style, wireless\u2026) churn too fast to seed \u2014 add them as you use them via the meters you edit.'}
 };
 const CR_PPCARDS=Object.keys(CR_CARDS).filter(k=>CR_CARDS[k].pp);

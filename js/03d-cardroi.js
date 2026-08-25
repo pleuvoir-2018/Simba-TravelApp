@@ -39,6 +39,7 @@ const CR_CARDS={
    ['equinox','Equinox',300]],
   counts:[
    ['fhr','FHR stay perks (breakfast, $100 prop credit…)',150],
+   ['cent','Centurion Lounge visit',50],
    ['thc','THC stay perks',75]],
   note:'Plus Hilton & Marriott Gold, Global Entry every 4 yrs. Saks ended Jul 2026; Equinox cadence varies \u2014 meter it as your statements show.'},
  csr:{n:'Chase Sapphire Reserve',af:795,ver:'checked Aug 2026',pp:true,
@@ -51,7 +52,8 @@ const CR_CARDS={
    ['apple','Apple TV+ & Music',250],
    ['lyft','Lyft in-app ($10/mo, thru 9/2027)',120,'m',10],
    ['peloton','Peloton membership ($10/mo, thru 2027)',120,'m',10]],
-  counts:[],
+  counts:[
+   ['sapphire','Sapphire Lounge visit',50]],
   note:'Plus IHG Platinum status and Sapphire Lounges (count those visits in the shared lounge row). One-time $250 select-hotel credit runs through 2026.'},
  venturex:{n:'Capital One Venture X',af:395,ver:'checked Aug 2026',pp:true,
   credits:[
@@ -93,7 +95,8 @@ const CR_CARDS={
   counts:[
    ['fna','Free-night award used (\u226485k, +25k top-off ok)',500],
    ['prop','$100 Ritz/St. Regis property credit (2-night min)',100],
-   ['club','Ritz Club Level upgrade (3/yr, \u22647 nights)',200]],
+   ['club','Ritz Club Level upgrade (3/yr, \u22647 nights)',200],
+   ['sapphire','Sapphire Lounge visit',50]],
   note:'The sleeper keeper \u2014 in by name like Bilt, VX and Quest. Free authorized users EACH get their own Priority Pass (+2 guests), and this card opens Chase Sapphire Lounges too. Gold Elite + 15 elite nights, GE/TSA every 4 yrs. PP restaurants ended for this card in 2024. Club upgrade value varies wildly by property \u2014 edit the \u0024200 default to taste.'},
  unitedquest:{n:'United Quest',af:350,ver:'checked Aug 2026 \u2014 2026 refresh, credits total \u0024860',pp:false,
   credits:[
@@ -154,7 +157,8 @@ const CR_CARDS={
   credits:[
    ['air','Airline fee credit',200],
    ['clear','CLEAR Plus',209]],
-  counts:[],
+  counts:[
+   ['cent','Centurion Lounge visit',50]],
   note:'Opens every amexplat lounge door (Centurion, GLC, Sky Clubs flying Delta). The business-side credits (Dell-style, wireless\u2026) churn too fast to seed \u2014 add them as you use them via the meters you edit.'}
 };
 const CR_PPCARDS=Object.keys(CR_CARDS).filter(k=>CR_CARDS[k].pp);
@@ -313,7 +317,7 @@ window.renderCardRoiPage=function(keep){
       <select ${edit?`onchange="crPPto(this.value)"`:'disabled'} style="height:30px;font-size:12px">${myPP.map(id=>`<option value="${id}" ${pp.to===id?'selected':''}>${CR_CARDS[id].n}</option>`).join('')}</select>
       <span style="font:600 11px var(--mono);margin-left:auto">${crMoney((pp.n||0)*(pp.v||0))}</span>
     </div>
-    <div class="ba-note" style="padding:0 15px 11px">${myPP.length>1?'Several of your cards carry Priority Pass, but a visit only happens once — so it lives here and lands on one card\u2019s ledger, your pick.':'Your PP visits, valued per door.'} Sky Club / United Club / Admirals are their own networks and count on their own cards below.</div>
+    <div class="ba-note" style="padding:0 15px 11px">${myPP.length>1?'Several of your cards carry Priority Pass, but a visit only happens once — so it lives here and lands on one card\u2019s ledger, your pick.':'Your PP visits, valued per door.'} Centurion, Sapphire Lounge, Sky Club, United Club and Admirals are card-native networks — they count on their own cards below, not here.</div>
   </div>`:'';
 
   /* -------- one card per card -------- */

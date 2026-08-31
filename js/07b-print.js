@@ -60,15 +60,15 @@ function pdUsdRate(){ // JPY per USD: live FX when the engine has it, else the t
 }
 function pdReceipt(meals){
   if(!meals.length)return '';
-  const tot=meals.reduce((a,s)=>a+Number(s.jpy||0),0);
+  const pp=n=>Math.round(Number(n||0)/PD_HEADS);           // stored jpy is the two-person budget; the receipt speaks per person
+  const tot=meals.reduce((a,s)=>a+pp(s.jpy),0);
   const usd=Math.round(tot/pdUsdRate()), krw=Math.round(tot*PD_KRW_PER_JPY/1000)*1000;
-  const line=s=>`<div class="rc-line"><span>${esc((s.name||'').toUpperCase())}</span><span class="rc-dots"></span><span>${pdMoney(s.jpy)}</span></div>`;
+  const line=s=>`<div class="rc-line"><span>${esc((s.name||'').toUpperCase())}</span><span class="rc-dots"></span><span>${pdMoney(pp(s.jpy))}</span></div>`;
   return `<div class="pd-receipt">
-    <div class="rc-head">*** FOOD BUDGET ***</div>
+    <div class="rc-head">*** FOOD BUDGET · PER PERSON ***</div>
     ${meals.map(line).join('')}
     <div class="rc-rule"></div>
     <div class="rc-line rc-big"><span>TOTAL</span><span class="rc-dots"></span><span>${pdMoney(tot)}</span></div>
-    <div class="rc-line"><span>/PERSON ×${PD_HEADS}</span><span class="rc-dots"></span><span>${pdMoney(Math.round(tot/PD_HEADS))}</span></div>
     <div class="rc-line rc-fx"><span>≈</span><span class="rc-dots"></span><span>$${usd.toLocaleString()} · ₩${krw.toLocaleString()}</span></div>
     <div class="rc-foot">rates: ¥${pdUsdRate()}/$ ${typeof liveRate!=='undefined'&&liveRate>0?'live':'plan'} · ₩${PD_KRW_PER_JPY}/¥ approx</div>
   </div>`;

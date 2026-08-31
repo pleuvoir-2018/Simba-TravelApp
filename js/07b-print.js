@@ -15,16 +15,40 @@ function pdNorm(d){
 function pdMins(s){
   if(s.t&&/^\d{1,2}:\d{2}$/.test(s.t)){const [h,m]=s.t.split(':');return h*60+ +m;}
   if(s.m==='Breakfast')return 9*60;
-  if(s.m==='Lunch')return 12*60;
-  if(s.m==='Dinner')return 18*60;
-  return null;                                   // untimed → day-plan card
+  if(s.m==='Lunch')return 12*60;                 // default — flagged ~
+  if(s.m==='Dinner')return 19*60;                // default — flagged ~
+  return 26*60;                                  // untimed → timeline tail
+}
+function pdTimeCell(s){
+  if(s.t&&/^\d{1,2}:\d{2}$/.test(s.t))return {h:'<span class="t">'+esc(s.t)+'</span>',def:false};
+  if(s.m==='Lunch')return {h:'<span class="t">~12:00</span>',def:true};
+  if(s.m==='Dinner')return {h:'<span class="t">~19:00</span>',def:true};
+  if(s.m==='Breakfast')return {h:'<span class="t">~09:00</span>',def:true};
+  return {h:'<span class="t soft">ANYTIME</span>',def:false};
 }
 function pdStops(c){
   const seed=(c.stops||[]).slice();
   const mine=((typeof overrides!=='undefined'&&overrides.stops)||[]).filter(s=>s.city===c.id&&!s.del);
   const byId=new Map(seed.map(s=>[String(s.id),Object.assign({},s)]));
   mine.forEach(s=>{ byId.set(String(s.id),Object.assign(byId.get(String(s.id))||{},s)); });
-  return [...byId.values()];
+  /* day plans are their OWN lane (overrides.plans) — the v1 sheet missed them */
+  const plans=((typeof overrides!=='undefined'&&overrides.plans)||[]).filter(s=>s.city===c.id&&!s.del)
+    .map(s=>Object.assign({plan:true},s));
+  return [...byId.values(),...plans];
+}
+function pdDateHero(dt,stops){
+  const DOW={Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};
+  const MON=['','January','February','March','April','May','June','July','August','September','October','November','December'];
+  for(const s of stops){
+    const m=/^(\d{1,2})\/(\d{1,2})\s+(\w{3})/.exec(s.d||'');
+    if(m&&String(+m[1])+'/'+String(+m[2])===dt&&DOW[m[3]])return DOW[m[3]]+' · '+MON[+m[1]].slice(0,3)+' '+(+m[2]);
+    const iso=/^(\d{4})-(\d{2})-(\d{2})/.exec(s.d||'');
+    if(iso&&String(+iso[2])+'/'+String(+iso[3])===dt){
+      const day=new Date(+iso[1],+iso[2]-1,+iso[3]).getDay();
+      return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][day]+' · '+MON[+iso[2]].slice(0,3)+' '+(+iso[3]);
+    }
+  }
+  return dt;
 }
 function pdMoney(n){ return n?((typeof CUR!=='undefined'&&CUR.sym)||'¥')+Number(n).toLocaleString():''; }
 function pdCss(){
@@ -38,6 +62,8 @@ body.print-mode #pdSheet{display:block;background:#e8e2d5;min-height:100vh;paddi
 #pdSheet .pd-eyebrow{font:700 9px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:#B8552A}
 #pdSheet h1{font:700 32px/1.05 var(--serif,Georgia);margin:5px 0 2px}
 #pdSheet .pd-sub{font:600 11px var(--mono);letter-spacing:.06em;color:#6B6E76}
+#pdSheet .pd-date{font:700 17px var(--serif,Georgia);color:#B8552A;margin-top:3px}
+#pdSheet .pd-defnote{margin-top:12px;font:600 9px var(--mono);letter-spacing:.05em;color:#6B6E76;border-left:3px solid #D9D2C3;padding:3px 0 3px 9px}
 #pdSheet .pd-band{background:#EDE4D3;border-radius:6px;margin:18px 0 11px;padding:7px 13px;font:700 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#22406B;display:flex;justify-content:space-between}
 #pdSheet .pd-band small{color:#6B6E76;letter-spacing:.05em;text-transform:none;font-weight:600}
 #pdSheet .pd-tl{position:relative;padding-left:84px}
@@ -68,29 +94,30 @@ function pdSheetHtml(c,trip){
     .sort((a,b)=>{const [am,ad]=a.split('/').map(Number),[bm,bd]=b.split('/').map(Number);return am-bm||ad-bd;});
   const days=dates.length?dates:[''];
   return days.map((dt,di)=>{
-    const legsIn=(c.legs||[]).filter(L=>dt&&((L.r||'')+(L.m||'')).includes(dt));
+    const legsIn=(c.legs||[]).filter(L=>dt&&((L.r||'')+(L.m||'')).includes(dt))
+      .map(L=>({leg:true,name:L.r,meta:L.m,note:L.n,mins:(m=>m?m[1].split(':')[0]*60+ +m[1].split(':')[1]:-1)(/\b(\d{1,2}:\d{2})/.exec(L.m||''))}));
     const dayStops=stops.filter(s=>pdNorm(s.d)===dt);
-    const timed=dayStops.filter(s=>pdMins(s)!=null).sort((a,b)=>pdMins(a)-pdMins(b));
-    const untimed=dayStops.filter(s=>pdMins(s)==null);
-    const stopHtml=s=>{
-      const tCell=s.t?`<span class="t">${esc(s.t)}</span>`:`<span class="t soft">${esc((s.m||'').toUpperCase())}</span>`;
-      const bits=[s.m&&!s.t?null:(s.m?esc(s.m.toUpperCase()):null),s.area?esc(s.area):null,s.dish?esc(s.dish):null,
-        s.jpy?'<b>'+pdMoney(s.jpy)+'</b>':null,s.pay?esc(s.pay):null,s.hrs?esc(s.hrs):null].filter(Boolean).join(' · ');
-      return `<div class="pd-stop">${tCell}
-        <h3>${esc(s.name||'')}${s.q?` <span style="font-weight:500;color:#6B6E76;font-size:12px">${esc(s.q)}</span>`:''}</h3>
+    let usedDefault=false;
+    const items=[...legsIn,...dayStops.map(s=>({stop:s,mins:pdMins(s)}))].sort((a,b)=>(a.mins??0)-(b.mins??0));
+    const rowHtml=it=>{
+      if(it.leg)return `<div class="pd-stop pd-train"><span class="t">${esc(((/\b(\d{1,2}:\d{2})/.exec(it.meta||'')||[])[1]||'—'))}</span>
+        <h3>${esc(it.name||'')}</h3><div class="pd-meta">${esc(it.meta||'')}</div>${it.note?`<p>${esc(it.note)}</p>`:''}</div>`;
+      const s=it.stop, tc=pdTimeCell(s); if(tc.def)usedDefault=true;
+      const bits=[s.m?esc(s.m.toUpperCase()):(s.cat?esc(String(s.cat).toUpperCase()):null),s.area?esc(s.area):null,
+        s.dish?esc(s.dish):null,s.jpy?'<b>'+pdMoney(s.jpy)+'</b>':null,s.pay?esc(s.pay):null,s.hrs?esc(s.hrs):null].filter(Boolean).join(' · ');
+      return `<div class="pd-stop${s.m?' pd-meal':''}">${tc.h}
+        <h3>${s.done?'✓ ':''}${esc(s.name||'')}${s.q?` <span style="font-weight:500;color:#6B6E76;font-size:12px">${esc(s.q)}</span>`:''}</h3>
         <div class="pd-card"><div class="pd-meta">${bits}</div>
         ${s.warn?`<p><b style="color:#B8552A">⚠</b> ${esc(s.warn)}</p>`:''}${s.note?`<p>${esc(s.note)}</p>`:''}</div></div>`;
     };
-    const legHtml=L=>`<div class="pd-stop pd-train"><span class="t">${esc(((/\b(\d{1,2}:\d{2})/.exec(L.m||'')||[])[1]||'—'))}</span>
-      <h3>${esc(L.r||'')}</h3><div class="pd-meta">${esc(L.m||'')}</div>${L.n?`<p>${esc(L.n)}</p>`:''}</div>`;
+    const rows=items.map(rowHtml).join('');
     return `<div class="pd-page">
       <div class="pd-eyebrow">${esc(trip)}${days.length>1?` · sheet ${di+1}/${days.length}`:''}</div>
       <h1>${esc(c.city)}</h1>
-      <div class="pd-sub">${dt?esc(dt)+' · ':''}${esc(c.sub||'')}</div>
-      ${legsIn.length?`<div class="pd-band"><span>Trains</span><small>times local</small></div><div class="pd-tl">${legsIn.map(legHtml).join('')}</div>`:''}
-      <div class="pd-band"><span>The day</span><small>${dayStops.length} stop${dayStops.length===1?'':'s'}</small></div>
-      <div class="pd-tl">${timed.map(stopHtml).join('')||'<div class="pd-stop"><span class="t soft">—</span><p>Nothing timed yet — add stops in the planner.</p></div>'}</div>
-      ${untimed.length?`<div class="pd-band"><span>Also planned</span><small>untimed</small></div><div class="pd-tl">${untimed.map(stopHtml).join('')}</div>`:''}
+      <div class="pd-date">${esc(pdDateHero(dt,dayStops))}</div>
+      <div class="pd-band"><span>The day</span><small>${items.length} item${items.length===1?'':'s'}</small></div>
+      <div class="pd-tl">${rows||'<div class="pd-stop"><span class="t soft">—</span><p>Nothing planned yet — add stops in the planner.</p></div>'}</div>
+      ${usedDefault?'<div class="pd-defnote">~ marked times are defaults (lunch 12:00 · dinner 19:00) — the booking time isn\u2019t set yet; add a time in the planner once confirmed.</div>':''}
       <div class="pd-foot"><span>SIMBA TRAVELAPP</span><span>PRINTED FROM THE LIVE PLAN</span></div>
     </div>`;
   }).join('');

@@ -183,6 +183,10 @@ function renderToday(){
       </div>
       <div class="td2-side">
         <div class="card"><div class="td2-h"><span>Calendar</span></div>${tdCalHtml(dep,fin,t)}</div>
+        <div class="card"><div class="td2-h"><span>🖨 Print city sheets</span><span style="font:600 9px var(--mono);color:var(--grey)">SAVE AS PDF TO SHARE</span></div>
+          <div style="padding:10px 15px;display:flex;gap:8px;flex-wrap:wrap">${CITIES.filter(c=>!c.today&&!c.todo&&(c.stops||c.legs)).map(c=>`<button type="button" onclick="printCity('${c.id}')" style="appearance:none;-webkit-appearance:none;background:none;border:1.5px solid var(--indigo);color:var(--indigo);border-radius:3px;font:700 10px var(--mono);letter-spacing:.05em;padding:7px 12px;cursor:pointer">🖨 ${esc(c.city)}</button>`).join('')}</div>
+          <div class="ba-note" style="padding:0 15px 11px">One page per date — trains, meals and your own planner stops, timestamps where they exist. The POI catalog stays off the sheet: it prints what you planned.</div>
+        </div>
         <div class="card"><div class="td2-h"><span>Weather</span><span class="ov-l" style="margin:0">${esc((()=>{const wx=TD.wx||{};const dz=w=>{try{return (new Date(w.to)-new Date(w.from))||0;}catch(e){return 0;}};const k=Object.keys(wx).sort((a,b)=>dz(wx[b])-dz(wx[a]))[0];return (CITIES.find(c=>c.id===k)||{}).city||k||'';})())}</span></div>
           <div id="tdwx2" class="wx2"><span class="td-empty" style="padding:10px 4px;display:block;grid-column:1/-1;text-align:left">Loading forecast…</span></div></div>
       </div>

@@ -64,6 +64,9 @@ body.print-mode #pdSheet{display:block;background:#e8e2d5;min-height:100vh;paddi
 #pdSheet h1{font:700 32px/1.05 var(--serif,Georgia);margin:5px 0 2px}
 #pdSheet .pd-sub{font:600 11px var(--mono);letter-spacing:.06em;color:#6B6E76}
 #pdSheet .pd-date{font:700 17px var(--serif,Georgia);color:#B8552A;margin-top:3px}
+#pdSheet .pd-total{margin-top:14px;background:#EDE4D3;border-radius:6px;padding:9px 13px;display:flex;justify-content:space-between;align-items:baseline;break-inside:avoid}
+#pdSheet .pd-total>span:first-child{font:700 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#22406B}
+#pdSheet .pd-total .amt{font:700 16px var(--serif,Georgia);color:#14161B}
 #pdSheet .pd-defnote{margin-top:12px;font:600 9px var(--mono);letter-spacing:.05em;color:#6B6E76;border-left:3px solid #D9D2C3;padding:3px 0 3px 9px}
 #pdSheet .pd-band{background:#EDE4D3;border-radius:6px;margin:18px 0 11px;padding:7px 13px;font:700 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#22406B;display:flex;justify-content:space-between}
 #pdSheet .pd-band small{color:#6B6E76;letter-spacing:.05em;text-transform:none;font-weight:600}
@@ -116,8 +119,9 @@ function pdSheetHtml(c,trip){
       <div class="pd-eyebrow">${esc(trip)}${days.length>1?` · sheet ${di+1}/${days.length}`:''}</div>
       <h1>${esc(c.city)}</h1>
       <div class="pd-date">${esc(pdDateHero(dt,dayStops))}</div>
-      <div class="pd-band"><span>The day</span><small>${items.length} item${items.length===1?'':'s'}${(m=>m?` · meals ${pdMoney(m)} · ${pdMoney(Math.round(m/PD_HEADS))}/pp`:'')(dayStops.filter(s=>s.m&&s.jpy).reduce((a,s)=>a+Number(s.jpy||0),0))}</small></div>
+      <div class="pd-band"><span>The day</span><small>${items.length} item${items.length===1?'':'s'}</small></div>
       <div class="pd-tl">${rows||'<div class="pd-stop"><span class="t soft">—</span><p>Nothing planned yet — add stops in the planner.</p></div>'}</div>
+      ${(m=>m?`<div class="pd-total"><span>Food today</span><span class="amt">${pdMoney(m)} · ${pdMoney(Math.round(m/PD_HEADS))}/pp</span></div>`:'')(dayStops.filter(s=>s.m&&s.jpy).reduce((a,s)=>a+Number(s.jpy||0),0))}
       ${usedDefault?'<div class="pd-defnote">~ marked times are defaults (lunch 12:00 · dinner 19:00) — the booking time isn\u2019t set yet; add a time in the planner once confirmed.</div>':''}
       <div class="pd-foot"><span>SIMBA TRAVELAPP</span><span>PRINTED FROM THE LIVE PLAN</span></div>
     </div>`;

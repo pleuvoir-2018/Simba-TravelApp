@@ -51,6 +51,7 @@ function pdDateHero(dt,stops){
   return dt;
 }
 function pdMoney(n){ return n?((typeof CUR!=='undefined'&&CUR.sym)||'¥')+Number(n).toLocaleString():''; }
+const PD_HEADS=2; // budgets track OUR TWO by policy, even when bookings seat more
 function pdCss(){
   if(document.getElementById('pdStyle'))return;
   const st=document.createElement('style'); st.id='pdStyle';
@@ -104,7 +105,7 @@ function pdSheetHtml(c,trip){
         <h3>${esc(it.name||'')}</h3><div class="pd-meta">${esc(it.meta||'')}</div>${it.note?`<p>${esc(it.note)}</p>`:''}</div>`;
       const s=it.stop, tc=pdTimeCell(s); if(tc.def)usedDefault=true;
       const bits=[s.m?esc(s.m.toUpperCase()):(s.cat?esc(String(s.cat).toUpperCase()):null),s.area?esc(s.area):null,
-        s.dish?esc(s.dish):null,s.jpy?'<b>'+pdMoney(s.jpy)+'</b>':null,s.pay?esc(s.pay):null,s.hrs?esc(s.hrs):null].filter(Boolean).join(' · ');
+        s.dish?esc(s.dish):null,s.jpy?('<b>'+pdMoney(s.jpy)+'</b>'+(s.m?' · '+pdMoney(Math.round(s.jpy/PD_HEADS))+'/pp':'')):null,s.pay?esc(s.pay):null,s.hrs?esc(s.hrs):null].filter(Boolean).join(' · ');
       return `<div class="pd-stop${s.m?' pd-meal':''}">${tc.h}
         <h3>${s.done?'✓ ':''}${esc(s.name||'')}${s.q?` <span style="font-weight:500;color:#6B6E76;font-size:12px">${esc(s.q)}</span>`:''}</h3>
         <div class="pd-card"><div class="pd-meta">${bits}</div>
@@ -115,7 +116,7 @@ function pdSheetHtml(c,trip){
       <div class="pd-eyebrow">${esc(trip)}${days.length>1?` · sheet ${di+1}/${days.length}`:''}</div>
       <h1>${esc(c.city)}</h1>
       <div class="pd-date">${esc(pdDateHero(dt,dayStops))}</div>
-      <div class="pd-band"><span>The day</span><small>${items.length} item${items.length===1?'':'s'}</small></div>
+      <div class="pd-band"><span>The day</span><small>${items.length} item${items.length===1?'':'s'}${(m=>m?` · meals ${pdMoney(m)} · ${pdMoney(Math.round(m/PD_HEADS))}/pp`:'')(dayStops.filter(s=>s.m&&s.jpy).reduce((a,s)=>a+Number(s.jpy||0),0))}</small></div>
       <div class="pd-tl">${rows||'<div class="pd-stop"><span class="t soft">—</span><p>Nothing planned yet — add stops in the planner.</p></div>'}</div>
       ${usedDefault?'<div class="pd-defnote">~ marked times are defaults (lunch 12:00 · dinner 19:00) — the booking time isn\u2019t set yet; add a time in the planner once confirmed.</div>':''}
       <div class="pd-foot"><span>SIMBA TRAVELAPP</span><span>PRINTED FROM THE LIVE PLAN</span></div>

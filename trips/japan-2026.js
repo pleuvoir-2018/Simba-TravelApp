@@ -167,9 +167,9 @@ var HOTELS = {
   {c:"conv",ic:"🏪",n:"FamilyMart Abenobashi",d:"street level by the Kintetsu entrance, 24h",a:"hotel",lat:34.6470,lng:135.5120},
   {c:"conv",ic:"🏪",n:"Lawson (Q's Mall side)",d:"across the crossing, 24h",a:"hotel",lat:34.6455,lng:135.5105}],
  stops:[
-  {id:22,d:"11/21 Sat",m:"Lunch",name:"Sushi Sogoro",q:"鮨 惣五郎 北新地",dish:"Edomae nigiri — lunch omakase ~¥9,900/pp",hrs:"Kitashinchi · lunch & dinner",res:"book",jpy:30000,lat:34.6971,lng:135.4981,area:"Shinchi Liberty Bldg 1F, Kitashinchi",warn:"7-seat couple-run counter — book for THREE immediately (Tabelog/TableCheck instant).",note:"Plan change 8/25. Namba → Umeda on Midōsuji 8 min, walk 6. Friend\u2019s welcome lunch."},
-  {id:9,d:"11/21 Sat",m:"Dinner",name:"Ondoriya",dish:"Yakitori",hrs:"18:00–03:00 daily",res:"ok",jpy:11000,lat:34.6732,lng:135.5034,area:"Shinsaibashi",note:"Party of 3 tonight. In town since morning — Shinsaibashi wander first; open to 03:00, zero pressure."},
-    {id:24,d:"11/23 Mon",m:"Lunch",name:"New Babe",q:"ニューベイブ 谷町四丁目 とんかつ",dish:"Low-temp tonkatsu — Tabelog Tonkatsu 100",hrs:"reserve online — hours differ by branch",res:"book",jpy:8000,lat:34.6850,lng:135.5190,area:"Tanimachi 4-chōme (flagship) — Namba/Nakatsu/Higobashi branches exist",warn:"CONFIRM WHICH BRANCH — seeded as the Tabelog-100 flagship; pin approximate. Party of 3.",note:"Plan change 8/25 — friend\u2019s last day. Tanimachi-yonchōme is 2 stops from Tennōji on the Tanimachi line."},
+  {id:22,d:"11/21 Sat",m:"Lunch",name:"Sushi Sogoro",q:"鮨 惣五郎 北新地",dish:"Edomae nigiri — lunch omakase ~¥9,900/pp",hrs:"Kitashinchi · lunch & dinner",res:"book",jpy:20000,lat:34.6971,lng:135.4981,area:"Shinchi Liberty Bldg 1F, Kitashinchi",warn:"7-seat couple-run counter — book for THREE immediately (Tabelog/TableCheck instant); budget = our two.",note:"Plan change 8/25. Namba → Umeda on Midōsuji 8 min, walk 6. Friend\u2019s welcome lunch."},
+  {id:9,d:"11/21 Sat",m:"Dinner",name:"Ondoriya",dish:"Yakitori",hrs:"18:00–03:00 daily",res:"ok",jpy:7500,lat:34.6732,lng:135.5034,area:"Shinsaibashi",note:"Party of 3 tonight (budget = our two). In town since morning — Shinsaibashi wander first; open to 03:00, zero pressure."},
+    {id:24,d:"11/23 Mon",m:"Lunch",name:"New Babe",q:"ニューベイブ 谷町四丁目 とんかつ",dish:"Low-temp tonkatsu — Tabelog Tonkatsu 100",hrs:"reserve online — hours differ by branch",res:"book",jpy:5500,lat:34.6850,lng:135.5190,area:"Tanimachi 4-chōme (flagship) — Namba/Nakatsu/Higobashi branches exist",warn:"CONFIRM WHICH BRANCH — seeded as the Tabelog-100 flagship; pin approximate. Reserve for 3; budget = our two.",note:"Plan change 8/25 — friend\u2019s last day. Tanimachi-yonchōme is 2 stops from Tennōji on the Tanimachi line."},
   {id:10,d:"11/23 Mon",m:"Dinner",name:"Harukas depachika → in-room",q:"あべのハルカス近鉄本店 あべのフード・シティ",dish:"Sōzai, bentō & pastries — eaten upstairs",
    hrs:"B1/B2 food halls 10:00–20:30 · Abeno Ichiba Shokudō to 22:00",res:"walk",jpy:6000,lat:34.6458,lng:135.5136,area:"Kintetsu Abeno Harukas B1–B2 — directly below the hotel",
    note:"B2 = sōzai, bentō, sashimi, fresh food · B1 = bakery, wagashi, patisserie. One of Japan's largest depachika and it's in your own building.",
@@ -177,10 +177,10 @@ var HOTELS = {
 
 {id:"kyoto",city:"Kyoto",photo:"Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine,_Kyoto,_Japan.jpg",sub:"11/22 · day trip from Osaka",hotel:"miyako",
  legs:[
-  {r:"Out 11/22: Tennōji → Kyoto",m:"Haruka ⚠ REBOOK — ticketed 11/23, day moved to 11/22",n:"Cancel/rebook on Japan Rail Tickets for Sun 11/22 (same pattern — Haruka 12 deps 10:20). Party of 3 now. Elevator from the Miyako straight to Tennōji JR."},
+  {r:"Out 11/22: Tennōji → Kyoto",m:"Haruka 12 ✓ · dep 10:20 → arr 11:04 (44 min)",n:"Rebooked on Japan Rail Tickets 8/25 — tickets issued by 10/22, watch for the confirmation. Dep Platform 18 · arr Platform 30. Elevator from the Miyako straight to Tennōji JR."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
-  {r:"Return 11/22 after dinner",m:"Haruka ⚠ REBOOK — 59 pattern deps Kyoto 20:30",n:"Rebook for 11/22, party of 3. Donguri is at Shijō-Ōmiya: Kyoto Stn is ~10 min by taxi, or JR Sagano from Tanbaguchi; a 19:30 finish is comfortable."}],
- // Plan change 8/25: 11/22 IS the Kyoto day (Menzou → Higashiyama → Donguri Shijō-Ōmiya); 11/23 is the full Osaka day (New Babe → depachika). Friend along 11/21–23, party of 3.
+  {r:"Return 11/22 after dinner",m:"Haruka 59 ✓ · dep Kyoto 20:30 → arr Tennōji 21:16 (46 min)",n:"Rebooked 8/25 — issued by 10/22. Dep Platform 30 · arr Platform 15. Donguri is at Shijō-Ōmiya: Kyoto Stn ~10 min by taxi or JR Sagano from Tanbaguchi; a 19:30 finish is comfortable."}],
+ // Plan change 8/25: 11/22 IS the Kyoto day (Menzou → Higashiyama → Donguri Shijō-Ōmiya); 11/23 is the full Osaka day (New Babe → depachika). Friend along 11/21–23 — bookings seat 3, but budgets track OUR TWO only (his share never enters the math).
  metro:[["To Kiyomizu / Gion","Keihan via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Higashiyama on foot","Menzou (Okazaki) → Kiyomizu → Ishibei-kōji is walkable; bus 100/206 if legs give out"]],
  pois:[
  // ── sights · Okazaki / Nanzen-ji cluster — near Menzou, optional 11/22 add-ons ──
@@ -226,7 +226,7 @@ var HOTELS = {
   {id:12,d:"11/22 Sun",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
  hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",pay:"cash",
  jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck for THREE — with the 11/22 visit, slots open 00:00 JST on 11/19 (3 days out). CC to hold, pay cash on the day.",note:"Backup: Okakita next door, walk-in."},
-  {id:13,d:"11/22 Sun",m:"Dinner",name:"Donguri Shijō-Ōmiya",q:"どんぐり 四条大宮",dish:"Kyoto okonomiyaki & teppan",hrs:"— verify branch hours",res:"book",jpy:9000,lat:35.0036,lng:135.7413,area:"Shijō-Ōmiya crossing",warn:"Party of 3 — reserve or expect a queue. Pin at the crossing; verify the exact block.",note:"Plan change 8/25 — replaces Tousuiro. ⚠ CANCEL the Tousuiro booking (075-561-0035, ¥24,000, was the anniversary dinner) and re-home the anniversary — Roku Roku 11/26 is the natural heir."}]},
+  {id:13,d:"11/22 Sun",m:"Dinner",name:"Donguri Shijō-Ōmiya",q:"どんぐり 四条大宮",dish:"Kyoto okonomiyaki & teppan",hrs:"— verify branch hours",res:"book",jpy:6000,lat:35.0036,lng:135.7413,area:"Shijō-Ōmiya crossing",warn:"Reserve for 3 or expect a queue; budget = our two. Pin at the crossing; verify the exact block.",note:"Plan change 8/25 — replaces Tousuiro. ⚠ CANCEL the Tousuiro booking (075-561-0035, ¥24,000, was the anniversary dinner) and re-home the anniversary — Roku Roku 11/26 is the natural heir."}]},
 
 {id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle(Larger).jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[
@@ -333,7 +333,7 @@ window.TRIPS_REGISTRY['japan-2026']={card:{ord:1,country:'Japan',emoji:'⛩',tit
    departNote:'Delta 1015 · IAD 07:00 · Nov 15',preLabel:'Positioning day',transitLabel:'In transit ✈',
    seedTodos:[
      {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
-     {id:'t8',d:'2026-08-27',cat:'transport',title:'⚠ Rebook Haruka 12 & 59 to 11/22 · cancel Tousuiro & Yugen',url:'',desc:'Kyoto day moved 11/23→11/22: rebook both Haruka legs for THREE on Japan Rail Tickets. Cancel Tousuiro Gion 075-561-0035 (¥24,000 — re-home the anniversary dinner, Roku Roku 11/26 is the heir) and Yugen (¥30,030, was 11/22 lunch).'},
+     {id:'t8',d:'2026-08-27',cat:'dining',title:'⚠ Cancel Tousuiro & Yugen · re-home the anniversary',url:'',desc:'Haruka legs rebooked ✓ (issue by 10/22 — watch for the confirmation email). Still open: cancel Tousuiro Gion 075-561-0035 (¥24,000 — the anniversary dinner needs a new home; Roku Roku 11/26 is the heir) and Yugen (¥30,030, was 11/22 lunch).'},
      {id:'t15',d:'2026-09-05',cat:'dining',title:'Email Grand Hyatt Tokyo — Roku Roku 11/26',desc:'Concierge email: dinner for two at Roku Roku, Thu 11/26 ~18:00 (arriving off the Nozomi ~17:00; keep it early — N\'EX morning follows). Confirm as a hotel-guest booking on the room.'},
      {id:'t13',d:'2026-09-15',cat:'dining',title:'Email TIAD — SHUHARI lunch 11/26',desc:'Concierge email: lunch for two at SHUHARI, Thu 11/26, earliest seating — must finish by 14:05 for Nozomi 24 (dep 14:36). Ask them to note the train constraint.'},
      {id:'t14',d:'2026-10-01',cat:'dining',title:'Email Shisui — Poku-Poku (Nara dinner)',desc:'Concierge email for Poku-Poku, 11/19 or 11/20 dinner (11/19 arrival is 16:55 — later seating if that night). Fuku Sushi dropped with the 8/25 replan — do NOT have them book it. Same evening as the Nozomi seat picks.'},

@@ -49,18 +49,18 @@ var HOTELS = {
  metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["On foot","Shirahara is 3 min from the hotel · Hana Yori is at Yokohama Stn · Tenshichi is at Kannai (JR Negishi line, 2 stops from Sakuragichō)"]],
  pois:[
  // ── sights ──
- {c:"sight",ic:"🧱",n:"Red Brick Warehouse",d:"waterfront landmark + shops",a:"Afuri",lat:35.4527,lng:139.6425},
+ {c:"sight",ic:"🧱",n:"Red Brick Warehouse",d:"waterfront landmark + shops",a:"Minato Mirai",lat:35.4527,lng:139.6425},
  {c:"sight",ic:"🏮",n:"Chinatown + Yamashita Park",d:"Japan's biggest Chinatown",a:"Motomachi",lat:35.4427,lng:139.6459},
- {c:"sight",ic:"🗼",n:"Landmark Tower Sky Garden",d:"69F observatory — same building as Afuri, stack with dinner 11/18",a:"Afuri",lat:35.4546,lng:139.6317},
- {c:"sight",ic:"🍜",n:"Cup Noodles Museum",d:"make your own cup — book timed slot online ~mid-Aug for Nov",a:"Afuri",lat:35.4553,lng:139.6389},
- {c:"sight",ic:"🎡",n:"Cosmo Clock 21",d:"harbor ferris wheel — best after dark",a:"Afuri",lat:35.4553,lng:139.6365},
+ {c:"sight",ic:"🗼",n:"Landmark Tower Sky Garden",d:"69F observatory — same tower area as the 11/17 Shirahara dinner; stack that evening",a:"Minato Mirai",lat:35.4546,lng:139.6317},
+ {c:"sight",ic:"🍜",n:"Cup Noodles Museum",d:"make your own cup — book timed slot online ~mid-Aug for Nov",a:"Minato Mirai",lat:35.4553,lng:139.6389},
+ {c:"sight",ic:"🎡",n:"Cosmo Clock 21",d:"harbor ferris wheel — best after dark",a:"Minato Mirai",lat:35.4553,lng:139.6365},
  {c:"sight",ic:"🚗",n:"Nissan Global HQ Gallery",d:"free showroom, GT-R heritage cars",a:"hotel",lat:35.4634,lng:139.6256},
  {c:"sight",ic:"🍥",n:"Shin-Yokohama Ramen Museum",d:"1958 streetscape underground — AT your 11/19 departure station",a:"Shin-Yokohama",lat:35.5100,lng:139.6152},
- {c:"sight",ic:"🚡",n:"Yokohama Air Cabin",d:"urban ropeway Sakuragicho → Unga Park (¥1,000) — lands at Cup Noodles",a:"Afuri",lat:35.4511,lng:139.6320},   // NEW
+ {c:"sight",ic:"🚡",n:"Yokohama Air Cabin",d:"urban ropeway Sakuragicho → Unga Park (¥1,000) — lands at Cup Noodles",a:"Minato Mirai",lat:35.4511,lng:139.6320},   // NEW
  {c:"sight",ic:"🐋",n:"Osanbashi Pier rooftop",d:"free 360° wood-deck 'whale's back' — best night skyline shot in the city",a:"Chinatown",lat:35.4489,lng:139.6480},   // NEW
  {c:"shop",ic:"✒️",n:"Itoya Motomachi",q:"横浜元町 伊東屋",d:"the Ginza stationery house's Motomachi shop — pens, washi, travel notebooks; stacks with the Chinatown walk",a:"Chinatown",lat:35.4433,lng:139.6490},   // NEW
- {c:"sight",ic:"🌃",n:"OMO5 Bashamichi 46F lobby",q:"OMO5横浜馬車道",d:"free 150m observation floor, opened Jan 2026 — Bashamichi Stn direct",a:"Afuri",lat:35.4507,lng:139.6352},   // NEW
- {c:"sight",ic:"⛵",n:"Nippon Maru + Port Museum",q:"日本丸メモリアルパーク",d:"1930 tall ship in dry dock, 2-min from Landmark Tower",a:"Afuri",lat:35.4538,lng:139.6292},   // NEW
+ {c:"sight",ic:"🌃",n:"OMO5 Bashamichi 46F lobby",q:"OMO5横浜馬車道",d:"free 150m observation floor, opened Jan 2026 — Bashamichi Stn direct",a:"Minato Mirai",lat:35.4507,lng:139.6352},   // NEW
+ {c:"sight",ic:"⛵",n:"Nippon Maru + Port Museum",q:"日本丸メモリアルパーク",d:"1930 tall ship in dry dock, 2-min from Landmark Tower",a:"Minato Mirai",lat:35.4538,lng:139.6292},   // NEW
  // ── cafés ──
  {c:"cafe",ic:"☕",n:"Zou-no-hana Terrace",d:"harbor-view café — DAYTIME ONLY 10:00–18:00, food LO 17:00",a:"Chinatown",lat:35.4494,lng:139.6437},
  {c:"cafe",ic:"🥐",n:"Pompadour Motomachi (1969)",d:"Yokohama's classic bakery, main store",a:"Chinatown",lat:35.4407,lng:139.6473},
@@ -69,9 +69,9 @@ var HOTELS = {
  {c:"shop",ic:"🛍",n:"Motomachi Shopping Street",d:"old-money boutiques & zakka",a:"Chinatown",lat:35.4413,lng:139.6485},
  {c:"shop",ic:"🎮",n:"Pokémon Center Yokohama",d:"Yokohama Sky Building 8F (ex-Marui City), station east exit · 10:30–20:30",a:"hotel",lat:35.4649,lng:139.6246},
  {c:"shop",ic:"🛍",n:"MARK IS Minatomirai",d:"zakka & stationery floors",a:"hotel",lat:35.4573,lng:139.6304},
- {c:"shop",ic:"⚓",n:"Yokohama Hammerhead",d:"pier mall — chocolate & craft-beer makers",a:"Afuri",lat:35.4562,lng:139.6448},
- {c:"shop",ic:"👕",n:"Colette Mare (Uniqlo + GU)",q:"コレットマーレ 桜木町",d:"Uniqlo AND GU both on 3F · 11:00–20:00 · 5 min from Afuri — shop BEFORE dinner",a:"Afuri",lat:35.4522,lng:139.6307},
- {c:"shop",ic:"🌊",n:"Marine & Walk Yokohama",d:"open-air seaside mall between Red Brick & Hammerhead — angel-wings mural",a:"Afuri",lat:35.4545,lng:139.6427},   // NEW
+ {c:"shop",ic:"⚓",n:"Yokohama Hammerhead",d:"pier mall — chocolate & craft-beer makers",a:"Minato Mirai",lat:35.4562,lng:139.6448},
+ {c:"shop",ic:"👕",n:"Colette Mare (Uniqlo + GU)",q:"コレットマーレ 桜木町",d:"Uniqlo AND GU both on 3F · 11:00–20:00 · Sakuragichō — fits the 11/17 Minatomirai evening",a:"Minato Mirai",lat:35.4522,lng:139.6307},
+ {c:"shop",ic:"🌊",n:"Marine & Walk Yokohama",d:"open-air seaside mall between Red Brick & Hammerhead — angel-wings mural",a:"Minato Mirai",lat:35.4545,lng:139.6427},   // NEW
  // ── gifts ──
  {c:"gift",ic:"🍰",n:"Francais (Takashimaya B1F)",q:"フランセ 横浜高島屋",d:"mille-feuille — ex-Yokohama Francais, rebranded 2018 · Takashimaya B1F; Sogo (east side) has a counter too",a:"Yokohama Stn",lat:35.4661,lng:139.6218},
  {c:"gift",ic:"⛵",n:"Ariake Harbour (Motomachi honkan)",q:"ありあけ本館",d:"boat-shaped harbour cakes — the Yokohama omiyage",a:"Chinatown",lat:35.4415,lng:139.6470},
@@ -85,19 +85,7 @@ var HOTELS = {
    hrs:"11:00–15:00 · 17:00–22:30 daily",res:"book",jpy:12000,lat:35.44705,lng:139.63509,area:"5-57 Tokiwachō, Naka-ku · Kannai",
    note:"Counter tempura since the mid-1960s — chef fries in front of you and explains each piece; English spoken. Oyster and anago singled out in reviews.",
    warn:"Book ahead — 045-681-3376, or ask the Westin. Verify the lunch course price when you book."},
-  {
-    "id": 3,
-    "d": "11/18 Wed",
-    "m": "Dinner",
-    "name": "Afuri Yokohama Landmark Tower",
-    "dish": "Ramen",
-    "hrs": "11:00–23:00 daily",
-    "res": "walk",
-    "jpy": 6000,
-    "lat": 35.4547,
-    "lng": 139.6317,
-    "area": "Minato Mirai"
-  },
+  {id:3,d:"11/18 Wed",m:"Dinner",name:"The Café — Hotel New Grand",q:"ホテルニューグランド ザ・カフェ",dish:"Seafood doria · Napolitan · pudding à la mode — all invented here",hrs:"~10:00–21:30 · weekday dinner set",res:"walk",jpy:7000,lat:35.4437,lng:139.6503,area:"Hotel New Grand 1F, Yamashita-kōen",warn:"No reservations for café seating — walk-in. Dinner queues are gentle; at lunch arrive by 11:15 or after 14:00.",note:"Plan change 8/31 — replaces the ramen slot (IPPUDO covers it in Kyoto). Pairs the 11/18 evening with Chinatown lanterns + the Osanbashi night skyline; the Minatomirai night stack moves to 11/17."},
   {id:4,d:"11/19 Thu",m:"Lunch",name:"Hana Yori Hanbagu",q:"花より肉バーグ 横浜",dish:"Grill-your-own hamburg",
    hrs:"11:30–22:00 daily",res:"walk",jpy:7500,lat:35.46816,lng:139.62292,area:"Tsuruyachō 2-16-4, 2F · Yokohama Stn west",
    note:"Departure-day lunch: check out, Minatomirai Line to Yokohama Stn (2 min), eat, then JR to Shin-Yokohama. You grill the patty yourself at the table.",

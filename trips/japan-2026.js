@@ -106,7 +106,7 @@ var HOTELS = {
 {id:"nara",city:"Nara",photo:"Sika_deer_in_Nara_05.jpg",sub:"11/19–11/21",hotel:"shisui",
  legs:[
   {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express 16:20 → 16:55 — all-reserved, NOT YET BOOKED",n:"Only a 20-min connection off the Nozomi (arr 16:00) — pre-book: seats open on Kintetsu online 1 month out (Oct 19). At the gates: tap Suica for the base fare and hold the ¥520 express e-ticket on your phone — buy the express-ticket-only option online, not the combined one, or the base fare is paid twice."},
-  {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 · Aoniyoshi sightseeing ltd. exp · dep 17:34 → arr 18:12 (Sat/hol)",n:"Full final day in Nara — Fuku Sushi lunch, afternoon free. Aoniyoshi is all-reserved: seats open on Kintetsu ~1 month out (Oct 21). At Namba: Midōsuji to Tennōji, drop bags, then Ondoriya."}],
+  {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 morning · Kintetsu ltd. express · ~36 min, several per hour",n:"Plan change 8/25 — no special train. Morning departure (~09:00–09:30); the ¥520 reserved car is worth it with bags. Friend joins in Osaka today — party of 3 through 11/23. At Namba: Midōsuji to Tennōji, bags at the Miyako, back up to Kitashinchi for lunch."}],
  metro:[["On foot","Shisui sits inside Nara Park — Tōdai-ji 12 min, Kōfuku-ji 10 min, Kintetsu-Nara 12 min"],["Loop bus","Nara City Loop stops at Kenchō-Higashi, 3 min from the hotel"]],
  pois:[
   {c:"sight",ic:"⛩",n:"Tōdai-ji Great Buddha",d:"go at 8:00 open",a:"hotel",lat:34.6890,lng:135.8398},
@@ -133,12 +133,11 @@ var HOTELS = {
  stops:[
   {id:5,d:"11/19 Thu",m:"Dinner",name:"Poku-Poku",dish:"Tonkatsu",hrs:"17:30–20:00 · closed Tue & Fri",res:"book",jpy:7500,lat:34.6788,lng:135.8304,area:"Shōnamichō",warn:"CALL AHEAD. Closes 20:00; you arrive ~17:00."},
   {id:6,d:"11/20 Fri",m:"Lunch",name:"Suiyō",dish:"Kaiseki",hrs:"12:00–14:30 daily",res:"ok",jpy:15180,lat:34.6854,lng:135.8354,area:"Inside Shisui"},
-  {id:7,d:"11/20 Fri",m:"Dinner",name:"Kitsune",dish:"Sukiyaki",hrs:"17:00–21:00 · closed Wed",res:"book",jpy:31900,lat:34.6811,lng:135.8299,area:"Ganriinchō",warn:"Tablecheck booking still on 11/19 — move it."},
-  {id:20,d:"11/21 Sat",m:"Lunch",name:"Fuku Sushi",q:"福寿司 奈良",dish:"Nigiri & chirashi sets",hrs:"11:30–13:30 L · closed Thu",res:"book",jpy:10000,lat:34.6779,lng:135.8295,area:"Shimomikado arcade / Naramachi",warn:"Tiny 15-seat couple-run counter — call 0742-26-5677 ahead.",note:"Lunch ends 13:30 → whole afternoon free in Nara before the 17:34 Aoniyoshi."}]},
+  {id:7,d:"11/20 Fri",m:"Dinner",name:"Kitsune",dish:"Sukiyaki",hrs:"17:00–21:00 · closed Wed",res:"book",jpy:31900,lat:34.6811,lng:135.8299,area:"Ganriinchō",warn:"Tablecheck booking still on 11/19 — move it."}]},
 
 {id:"osaka",city:"Osaka",photo:"Osaka_Castle_02bs3200.jpg",sub:"11/21–11/24",hotel:"miyako",
  legs:[
-  {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 eve · Midōsuji line 6 min",n:"Aoniyoshi lands Namba 18:12. The Miyako has a direct elevator from Tennōji / Ōsaka-Abenobashi — bags first, then back up for dinner."},
+  {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 late morning · Midōsuji line 6 min",n:"Plan change 8/25 — morning arrival ~10:00. Check-in is later: bags with the bell desk via the Tennōji elevator, then Midōsuji up to Umeda/Kitashinchi for the Sogoro lunch."},
   {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Kuroshio 12 ✓ dep 10:35 → Shin-Ōsaka 10:51 · Nozomi 90 dep 11:30",n:"Booked — ride JR from Tennōji (Platform 18), not the Midōsuji. Arr Shin-Ōsaka Platform 1 with a 39-min cushion to the Nozomi. Leave the hotel by ~10:15; Nagoya 12:19, Keitei inside the station."}],
  metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min · every 2–4 min"],["JR Osaka Loop","backup ring from Tennōji; Osaka-jō 12 min"]],
  pois:[
@@ -168,71 +167,66 @@ var HOTELS = {
   {c:"conv",ic:"🏪",n:"FamilyMart Abenobashi",d:"street level by the Kintetsu entrance, 24h",a:"hotel",lat:34.6470,lng:135.5120},
   {c:"conv",ic:"🏪",n:"Lawson (Q's Mall side)",d:"across the crossing, 24h",a:"hotel",lat:34.6455,lng:135.5105}],
  stops:[
-  {id:9,d:"11/21 Sat",m:"Dinner",name:"Ondoriya",dish:"Yakitori",hrs:"18:00–03:00 daily",res:"ok",jpy:7500,lat:34.6732,lng:135.5034,area:"Shinsaibashi",note:"Aoniyoshi lands 18:12 → bags at the Miyako → aim ~19:30. Open to 03:00, zero pressure."},
-  {id:21,d:"11/22 Sun",m:"Lunch",name:"Yugen",q:"日本料理 幽玄 上本町",dish:"Kaiseki — 2 Michelin stars",
-   hrs:"Lunch seating 12:00–13:00 · lunch Tue/Sat/Sun only · closed Wed",res:"book",jpy:30030,lat:34.6656,lng:135.5180,area:"Ishigatsuji-chō 14-14, Tennōji-ku · 2 min from Ōsaka-Uehommachi Stn",
-   note:"Chef Keisuke Mifune (13 yrs at Ajikitchō) — 6-seat hinoki counter + one private room. ¥15,015/pp is the ¥13,000 lunch course with tax & service included. From the Miyako: Tanimachi line Tennōji → Tanimachi 9-chōme (4 min) + 6-min walk, or a 10-min taxi. Book via TableCheck or Pocket Concierge; OMAKASE charges the card up front.",
-   warn:"Reservations essential — 12 seats total and it books out weeks ahead. Sunday lunch exists (Tue/Sat/Sun); do not slide this to a Mon/Thu."},
-  {id:10,d:"11/22 Sun",m:"Dinner",name:"Harukas depachika → in-room",q:"あべのハルカス近鉄本店 あべのフード・シティ",dish:"Sōzai, bentō & pastries — eaten upstairs",
+  {id:22,d:"11/21 Sat",m:"Lunch",name:"Sushi Sogoro",q:"鮨 惣五郎 北新地",dish:"Edomae nigiri — lunch omakase ~¥9,900/pp",hrs:"Kitashinchi · lunch & dinner",res:"book",jpy:30000,lat:34.6971,lng:135.4981,area:"Shinchi Liberty Bldg 1F, Kitashinchi",warn:"7-seat couple-run counter — book for THREE immediately (Tabelog/TableCheck instant).",note:"Plan change 8/25. Namba → Umeda on Midōsuji 8 min, walk 6. Friend\u2019s welcome lunch."},
+  {id:9,d:"11/21 Sat",m:"Dinner",name:"Ondoriya",dish:"Yakitori",hrs:"18:00–03:00 daily",res:"ok",jpy:11000,lat:34.6732,lng:135.5034,area:"Shinsaibashi",note:"Party of 3 tonight. In town since morning — Shinsaibashi wander first; open to 03:00, zero pressure."},
+    {id:24,d:"11/23 Mon",m:"Lunch",name:"New Babe",q:"ニューベイブ 谷町四丁目 とんかつ",dish:"Low-temp tonkatsu — Tabelog Tonkatsu 100",hrs:"reserve online — hours differ by branch",res:"book",jpy:8000,lat:34.6850,lng:135.5190,area:"Tanimachi 4-chōme (flagship) — Namba/Nakatsu/Higobashi branches exist",warn:"CONFIRM WHICH BRANCH — seeded as the Tabelog-100 flagship; pin approximate. Party of 3.",note:"Plan change 8/25 — friend\u2019s last day. Tanimachi-yonchōme is 2 stops from Tennōji on the Tanimachi line."},
+  {id:10,d:"11/23 Mon",m:"Dinner",name:"Harukas depachika → in-room",q:"あべのハルカス近鉄本店 あべのフード・シティ",dish:"Sōzai, bentō & pastries — eaten upstairs",
    hrs:"B1/B2 food halls 10:00–20:30 · Abeno Ichiba Shokudō to 22:00",res:"walk",jpy:6000,lat:34.6458,lng:135.5136,area:"Kintetsu Abeno Harukas B1–B2 — directly below the hotel",
    note:"B2 = sōzai, bentō, sashimi, fresh food · B1 = bakery, wagashi, patisserie. One of Japan's largest depachika and it's in your own building.",
    warn:"Go after ~19:00 — sōzai counters mark down unsold food (半額 stickers) in the last hour before 20:30 close."}]},
 
-{id:"kyoto",city:"Kyoto",photo:"Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine,_Kyoto,_Japan.jpg",sub:"11/23 · day trip from Osaka",hotel:"miyako",
+{id:"kyoto",city:"Kyoto",photo:"Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine,_Kyoto,_Japan.jpg",sub:"11/22 · day trip from Osaka",hotel:"miyako",
  legs:[
-  {r:"Out 11/23: Tennōji → Kyoto",m:"Haruka 12 ✓ · dep 10:20 → arr 11:04 (44 min)",n:"Booked on Japan Rail Tickets. Dep Platform 18 · arr Platform 30. Elevator down from the Miyako straight to Tennōji JR."},
+  {r:"Out 11/22: Tennōji → Kyoto",m:"Haruka ⚠ REBOOK — ticketed 11/23, day moved to 11/22",n:"Cancel/rebook on Japan Rail Tickets for Sun 11/22 (same pattern — Haruka 12 deps 10:20). Party of 3 now. Elevator from the Miyako straight to Tennōji JR."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
-  {r:"Return 11/23 after dinner",m:"Haruka 59 ✓ · dep Kyoto 20:30 → arr Tennōji 21:16 (46 min)",n:"Booked — replaces the old Keihan/Tōfukuji route. Dep Platform 30 · arr Platform 15. From Tousuiro, Kyoto Stn is ~12 min by taxi: a 19:30–19:45 finish is comfortable; don't linger past 20:00."}],
- // 11/22 is a full Osaka day (Katsugyu → Dōguyasuji/Namba → depachika in-room) — Kyoto is 11/23 only.
+  {r:"Return 11/22 after dinner",m:"Haruka ⚠ REBOOK — 59 pattern deps Kyoto 20:30",n:"Rebook for 11/22, party of 3. Donguri is at Shijō-Ōmiya: Kyoto Stn is ~10 min by taxi, or JR Sagano from Tanbaguchi; a 19:30 finish is comfortable."}],
+ // Plan change 8/25: 11/22 IS the Kyoto day (Menzou → Higashiyama → Donguri Shijō-Ōmiya); 11/23 is the full Osaka day (New Babe → depachika). Friend along 11/21–23, party of 3.
  metro:[["To Kiyomizu / Gion","Keihan via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Higashiyama on foot","Menzou (Okazaki) → Kiyomizu → Ishibei-kōji is walkable; bus 100/206 if legs give out"]],
  pois:[
- // ── sights · Okazaki / Nanzen-ji cluster — near Menzou, optional 11/23 add-ons ──
+ // ── sights · Okazaki / Nanzen-ji cluster — near Menzou, optional 11/22 add-ons ──
  {c:"sight",ic:"🍁",n:"Eikan-dō night illumination",d:"Kyoto's best autumn light-up — buy night ticket on-site, expect a queue · clashes with the 17:00 dinner",a:"Menzou",lat:35.0146,lng:135.7937},
  {c:"sight",ic:"🚶",n:"Philosopher's Path → Ginkaku-ji",d:"north of Menzou — only if you skip the Higashiyama afternoon",a:"Menzou",lat:35.0270,lng:135.7982},
  {c:"sight",ic:"🤫",n:"Hōnen-in",d:"mossy gate, almost no one goes",a:"Menzou",lat:35.0208,lng:135.7965},
  {c:"sight",ic:"🏛",n:"Murin-an",d:"Meiji villa garden — timed entry, book online ahead, tea on the veranda",a:"Menzou",lat:35.0093,lng:135.7887},
  {c:"sight",ic:"🌉",n:"Nanzen-ji Suirokaku aqueduct",d:"1888 brick aqueduct through the temple grounds — free, inside Nanzen-ji",a:"Menzou",lat:35.0107,lng:135.7937},   // NEW
  {c:"sight",ic:"🍂",n:"Shinnyo-dō",d:"free foliage that rivals Eikan-dō, a fraction of the crowd — 15 min N via Kurodani",a:"Menzou",lat:35.0225,lng:135.7930},   // NEW
- // ── sights · 11/23 Higashiyama day (Tousuiro) ──
- {c:"sight",ic:"⛩",n:"Kiyomizu-dera",d:"07:00 arrival — night session exists but Kōdai-ji is the better post-dinner call",a:"Tousuiro",lat:34.9949,lng:135.7850},
- {c:"sight",ic:"🏮",n:"Ninenzaka / Sannenzaka",d:"preserved lanes up to the temple",a:"Tousuiro",lat:34.9986,lng:135.7807},
- {c:"sight",ic:"🕍",n:"Kōdai-ji",d:"5 min from Tousuiro · night viewing to 21:30 (close 22:00) — the after-dinner move",a:"Tousuiro",lat:35.0007,lng:135.7815},
- {c:"sight",ic:"🎋",n:"Yasaka Kōshin-dō",d:"rainbow kukurizaru wish-balls",a:"Tousuiro",lat:34.9983,lng:135.7789},
- {c:"sight",ic:"🐉",n:"Kennin-ji",d:"twin-dragon ceiling, Kyoto's oldest Zen temple",a:"Tousuiro",lat:35.0007,lng:135.7735},
- {c:"sight",ic:"⛩",n:"Yasaka Shrine + Maruyama Park",d:"lantern-lit at night, between Gion and Kōdai-ji",a:"Tousuiro",lat:35.0037,lng:135.7787},
- {c:"sight",ic:"🔷",n:"Shōren-in",d:"blue night illumination in a bamboo-and-camphor garden — the quiet light-up",a:"Tousuiro",lat:35.0064,lng:135.7828},   // NEW
+ // ── sights · 11/22 Higashiyama afternoon ──
+ {c:"sight",ic:"⛩",n:"Kiyomizu-dera",d:"07:00 arrival — night session exists but Kōdai-ji is the better post-dinner call",a:"Higashiyama",lat:34.9949,lng:135.7850},
+ {c:"sight",ic:"🏮",n:"Ninenzaka / Sannenzaka",d:"preserved lanes up to the temple",a:"Higashiyama",lat:34.9986,lng:135.7807},
+ {c:"sight",ic:"🕍",n:"Kōdai-ji",d:"night viewing to 21:30 (close 22:00) — fits before the 20:30 Haruka if dinner runs early",a:"Higashiyama",lat:35.0007,lng:135.7815},
+ {c:"sight",ic:"🎋",n:"Yasaka Kōshin-dō",d:"rainbow kukurizaru wish-balls",a:"Higashiyama",lat:34.9983,lng:135.7789},
+ {c:"sight",ic:"🐉",n:"Kennin-ji",d:"twin-dragon ceiling, Kyoto's oldest Zen temple",a:"Higashiyama",lat:35.0007,lng:135.7735},
+ {c:"sight",ic:"⛩",n:"Yasaka Shrine + Maruyama Park",d:"lantern-lit at night, between Gion and Kōdai-ji",a:"Higashiyama",lat:35.0037,lng:135.7787},
+ {c:"sight",ic:"🔷",n:"Shōren-in",d:"blue night illumination in a bamboo-and-camphor garden — the quiet light-up",a:"Higashiyama",lat:35.0064,lng:135.7828},   // NEW
  // ── sights · Okazaki cluster (Menzou) ──
  {c:"sight",ic:"⛩",n:"Heian Shrine + Shin'en garden",d:"3 min from Menzou — do the paid stroll garden, not just the courtyard",a:"Menzou",lat:35.0163,lng:135.7823},   // NEW
  {c:"sight",ic:"🖼",n:"Kyoto City KYOCERA Museum of Art",d:"1933 building, 2020 renovation — between Menzou and the canal",a:"Menzou",lat:35.0125,lng:135.7845},   // NEW
  // ── sights · transfer opportunity ──
- {c:"sight",ic:"🍁",n:"Tōfuku-ji (Tsūten-kyō)",d:"THE foliage temple — sits on your 11/23 Keihan transfer; gates ~16:00, so only as an early-arrival detour",a:"transfer",lat:34.9764,lng:135.7739},   // NEW
+ {c:"sight",ic:"🍁",n:"Tōfuku-ji (Tsūten-kyō)",d:"THE foliage temple — Keihan/JR-Nara side, off the Haruka routing; gates ~16:00, only as a deliberate detour",a:"transfer",lat:34.9764,lng:135.7739},   // NEW
  // ── cafés ──
  {c:"cafe",ic:"☕",n:"Blue Bottle Kyoto",d:"100-yr machiya by Nanzen-ji",a:"Menzou",lat:35.0110,lng:135.7877},
- {c:"cafe",ic:"☕",n:"% Arabica Higashiyama",d:"under Yasaka Pagoda — before 9:00",a:"Tousuiro",lat:34.9987,lng:135.7795},
+ {c:"cafe",ic:"☕",n:"% Arabica Higashiyama",d:"under Yasaka Pagoda — before 9:00",a:"Higashiyama",lat:34.9987,lng:135.7795},
  {c:"cafe",ic:"🍵",n:"Ippodo Tea Kaboku",d:"renovated 2023 tearoom, whisk-it-yourself matcha · 10:00–17:00, LO 16:00",a:"Teramachi",lat:35.0125,lng:135.7671},
  {c:"cafe",ic:"☕",n:"Weekenders Coffee Tominokōji",d:"hidden behind a parking lot; Kyoto's cult roaster",a:"Teramachi",lat:35.0058,lng:135.7654},
- {c:"cafe",ic:"🍮",n:"Kagizen Yoshifusa (Shijō honten)",d:"Edo-era Gion tea house — kuzukiri in the back room",a:"Tousuiro",lat:35.0037,lng:135.7736},   // NEW
+ {c:"cafe",ic:"🍮",n:"Kagizen Yoshifusa (Shijō honten)",d:"Edo-era Gion tea house — kuzukiri in the back room",a:"Higashiyama",lat:35.0037,lng:135.7736},   // NEW
  // ── shopping ──
  {c:"shop",ic:"👜",n:"Ichizawa Shinzaburō Hanpu",d:"cult canvas bags, one shop worldwide",a:"Menzou",lat:35.0059,lng:135.7830},
- {c:"shop",ic:"🌺",n:"Kazurasei (Gion)",d:"camellia-oil hair & skin gifts",a:"Tousuiro",lat:35.0037,lng:135.7752},
+ {c:"shop",ic:"🌺",n:"Kazurasei (Gion)",d:"camellia-oil hair & skin gifts",a:"Higashiyama",lat:35.0037,lng:135.7752},
  {c:"shop",ic:"🛍",n:"Teramachi–Sanjō arcades",d:"stationery, tea, prints",a:"Ippodo",lat:35.0070,lng:135.7670},
  {c:"shop",ic:"🔪",n:"Nishiki Market + Aritsugu",d:"the kitchen street — 1560s knife maker at the west end · go before 11:00",a:"Teramachi",lat:35.0050,lng:135.7649},   // NEW
  // ── gifts ──
  {c:"gift",ic:"🍵",n:"Ippodo Tea Co.",d:"premium matcha powder and tea tools",a:"Teramachi",lat:35.0125,lng:135.7671},
- {c:"gift",ic:"🍪",n:"Malebranche Cha no Ka (Kiyomizu-zaka)",d:"matcha langue-de-chat — on the 07:00 walk up",a:"Tousuiro",lat:34.9958,lng:135.7818},
+ {c:"gift",ic:"🍪",n:"Malebranche Cha no Ka (Kiyomizu-zaka)",d:"matcha langue-de-chat — on the 07:00 walk up",a:"Higashiyama",lat:34.9958,lng:135.7818},
  {c:"gift",ic:"🍬",n:"Nikiniki (Shijō)",d:"yatsuhashi as tiny edible art, by Kawaramachi",a:"Teramachi",lat:35.0037,lng:135.7692},
  // ── konbini ──
- {c:"conv",ic:"🏪",n:"7-Eleven Higashiyama Yasaka",d:"day-trip supply stop between Kōdai-ji and Yasaka",a:"Tousuiro",lat:35.0009,lng:135.7760},
- {c:"conv",ic:"🏪",n:"Lawson Gion-Shijō",d:"by the Keihan station for the ride home",a:"Tousuiro",lat:35.0037,lng:135.7745},
+ {c:"conv",ic:"🏪",n:"7-Eleven Higashiyama Yasaka",d:"day-trip supply stop between Kōdai-ji and Yasaka",a:"Higashiyama",lat:35.0009,lng:135.7760},
+ {c:"conv",ic:"🏪",n:"Lawson Gion-Shijō",d:"by the Keihan station for the ride home",a:"Higashiyama",lat:35.0037,lng:135.7745},
  {c:"conv",ic:"🏪",n:"FamilyMart Kawaramachi-Sanjō",d:"corner of the arcades, 24h",a:"Teramachi",lat:35.0089,lng:135.7687}],
  stops:[
-  {id:12,d:"11/23 Mon·hol",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
+  {id:12,d:"11/22 Sun",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
  hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",pay:"cash",
- jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck — slots open 00:00 JST on 11/20 (3 days out). CC to hold, pay cash on the day.",note:"Backup: Okakita next door, walk-in."},
-  {id:13,d:"11/23 Mon",m:"Dinner",name:"Tousuiro Gion",q:"豆水楼 祇園店",dish:"Yudōfu & tofu kaiseki",
-   hrs:"11:30–14:00 · 17:00–21:00 daily",res:"book",jpy:24000,lat:34.99979,lng:135.77750,area:"4-38-1 Bishamonchō, Higashiyama-ku · Gion",
-   note:"Multi-course tofu — house-made yudōfu with free refills, yuba, seasonal plates; vegetarian course available and English explained at the table.",
-   warn:"THE ANNIVERSARY DINNER — ¥24,000 for two. Small room (roughly 8 seats plus a table) — book well ahead: 075-561-0035. A 17:00–17:30 seating leaves Kōdai-ji's light-up (to 21:30) afterwards."}]},
+ jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck for THREE — with the 11/22 visit, slots open 00:00 JST on 11/19 (3 days out). CC to hold, pay cash on the day.",note:"Backup: Okakita next door, walk-in."},
+  {id:13,d:"11/22 Sun",m:"Dinner",name:"Donguri Shijō-Ōmiya",q:"どんぐり 四条大宮",dish:"Kyoto okonomiyaki & teppan",hrs:"— verify branch hours",res:"book",jpy:9000,lat:35.0036,lng:135.7413,area:"Shijō-Ōmiya crossing",warn:"Party of 3 — reserve or expect a queue. Pin at the crossing; verify the exact block.",note:"Plan change 8/25 — replaces Tousuiro. ⚠ CANCEL the Tousuiro booking (075-561-0035, ¥24,000, was the anniversary dinner) and re-home the anniversary — Roku Roku 11/26 is the natural heir."}]},
 
 {id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle(Larger).jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[
@@ -321,7 +315,7 @@ var TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 
 var TRAINS=[
  {d:"Nov 17",t:"14:45",route:"Narita T1 \u2192 Yokohama",train:"Narita Express 30 \u2713 Japan Rail Tickets",note:"Arr 16:16 (1h31m). Dep Platform 1/2 \u00b7 arr Platform 6. Then 5-min taxi to the Westin."},
  {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 73 ✓ Smart EX",note:"Arr 16:00 → Kintetsu ltd. exp 16:20 → Nara 16:55 → Shisui → Poku-Poku by 18:00. Seats not finalized — pick them on Smart EX (E side for Fuji)."},
- {d:"Nov 21",t:"17:34",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Aoniyoshi sightseeing ltd. exp",note:"Sat/hol slot · arr Namba 18:12. All-reserved — booking opens on Kintetsu ~1 month out (Oct 21); window-facing twin seats, onboard sales counter. Then Midōsuji to Tennōji, bags, Ondoriya ~19:30."},
+ {d:"Nov 21",t:"morning",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Kintetsu limited express",note:"Plan change 8/25 — no special train. ~36 min, several per hour; ¥520 reserved car worth it with bags. Friend joins in Osaka — party of 3 through 11/23. Sogoro lunch in Kitashinchi after bag drop."},
  {d:"Nov 23",t:"10:20",route:"Tenn\u014dji \u2192 Kyoto",train:"Haruka 12 \u2713 Japan Rail Tickets",note:"Arr 11:04 (44 min). Dep Platform 18 \u00b7 arr Platform 30. Kyoto day trip out."},
  {d:"Nov 23",t:"20:30",route:"Kyoto \u2192 Tenn\u014dji",train:"Haruka 59 \u2713 Japan Rail Tickets",note:"Arr 21:16 (46 min). Dep Platform 30 \u00b7 arr Platform 15. Return after dinner \u2014 replaces the Keihan/T\u014dfukuji plan on the Kyoto tab."},
  {d:"Nov 24",t:"10:35",route:"Tenn\u014dji \u2192 Shin-\u014csaka",train:"Kuroshio 12 \u2713 Japan Rail Tickets",note:"Arr 10:51 (16 min). Dep Platform 18 \u00b7 arr Platform 1. Connects to Nozomi 90 dep 11:30."},
@@ -339,14 +333,14 @@ window.TRIPS_REGISTRY['japan-2026']={card:{ord:1,country:'Japan',emoji:'⛩',tit
    departNote:'Delta 1015 · IAD 07:00 · Nov 15',preLabel:'Positioning day',transitLabel:'In transit ✈',
    seedTodos:[
      {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
-     {id:'t8',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'11/21 · 17:34 Kintetsu-Nara → Namba 18:12. Booking opens 10:30 JST, one month out.'},
+     {id:'t8',d:'2026-08-27',cat:'transport',title:'⚠ Rebook Haruka 12 & 59 to 11/22 · cancel Tousuiro & Yugen',url:'',desc:'Kyoto day moved 11/23→11/22: rebook both Haruka legs for THREE on Japan Rail Tickets. Cancel Tousuiro Gion 075-561-0035 (¥24,000 — re-home the anniversary dinner, Roku Roku 11/26 is the heir) and Yugen (¥30,030, was 11/22 lunch).'},
      {id:'t15',d:'2026-09-05',cat:'dining',title:'Email Grand Hyatt Tokyo — Roku Roku 11/26',desc:'Concierge email: dinner for two at Roku Roku, Thu 11/26 ~18:00 (arriving off the Nozomi ~17:00; keep it early — N\'EX morning follows). Confirm as a hotel-guest booking on the room.'},
      {id:'t13',d:'2026-09-15',cat:'dining',title:'Email TIAD — SHUHARI lunch 11/26',desc:'Concierge email: lunch for two at SHUHARI, Thu 11/26, earliest seating — must finish by 14:05 for Nozomi 24 (dep 14:36). Ask them to note the train constraint.'},
-     {id:'t14',d:'2026-10-01',cat:'dining',title:'Email Shisui — Poku-Poku & Fuku Sushi (Nara dinners)',desc:'One concierge email, two bookings: Poku-Poku and Fuku Sushi for the 11/19 and 11/20 dinners (either order; 11/19 arrival is 16:55 — make that one the later seating). Same evening as the Nozomi seat picks — one planning session.'},
+     {id:'t14',d:'2026-10-01',cat:'dining',title:'Email Shisui — Poku-Poku (Nara dinner)',desc:'Concierge email for Poku-Poku, 11/19 or 11/20 dinner (11/19 arrival is 16:55 — later seating if that night). Fuku Sushi dropped with the 8/25 replan — do NOT have them book it. Same evening as the Nozomi seat picks.'},
      {id:'t12',d:'2026-09-01',cat:'tickets',title:'Nintendo Museum — lottery results out',url:'https://museum.nintendo.com/',desc:'Check the My Nintendo account for the November draw result (posts during JST daytime = overnight/early morning EDT). Won: pay/confirm within the stated window or the slot lapses. Lost: cancellation re-sales pop up on the site periodically — worth checks through September; Kyoto day is 11/23.'},
      {id:'t11',d:'2026-09-10',cat:'tickets',title:'Ghibli Park — November tickets on sale (1:00 AM EDT)',url:'https://l-tike.com/st1/ghibli-en',desc:'Sale opens Wed Sep 10, 14:00 JST = 1:00 AM EDT overnight. Weekday 11/25 slots usually last a few hours — buy first thing Wednesday morning EDT, or set the 1 AM alarm if feeling heroic. Lawson Ticket English (face value; Klook is the backup). O-Sanpo Day Pass Premium = all five areas incl. Howl\'s Castle interiors. Name-printed, max 6, once per month — use your real name, passport at the gate.'},
      {id:'t9',d:'2026-10-19',cat:'transport',title:'Kintetsu Kyoto → Nara 11/19 opens — book it',url:'https://www.ticket.kintetsu.co.jp/vs/en/e-ticket/',desc:'Opens 10:30 JST = 9:30 PM EDT Oct 18. Kintetsu e-ticket portal (NOT Smart EX / JR — private railway, not bookable before the window). Pick a train marked THROUGH to Kintetsu-Nara — some require a Yamato-Saidaiji change. ~¥1,280/person combined fare+exp; e-ticket on your phone.'},
 ],
    vault:[['Flights',[['f_dl1015','Delta 1015 · IAD→SEA','Nov 15 · 07:00 · conf / seats'],['f_dl3748','Delta 3748 · SEA→YVR','Nov 15 · 13:30 · conf / seats · codeshare'],['f_zg021','Zip Air ZG021 · YVR→NRT','Nov 16 · booking ref / seats'],['f_zg022','Zip Air ZG022 · NRT→YVR','Nov 27 · booking ref / seats'],['f_ua2470','United UA2470 · YVR→DEN','Nov 27 · booking ref / seats'],['f_ua2408','United UA2408 · DEN→IAD','Nov 27 · booking ref / seats']]],
-          ['Trains',[['t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats'],['t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats'],['t_aoni','Aoniyoshi · Kintetsu-Nara→Ōsaka-Namba','Nov 21 · 17:34 · Kintetsu res # / seats'],['t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats'],['t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats'],['t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats']]]],
+          ['Trains',[['t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats'],['t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats'],['t_kint','Kintetsu ltd. exp · Kintetsu-Nara→Ōsaka-Namba','Nov 21 morning · ¥520 reserved car / unreserved ok'],['t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats'],['t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats'],['t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats']]]],
    flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="180" fill="#bc002d"/></svg>'};

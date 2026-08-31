@@ -179,8 +179,8 @@ var HOTELS = {
  legs:[
   {r:"Out 11/22: Tennōji → Kyoto",m:"Haruka 12 ✓ · dep 10:20 → arr 11:04 (44 min)",n:"Rebooked on Japan Rail Tickets 8/25 — tickets issued by 10/22, watch for the confirmation. Dep Platform 18 · arr Platform 30. Elevator from the Miyako straight to Tennōji JR."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
-  {r:"Return 11/22 after dinner",m:"Haruka 59 ✓ · dep Kyoto 20:30 → arr Tennōji 21:16 (46 min)",n:"Rebooked 8/25 — issued by 10/22. Dep Platform 30 · arr Platform 15. Donguri is at Shijō-Ōmiya: Kyoto Stn ~10 min by taxi or JR Sagano from Tanbaguchi; a 19:30 finish is comfortable."}],
- // Plan change 8/25: 11/22 IS the Kyoto day (Menzou → Higashiyama → Donguri Shijō-Ōmiya); 11/23 is the full Osaka day (New Babe → depachika). Friend along 11/21–23 — bookings seat 3, but budgets track OUR TWO only (his share never enters the math).
+  {r:"Return 11/22 after dinner",m:"Haruka 59 ✓ · dep Kyoto 20:30 → arr Tennōji 21:16 (46 min)",n:"Rebooked 8/25 — issued by 10/22. Dep Platform 30 · arr Platform 15. Dinner (IPPUDO) is at Aeon Mall next to the station — walk over whenever; zero connection stress."}],
+ // Plan change 8/25: 11/22 IS the Kyoto day (Menzou → Higashiyama → IPPUDO by Kyoto Stn); 11/23 is the full Osaka day (New Babe → depachika). Friend along 11/21–23 — bookings seat 3, but budgets track OUR TWO only (his share never enters the math).
  metro:[["To Kiyomizu / Gion","Keihan via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Higashiyama on foot","Menzou (Okazaki) → Kiyomizu → Ishibei-kōji is walkable; bus 100/206 if legs give out"]],
  pois:[
  // ── sights · Okazaki / Nanzen-ji cluster — near Menzou, optional 11/22 add-ons ──
@@ -226,7 +226,7 @@ var HOTELS = {
   {id:12,d:"11/22 Sun",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
  hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",pay:"cash",
  jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck for THREE — with the 11/22 visit, slots open 00:00 JST on 11/19 (3 days out). CC to hold, pay cash on the day.",note:"Backup: Okakita next door, walk-in."},
-  {id:13,d:"11/22 Sun",m:"Dinner",name:"Donguri Shijō-Ōmiya",q:"どんぐり 四条大宮",dish:"Kyoto okonomiyaki & teppan",hrs:"— verify branch hours",res:"book",jpy:6000,lat:35.0036,lng:135.7413,area:"Shijō-Ōmiya crossing",warn:"Reserve for 3 or expect a queue; budget = our two. Pin at the crossing; verify the exact block.",note:"Plan change 8/25 — replaces Tousuiro. ⚠ CANCEL the Tousuiro booking (075-561-0035, ¥24,000, was the anniversary dinner) and re-home the anniversary — Roku Roku 11/26 is the natural heir."}]},
+  {id:13,d:"11/22 Sun",m:"Dinner",name:"IPPUDO Aeon Mall Kyoto",q:"一風堂 イオンモール京都",dish:"Tonkotsu ramen — Shiromaru / Akamaru",hrs:"mall restaurant floor · ~11:00–21:00",res:"walk",jpy:3000,lat:34.9808,lng:135.7534,area:"Aeon Mall Kyoto, Nishikujō — 5 min from Kyoto Stn",warn:"Walk-in — a dinner queue is possible but party of 3 is easy; budget = our two.",note:"Plan change 8/31 — dinner beside the station: the 20:30 Haruka stops being a calculation. ⚠ Still open: CANCEL Tousuiro (075-561-0035, ¥24,000, was the anniversary dinner — Roku Roku 11/26 is the heir)."}]},
 
 {id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle(Larger).jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[

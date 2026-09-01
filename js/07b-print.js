@@ -27,14 +27,18 @@ function pdTimeCell(s){
   return {h:'<span class="t soft">ANYTIME</span>',def:false};
 }
 function pdStops(c){
+  /* THREE lanes, all merged (the third was the 8/31 bug): seeded stops,
+     per-stop field edits at overrides[id] (the eff() lane — how the app
+     stores edits to built-ins), and custom stops in overrides.stops. */
+  const fx=(typeof eff==='function')?eff:(x=>Object.assign({},x,(typeof overrides!=='undefined'&&overrides[x.id])||{}));
   const seed=(c.stops||[]).slice();
   const mine=((typeof overrides!=='undefined'&&overrides.stops)||[]).filter(s=>s.city===c.id&&!s.del);
-  const byId=new Map(seed.map(s=>[String(s.id),Object.assign({},s)]));
+  const byId=new Map(seed.map(s=>[String(s.id),fx(s)]));
   mine.forEach(s=>{ byId.set(String(s.id),Object.assign(byId.get(String(s.id))||{},s)); });
   /* day plans are their OWN lane (overrides.plans) — the v1 sheet missed them */
   const plans=((typeof overrides!=='undefined'&&overrides.plans)||[]).filter(s=>s.city===c.id&&!s.del)
     .map(s=>Object.assign({plan:true},s));
-  return [...byId.values(),...plans];
+  return [...byId.values(),...plans].filter(s=>!s.del);
 }
 function pdDateHero(dt,stops){
   const DOW={Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};

@@ -169,7 +169,7 @@ function mealCard(p,c){
     <div class="num">${c?stopNo(c,p.id):p.id}</div>
     <div style="flex:1;min-width:0">
       <div class="m1">${p.d} · ${p.m}</div>
-      <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span>${e.pay==='cash'?'<span class="tag cash">💴 cash only</span>':''}</div>
+      <div class="m2">${p.name}<span class="tag ${e.res}">${RES_LABEL[e.res]}</span>${e.t100?'<span class="tag t100">TABELOG 100</span>':''}${e.pay==='cash'?'<span class="tag cash">💴 cash only</span>':''}</div>
 
       ${!editMode && e.res==='ok' && (e.btime || e.bplat) ? `<div style="display:inline-block; margin-top:4px; margin-bottom:2px; padding:3px 6px; background:rgba(94,127,76,.1); color:var(--moss); font:600 10px var(--mono); text-transform:uppercase; letter-spacing:0.05em; border-radius:2px;">✓ Reserved ${e.btime ? 'at ' + e.btime : ''} ${e.bplat ? 'via ' + e.bplat : ''}</div>` : ''}
       ${!editMode && e.actualJpy ? (()=>{const aU=Number(e.actualJpy)/liveRate;const diff=Number(e.actualJpy)-Number(e.jpy);return `<div style="display:inline-block;margin:4px 0 2px 4px;padding:3px 6px;background:${diff>0?'rgba(184,85,42,.1)':'rgba(94,127,76,.1)'};color:${diff>0?'var(--clay)':'var(--moss)'};font:600 10px var(--mono);border-radius:2px;">${CUR.sym}${Number(e.actualJpy).toLocaleString()}${CUR.code==='USD'?'':` · $${aU.toFixed(2)}`}${diff!==0?` ${diff>0?'▲':'▼'}${CUR.sym}${Math.abs(diff).toLocaleString()}`:''}</div>`})():''}

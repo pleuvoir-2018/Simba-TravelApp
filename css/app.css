@@ -146,6 +146,8 @@
   body.dark .note.user{background:rgba(143,184,120,.12);color:#BCD9A9}
   .tag{display:inline-block;font:600 8px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:1.5px 5px;border-radius:2px;margin-left:5px;vertical-align:1px;color:#fff}
   .tag.ok{background:var(--moss)}.tag.book{background:var(--clay)}.tag.walk{background:var(--grey)}.tag.cash{background:#B08A1F}
+.tag.t100{background:#C77E28}
+body.dark .tag.t100{background:#A96A1F}
   .meal input,.meal select,.meal textarea{font:inherit;font-size:11px;border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:#fff;width:100%;margin-top:4px}
   .meal .erow{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px;align-items:end}
   .meal .erow label{display:flex;flex-direction:column;gap:4px;min-width:0}

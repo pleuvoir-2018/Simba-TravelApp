@@ -91,7 +91,7 @@ var HOTELS = {
 {id:"nara",city:"Nara",photo:"Sika_deer_in_Nara_05.jpg",sub:"11/19–11/21",hotel:"shisui",
  legs:[
   {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express 16:20 → 16:55 — all-reserved, NOT YET BOOKED",n:"Only a 20-min connection off the Nozomi (arr 16:00) — pre-book: seats open on Kintetsu online 1 month out (Oct 19). At the gates: tap Suica for the base fare and hold the ¥520 express e-ticket on your phone — buy the express-ticket-only option online, not the combined one, or the base fare is paid twice."},
-  {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 eve · Aoniyoshi 17:34 → 18:12 (booking opens ~Oct 21) — or any Kintetsu ltd. exp.",n:"Plan restored 8/31 — full final Nara day (Fuku Sushi lunch), evening departure. Aoniyoshi is all-reserved: seats open on Kintetsu ~1 month out; any limited express is the fallback. At Namba: Midōsuji to Tennōji, bags, then Ondoriya — friend joins there tonight (party of 3 through 11/23)."}],
+  {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 eve · Aoniyoshi 17:34 → 18:12 (booking opens ~Oct 21) — or any Kintetsu ltd. exp.",n:"Plan restored 8/31 — full final Nara day (Fuku Sushi lunch), evening departure. Aoniyoshi is all-reserved: seats open on Kintetsu ~1 month out; any limited express is the fallback. At Namba: Midōsuji to Tennōji, bags, then Ikoka at 19:30."}],
  metro:[["On foot","Shisui sits inside Nara Park — Tōdai-ji 12 min, Kōfuku-ji 10 min, Kintetsu-Nara 12 min"],["Loop bus","Nara City Loop stops at Kenchō-Higashi, 3 min from the hotel"]],
  pois:[
   {c:"sight",ic:"⛩",n:"Tōdai-ji Great Buddha",d:"go at 8:00 open",a:"hotel",lat:34.6890,lng:135.8398},
@@ -119,11 +119,11 @@ var HOTELS = {
   {id:5,d:"11/19 Thu",m:"Dinner",name:"Poku-Poku",dish:"Tonkatsu",hrs:"17:30–20:00 · closed Tue & Fri",res:"book",jpy:7500,lat:34.6788,lng:135.8304,area:"Shōnamichō",warn:"CALL AHEAD. Closes 20:00; you arrive ~17:00."},
   {id:6,d:"11/20 Fri",m:"Lunch",name:"Suiyō",dish:"Kaiseki",hrs:"12:00–14:30 daily",res:"ok",jpy:15180,lat:34.6854,lng:135.8354,area:"Inside Shisui"},
   {id:7,d:"11/20 Fri",m:"Dinner",name:"Kitsune",dish:"Sukiyaki",hrs:"17:00–21:00 · closed Wed",res:"book",jpy:31900,lat:34.6811,lng:135.8299,area:"Ganriinchō",warn:"Tablecheck booking still on 11/19 — move it."},
- {id:20,d:"11/21 Sat",m:"Lunch",name:"Fuku Sushi",q:"福寿司 奈良",dish:"Nara sushi — local counter",hrs:"lunch — call ahead / concierge",res:"book",jpy:10000,lat:34.6796,lng:135.8330,area:"Nara (pin approximate — verify with the booking)",warn:"Restored 8/31 — book via the Shisui concierge (t14). Party of 2 (friend joins in Osaka tonight).",note:"Full final Nara day: morning temples/deer, sushi lunch, afternoon free, Aoniyoshi (or ltd. exp.) to Osaka at 17:34."}]},
+ {id:20,d:"11/21 Sat",m:"Lunch",name:"Fuku Sushi",q:"福寿司 奈良",dish:"Nara sushi — local counter",hrs:"lunch — call ahead / concierge",res:"book",jpy:10000,lat:34.6796,lng:135.8330,area:"Nara (pin approximate — verify with the booking)",warn:"Restored 8/31 — book via the Shisui concierge (t14). Party of 2.",note:"Full final Nara day: morning temples/deer, sushi lunch, afternoon free, Aoniyoshi (or ltd. exp.) to Osaka at 17:34."}]},
 
 {id:"osaka",city:"Osaka",photo:"Osaka_Castle_02bs3200.jpg",sub:"11/21–11/24",hotel:"miyako",
  legs:[
-  {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 eve · Midōsuji line 6 min",n:"Aoniyoshi (or the ltd. exp.) lands Namba ~18:12. The Miyako has a direct elevator from Tennōji — bags first, then Ondoriya ~19:30 with the friend."},
+  {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 eve · Midōsuji line 6 min",n:"Aoniyoshi (or the ltd. exp.) lands Namba ~18:12. The Miyako has a direct elevator from Tennōji — bags first, then the Tanimachi line up to Ikoka ~19:30."},
   {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Kuroshio 12 ✓ dep 10:35 → Shin-Ōsaka 10:51 · Nozomi 90 dep 11:30",n:"Booked — ride JR from Tennōji (Platform 18), not the Midōsuji. Arr Shin-Ōsaka Platform 1 with a 39-min cushion to the Nozomi. Leave the hotel by ~10:15; Nagoya 12:19, Keitei inside the station."}],
  metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min · every 2–4 min"],["JR Osaka Loop","backup ring from Tennōji; Osaka-jō 12 min"]],
  pois:[
@@ -138,12 +138,12 @@ var HOTELS = {
   {c:"sight",ic:"🌇",n:"Umeda Sky Building",d:"twin-tower rooftop ring — pairs with your Umeda sushi lunch",a:"Umeda",lat:34.7052,lng:135.4899},
   {c:"sight",ic:"🏃",n:"Ebisubashi + Glico sign",d:"the Dōtonbori runner — best lit at night, 5 min from Dōguyasuji",a:"Namba",lat:34.6686,lng:135.5012},
   {c:"sight",ic:"🛕",n:"Shitennō-ji",d:"Japan's oldest official temple (593 AD) — 15-min walk from Harukas, open 8:30",a:"hotel",lat:34.6534,lng:135.5163},
-  {c:"cafe",ic:"☕",n:"Lilo Coffee Roasters",d:"Amerikamura standing-room favorite",a:"Ondoriya",lat:34.6729,lng:135.4986},
-  {c:"cafe",ic:"🍵",n:"Wad Omotenashi Cafe",d:"serene matcha & ceramics upstairs",a:"Ondoriya",lat:34.6741,lng:135.5017},
+  {c:"cafe",ic:"☕",n:"Lilo Coffee Roasters",d:"Amerikamura standing-room favorite",a:"Shinsaibashi",lat:34.6729,lng:135.4986},
+  {c:"cafe",ic:"🍵",n:"Wad Omotenashi Cafe",d:"serene matcha & ceramics upstairs",a:"Shinsaibashi",lat:34.6741,lng:135.5017},
   {c:"cafe",ic:"🍷",n:"Takamura Wine & Coffee",d:"cathedral-sized warehouse of beans & bottles, Utsubo",a:"Umeda",lat:34.6796,lng:135.4919},
   {c:"cafe",ic:"🫘",n:"Marufuku Coffee (Sennichimae, 1934)",d:"Osaka's kissaten original — thick dark house blend, hotcakes",a:"Namba",lat:34.6656,lng:135.5043},
-  {c:"shop",ic:"🛍",n:"Shinsaibashi-suji arcade",d:"end-to-end covered shopping",a:"Ondoriya",lat:34.6717,lng:135.5012},
-  {c:"shop",ic:"👕",n:"Amerikamura",d:"vintage & streetwear grid",a:"Ondoriya",lat:34.6726,lng:135.4980},
+  {c:"shop",ic:"🛍",n:"Shinsaibashi-suji arcade",d:"end-to-end covered shopping",a:"Shinsaibashi",lat:34.6717,lng:135.5012},
+  {c:"shop",ic:"👕",n:"Amerikamura",d:"vintage & streetwear grid",a:"Shinsaibashi",lat:34.6726,lng:135.4980},
   {c:"shop",ic:"🕹",n:"Den Den Town",d:"Osaka's Akihabara, near Kuromon",a:"Namba",lat:34.6602,lng:135.5062},
   {c:"shop",ic:"🔪",n:"Sennichimae Dōguyasuji",q:"千日前道具屋筋商店街",d:"THE 11/22 afternoon — kitchenware arcade, knives, takoyaki pans, food-sample magnets · 10:00–18:00, ~150 m, not every shop is tax-free · Midōsuji back to Tennōji ~10 min",a:"Namba",lat:34.6640,lng:135.5035},
   {c:"gift",ic:"🥨",n:"Bâton d'or",d:"The 'Hermès of Pocky', upscale snacks",a:"Hankyu Umeda",lat:34.7029,lng:135.4984},
@@ -153,8 +153,8 @@ var HOTELS = {
   {c:"conv",ic:"🏪",n:"FamilyMart Abenobashi",d:"street level by the Kintetsu entrance, 24h",a:"hotel",lat:34.6470,lng:135.5120},
   {c:"conv",ic:"🏪",n:"Lawson (Q's Mall side)",d:"across the crossing, 24h",a:"hotel",lat:34.6455,lng:135.5105}],
  stops:[
-  {id:9,d:"11/21 Sat",m:"Dinner",name:"Sumibi Yakitori Ikoka",q:"炭火焼鳥 いこか 大手通",dish:"Omakase skewer set — Kyoto black chicken & premium birds over Kishū binchōtan",hrs:"18:00–23:30 · Yakitori WEST Hyakumeiten '24/'25",res:"book",jpy:20000,lat:34.6893,lng:135.5107,area:"Ōtedōri, Chūō-ku — Tanimachi-4-chōme / Kitahama (basement hideaway)",warn:"BOOK ~19:30 for THREE (Ikyu/Tabelog) — reserve-ahead room, not a walk-in. Budget = our two.",note:"Friend's welcome dinner, upgraded 8/31 (replaces Ondoriya). Train lands Namba 18:12 → bags at the Miyako → Tanimachi line direct from Tennōji ~10 min + 6-min walk."},
-    {id:24,d:"11/22 Sun",m:"Lunch",name:"New Babe Namba·Dōtonbori",q:"ニューベイブ 難波・道頓堀店",dish:"Hayashi SPF tonkatsu — triple-fried, ribloin ¥3,520",hrs:"reserve online / phone — newest branch",res:"book",jpy:7000,lat:34.6677,lng:135.5052,area:"Sakamachi backstreets by Dōtonbori — Nippombashi/Namba (pin approximate, it hides in the alleys)",warn:"Reserve for 3; budget = our two. Manager ex-Tonkatsu Arata — the direct-run branch.",note:"Branch decided 8/31. Sits inside the Namba/Dōtonbori wander — the full Osaka day flows canal → lunch → Dōguyasuji → depachika evening."},
+  {id:9,d:"11/21 Sat",m:"Dinner",name:"Sumibi Yakitori Ikoka",q:"炭火焼鳥 いこか 大手通",dish:"Omakase skewer set — Kyoto black chicken & premium birds over Kishū binchōtan",hrs:"18:00–23:30 · Yakitori WEST Hyakumeiten '24/'25",res:"book",jpy:20000,lat:34.6893,lng:135.5107,area:"Ōtedōri, Chūō-ku — Tanimachi-4-chōme / Kitahama (basement hideaway)",warn:"BOOK ~19:30 for TWO (Ikyu/Tabelog) — reserve-ahead room, not a walk-in.",note:"First Osaka evening, upgraded 8/31 (replaces Ondoriya). Train lands Namba 18:12 → bags at the Miyako → Tanimachi line direct from Tennōji ~10 min + 6-min walk."},
+    {id:24,d:"11/22 Sun",m:"Lunch",name:"New Babe Namba·Dōtonbori",q:"ニューベイブ 難波・道頓堀店",dish:"Hayashi SPF tonkatsu — triple-fried, ribloin ¥3,520",hrs:"reserve online / phone — newest branch",res:"book",jpy:7000,lat:34.6677,lng:135.5052,area:"Sakamachi backstreets by Dōtonbori — Nippombashi/Namba (pin approximate, it hides in the alleys)",warn:"Reserve for two. Manager ex-Tonkatsu Arata — the direct-run branch.",note:"Branch decided 8/31. Sits inside the Namba/Dōtonbori wander — the full Osaka day flows canal → lunch → Dōguyasuji → depachika evening."},
   {id:10,d:"11/22 Sun",m:"Dinner",name:"Harukas depachika → in-room",q:"あべのハルカス近鉄本店 あべのフード・シティ",dish:"Sōzai, bentō & pastries — eaten upstairs",
    hrs:"B1/B2 food halls 10:00–20:30 · Abeno Ichiba Shokudō to 22:00",res:"walk",jpy:6000,lat:34.6458,lng:135.5136,area:"Kintetsu Abeno Harukas B1–B2 — directly below the hotel",
    note:"B2 = sōzai, bentō, sashimi, fresh food · B1 = bakery, wagashi, patisserie. One of Japan's largest depachika and it's in your own building.",
@@ -162,10 +162,10 @@ var HOTELS = {
 
 {id:"kyoto",city:"Kyoto",photo:"Torii_path_with_lantern_at_Fushimi_Inari_Taisha_Shrine,_Kyoto,_Japan.jpg",sub:"11/23 · day trip from Osaka",hotel:"miyako",
  legs:[
-  {r:"Out 11/23: Tennōji → Kyoto",m:"Haruka 12 · ⚠ REBOOK to 11/23 — currently ticketed 11/22",n:"Kyoto moved back to 11/23 (Nintendo Museum win). Rebook BOTH legs on Japan Rail Tickets BEFORE the 10/22 issuance of the 11/22 tickets. Same pattern: dep 10:20 P18 → arr 11:04 P30."},
+  {r:"Out 11/23: Tennōji → Kyoto",m:"Haruka 12 · ⚠ REBOOK to 11/23 — currently ticketed 11/22",n:"Kyoto moved back to 11/23 (Nintendo Museum win). Rebook BOTH legs for two on Japan Rail Tickets BEFORE the 10/22 issuance of the 11/22 tickets. Same pattern: dep 10:20 P18 → arr 11:04 P30."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
   {r:"Return 11/23 after dinner",m:"Haruka 59 · ⚠ REBOOK to 11/23 (dep Kyoto 20:30)",n:"Dinner (IPPUDO) is at Aeon Mall next to the station — walk over from the museum return; zero connection stress. Dep Platform 30 · arr Platform 15."}],
- // Restored 8/31: 11/22 is the full Osaka day (New Babe → depachika); 11/23 is Kyoto (Menzou → Nintendo Museum, Uji 14:30 → IPPUDO → Haruka). Friend along 11/21–23 — bookings seat 3, budgets track OUR TWO only.
+ // Restored 8/31: 11/22 is the full Osaka day (New Babe → depachika); 11/23 is Kyoto (Menzou → Nintendo Museum, Uji 14:30 → IPPUDO → Haruka). Party of two throughout (8/31).
  metro:[["To Kiyomizu / Gion","Keihan via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Higashiyama on foot","Menzou (Okazaki) → Kiyomizu → Ishibei-kōji is walkable; bus 100/206 if legs give out"]],
  pois:[
  // ── sights · Okazaki / Nanzen-ji cluster — near Menzou, optional 11/22 add-ons ──
@@ -211,8 +211,8 @@ var HOTELS = {
  stops:[
   {id:12,d:"11/23 Mon·hol",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
  hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",pay:"cash",
- jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck for THREE — with the 11/23 visit, slots open 00:00 JST on 11/20 (3 days out). CC to hold, pay cash on the day. Holiday-Monday hours. Leave by ~13:15 for the museum.",note:"Backup: Okakita next door, walk-in."},
-  {id:13,d:"11/23 Mon",m:"Dinner",name:"IPPUDO Aeon Mall Kyoto",q:"一風堂 イオンモール京都",dish:"Tonkotsu ramen — Shiromaru / Akamaru",hrs:"mall restaurant floor · ~11:00–21:00",res:"walk",jpy:3000,lat:34.9808,lng:135.7534,area:"Aeon Mall Kyoto, Nishikujō — 5 min from Kyoto Stn",warn:"Walk-in — a dinner queue is possible but party of 3 is easy; budget = our two.",note:"Perfect museum landing — Kintetsu back from Ogura ~17:30, dinner beside the station, 20:30 Haruka. ⚠ Still open: CANCEL Tousuiro (075-561-0035, ¥24,000, was the anniversary dinner — Roku Roku 11/26 is the heir)."}]},
+ jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck for two — with the 11/23 visit, slots open 00:00 JST on 11/20 (3 days out). CC to hold, pay cash on the day. Holiday-Monday hours. Leave by ~13:15 for the museum.",note:"Backup: Okakita next door, walk-in."},
+  {id:13,d:"11/23 Mon",m:"Dinner",name:"IPPUDO Aeon Mall Kyoto",q:"一風堂 イオンモール京都",dish:"Tonkotsu ramen — Shiromaru / Akamaru",hrs:"mall restaurant floor · ~11:00–21:00",res:"walk",jpy:3000,lat:34.9808,lng:135.7534,area:"Aeon Mall Kyoto, Nishikujō — 5 min from Kyoto Stn",warn:"Walk-in — a dinner queue is possible easy for two; budget = our two.",note:"Perfect museum landing — Kintetsu back from Ogura ~17:30, dinner beside the station, 20:30 Haruka. ⚠ Still open: CANCEL Tousuiro (075-561-0035, ¥24,000, was the anniversary dinner — Roku Roku 11/26 is the heir)."}]},
 
 {id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle(Larger).jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[
@@ -301,7 +301,7 @@ var TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 
 var TRAINS=[
  {d:"Nov 17",t:"14:45",route:"Narita T1 \u2192 Yokohama",train:"Narita Express 30 \u2713 Japan Rail Tickets",note:"Arr 16:16 (1h31m). Dep Platform 1/2 \u00b7 arr Platform 6. Then 5-min taxi to the Westin."},
  {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 73 ✓ Smart EX",note:"Arr 16:00 → Kintetsu ltd. exp 16:20 → Nara 16:55 → Shisui → Poku-Poku by 18:00. Seats not finalized — pick them on Smart EX (E side for Fuji)."},
- {d:"Nov 21",t:"17:34",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Aoniyoshi (option — book ~Oct 21) or Kintetsu ltd. exp.",note:"Restored 8/31 · arr Namba 18:12. Full Nara day first (Fuku Sushi lunch). Friend joins at Ondoriya — party of 3 through 11/23."},
+ {d:"Nov 21",t:"17:34",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Aoniyoshi (option — book ~Oct 21) or Kintetsu ltd. exp.",note:"Restored 8/31 · arr Namba 18:12. Full Nara day first (Fuku Sushi lunch), then Ikoka in Osaka."},
  {d:"Nov 23",t:"10:20",route:"Tenn\u014dji \u2192 Kyoto",train:"Haruka 12 \u2713 Japan Rail Tickets",note:"Arr 11:04 (44 min). Dep Platform 18 \u00b7 arr Platform 30. Kyoto day trip out."},
  {d:"Nov 23",t:"20:30",route:"Kyoto \u2192 Tenn\u014dji",train:"Haruka 59 \u2713 Japan Rail Tickets",note:"Arr 21:16 (46 min). Dep Platform 30 \u00b7 arr Platform 15. Return after dinner \u2014 replaces the Keihan/T\u014dfukuji plan on the Kyoto tab."},
  {d:"Nov 24",t:"10:35",route:"Tenn\u014dji \u2192 Shin-\u014csaka",train:"Kuroshio 12 \u2713 Japan Rail Tickets",note:"Arr 10:51 (16 min). Dep Platform 18 \u00b7 arr Platform 1. Connects to Nozomi 90 dep 11:30."},
@@ -319,8 +319,8 @@ window.TRIPS_REGISTRY['japan-2026']={card:{ord:1,country:'Japan',emoji:'⛩',tit
    departNote:'Delta 1015 · IAD 07:00 · Nov 15',preLabel:'Positioning day',transitLabel:'In transit ✈',
    seedTodos:[
      {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
-     {id:'t8',d:'2026-08-31',cat:'transport',title:'⚠ REBOOK Haruka to 11/23 (before 10/22 issuance) · cancels',url:'',desc:'Kyoto moved back to 11/23 (Nintendo win): rebook Haruka 12 & 59 for THREE on Japan Rail Tickets BEFORE the current 11/22 tickets issue on 10/22. Also still open: cancel Tousuiro Gion 075-561-0035 (¥24,000 — anniversary heir is Roku Roku 11/26), Yugen (¥30,030), and Sushi Sogoro IF it got booked (11/21 lunch is Nara now).'},
-     {id:'t15',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu (11/21 eve, party of 3)',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'Restored 8/31: 17:34 Kintetsu-Nara → Namba 18:12, Sat/hol slot. Booking opens ~1 month out (10:30 JST). Salon/twin seats go fast — any Kintetsu ltd. exp. is the fallback if missed.'},
+     {id:'t8',d:'2026-08-31',cat:'transport',title:'⚠ REBOOK Haruka to 11/23 (before 10/22 issuance) · cancels',url:'',desc:'Kyoto moved back to 11/23 (Nintendo win): rebook Haruka 12 & 59 for TWO on Japan Rail Tickets BEFORE the current 11/22 tickets issue on 10/22. Also still open: cancel Tousuiro Gion 075-561-0035 (¥24,000 — anniversary heir is Roku Roku 11/26), Yugen (¥30,030), and Sushi Sogoro IF it got booked (11/21 lunch is Nara now).'},
+     {id:'t15',d:'2026-10-21',cat:'transport',title:'Aoniyoshi seats open — Kintetsu (11/21 eve, party of 2)',url:'https://www.kintetsu.co.jp/foreign/english/',desc:'Restored 8/31: 17:34 Kintetsu-Nara → Namba 18:12, Sat/hol slot. Booking opens ~1 month out (10:30 JST). Salon/twin seats go fast — any Kintetsu ltd. exp. is the fallback if missed.'},
      {id:'t15',d:'2026-09-05',cat:'dining',title:'Email Grand Hyatt Tokyo — Roku Roku 11/26',desc:'Concierge email: dinner for two at Roku Roku, Thu 11/26 ~18:00 (arriving off the Nozomi ~17:00; keep it early — N\'EX morning follows). Confirm as a hotel-guest booking on the room.'},
      {id:'t13',d:'2026-09-15',cat:'dining',title:'Email TIAD — SHUHARI lunch 11/26',desc:'Concierge email: lunch for two at SHUHARI, Thu 11/26, earliest seating — must finish by 14:05 for Nozomi 24 (dep 14:36). Ask them to note the train constraint.'},
      {id:'t14',d:'2026-10-01',cat:'dining',title:'Email Shisui — Poku-Poku & Fuku Sushi',desc:'One concierge email, two bookings again (restored 8/31): Poku-Poku for the 11/19 or 11/20 dinner (11/19 arrival is 16:55 — later seating if that night), and Fuku Sushi for the 11/21 LUNCH, party of 2. Same evening as the Nozomi seat picks.'},

@@ -182,6 +182,7 @@ var HOTELS = {
  {c:"sight",ic:"🎋",n:"Yasaka Kōshin-dō",d:"rainbow kukurizaru wish-balls",a:"Higashiyama",lat:34.9983,lng:135.7789},
  {c:"sight",ic:"🐉",n:"Kennin-ji",d:"twin-dragon ceiling, Kyoto's oldest Zen temple",a:"Higashiyama",lat:35.0007,lng:135.7735},
  {c:"sight",ic:"⛩",n:"Yasaka Shrine + Maruyama Park",d:"lantern-lit at night, between Gion and Kōdai-ji",a:"Higashiyama",lat:35.0037,lng:135.7787},
+ {c:"sight",ic:"🎮",n:"Nintendo Museum — WON 🎟 (11/23 · 14:30)",q:"ニンテンドーミュージアム 宇治",d:"timed entry 14:30 — QR + matching ID at the gate; Kintetsu Kyoto → Ogura ~25 min + 5-min walk; leave Menzou ~13:15; ~2.5 hrs inside, back ~17:30 for IPPUDO",a:"Uji",lat:34.8975,lng:135.7963},
  {c:"sight",ic:"🔷",n:"Shōren-in",d:"blue night illumination in a bamboo-and-camphor garden — the quiet light-up",a:"Higashiyama",lat:35.0064,lng:135.7828},   // NEW
  // ── sights · Okazaki cluster (Menzou) ──
  {c:"sight",ic:"⛩",n:"Heian Shrine + Shin'en garden",d:"3 min from Menzou — do the paid stroll garden, not just the courtyard",a:"Menzou",lat:35.0163,lng:135.7823},   // NEW
@@ -211,8 +212,7 @@ var HOTELS = {
   {id:12,d:"11/23 Mon·hol",m:"Lunch",name:"Yamamoto Menzou",dish:"Udon · tsuchi-gobō tempura",
  hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",pay:"cash",
  jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck for THREE — with the 11/23 visit, slots open 00:00 JST on 11/20 (3 days out). CC to hold, pay cash on the day. Holiday-Monday hours. Leave by ~13:15 for the museum.",note:"Backup: Okakita next door, walk-in."},
-  {id:25,d:"11/23 Mon",t:"14:30",name:"Nintendo Museum — WON 🎟",q:"ニンテンドーミュージアム 宇治",dish:"Timed entry 14:30 · lottery win",hrs:"museum ~10:00–18:00",res:"—",jpy:0,lat:34.8975,lng:135.7963,area:"Ogura, Uji — Kintetsu from Kyoto ~25 min + 5-min walk (pin approximate)",warn:"Bring the winning QR + matching ID. From Menzou: Okazaki → Kyoto Stn → Kintetsu Kyoto line to Ogura — leave lunch ~13:15.",note:"The reason Kyoto is 11/23 again. ~2.5 hrs inside → Kintetsu back ~17:30 → IPPUDO → Haruka 59."},
- {id:13,d:"11/23 Mon",m:"Dinner",name:"IPPUDO Aeon Mall Kyoto",q:"一風堂 イオンモール京都",dish:"Tonkotsu ramen — Shiromaru / Akamaru",hrs:"mall restaurant floor · ~11:00–21:00",res:"walk",jpy:3000,lat:34.9808,lng:135.7534,area:"Aeon Mall Kyoto, Nishikujō — 5 min from Kyoto Stn",warn:"Walk-in — a dinner queue is possible but party of 3 is easy; budget = our two.",note:"Perfect museum landing — Kintetsu back from Ogura ~17:30, dinner beside the station, 20:30 Haruka. ⚠ Still open: CANCEL Tousuiro (075-561-0035, ¥24,000, was the anniversary dinner — Roku Roku 11/26 is the heir)."}]},
+  {id:13,d:"11/23 Mon",m:"Dinner",name:"IPPUDO Aeon Mall Kyoto",q:"一風堂 イオンモール京都",dish:"Tonkotsu ramen — Shiromaru / Akamaru",hrs:"mall restaurant floor · ~11:00–21:00",res:"walk",jpy:3000,lat:34.9808,lng:135.7534,area:"Aeon Mall Kyoto, Nishikujō — 5 min from Kyoto Stn",warn:"Walk-in — a dinner queue is possible but party of 3 is easy; budget = our two.",note:"Perfect museum landing — Kintetsu back from Ogura ~17:30, dinner beside the station, 20:30 Haruka. ⚠ Still open: CANCEL Tousuiro (075-561-0035, ¥24,000, was the anniversary dinner — Roku Roku 11/26 is the heir)."}]},
 
 {id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle(Larger).jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[

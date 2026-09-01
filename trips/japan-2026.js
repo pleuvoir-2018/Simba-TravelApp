@@ -118,7 +118,7 @@ var HOTELS = {
  stops:[
   {id:5,d:"11/19 Thu",m:"Dinner",name:"Poku-Poku",dish:"Tonkatsu",hrs:"17:30–20:00 · closed Tue & Fri",res:"book",jpy:7500,lat:34.6788,lng:135.8304,area:"Shōnamichō",warn:"CALL AHEAD. Closes 20:00; you arrive ~17:00."},
   {id:6,d:"11/20 Fri",m:"Lunch",name:"Suiyō",dish:"Kaiseki",hrs:"12:00–14:30 daily",res:"ok",jpy:15180,lat:34.6854,lng:135.8354,area:"Inside Shisui"},
-  {id:7,d:"11/20 Fri",m:"Dinner",name:"Kitsune",dish:"Sukiyaki",hrs:"17:00–21:00 · closed Wed",res:"book",jpy:31900,lat:34.6811,lng:135.8299,area:"Ganriinchō",warn:"Tablecheck booking still on 11/19 — move it."}]},
+  {id:7,d:"11/20 Fri",m:"Dinner",name:"Momoshiki — sukiyaki BOOKED ✓",q:"すき焼きと牛まぶし ももしき 奈良",dish:"Yamato-gyū A4 sukiyaki course ¥11,000/pp — Nabe/Sukiyaki Hyakumeiten 2024",hrs:"booked ✓ — cooked tableside",res:"book",jpy:22000,lat:34.6835,lng:135.8280,area:"Higashimuki arcade, by Kintetsu-Nara (verify main vs hanare — both in the arcades)",warn:"⚠ CANCEL Kitsune (¥31,900, TableCheck — booking still sits on 11/19). Do it promptly; see t8.",note:"Booked 8/31 — replaces Kitsune. All-Nara larder, sukiyaki cooked at the table; gyū-mabushi finish if the course offers it."}]},
 
 {id:"osaka",city:"Osaka",photo:"Osaka_Castle_02bs3200.jpg",sub:"11/21–11/24",hotel:"miyako",
  legs:[
@@ -319,7 +319,7 @@ window.TRIPS_REGISTRY['japan-2026']={card:{ord:1,country:'Japan',emoji:'⛩',tit
    departNote:'Delta 1015 · IAD 07:00 · Nov 15',preLabel:'Positioning day',transitLabel:'In transit ✈',
    seedTodos:[
      {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
-     {id:'t8',d:'2026-08-31',cat:'transport',title:'⚠ REBOOK Haruka to 11/23 (before 10/22 issuance) · cancels',url:'',desc:'Kyoto moved back to 11/23 (Nintendo win): rebook Haruka 12 & 59 for TWO on Japan Rail Tickets BEFORE the current 11/22 tickets issue on 10/22. Also still open: cancel Tousuiro Gion 075-561-0035 (¥24,000 — anniversary heir is Roku Roku 11/26), Yugen (¥30,030), and Sushi Sogoro IF it got booked (replaced by the doorstep sushi izakaya).'},
+     {id:'t8',d:'2026-08-31',cat:'transport',title:'⚠ REBOOK Haruka to 11/23 (before 10/22 issuance) · cancels',url:'',desc:'Kyoto moved back to 11/23 (Nintendo win): rebook Haruka 12 & 59 for TWO on Japan Rail Tickets BEFORE the current 11/22 tickets issue on 10/22. Also still open: CANCEL Kitsune (¥31,900 TableCheck, still dated 11/19 — replaced by Momoshiki), Tousuiro Gion 075-561-0035 (¥24,000 — anniversary heir is Roku Roku 11/26), Yugen (¥30,030), and Sushi Sogoro IF it got booked.'},
      {id:'t15',d:'2026-09-05',cat:'dining',title:'Email Grand Hyatt Tokyo — Roku Roku 11/26',desc:'Concierge email: dinner for two at Roku Roku, Thu 11/26 ~18:00 (arriving off the Nozomi ~17:00; keep it early — N\'EX morning follows). Confirm as a hotel-guest booking on the room.'},
      {id:'t13',d:'2026-09-15',cat:'dining',title:'Email TIAD — SHUHARI lunch 11/26',desc:'Concierge email: lunch for two at SHUHARI, Thu 11/26, earliest seating — must finish by 14:05 for Nozomi 24 (dep 14:36). Ask them to note the train constraint.'},
      {id:'t14',d:'2026-10-01',cat:'dining',title:'Email Shisui — Poku-Poku (Nara dinner)',desc:'Concierge email for Poku-Poku, 11/19 or 11/20 dinner (11/19 arrival is 16:55 — later seating if that night). Same evening as the Nozomi seat picks.'},

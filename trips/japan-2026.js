@@ -91,7 +91,7 @@ var HOTELS = {
 {id:"nara",city:"Nara",photo:"Sika_deer_in_Nara_05.jpg",sub:"11/19–11/21",hotel:"shisui",
  legs:[
   {r:"Arrive: Kyoto → Kintetsu-Nara",m:"11/19 · Kintetsu Ltd. Express 16:20 → 16:55 — all-reserved, NOT YET BOOKED",n:"Only a 20-min connection off the Nozomi (arr 16:00) — pre-book: seats open on Kintetsu online 1 month out (Oct 19). At the gates: tap Suica for the base fare and hold the ¥520 express e-ticket on your phone — buy the express-ticket-only option online, not the combined one, or the base fare is paid twice."},
-  {r:"Depart: Kintetsu-Nara → Ōsaka-Namba",m:"11/21 morning · Kintetsu ltd. express · ~36 min, several per hour",n:"Early out of Nara (8/31): ~09:00–09:30 departure; the ¥520 reserved car is worth it with bags. At Namba: Midōsuji to Tennōji, bags at the Miyako, then lunch across the street at Sushi Ebisu."}],
+  {r:"Depart: JR Nara → Tennōji",m:"11/21 morning · Yamatoji rapid · ~35 min DIRECT, every ~10 min, no reservation",n:"Chosen 8/31 — lands at the hotel's own station, no Namba transfer. JR Nara is across town from the Shisui: 5-min taxi with bags. ICOCA and board (~09:30–10:00). Optional: hop off at Hōryū-ji (11 min out) for the world's oldest wooden temple, lockers at the station. Alternate: Kintetsu ltd. exp → Namba → Midōsuji."}],
  metro:[["On foot","Shisui sits inside Nara Park — Tōdai-ji 12 min, Kōfuku-ji 10 min, Kintetsu-Nara 12 min"],["Loop bus","Nara City Loop stops at Kenchō-Higashi, 3 min from the hotel"]],
  pois:[
   {c:"sight",ic:"⛩",n:"Tōdai-ji Great Buddha",d:"go at 8:00 open",a:"hotel",lat:34.6890,lng:135.8398},
@@ -122,7 +122,7 @@ var HOTELS = {
 
 {id:"osaka",city:"Osaka",photo:"Osaka_Castle_02bs3200.jpg",sub:"11/21–11/24",hotel:"miyako",
  legs:[
-  {r:"Arrive: Ōsaka-Namba → Tennōji",m:"11/21 late morning · Midōsuji line 6 min",n:"Morning express lands ~10:00. Check-in is later: bags with the bell desk via the Tennōji elevator, then lunch across Abenosuji at Sushi Ebisu — no transit."},
+  {r:"Arrive: Tennōji",m:"11/21 late morning · step off at the hotel",n:"The Yamatoji lands you home: elevator from Tennōji to the Miyako, bags with the bell desk, then lunch across Abenosuji at Sushi Ebisu — zero transit all day."},
   {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Kuroshio 12 ✓ dep 10:35 → Shin-Ōsaka 10:51 · Nozomi 90 dep 11:30",n:"Booked — ride JR from Tennōji (Platform 18), not the Midōsuji. Arr Shin-Ōsaka Platform 1 with a 39-min cushion to the Nozomi. Leave the hotel by ~10:15; Nagoya 12:19, Keitei inside the station."}],
  metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min · every 2–4 min"],["JR Osaka Loop","backup ring from Tennōji; Osaka-jō 12 min"]],
  pois:[
@@ -165,7 +165,7 @@ var HOTELS = {
   {r:"Out 11/23: Tennōji → Kyoto",m:"Haruka 12 · ⚠ REBOOK to 11/23 — currently ticketed 11/22",n:"Kyoto moved back to 11/23 (Nintendo Museum win). Rebook BOTH legs for two on Japan Rail Tickets BEFORE the 10/22 issuance of the 11/22 tickets. Same pattern: dep 10:20 P18 → arr 11:04 P30."},
   {r:"Cheaper: via Osaka Stn",m:"Loop 15 min → Special Rapid 29 min",n:"~50 min total; trains every ~8 min."},
   {r:"Return 11/23 after dinner",m:"Haruka 59 · ⚠ REBOOK to 11/23 (dep Kyoto 20:30)",n:"Dinner (IPPUDO) is at Aeon Mall next to the station — walk over from the museum return; zero connection stress. Dep Platform 30 · arr Platform 15."}],
- // Final 8/31: 11/21 early out of Nara → Sushi Ebisu lunch (doorstep) → Ondoriya dinner; 11/22 full Osaka day (New Babe → depachika); 11/23 Kyoto (Menzou → Nintendo Museum, Uji 14:30 → IPPUDO → Haruka). Party of two throughout.
+ // Final 8/31: 11/21 Yamatoji rapid to Tennōji → Sushi Ebisu lunch (doorstep) → Ondoriya dinner; 11/22 full Osaka day (New Babe → depachika); 11/23 Kyoto (Menzou → Nintendo Museum, Uji 14:30 → IPPUDO → Haruka). Party of two throughout.
  metro:[["To Kiyomizu / Gion","Keihan via Tōfukuji → Kiyomizu-Gojō / Gion-Shijō · or bus 86/206 from Kyoto Stn"],["Higashiyama on foot","Menzou (Okazaki) → Kiyomizu → Ishibei-kōji is walkable; bus 100/206 if legs give out"]],
  pois:[
  // ── sights · Okazaki / Nanzen-ji cluster — near Menzou, optional 11/22 add-ons ──
@@ -301,7 +301,7 @@ var TONIGHT={15:'parq',16:['On the plane ✈','ZG021 YVR → NRT · lands 12:45 
 var TRAINS=[
  {d:"Nov 17",t:"14:45",route:"Narita T1 \u2192 Yokohama",train:"Narita Express 30 \u2713 Japan Rail Tickets",note:"Arr 16:16 (1h31m). Dep Platform 1/2 \u00b7 arr Platform 6. Then 5-min taxi to the Westin."},
  {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 73 ✓ Smart EX",note:"Arr 16:00 → Kintetsu ltd. exp 16:20 → Nara 16:55 → Shisui → Poku-Poku by 18:00. Seats not finalized — pick them on Smart EX (E side for Fuji)."},
- {d:"Nov 21",t:"morning",route:"Kintetsu-Nara → Ōsaka-Namba",train:"Kintetsu limited express",note:"Early exit (8/31) · ~36 min, several per hour. Sushi Ebisu lunch across from the hotel after the bag drop; Ondoriya in the evening."},
+ {d:"Nov 21",t:"morning",route:"JR Nara → Tennōji",train:"Yamatoji rapid (direct, no res)",note:"Chosen 8/31 · ~35 min straight to the hotel's station. Taxi to JR Nara with bags; optional Hōryū-ji stop en route. Sushi Ebisu lunch across the street; Ondoriya evening."},
  {d:"Nov 23",t:"10:20",route:"Tenn\u014dji \u2192 Kyoto",train:"Haruka 12 \u2713 Japan Rail Tickets",note:"Arr 11:04 (44 min). Dep Platform 18 \u00b7 arr Platform 30. Kyoto day trip out."},
  {d:"Nov 23",t:"20:30",route:"Kyoto \u2192 Tenn\u014dji",train:"Haruka 59 \u2713 Japan Rail Tickets",note:"Arr 21:16 (46 min). Dep Platform 30 \u00b7 arr Platform 15. Return after dinner \u2014 replaces the Keihan/T\u014dfukuji plan on the Kyoto tab."},
  {d:"Nov 24",t:"10:35",route:"Tenn\u014dji \u2192 Shin-\u014csaka",train:"Kuroshio 12 \u2713 Japan Rail Tickets",note:"Arr 10:51 (16 min). Dep Platform 18 \u00b7 arr Platform 1. Connects to Nozomi 90 dep 11:30."},
@@ -328,5 +328,5 @@ window.TRIPS_REGISTRY['japan-2026']={card:{ord:1,country:'Japan',emoji:'⛩',tit
      {id:'t9',d:'2026-10-19',cat:'transport',title:'Kintetsu Kyoto → Nara 11/19 opens — book it',url:'https://www.ticket.kintetsu.co.jp/vs/en/e-ticket/',desc:'Opens 10:30 JST = 9:30 PM EDT Oct 18. Kintetsu e-ticket portal (NOT Smart EX / JR — private railway, not bookable before the window). Pick a train marked THROUGH to Kintetsu-Nara — some require a Yamato-Saidaiji change. ~¥1,280/person combined fare+exp; e-ticket on your phone.'},
 ],
    vault:[['Flights',[['f_dl1015','Delta 1015 · IAD→SEA','Nov 15 · 07:00 · conf / seats'],['f_dl3748','Delta 3748 · SEA→YVR','Nov 15 · 13:30 · conf / seats · codeshare'],['f_zg021','Zip Air ZG021 · YVR→NRT','Nov 16 · booking ref / seats'],['f_zg022','Zip Air ZG022 · NRT→YVR','Nov 27 · booking ref / seats'],['f_ua2470','United UA2470 · YVR→DEN','Nov 27 · booking ref / seats'],['f_ua2408','United UA2408 · DEN→IAD','Nov 27 · booking ref / seats']]],
-          ['Trains',[['t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats'],['t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats'],['t_kint','Kintetsu ltd. exp · Kintetsu-Nara→Ōsaka-Namba','Nov 21 morning · ¥520 reserved car / unreserved ok'],['t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats'],['t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats'],['t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats']]]],
+          ['Trains',[['t_nex1',"N'EX · NRT→Yokohama",'Nov 17 · car / seats'],['t_n261','Nozomi 73 · Shin-Yokohama→Kyoto','Nov 19 · 14:07 · Smart EX res # / seats'],['t_jr21','Yamatoji rapid · JR Nara→Tennōji','Nov 21 morning · nothing to book — ICOCA, every ~10 min'],['t_n14','Nozomi 90 · Shin-Ōsaka→Nagoya','Nov 24 · 11:30 · Smart EX res # / seats'],['t_n254','Nozomi 24 · Nagoya→Tokyo','Nov 26 · 14:36 · Smart EX res # / seats'],['t_nex2',"N'EX · Tokyo→NRT",'Nov 27 · car / seats']]]],
    flag:'<svg class="flag" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg"><rect width="900" height="600" fill="#ffffff"/><circle cx="450" cy="300" r="180" fill="#bc002d"/></svg>'};

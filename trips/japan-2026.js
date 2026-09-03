@@ -46,7 +46,7 @@ var HOTELS = {
  legs:[
   {r:"✈ NRT → Westin Yokohama",m:"11/17 · N'EX 30 ✓ · dep Narita T1 14:45 → arr Yokohama 16:16",n:"Land 12:45 → landside ~14:15 → Platform 1/2. Arr Platform 6, then 5-min taxi to the Westin. Door-to-door ~16:45 — booked on Japan Rail Tickets."},
   {r:"Shin-Yokohama → Kyoto",m:"11/19 · Nozomi 73 · dep 14:07 → arr 16:00",n:"Lunch done by ~12:50 → JR Yokohama line Yokohama → Shin-Yokohama, 12 min. Bags: coin lockers at Yokohama Stn, or carry."}],
- metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["On foot","Shirahara is 3 min from the hotel · Hana Yori is at Yokohama Stn · Tenshichi is at Kannai (JR Negishi line, 2 stops from Sakuragichō)"]],
+ metro:[["Minatomirai Line","Shin-Takashima / Minatomirai (5 min walk) → Yokohama Stn 2 min · → Motomachi-Chūkagai 8 min"],["On foot","Shirahara is 3 min from the hotel · Hana Yori is at Yokohama Stn · Soba Sumire is on the Hammerhead pier (12 min from Bashamichi)"]],
  pois:[
  // ── sights ──
  {c:"sight",ic:"🧱",n:"Red Brick Warehouse",d:"waterfront landmark + shops",a:"Minato Mirai",lat:35.4527,lng:139.6425},
@@ -209,7 +209,7 @@ var HOTELS = {
  {c:"conv",ic:"🏪",n:"Lawson Gion-Shijō",d:"by the Keihan station for the ride home",a:"Higashiyama",lat:35.0037,lng:135.7745},
  {c:"conv",ic:"🏪",n:"FamilyMart Kawaramachi-Sanjō",d:"corner of the arcades, 24h",a:"Teramachi",lat:35.0089,lng:135.7687}],
  stops:[
-  {id:12,d:"11/23 Mon·hol",m:"Lunch",name:"Yamamoto Menzou",t100:1,dish:"Udon · tsuchi-gobō tempura",
+  {id:12,d:"11/23 Mon",m:"Lunch",name:"Yamamoto Menzou",t100:1,dish:"Udon · tsuchi-gobō tempura",
  hrs:"10:00–17:00 LO (hol) · sells out · closed Thu",res:"book",pay:"cash",
  jpy:5000,lat:35.0140,lng:135.7866,area:"Okazaki",warn:"Book on TableCheck for two — with the 11/23 visit, slots open 00:00 JST on 11/20 (3 days out). CC to hold, pay cash on the day. Holiday-Monday hours. Leave by ~13:15 for the museum.",note:"Backup: Okakita next door, walk-in."},
   {id:13,d:"11/23 Mon",m:"Dinner",name:"IPPUDO Aeon Mall Kyoto",q:"一風堂 イオンモール京都",dish:"Tonkotsu ramen — Shiromaru / Akamaru",hrs:"mall restaurant floor · ~11:00–21:00",res:"walk",jpy:3000,lat:34.9808,lng:135.7534,area:"Aeon Mall Kyoto, Nishikujō — 5 min from Kyoto Stn",warn:"Walk-in — a dinner queue is possible easy for two; budget = our two.",note:"Perfect museum landing — Kintetsu back from Ogura ~17:30, dinner beside the station, 20:30 Haruka. ⚠ Still open: CANCEL Tousuiro (075-561-0035, ¥24,000, was the anniversary dinner — Roku Roku 11/26 is the heir)."}]},
@@ -218,12 +218,12 @@ var HOTELS = {
  legs:[
   {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 90 · dep 11:30 → arr 12:19",n:"Keitei lunch is inside the station complex, then Higashiyama line to Sakae."},
   {r:"Depart: Nagoya → Tokyo",m:"11/26 · Nozomi 24 · dep 14:36 → arr 16:15",n:"Table For Tomorrow lunch must end by 14:05 — 11:30 seating, course LO 13:30, mention the train."}],
- metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Keitei, Kikukawa)"],["Meijō Line (purple)","Yabachō 4-min walk; one stop to Kamimaezu for Ōsu"],["On foot","Ōsu arcades ~20 min (or Meijō line); Moumoutei ~12 min from TIAD"]],
+ metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Keitei, Yabaton Esca, the Nozomi)"],["Meijō Line (purple)","Yabachō 4-min walk; one stop to Kamimaezu for Ōsu"],["On foot","Ōsu arcades ~20 min (or Meijō line); Moumoutei ~12 min from TIAD"]],
  pois:[
   {c:"sight",ic:"🌳",n:"Hisaya Ōdōri Park + Mirai Tower",d:"TIAD's front yard, lit at night",a:"hotel",lat:35.1720,lng:136.9083},
   {c:"sight",ic:"🏯",n:"Nagoya Castle",d:"gold shachihoko",a:"hotel",lat:35.1856,lng:136.8997},
   {c:"sight",ic:"🛸",n:"Oasis 21 'Spaceship-Aqua'",d:"glass roof-deck, free, lit at night",a:"hotel",lat:35.1710,lng:136.9089},
-  {c:"sight",ic:"🌆",n:"Midland Square Sky Promenade",d:"44–46F open-air deck — same tower as Kikukawa; go straight after dinner",a:"Kikukawa",lat:35.1697,lng:136.8850},
+  {c:"sight",ic:"🌆",n:"Midland Square Sky Promenade",d:"44–46F open-air deck at Nagoya Station — pairs with a Yabaton Esca stop or the 11/26 send-off",a:"Nagoya Stn",lat:35.1697,lng:136.8850},
   {c:"sight",ic:"🏮",n:"Banshō-ji",d:"neon-lit temple glowing in the middle of the Ōsu arcades",a:"Ōsu",lat:35.1604,lng:136.9060},
   {c:"sight",ic:"⛩",n:"Atsuta Jingū",d:"one of Shinto's holiest shrines, in a cypress forest — Meijō line direct from Yabachō",a:"hotel",lat:35.1278,lng:136.9086},
   {c:"sight",ic:"🍁",n:"Tokugawaen + Tokugawa Art Museum",d:"daimyō stroll garden — late-Nov foliage light-up most years; museum holds the Genji scrolls",a:"hotel",lat:35.1848,lng:136.9330},
@@ -319,11 +319,10 @@ window.TRIPS_REGISTRY['japan-2026']={card:{ord:1,country:'Japan',emoji:'⛩',tit
    departNote:'Delta 1015 · IAD 07:00 · Nov 15',preLabel:'Positioning day',transitLabel:'In transit ✈',
    seedTodos:[
      {id:'t6',d:'2026-10-01',cat:'transport',title:'Smart EX — pick seats on all three Nozomi',url:'https://smart-ex.jp/',desc:'Res 2005/2006/2007 still say "seats not finalized". Take E seats — Fuji side on the Tōkaidō in both directions.'},
-     {id:'t8',d:'2026-08-31',cat:'transport',title:'⚠ REBOOK Haruka to 11/23 (before 10/22 issuance) · cancels',url:'',desc:'Kyoto moved back to 11/23 (Nintendo win): rebook Haruka 12 & 59 for TWO on Japan Rail Tickets BEFORE the current 11/22 tickets issue on 10/22. Also still open: CANCEL Kitsune (¥31,900 TableCheck, still dated 11/19 — replaced by Momoshiki), Tousuiro Gion 075-561-0035 (¥24,000 — anniversary heir is Roku Roku 11/26), Yugen (¥30,030), and Sushi Sogoro IF it got booked.'},
+     {id:'t8',d:'2026-09-20',cat:'transport',title:'⚠ REBOOK Haruka to 11/23 (before 10/22 issuance) · cancels',url:'',desc:'Kyoto moved back to 11/23 (Nintendo win): rebook Haruka 12 & 59 for TWO on Japan Rail Tickets BEFORE the current 11/22 tickets issue on 10/22. Also still open: CANCEL Kitsune (¥31,900 TableCheck, still dated 11/19 — replaced by Momoshiki), Tousuiro Gion 075-561-0035 (¥24,000 — anniversary heir is Roku Roku 11/26), Yugen (¥30,030), and Sushi Sogoro IF it got booked.'},
      {id:'t15',d:'2026-09-05',cat:'dining',title:'Email Grand Hyatt Tokyo — Roku Roku 11/26',desc:'Concierge email: dinner for two at Roku Roku, Thu 11/26 ~18:00 (arriving off the Nozomi ~17:00; keep it early — N\'EX morning follows). Confirm as a hotel-guest booking on the room.'},
      {id:'t13',d:'2026-09-15',cat:'dining',title:'Email TIAD — Table For Tomorrow lunch 11/26',url:'https://hotel-tiad.com/dining/',desc:'Concierge email: lunch course (¥8,800/pp) for two at Table For Tomorrow, Thu 11/26, 11:30 seating — must finish by 14:05 for the 14:36 Nozomi (course LO 13:30). Mention the FHR stay so the $100 credit posts. Same email: confirm the 11/25 takkyubin to the Grand Hyatt.'},
      {id:'t14',d:'2026-10-01',cat:'dining',title:'Email Shisui — Poku-Poku (Nara dinner)',desc:'Concierge email for Poku-Poku, 11/19 or 11/20 dinner (11/19 arrival is 16:55 — later seating if that night). Ask whether they take cards or are cash-only. Same evening as the Nozomi seat picks.'},
-     {id:'t12',d:'2026-09-01',cat:'tickets',title:'Nintendo Museum — lottery results out',url:'https://museum.nintendo.com/',desc:'Check the My Nintendo account for the November draw result (posts during JST daytime = overnight/early morning EDT). Won: pay/confirm within the stated window or the slot lapses. Lost: cancellation re-sales pop up on the site periodically — worth checks through September; Kyoto day is 11/23.'},
      {id:'t11',d:'2026-09-10',cat:'tickets',title:'Ghibli Park — buy MORNING 11/25 tickets (1:00 AM EDT)',url:'https://l-tike.com/st1/ghibli-en',desc:'Sale opens Wed Sep 10, 14:00 JST = 1:00 AM EDT. Decided shape: FULL DAY 11/25, morning entry slot, lunch in the park, back for Unafuji 18:30. Prep BEFORE the drop: Lawson English account created/verified and logged in, both passport names ready (tickets are name-printed, ID at the gate), two devices in the queue. Weekday morning slots usually survive the first hours — buy first thing Wednesday EDT or set the 1 AM alarm. Klook is the backup at markup. Check the tier lineup at purchase; the all-areas day pass is the default.'},
      {id:'t9',d:'2026-10-19',cat:'transport',title:'Kintetsu Kyoto → Nara 11/19 opens — book it',url:'https://www.ticket.kintetsu.co.jp/vs/en/e-ticket/',desc:'Opens 10:30 JST = 9:30 PM EDT Oct 18. Kintetsu e-ticket portal (NOT Smart EX / JR — private railway, not bookable before the window). Pick a train marked THROUGH to Kintetsu-Nara — some require a Yamato-Saidaiji change. ~¥1,280/person combined fare+exp; e-ticket on your phone.'},
 ],

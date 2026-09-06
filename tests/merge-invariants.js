@@ -22,7 +22,7 @@ if(missing.length)throw new Error('FIELDS WITHOUT A MERGE LANE (add to MERGE_LAN
 
 // ---------- (2) semantics through the real functions ----------
 vm.runInContext('window._cru={uid:"g1",role:"guest"};window._app={role:"member"};',ctx);
-for(const fn of ['mergeTodos','mlLane','mergeTripBase','mergeCruise']){
+for(const fn of ['mergeTodos','mlLane','m3','mergeTripBase','mergeCruise']){
   const m=core.match(new RegExp('function '+fn+'\\(([^)]*)\\)\\{[\\s\\S]*?\\n\\}'));
   if(!m)throw new Error('cannot extract '+fn);
   vm.runInContext(m[0]+';globalThis.'+fn+'='+fn+';',ctx);
@@ -33,6 +33,27 @@ const eq=(a,b,msg)=>{if(JSON.stringify(a)!==JSON.stringify(b))throw new Error(ms
 // base: localWins fields
 let m=mergeTripBase({expenses:[1],stops:['r']},{expenses:[2]});
 eq(m.expenses,[2],'expenses localWins');eq(m.stops,['r'],'remote-only preserved');
+// ---------- Stage D: three-way (stale tab must not lose remote work) ----------
+const A={id:'pA',n:'a'},B_={id:'pB',n:'b'},A2={id:'pA',n:'a-edited'};
+// stale tab: base [A], remote [A,B], local [A] (untouched) -> B survives
+m=mergeTripBase({plans:[A,B_]},{plans:[A]},{plans:[A]});eq(m.plans.map(p=>p.id).sort(),['pA','pB'],'3way: remote add survives stale tab');
+// local delete sticks; remote add still arrives
+m=mergeTripBase({plans:[A,B_]},{plans:[]},{plans:[A]});eq(m.plans.map(p=>p.id),['pB'],'3way: local delete sticks, remote add kept');
+// concurrent: local edited A, remote added B -> both
+m=mergeTripBase({plans:[A,B_]},{plans:[A2]},{plans:[A]});eq(m.plans.map(p=>p.n).sort(),['a-edited','b'],'3way: local edit + remote add');
+// remote edited A, local untouched -> remote edit wins
+m=mergeTripBase({plans:[A2]},{plans:[A]},{plans:[A]});eq(m.plans[0].n,'a-edited','3way: remote edit flows in');
+// remote delete, local untouched -> gone
+m=mergeTripBase({plans:[]},{plans:[A]},{plans:[A]});eq(m.plans,[],'3way: remote delete respected');
+// eff() lane (per-stop key): untouched local defers to remote; edited local wins
+m=mergeTripBase({5:{note:'cloud'}},{5:{note:'old'}},{5:{note:'old'}});eq(m[5].note,'cloud','3way: untouched note defers');
+m=mergeTripBase({5:{note:'cloud'}},{5:{note:'mine'}},{5:{note:'old'}});eq(m[5].note,'mine','3way: edited note wins');
+// removedStops as a set of deltas
+m=mergeTripBase({removedStops:[1,2]},{removedStops:[2,3]},{removedStops:[2]});eq(m.removedStops.map(String).sort(),['1','2','3'],'3way: removedStops deltas');
+// expenses keyed by pid when no id
+m=mergeTripBase({expenses:[{pid:'x',usd:1},{pid:'y',usd:2}]},{expenses:[{pid:'x',usd:1}]},{expenses:[{pid:'x',usd:1}]});eq(m.expenses.length,2,'3way: expenses by pid');
+// old behavior would have lost B — prove the stale-tab bug is what we fixed
+m=mergeTripBase({plans:[A,B_]},{plans:[A]});eq(m.plans.map(p=>p.id),['pA'],'legacy 2-arg still localWins (regression guard)');
 // base: vault shallow
 m=mergeTripBase({vault:{a:1,b:1}},{vault:{b:2}});eq(m.vault,{a:1,b:2},'vault shallow');
 // base: todos union + tombstone

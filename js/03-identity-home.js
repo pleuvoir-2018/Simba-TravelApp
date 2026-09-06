@@ -575,7 +575,7 @@ window.doAppRequest=function(){
   renderPendingApp();
 };
 window.checkAppStatus=async function(){
-  try{ const v=await sGet(); if(v){store=normalizeStore(JSON.parse(v));bindTrip();} }catch(e){}
+  try{ const v=await sGet(); if(v){store=normalizeStore(JSON.parse(v));bindTrip();window._markSynced(window._cloudSnapshot?normalizeStore(JSON.parse(JSON.stringify(window._cloudSnapshot))):undefined);} }catch(e){}
   validateAppSession();
   if(typeof updateAvatar==='function')updateAvatar();
   if(!window._app)renderLogin();

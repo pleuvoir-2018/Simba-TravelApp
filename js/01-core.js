@@ -43,6 +43,7 @@ async function sGet(){
     const res = await fetch('/api/sync?t='+Date.now(), {cache:'no-store'});
     if (res.ok) { const data = await res.json(); if (data && data.value) cloud = data.value; }
   } catch(e) { console.error('Cloud load failed, falling back to local'); }
+  window._cloudSnapshot = cloud;   // Stage D: the three-way merge base is what the cloud had at load
   try { const raw = localStorage.getItem(KEY); if (raw) local = JSON.parse(raw); } catch(e){}
 
   const ct = cloud ? Number(cloud._ts||0) : -1;
@@ -145,14 +146,47 @@ function mlLane(k){
   if(!window._mergeUnknown.includes(k)){window._mergeUnknown.push(k);try{console.warn('[merge] field without a lane, defaulting localWins:',k);}catch(e){}}
   return 'localWins';
 }
-function mergeTripBase(rt,lt){
+// Stage D: three-way merge of one key. r=remote, l=local, b=what THIS tab last
+// synced. Local wins only for what it actually changed since b; everything
+// else defers to remote — so a stale tab can no longer overwrite newer data.
+function m3(k,r,l,b){
+  const J=x=>JSON.stringify(x===undefined?null:x);
+  const ARR={plans:e=>e&&e.id,stops:e=>e&&e.id,expenses:e=>e&&(e.id||e.pid||e.mid)};
+  if(ARR[k]&&(Array.isArray(r)||Array.isArray(l)||Array.isArray(b))){
+    const kf=ARR[k];
+    const idx=a=>{const m=new Map();(a||[]).forEach(e=>{const id=kf(e);if(id!==undefined&&id!==null)m.set(String(id),e);});return m;};
+    const R=idx(r),L=idx(l),B=idx(b),out=[],seen=new Set();
+    const decide=id=>{
+      const rv=R.get(id),lv=L.get(id),bv=B.get(id);
+      const lch=J(lv)!==J(bv),rch=J(rv)!==J(bv);
+      if(lv===undefined&&bv!==undefined)return rch?rv:undefined;   // local delete sticks unless remote edited it
+      if(lv===undefined)return rv;                                 // remote add
+      if(lch)return lv;                                            // local add/edit wins
+      if(rv===undefined&&bv!==undefined)return undefined;          // remote delete, local untouched
+      return rv!==undefined?rv:lv;                                 // remote edit (or identical)
+    };
+    [...L.keys(),...R.keys(),...B.keys()].forEach(id=>{if(seen.has(id))return;seen.add(id);const v=decide(id);if(v!==undefined)out.push(v);});
+    return out;
+  }
+  if(k==='removedStops'){
+    const S=a=>new Set((a||[]).map(String));const R=S(r),L=S(l),B=S(b),out=new Set(R);
+    L.forEach(x=>{if(!B.has(x))out.add(x);});B.forEach(x=>{if(!L.has(x))out.delete(x);});
+    return [...out];
+  }
+  const lch=J(l)!==J(b);
+  return lch?l:(r!==undefined?r:l);
+}
+window.m3=m3;
+function mergeTripBase(rt,lt,bt){
   rt=rt||{};lt=lt||{};
   const out={};
   const t=mergeTodos(rt,lt);
-  new Set([...Object.keys(rt),...Object.keys(lt)]).forEach(k=>{
+  const has3=!!(bt&&typeof bt==='object');
+  new Set([...Object.keys(rt),...Object.keys(lt),...(has3?Object.keys(bt):[])]).forEach(k=>{
     if(k==='todos'||k==='todoGone')return;
     if(mlLane(k)==='shallow'){out[k]={...(rt[k]||{}),...(lt[k]||{})};return;}
-    out[k]=(k in lt)?lt[k]:rt[k];
+    if(!has3){out[k]=(k in lt)?lt[k]:rt[k];return;}
+    const v=m3(k,rt[k],lt[k],bt[k]);if(v!==undefined)out[k]=v;
   });
   if(t.todos!==undefined)out.todos=t.todos;
   if(t.todoGone!==undefined)out.todoGone=t.todoGone;
@@ -238,6 +272,7 @@ function mergeApp(rA,lA){
 async function loadOverrides(){
   try{ const v=await sGet(); if(v)store=JSON.parse(v); }catch(e){ store={}; }
   store=normalizeStore(store);
+  window._markSynced(window._cloudSnapshot?normalizeStore(JSON.parse(JSON.stringify(window._cloudSnapshot))):undefined);
   // one-time lift of cruise-scoped users into the app directory
   store.app=store.app||{};
   const cru=(store.trips&&store.trips['cruise-2028'])||{};
@@ -258,6 +293,8 @@ async function loadOverrides(){
    can never lose an edit, and the cloud round-trip (GET-merge then POST) is
    debounced so a burst of edits costs one trip instead of one each. */
 let _saveTimer=null,_savePending=false,_saveInFlight=false;
+let _syncBase=null;  // Stage D: the store as this tab last synced it
+window._markSynced=function(fromCloud){ try{ _syncBase=JSON.parse(JSON.stringify(fromCloud!==undefined?fromCloud:store)); }catch(e){ _syncBase=null; } };
 function saveOverrides(){
   if(window._realApp){flash('Viewing as '+((window._app||{}).name||'…')+' — read only, nothing saves','err');return;}
   if(typeof appRole==='function'&&appRole()==='designer'){flash('Design review account — read only, nothing saves','err');return;}
@@ -388,7 +425,7 @@ async function flushSave(){
         const trips={...(remote.trips||{})};
         Object.keys(store.trips||{}).forEach(k=>{
           const rt=trips[k]||{}, lt=(store.trips||{})[k]||{};
-          let m=mergeTripBase(rt,lt);
+          let m=mergeTripBase(rt,lt,((_syncBase&&_syncBase.trips)||{})[k]);
           if(TRIP_DATA[k]&&(TRIP_DATA[k].cruise||TRIP_DATA[k].group))m=mergeCruise(rt,lt,m);
           trips[k]=m;
         });
@@ -399,6 +436,7 @@ async function flushSave(){
       }
     }catch(e){}
     mode=await sSet(JSON.stringify(store));
+    if(mode==='cloud')window._markSynced();
   }finally{ _saveInFlight=false; }
   flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist',
         mode==='cloud'?'ok':'err');

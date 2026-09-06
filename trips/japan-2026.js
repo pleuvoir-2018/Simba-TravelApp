@@ -128,7 +128,6 @@ var HOTELS = {
  pois:[
   {c:"sight",ic:"🌃",n:"Hōzenji Yokochō",d:"lantern alley + moss-covered Fudō",a:"Namba",lat:34.6678,lng:135.5031},
   {c:"sight",ic:"🏙",n:"Harukas 300 Observatory",d:"in your own building — go at sunset",a:"hotel",lat:34.6461,lng:135.5136},
- {c:"sight",ic:"🎮",n:"Nintendo Museum — WON 🎟 (11/23 · 14:30) — decision open",q:"ニンテンドーミュージアム 宇治",d:"Kyoto day cancelled 9/6 but the ticket exists: Kintetsu Namba → Ōgura ~55 min (change at Yamato-Saidaiji), fits between the udon lunch (done ~12:30) and the Uehommachi dinner. Go as a half-day, or release it. QR + matching ID if going.",a:"Uji (day-trip option)",lat:34.8975,lng:135.7963},
   {c:"sight",ic:"🗼",n:"Shinsekai + Tsūtenkaku",d:"retro Osaka at night",a:"hotel",lat:34.6525,lng:135.5063},
   {c:"sight",ic:"🦁",n:"Namba Yasaka lion shrine",d:"the giant lion-head stage",a:"Namba",lat:34.6620,lng:135.4970},
   {c:"sight",ic:"🐙",n:"Kuromon Ichiba Market",d:"morning grazing",a:"Namba",lat:34.6656,lng:135.5065},
@@ -161,7 +160,7 @@ var HOTELS = {
    note:"B2 = sōzai, bentō, sashimi, fresh food · B1 = bakery, wagashi, patisserie. One of Japan's largest depachika and it's in your own building.",
    warn:"Go after ~19:00 — sōzai counters mark down unsold food (半額 stickers) in the last hour before 20:30 close."},
   {id:26,d:"11/23 Mon",m:"Lunch",name:"Sanuki Udon Imayuki",q:"讃岐うどん 今雪 扇町",t100:1,dish:"Sanuki udon — lunch set with tempura & tamago-kake gohan from ¥850",hrs:"11:30–14:00 LO · 18:00–21:00",res:"walk",jpy:3000,lat:34.7040,lng:135.5058,area:"Kamiyama-chō, Kita-ku — 6 min from Ogimachi/Nakazakichō, 7 from Umeda",warn:"Walk-in — arrive at the 11:30 open (holiday Monday). Udon Hyakumeiten ×5.",note:"Kyoto day cancelled 9/6 — full Osaka day. Pairs with Tenjinbashisuji arcade and the Nakazakichō vintage lanes."},
-  {id:27,d:"11/23 Mon",m:"Dinner",name:"Okonomiyaki Ajikuraya",q:"お好み焼 味くら屋 上本町",dish:"Okonomiyaki · modan-yaki — Uehommachi",hrs:"— verify on Tabelog",res:"book",jpy:8000,lat:34.6660,lng:135.5180,area:"Uehommachi — 2 Tanimachi-line stops from Tennōji (pin approximate)",warn:"Verify address/pin and hours from your Tabelog save; reserve two if it takes bookings.",note:"Kyoto day cancelled 9/6. Easy night — Tanimachi line home in 5 min."}]},
+  {id:27,d:"11/23 Mon",m:"Dinner",name:"Okonomiyaki Ajikuraya",q:"お好み焼 味くら屋 上本町",t100:1,dish:"Okonomiyaki · modan-yaki — Uehommachi",hrs:"— verify hours on Tabelog",res:"book",jpy:8000,lat:34.6612,lng:135.5178,area:"13-18 Obasechō, Tennōji-ku (Richheim Arte Uehommachi 1F) — 2 Tanimachi-line stops from Tennōji; pin ±100 m",warn:"Reserve two if it takes bookings; confirm hours.",note:"Kyoto day cancelled 9/6. Easy night — Tanimachi line home in 5 min."}]},
 
 {id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle(Larger).jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[

@@ -50,6 +50,11 @@ m=mergeTripBase({5:{note:'cloud'}},{5:{note:'old'}},{5:{note:'old'}});eq(m[5].no
 m=mergeTripBase({5:{note:'cloud'}},{5:{note:'mine'}},{5:{note:'old'}});eq(m[5].note,'mine','3way: edited note wins');
 // removedStops as a set of deltas
 m=mergeTripBase({removedStops:[1,2]},{removedStops:[2,3]},{removedStops:[2]});eq(m.removedStops.map(String).sort(),['1','2','3'],'3way: removedStops deltas');
+// 9/9 incident: KEYLESS manual expenses must survive a three-way merge
+const K1={date:'2026-11-17',usd:'120.00',desc:'N\'EX',card:'Amex',cat:'Transport'},K2={date:'2026-11-18',usd:'40.00',desc:'Itoya',card:'Amex',cat:'Shopping'};
+m=mergeTripBase({expenses:[K1,K2]},{expenses:[K1,K2]},{expenses:[K1,K2]});eq(m.expenses.length,2,'3way: keyless expenses survive (was 0)');
+m=mergeTripBase({expenses:[K1]},{expenses:[K1,K2]},{expenses:[K1]});eq(m.expenses.length,2,'3way: keyless local add survives');
+m=mergeTripBase({expenses:[K1,K2]},{expenses:[K1]},{expenses:[K1,K2]});eq(m.expenses.length,1,'3way: keyless local delete sticks');
 // expenses keyed by pid when no id
 m=mergeTripBase({expenses:[{pid:'x',usd:1},{pid:'y',usd:2}]},{expenses:[{pid:'x',usd:1}]},{expenses:[{pid:'x',usd:1}]});eq(m.expenses.length,2,'3way: expenses by pid');
 // old behavior would have lost B — prove the stale-tab bug is what we fixed

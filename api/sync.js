@@ -29,6 +29,22 @@ export default async function handler(req, res) {
       return res.status(200).json(report);
     }
 
+    // version history (9/9 incident tooling): ?versions=1 lists, ?ts=<13 digits> reads one
+    if (req.query && (req.query.versions || req.query.ts)) {
+      try {
+        res.setHeader('Cache-Control', 'no-store, max-age=0');
+        const { blobs } = await list({ prefix: VER_PREFIX, limit: 100 });
+        const vers = blobs.map(b => ({ ts: b.pathname.slice(VER_PREFIX.length).replace('.json',''), size: b.size, url: b.url }))
+          .filter(v => /^\d{13}$/.test(v.ts)).sort((x, y) => y.ts.localeCompare(x.ts));
+        if (req.query.versions) return res.status(200).json({ versions: vers.map(v => ({ ts: v.ts, size: v.size })) });
+        const hit = vers.find(v => v.ts === String(req.query.ts));
+        if (!hit) return res.status(404).json({ error: 'no such version' });
+        const r = await fetch(`${hit.url}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!r.ok) return res.status(500).json({ error: 'read-back failed: ' + r.status });
+        return res.status(200).json({ ts: hit.ts, value: await r.json() });
+      } catch (e) { return res.status(500).json({ error: 'versions failed: ' + e.message }); }
+    }
+
     try {
       res.setHeader('Cache-Control', 'no-store, max-age=0');
       const { blobs } = await list({ prefix: VER_PREFIX, limit: 20 });
@@ -68,7 +84,7 @@ export default async function handler(req, res) {
       if (Math.random() < 0.125) try {
         const { blobs } = await list({ prefix: VER_PREFIX, limit: 100 });
         const sorted = blobs.slice().sort((a, b) => b.pathname.localeCompare(a.pathname));
-        const stale = sorted.slice(8);
+        const stale = sorted.slice(40);   // was 8 — history is the recovery net (9/9)
         if (stale.length) await del(stale.map(b => b.url));
       } catch (_) {}
 

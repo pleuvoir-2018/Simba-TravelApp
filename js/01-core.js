@@ -151,7 +151,9 @@ function mlLane(k){
 // else defers to remote — so a stale tab can no longer overwrite newer data.
 function m3(k,r,l,b){
   const J=x=>JSON.stringify(x===undefined?null:x);
-  const ARR={plans:e=>e&&e.id,stops:e=>e&&e.id,expenses:e=>e&&(e.id||e.pid||e.mid)};
+  // expenses: manual rows historically have NO id (index-identified) — a keyless entry must merge by content, never be dropped (9/9 incident)
+  const expKey=e=>e&&(e.id||e.pid||e.mid||('c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|')));
+  const ARR={plans:e=>e&&e.id,stops:e=>e&&e.id,expenses:expKey};
   if(ARR[k]&&(Array.isArray(r)||Array.isArray(l)||Array.isArray(b))){
     const kf=ARR[k];
     const idx=a=>{const m=new Map();(a||[]).forEach(e=>{const id=kf(e);if(id!==undefined&&id!==null)m.set(String(id),e);});return m;};

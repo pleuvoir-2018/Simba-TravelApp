@@ -1106,7 +1106,7 @@ function renderExpenses() {
   });
 
   panel.innerHTML = `<div class="card" style="max-width:850px; margin: 0 auto;">
-    <div class="chead"><span>Expense Tracker</span><span>Total: $${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}${plannedTotal>0.005?` · +$${plannedTotal.toLocaleString('en-US',{minimumFractionDigits:2})} planned`:''}</span></div>
+    <div class="chead"><span>Expense Tracker${(typeof isSuper==='function'&&isSuper())?' <button class="btn-mini" onclick="expVersions()" title="Version history / restore">🕘 Versions</button>':''}</span><span>Total: $${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}${plannedTotal>0.005?` · +$${plannedTotal.toLocaleString('en-US',{minimumFractionDigits:2})} planned`:''}</span></div>
 
     <div style="padding:12px 16px; border-bottom:1px solid var(--rule);">
       <div style="display:flex; justify-content:space-between; font:600 10px var(--mono); text-transform:uppercase; margin-bottom:6px;">
@@ -1288,6 +1288,7 @@ function renderExpenses() {
       form.dataset.editIdx = ""; // Reset edit mode
     } else { // We are ADDING a new expense
       newExp.paidUsd = newExp.card === 'Cash' ? Number(newExp.usd) : 0;   // cash = settled instantly
+      newExp.id = 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);  // stable identity for merges (9/9)
       overrides.expenses.push(newExp);
     }
     if (newExp.planned) { newExp.paidUsd = 0; }
@@ -1739,4 +1740,33 @@ window.jjAddLink=function(){
 window.jjDelLink=function(id){
   overrides.links=(overrides.links||[]).filter(x=>x.id!==id);
   saveOverrides();render();
+};
+
+
+/* ---- Version history / restore (admin) — born of the 9/9 expenses incident ---- */
+window.expVersions=async function(){
+  const panel=document.getElementById('expVerPanel')||(()=>{const d=document.createElement('div');d.id='expVerPanel';d.className='card';d.style.cssText='max-width:850px;margin:12px auto';document.getElementById('panel').prepend(d);return d;})();
+  panel.innerHTML='<div class="chead"><span>Version history</span><span>loading…</span></div>';
+  try{
+    const r=await fetch('/api/sync?versions=1',{cache:'no-store'}); const j=await r.json();
+    const vs=(j.versions||[]).slice(0,24); const key=tripKey();
+    const rows=[];
+    for(const v of vs){
+      let n='?',keys=[];
+      try{const rr=await fetch('/api/sync?ts='+v.ts,{cache:'no-store'});const jj=await rr.json();const t=(jj.value&&jj.value.trips&&jj.value.trips[key])||{};keys=(t.expenses||[]);n=keys.length;}catch(e){}
+      rows.push(`<div class="tdo-row" style="justify-content:space-between"><span><b>${new Date(Number(v.ts)).toLocaleString()}</b> · ${n} expenses</span><button class="btn-mini" onclick="expRestore('${v.ts}')">restore missing</button></div>`);
+    }
+    panel.innerHTML='<div class="chead"><span>Version history</span><span>'+vs.length+' stored · restore = add what\'s missing, never delete</span></div>'+(rows.join('')||'<div class="td-empty">No versions found.</div>');
+  }catch(e){panel.innerHTML='<div class="td-empty">Could not load versions: '+esc(e.message)+'</div>';}
+};
+window.expRestore=async function(ts){
+  try{
+    const rr=await fetch('/api/sync?ts='+ts,{cache:'no-store'});const jj=await rr.json();
+    const old=((jj.value&&jj.value.trips&&jj.value.trips[tripKey()])||{}).expenses||[];
+    const k=e=>e&&(e.id||e.pid||e.mid||('c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|')));
+    overrides.expenses=overrides.expenses||[]; const have=new Set(overrides.expenses.map(k)); let added=0;
+    old.forEach(e=>{const kk=k(e); if(!have.has(kk)){overrides.expenses.push(e);have.add(kk);added++;}});
+    saveOverrides(); if(typeof renderExpenses==='function')renderExpenses();
+    alert(added+' expense'+(added===1?'':'s')+' restored from '+new Date(Number(ts)).toLocaleString());
+  }catch(e){alert('Restore failed: '+e.message);}
 };

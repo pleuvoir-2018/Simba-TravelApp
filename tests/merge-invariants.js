@@ -22,12 +22,12 @@ if(missing.length)throw new Error('FIELDS WITHOUT A MERGE LANE (add to MERGE_LAN
 
 // ---------- (2) semantics through the real functions ----------
 vm.runInContext('window._cru={uid:"g1",role:"guest"};window._app={role:"member"};',ctx);
-for(const fn of ['mergeTodos','mlLane','m3','mergeTripBase','mergeCruise']){
+for(const fn of ['mergeTodos','mlLane','m3','mergeTripBase','mergeDropCheck','mergeCruise']){
   const m=core.match(new RegExp('function '+fn+'\\(([^)]*)\\)\\{[\\s\\S]*?\\n\\}'));
   if(!m)throw new Error('cannot extract '+fn);
   vm.runInContext(m[0]+';globalThis.'+fn+'='+fn+';',ctx);
 }
-const {mergeTripBase,mergeCruise}=ctx;
+const {mergeTripBase,mergeCruise,mergeDropCheck}=ctx;
 const eq=(a,b,msg)=>{if(JSON.stringify(a)!==JSON.stringify(b))throw new Error(msg+': '+JSON.stringify(a)+' vs '+JSON.stringify(b));};
 
 // base: localWins fields
@@ -55,6 +55,15 @@ const K1={date:'2026-11-17',usd:'120.00',desc:'N\'EX',card:'Amex',cat:'Transport
 m=mergeTripBase({expenses:[K1,K2]},{expenses:[K1,K2]},{expenses:[K1,K2]});eq(m.expenses.length,2,'3way: keyless expenses survive (was 0)');
 m=mergeTripBase({expenses:[K1]},{expenses:[K1,K2]},{expenses:[K1]});eq(m.expenses.length,2,'3way: keyless local add survives');
 m=mergeTripBase({expenses:[K1,K2]},{expenses:[K1]},{expenses:[K1,K2]});eq(m.expenses.length,1,'3way: keyless local delete sticks');
+// keyless plans/stops merge by content too
+const KP={city:'k',d:'2026-11-22',t:'14:00',name:'no-id plan'};
+m=mergeTripBase({plans:[KP]},{plans:[KP]},{plans:[KP]});eq(m.plans.length,1,'3way: keyless plan survives');
+m=mergeTripBase({stops:[KP]},{stops:[KP,{city:'k',name:'second'}]},{stops:[KP]});eq(m.stops.length,2,'3way: keyless stop add survives');
+// drop guard: silent loss trips it; a real deletion does not
+let bad=mergeDropCheck({expenses:[K1,K2]},{expenses:[K1,K2]},{expenses:[K1,K2]},{expenses:[]});eq(bad.length,1,'guard: silent loss detected');
+eq(bad[0].lane,'expenses','guard: names the lane');
+bad=mergeDropCheck({expenses:[K1,K2]},{expenses:[K1]},{expenses:[K1,K2]},{expenses:[K1]});eq(bad.length,0,'guard: legitimate local delete passes');
+bad=mergeDropCheck({expenses:[K1]},{expenses:[K1,K2]},{expenses:[K1,K2]},{expenses:[K1]});eq(bad.length,0,'guard: legitimate remote delete passes');
 // expenses keyed by pid when no id
 m=mergeTripBase({expenses:[{pid:'x',usd:1},{pid:'y',usd:2}]},{expenses:[{pid:'x',usd:1}]},{expenses:[{pid:'x',usd:1}]});eq(m.expenses.length,2,'3way: expenses by pid');
 // old behavior would have lost B — prove the stale-tab bug is what we fixed

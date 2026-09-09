@@ -41,7 +41,7 @@ async function sGet(){
   let cloud=null, local=null;
   try {
     const res = await fetch('/api/sync?t='+Date.now(), {cache:'no-store'});
-    if (res.ok) { const data = await res.json(); if (data && data.value) cloud = data.value; }
+    if (res.ok) { const data = await res.json(); if (data && data.value) { cloud = data.value; window._cloudTs = data.ts || null; } }
   } catch(e) { console.error('Cloud load failed, falling back to local'); }
   window._cloudSnapshot = cloud;   // Stage D: the three-way merge base is what the cloud had at load
   try { const raw = localStorage.getItem(KEY); if (raw) local = JSON.parse(raw); } catch(e){}
@@ -59,14 +59,12 @@ async function sGet(){
   return mem;
 }
 
-async function sSet(v){
-  // 1. Try to save to Edge Config Cloud
+async function sSet(v,basedOn){
+  // 1. Try to save to the cloud — optimistic concurrency: the server refuses (409) if a newer version landed since we read.
   try {
-    const res = await fetch('/api/sync', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: v
-    });
+    const hdr={ 'Content-Type': 'application/json' }; if(basedOn)hdr['X-Based-On']=String(basedOn);
+    const res = await fetch('/api/sync', { method: 'POST', headers: hdr, body: v });
+    if (res.status===409) return 'conflict';
     if (res.ok) return 'cloud';
   } catch(e) { console.error('Cloud save failed, falling back to local'); }
   
@@ -152,8 +150,9 @@ function mlLane(k){
 function m3(k,r,l,b){
   const J=x=>JSON.stringify(x===undefined?null:x);
   // expenses: manual rows historically have NO id (index-identified) — a keyless entry must merge by content, never be dropped (9/9 incident)
+  const ck=e=>'c:'+JSON.stringify(e);                                   // content key: a keyless item merges by identity, never drops
   const expKey=e=>e&&(e.id||e.pid||e.mid||('c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|')));
-  const ARR={plans:e=>e&&e.id,stops:e=>e&&e.id,expenses:expKey};
+  const ARR={plans:e=>e&&(e.id||ck(e)),stops:e=>e&&(e.id||ck(e)),expenses:expKey};
   if(ARR[k]&&(Array.isArray(r)||Array.isArray(l)||Array.isArray(b))){
     const kf=ARR[k];
     const idx=a=>{const m=new Map();(a||[]).forEach(e=>{const id=kf(e);if(id!==undefined&&id!==null)m.set(String(id),e);});return m;};
@@ -179,6 +178,20 @@ function m3(k,r,l,b){
   return lch?l:(r!==undefined?r:l);
 }
 window.m3=m3;
+// Drop guard: after a merge, no array lane may shrink below the base count
+// unless local or remote actually deleted something. Catches the class of
+// bug that emptied expenses on 9/6 — before it can reach the cloud.
+function mergeDropCheck(rt,lt,bt,mt){
+  const lanes=['plans','stops','expenses','todos'],bad=[];
+  if(!bt)return bad;
+  lanes.forEach(k=>{
+    const n=a=>Array.isArray(a)?a.length:0;
+    const b=n(bt[k]),l=n(lt[k]),r=n(rt[k]),m=n(mt[k]);
+    if(b>0&&m<b&&l>=b&&r>=b)bad.push({lane:k,base:b,merged:m});
+  });
+  return bad;
+}
+window.mergeDropCheck=mergeDropCheck;
 function mergeTripBase(rt,lt,bt){
   rt=rt||{};lt=lt||{};
   const out={};
@@ -296,7 +309,8 @@ async function loadOverrides(){
    debounced so a burst of edits costs one trip instead of one each. */
 let _saveTimer=null,_savePending=false,_saveInFlight=false;
 let _syncBase=null;  // Stage D: the store as this tab last synced it
-window._markSynced=function(fromCloud){ try{ _syncBase=JSON.parse(JSON.stringify(fromCloud!==undefined?fromCloud:store)); }catch(e){ _syncBase=null; } };
+let _baseWait=0,_retryTimer=null;
+window._markSynced=function(fromCloud){ try{ if(fromCloud===undefined&&window._cloudSnapshot===null&&!window._syncedOnce){ _syncBase=null; window._baseUnknown=true; return; } window._baseUnknown=false; window._syncedOnce=true; _syncBase=JSON.parse(JSON.stringify(fromCloud!==undefined?fromCloud:store)); }catch(e){ _syncBase=null; } };
 function saveOverrides(){
   if(window._realApp){flash('Viewing as '+((window._app||{}).name||'…')+' — read only, nothing saves','err');return;}
   if(typeof appRole==='function'&&appRole()==='designer'){flash('Design review account — read only, nothing saves','err');return;}
@@ -417,34 +431,46 @@ function mergeCruise(rt,lt,base){
 }
 async function flushSave(){
   if(_saveInFlight)return;              // the trailing call below picks it up
+  // Vector 2: never merge without knowing what this tab last synced. Wait briefly for the load.
+  if(_syncBase===null&&!window._baseUnknown){ _baseWait=(_baseWait||0)+1; if(_baseWait<20){ _savePending=true; setTimeout(flushSave,500); return; } }
   _saveInFlight=true;_savePending=false;
-  let mode='memory';
+  let mode='memory',merged=false,guardHit=null;
   try{
-    try{ const r=await fetch('/api/sync?t='+Date.now(),{cache:'no-store'}); const d=await r.json();
-      if(d&&d.value){
-        // Merge per trip id so a save in one trip can never touch another.
-        const remote=normalizeStore(d.value);
-        const trips={...(remote.trips||{})};
+    for(let attempt=0;attempt<3&&!merged;attempt++){
+      let remote=null,remoteTs=null;
+      try{ const r=await fetch('/api/sync?t='+Date.now(),{cache:'no-store'}); const d=await r.json(); if(d&&('value' in d)){remote=d.value;remoteTs=d.ts||null;} }
+      catch(e){ break; }               // Vector 3: a failed read means NO cloud write this round
+      if(remote){
+        const rn=normalizeStore(remote);
+        const trips={...(rn.trips||{})};
+        const baseTrips=(_syncBase&&_syncBase.trips)||(rn.trips||{});   // base unknown → remote as base (conservative)
         Object.keys(store.trips||{}).forEach(k=>{
-          const rt=trips[k]||{}, lt=(store.trips||{})[k]||{};
-          let m=mergeTripBase(rt,lt,((_syncBase&&_syncBase.trips)||{})[k]);
+          const rt=trips[k]||{}, lt=(store.trips||{})[k]||{}, bt=baseTrips[k];
+          let m=mergeTripBase(rt,lt,bt);
           if(TRIP_DATA[k]&&(TRIP_DATA[k].cruise||TRIP_DATA[k].group))m=mergeCruise(rt,lt,m);
+          const bad=mergeDropCheck(rt,lt,bt,m); if(bad.length&&!guardHit)guardHit={trip:k,bad};
           trips[k]=m;
         });
+        if(guardHit){ console.error('SYNC GUARD — merge would drop data, cloud write aborted',guardHit); break; }
         Object.keys(trips).forEach(k=>{ trips[k]._seen=Date.now(); });
-        const appOut=mergeApp((remote.app||{}),(store.app||{}));
+        const appOut=mergeApp((rn.app||{}),(store.app||{}));
         store={...store,trips,app:appOut};
         bindTrip();
       }
-    }catch(e){}
-    mode=await sSet(JSON.stringify(store));
+      merged=true;
+      mode=await sSet(JSON.stringify(store),remoteTs);
+      if(mode==='conflict'){ merged=false; continue; }          // Vector 4: a peer wrote first — re-read, re-merge, retry
+    }
+    if(!merged&&!guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='browser'; }
+    if(guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='guard'; }
     if(mode==='cloud')window._markSynced();
   }finally{ _saveInFlight=false; }
-  flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser (offline) ✓':'Saved in memory only — will not persist',
+  flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser — cloud unreachable, will retry ✓':mode==='guard'?('⚠ Sync guard: merge would drop '+guardHit.bad.map(b=>b.lane+' '+b.base+'→'+b.merged).join(', ')+' — kept locally, NOT written to cloud'):'Saved in memory only — will not persist',
         mode==='cloud'?'ok':'err');
+  if(mode==='browser'&&!_retryTimer){ _retryTimer=setTimeout(()=>{_retryTimer=null;_savePending=true;flushSave();},15000); }
   if(_savePending)flushSave();
 }
-// Last-ditch flush if the tab closes mid-debounce (local copy is already written).
+// Last-ditch flush// Last-ditch flush if the tab closes mid-debounce (local copy is already written).
 window.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&_savePending){clearTimeout(_saveTimer);flushSave();}});
 
 window.forceRefresh=async function(){

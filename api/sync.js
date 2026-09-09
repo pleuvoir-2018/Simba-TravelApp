@@ -55,10 +55,11 @@ export default async function handler(req, res) {
         const legacy = await list({ prefix: LEGACY_KEY, limit: 1 });
         if (legacy.blobs.length) target = legacy.blobs[0];
       }
-      if (!target) return res.status(200).json({ value: null });
+      if (!target) return res.status(200).json({ value: null, ts: null });
       const r = await fetch(`${target.url}?t=${Date.now()}`, { cache: 'no-store' });
       if (!r.ok) return res.status(500).json({ error: 'read-back failed: ' + r.status });
-      return res.status(200).json({ value: await r.json() });
+      const ts = target.pathname.startsWith(VER_PREFIX) ? target.pathname.slice(VER_PREFIX.length).replace('.json','') : null;
+      return res.status(200).json({ value: await r.json(), ts });
     } catch (e) {
       return res.status(500).json({ error: 'GET failed: ' + e.message });
     }
@@ -72,23 +73,40 @@ export default async function handler(req, res) {
       }
       if (!payload || typeof payload !== 'object') payload = {};
 
-      await put(`${VER_PREFIX}${Date.now()}.json`, JSON.stringify(payload), {
+      // Optimistic concurrency: if the client says which version it merged against and a
+      // newer one exists, refuse — the client re-reads, re-merges, retries. No silent overwrite.
+      const basedOn = String(req.headers['x-based-on'] || '');
+      if (/^\d{13}$/.test(basedOn)) {
+        const { blobs } = await list({ prefix: VER_PREFIX, limit: 20 });
+        const newest = blobs.map(b => b.pathname.slice(VER_PREFIX.length).replace('.json','')).filter(t => /^\d{13}$/.test(t)).sort().pop();
+        if (newest && newest > basedOn) {
+          const hit = blobs.find(b => b.pathname === `${VER_PREFIX}${newest}.json`);
+          let value = null; try { const r = await fetch(`${hit.url}?t=${Date.now()}`, { cache: 'no-store' }); value = await r.json(); } catch (_) {}
+          return res.status(409).json({ conflict: true, ts: newest, value });
+        }
+      }
+
+      const ts = Date.now();
+      await put(`${VER_PREFIX}${ts}.json`, JSON.stringify(payload), {
         access: 'public',
         addRandomSuffix: false,
         contentType: 'application/json',
       });
 
-      // best-effort prune: keep the newest 8. Runs on ~1 save in 8 — pruning
+      // best-effort prune: keep the newest 40 PLUS the first version of each calendar day
+      // for 30 days (a bad state found days later still has a clean ancestor). Runs on ~1 save in 8 —
       // every save tripled advanced-op usage (put+list+del) against the Blob
       // quota; occasional pruning keeps storage just as flat at ~1/3 the cost.
       if (Math.random() < 0.125) try {
         const { blobs } = await list({ prefix: VER_PREFIX, limit: 100 });
         const sorted = blobs.slice().sort((a, b) => b.pathname.localeCompare(a.pathname));
-        const stale = sorted.slice(40);   // was 8 — history is the recovery net (9/9)
+        const keepDay = new Set(); const cutoff = Date.now() - 30*86400000;
+        sorted.slice().reverse().forEach(b => { const t = Number(b.pathname.slice(VER_PREFIX.length).replace('.json','')); if (t > cutoff) { const day = new Date(t).toISOString().slice(0,10); if (!keepDay.has(day)) { keepDay.add(day); b._keep = true; } } });
+        const stale = sorted.slice(40).filter(b => !b._keep);
         if (stale.length) await del(stale.map(b => b.url));
       } catch (_) {}
 
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, ts: String(ts) });
     } catch (e) {
       console.error('POST /api/sync failed:', e);
       return res.status(500).json({ error: 'POST failed: ' + e.message });

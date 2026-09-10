@@ -1,4 +1,4 @@
-import { laneCounts, wipeBlocked } from '../lib/wipeguard.js';
+import { laneCounts, wipeBlocked } from '../lib/wipeguard.mjs';
 const full={trips:{'japan-2026':{expenses:[1,2,3,4,5],plans:[1,2],stops:[],todos:[1,2,3],7:{note:'a'},9:{note:'b'},12:{note:'c'}}}};
 const empty={trips:{'japan-2026':{expenses:[],plans:[],stops:[],todos:[]}}};
 const eq=(a,b,m)=>{if(JSON.stringify(a)!==JSON.stringify(b))throw new Error(m+': '+JSON.stringify(a)+' vs '+JSON.stringify(b));};

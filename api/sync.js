@@ -1,5 +1,5 @@
 import { put, list, del } from '@vercel/blob';
-import { wipeBlocked } from '../lib/wipeguard.js';
+import { wipeBlocked } from '../lib/wipeguard.mjs';
 
 /* State is stored as VERSIONED, WRITE-ONCE blobs: state/japan_trip_v2-<ts>.json.
    Overwriting one URL (the old scheme) rode Vercel Blob's edge cache, which is

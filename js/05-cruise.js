@@ -1753,20 +1753,26 @@ window.expVersions=async function(){
     const rows=[];
     for(const v of vs){
       let n='?',keys=[];
-      try{const rr=await fetch('/api/sync?ts='+v.ts,{cache:'no-store'});const jj=await rr.json();const t=(jj.value&&jj.value.trips&&jj.value.trips[key])||{};keys=(t.expenses||[]);n=keys.length;}catch(e){}
-      rows.push(`<div class="tdo-row" style="justify-content:space-between"><span><b>${new Date(Number(v.ts)).toLocaleString()}</b> · ${n} expenses</span><button class="btn-mini" onclick="expRestore('${v.ts}')">restore missing</button></div>`);
+      let ed='?';
+      try{const rr=await fetch('/api/sync?ts='+v.ts,{cache:'no-store'});const jj=await rr.json();const t=(jj.value&&jj.value.trips&&jj.value.trips[key])||{};keys=(t.expenses||[]);n=keys.length;ed=Object.keys(t).filter(k=>/^\d+$/.test(k)).length;}catch(e){}
+      rows.push(`<div class="tdo-row" style="justify-content:space-between"><span><b>${new Date(Number(v.ts)).toLocaleString()}</b> · ${n} expenses · ${ed} edited restaurants</span><button class="btn-mini" onclick="expRestore('${v.ts}')">restore all missing</button></div>`);
     }
-    panel.innerHTML='<div class="chead"><span>Version history</span><span>'+vs.length+' stored · restore = add what\'s missing, never delete</span></div>'+(rows.join('')||'<div class="td-empty">No versions found.</div>');
+    panel.innerHTML='<div class="chead"><span>Version history</span><span>'+vs.length+' stored · restore = bring back what\'s missing (bookings, notes, plans, expenses); current data wins conflicts; nothing deleted</span></div>'+(rows.join('')||'<div class="td-empty">No versions found.</div>');
   }catch(e){panel.innerHTML='<div class="td-empty">Could not load versions: '+esc(e.message)+'</div>';}
 };
 window.expRestore=async function(ts){
   try{
     const rr=await fetch('/api/sync?ts='+ts,{cache:'no-store'});const jj=await rr.json();
-    const old=((jj.value&&jj.value.trips&&jj.value.trips[tripKey()])||{}).expenses||[];
-    const k=e=>e&&(e.id||e.pid||e.mid||('c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|')));
-    overrides.expenses=overrides.expenses||[]; const have=new Set(overrides.expenses.map(k)); let added=0;
-    old.forEach(e=>{const kk=k(e); if(!have.has(kk)){ if(!e.id&&!e.pid&&!e.mid){ let h=0; for(const ch of kk)h=(h*31+ch.charCodeAt(0))>>>0; e={...e,id:'x'+h.toString(36)}; } overrides.expenses.push(e);have.add(kk);added++;}});
-    saveOverrides(); if(typeof renderExpenses==='function')renderExpenses();
-    alert(added+' expense'+(added===1?'':'s')+' restored from '+new Date(Number(ts)).toLocaleString());
+    const oldTrip=((jj.value&&jj.value.trips&&jj.value.trips[tripKey()])||{});
+    const before={exp:(overrides.expenses||[]).length,ed:Object.keys(overrides).filter(k=>/^\d+$/.test(k)).length,plans:(overrides.plans||[]).length,stops:(overrides.stops||[]).length};
+    // Union via the real merge with an EMPTY base: remote = the old version, local = current.
+    // Current wins every conflict; anything current lacks comes back; nothing is deleted.
+    const merged=mergeTripBase(oldTrip,overrides,{});
+    // keyless restored expenses get deterministic ids
+    (merged.expenses||[]).forEach((e,i)=>{ if(e&&!e.id&&!e.pid&&!e.mid){ const kk='c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|'); let h=0; for(const ch of kk)h=(h*31+ch.charCodeAt(0))>>>0; merged.expenses[i]={...e,id:'x'+h.toString(36)}; } });
+    Object.keys(merged).forEach(k=>{ overrides[k]=merged[k]; });
+    const after={exp:(overrides.expenses||[]).length,ed:Object.keys(overrides).filter(k=>/^\d+$/.test(k)).length,plans:(overrides.plans||[]).length,stops:(overrides.stops||[]).length};
+    saveOverrides(); if(typeof renderExpenses==='function')renderExpenses(); if(typeof render==='function')try{render();}catch(e){}
+    alert('Restored from '+new Date(Number(ts)).toLocaleString()+'\n+'+(after.exp-before.exp)+' expenses · +'+(after.ed-before.ed)+' restaurant edits · +'+(after.plans-before.plans)+' plans · +'+(after.stops-before.stops)+' stops');
   }catch(e){alert('Restore failed: '+e.message);}
 };

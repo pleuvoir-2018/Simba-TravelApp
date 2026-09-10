@@ -1765,7 +1765,7 @@ window.expRestore=async function(ts){
     const old=((jj.value&&jj.value.trips&&jj.value.trips[tripKey()])||{}).expenses||[];
     const k=e=>e&&(e.id||e.pid||e.mid||('c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|')));
     overrides.expenses=overrides.expenses||[]; const have=new Set(overrides.expenses.map(k)); let added=0;
-    old.forEach(e=>{const kk=k(e); if(!have.has(kk)){overrides.expenses.push(e);have.add(kk);added++;}});
+    old.forEach(e=>{const kk=k(e); if(!have.has(kk)){ if(!e.id&&!e.pid&&!e.mid){ let h=0; for(const ch of kk)h=(h*31+ch.charCodeAt(0))>>>0; e={...e,id:'x'+h.toString(36)}; } overrides.expenses.push(e);have.add(kk);added++;}});
     saveOverrides(); if(typeof renderExpenses==='function')renderExpenses();
     alert(added+' expense'+(added===1?'':'s')+' restored from '+new Date(Number(ts)).toLocaleString());
   }catch(e){alert('Restore failed: '+e.message);}

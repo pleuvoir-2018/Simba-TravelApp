@@ -11,11 +11,15 @@ import { put, list, del } from '@vercel/blob';
    migration. */
 
 const LEGACY_KEY = 'japan_trip_v2.json';
+// Clients below this build may not write: a tab that never reloaded still runs old merge code.
+// Bump this whenever a sync/merge fix ships (it is the ?v= stamp of that deploy).
+const MIN_BUILD = '202609100519';
 const VER_PREFIX = 'state/japan_trip_v2-';
 
 export default async function handler(req, res) {
 
   if (req.method === 'GET') {
+    if (req.query && req.query.build) return res.status(200).json({ build: MIN_BUILD });
     if (req.query && req.query.test) {
       const report = {};
       try {
@@ -72,6 +76,12 @@ export default async function handler(req, res) {
         try { payload = JSON.parse(payload); } catch (_) { payload = {}; }
       }
       if (!payload || typeof payload !== 'object') payload = {};
+
+      // Build gate: writes from code older than the last sync fix are refused outright.
+      const clientBuild = String(req.headers['x-app-build'] || '0');
+      if (!/^\d{12}$/.test(clientBuild) || clientBuild < MIN_BUILD) {
+        return res.status(426).json({ stale: true, build: MIN_BUILD, yours: clientBuild });
+      }
 
       // Optimistic concurrency: if the client says which version it merged against and a
       // newer one exists, refuse — the client re-reads, re-merges, retries. No silent overwrite.

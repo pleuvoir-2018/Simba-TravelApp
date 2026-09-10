@@ -64,6 +64,9 @@ let bad=mergeDropCheck({expenses:[K1,K2]},{expenses:[K1,K2]},{expenses:[K1,K2]},
 eq(bad[0].lane,'expenses','guard: names the lane');
 bad=mergeDropCheck({expenses:[K1,K2]},{expenses:[K1]},{expenses:[K1,K2]},{expenses:[K1]});eq(bad.length,0,'guard: legitimate local delete passes');
 bad=mergeDropCheck({expenses:[K1]},{expenses:[K1,K2]},{expenses:[K1,K2]},{expenses:[K1]});eq(bad.length,0,'guard: legitimate remote delete passes');
+// base unknown ({}): UNION — local lacking an item is not a deletion
+m=mergeTripBase({expenses:[K1,K2]},{expenses:[K1]},{});eq(m.expenses.length,2,'union: remote item survives local absence');
+m=mergeTripBase({expenses:[K1]},{expenses:[K1,K2]},{});eq(m.expenses.length,2,'union: local item survives remote absence');
 // expenses keyed by pid when no id
 m=mergeTripBase({expenses:[{pid:'x',usd:1},{pid:'y',usd:2}]},{expenses:[{pid:'x',usd:1}]},{expenses:[{pid:'x',usd:1}]});eq(m.expenses.length,2,'3way: expenses by pid');
 // old behavior would have lost B — prove the stale-tab bug is what we fixed

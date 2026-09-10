@@ -51,20 +51,22 @@ async function sGet(){
 
   if (local && lt > ct) {
     // Local is ahead — adopt it and push it up once the app has settled.
+    window._loadedFrom='local';
     setTimeout(()=>{ try{ flushSave(); }catch(e){} }, 2000);
     return JSON.stringify(local);
   }
-  if (cloud) return JSON.stringify(cloud);
-  if (local) return JSON.stringify(local);
+  if (cloud) { window._loadedFrom='cloud'; return JSON.stringify(cloud); }
+  if (local) { window._loadedFrom='local'; return JSON.stringify(local); }
   return mem;
 }
 
 async function sSet(v,basedOn){
   // 1. Try to save to the cloud — optimistic concurrency: the server refuses (409) if a newer version landed since we read.
   try {
-    const hdr={ 'Content-Type': 'application/json' }; if(basedOn)hdr['X-Based-On']=String(basedOn);
+    const hdr={ 'Content-Type': 'application/json', 'X-App-Build': APP_BUILD }; if(basedOn)hdr['X-Based-On']=String(basedOn);
     const res = await fetch('/api/sync', { method: 'POST', headers: hdr, body: v });
     if (res.status===409) return 'conflict';
+    if (res.status===426) { try{ const j=await res.json(); staleBanner(j.build); }catch(e){ staleBanner('?'); } return 'stale'; }
     if (res.ok) return 'cloud';
   } catch(e) { console.error('Cloud save failed, falling back to local'); }
   
@@ -310,7 +312,16 @@ async function loadOverrides(){
 let _saveTimer=null,_savePending=false,_saveInFlight=false;
 let _syncBase=null;  // Stage D: the store as this tab last synced it
 let _baseWait=0,_retryTimer=null;
-window._markSynced=function(fromCloud){ try{ if(fromCloud===undefined&&window._cloudSnapshot===null&&!window._syncedOnce){ _syncBase=null; window._baseUnknown=true; return; } window._baseUnknown=false; window._syncedOnce=true; _syncBase=JSON.parse(JSON.stringify(fromCloud!==undefined?fromCloud:store)); }catch(e){ _syncBase=null; } };
+const APP_BUILD=(()=>{ try{ const sc=document.querySelector('script[src*="01-core.js"]'); const m=/[?&]v=(\d+)/.exec(sc?sc.src:''); return m?m[1]:'0'; }catch(e){ return '0'; } })();
+window.APP_BUILD=APP_BUILD;
+function staleBanner(build){ let b=document.getElementById('staleBar'); if(!b){ b=document.createElement('div'); b.id='staleBar'; b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#B8552A;color:#fff;font:600 12px Inter,sans-serif;padding:10px 14px;text-align:center'; document.body.appendChild(b); } b.innerHTML='This tab is running an older version — cloud saves are paused until you <a href="#" onclick="location.reload(true);return false" style="color:#fff;text-decoration:underline">reload</a>.'; window._staleBuild=true; }
+window.checkBuild=async function(){ try{ const r=await fetch('/api/sync?build=1',{cache:'no-store'}); const j=await r.json(); if(j&&j.build&&String(j.build)>String(APP_BUILD))staleBanner(j.build); }catch(e){} };
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible')window.checkBuild(); });
+window._markSynced=function(fromCloud){ try{
+  // A base is only trustworthy if it is what the cloud held when THIS tab loaded, or what this tab just wrote.
+  if(fromCloud!==undefined&&window._loadedFrom!=='cloud'){ _syncBase=null; window._baseUnknown=true; return; }
+  if(fromCloud===undefined&&!window._syncedOnce&&window._cloudSnapshot===null){ _syncBase=null; window._baseUnknown=true; return; }
+  window._baseUnknown=false; window._syncedOnce=true; _syncBase=JSON.parse(JSON.stringify(fromCloud!==undefined?fromCloud:store)); }catch(e){ _syncBase=null; } };
 function saveOverrides(){
   if(window._realApp){flash('Viewing as '+((window._app||{}).name||'…')+' — read only, nothing saves','err');return;}
   if(typeof appRole==='function'&&appRole()==='designer'){flash('Design review account — read only, nothing saves','err');return;}
@@ -443,9 +454,9 @@ async function flushSave(){
       if(remote){
         const rn=normalizeStore(remote);
         const trips={...(rn.trips||{})};
-        const baseTrips=(_syncBase&&_syncBase.trips)||(rn.trips||{});   // base unknown → remote as base (conservative)
+        const baseTrips=(_syncBase&&_syncBase.trips)||null;   // base unknown → UNION (empty base): adds survive, deletions never inferred
         Object.keys(store.trips||{}).forEach(k=>{
-          const rt=trips[k]||{}, lt=(store.trips||{})[k]||{}, bt=baseTrips[k];
+          const rt=trips[k]||{}, lt=(store.trips||{})[k]||{}, bt=baseTrips?baseTrips[k]:{};
           let m=mergeTripBase(rt,lt,bt);
           if(TRIP_DATA[k]&&(TRIP_DATA[k].cruise||TRIP_DATA[k].group))m=mergeCruise(rt,lt,m);
           const bad=mergeDropCheck(rt,lt,bt,m); if(bad.length&&!guardHit)guardHit={trip:k,bad};
@@ -460,12 +471,14 @@ async function flushSave(){
       merged=true;
       mode=await sSet(JSON.stringify(store),remoteTs);
       if(mode==='conflict'){ merged=false; continue; }          // Vector 4: a peer wrote first — re-read, re-merge, retry
+      if(mode==='stale'){ break; }                                 // Vector 7: this tab's code is outdated — never write
     }
-    if(!merged&&!guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='browser'; }
+    if(mode==='stale'){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} }
+    else if(!merged&&!guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='browser'; }
     if(guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='guard'; }
     if(mode==='cloud')window._markSynced();
   }finally{ _saveInFlight=false; }
-  flash(mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser — cloud unreachable, will retry ✓':mode==='guard'?('⚠ Sync guard: merge would drop '+guardHit.bad.map(b=>b.lane+' '+b.base+'→'+b.merged).join(', ')+' — kept locally, NOT written to cloud'):'Saved in memory only — will not persist',
+  flash(mode==='stale'?'Old version — saved here only; reload to sync':mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser — cloud unreachable, will retry ✓':mode==='guard'?('⚠ Sync guard: merge would drop '+guardHit.bad.map(b=>b.lane+' '+b.base+'→'+b.merged).join(', ')+' — kept locally, NOT written to cloud'):'Saved in memory only — will not persist',
         mode==='cloud'?'ok':'err');
   if(mode==='browser'&&!_retryTimer){ _retryTimer=setTimeout(()=>{_retryTimer=null;_savePending=true;flushSave();},15000); }
   if(_savePending)flushSave();

@@ -1747,6 +1747,7 @@ window.jjDelLink=function(id){
 window.expVersions=async function(){
   const panel=document.getElementById('expVerPanel')||(()=>{const d=document.createElement('div');d.id='expVerPanel';d.className='card';d.style.cssText='max-width:850px;margin:12px auto';document.getElementById('panel').prepend(d);return d;})();
   panel.innerHTML='<div class="chead"><span>Version history</span><span>loading…</span></div>';
+  panel.style.setProperty('margin-bottom','12px');
   try{
     const r=await fetch('/api/sync?versions=1',{cache:'no-store'}); const j=await r.json();
     const vs=(j.versions||[]).slice(0,24); const key=tripKey();
@@ -1755,9 +1756,9 @@ window.expVersions=async function(){
       let n='?',keys=[];
       let ed='?';
       try{const rr=await fetch('/api/sync?ts='+v.ts,{cache:'no-store'});const jj=await rr.json();const t=(jj.value&&jj.value.trips&&jj.value.trips[key])||{};keys=(t.expenses||[]);n=keys.length;ed=Object.keys(t).filter(k=>/^\d+$/.test(k)).length;}catch(e){}
-      rows.push(`<div class="tdo-row" style="justify-content:space-between"><span><b>${new Date(Number(v.ts)).toLocaleString()}</b> · ${n} expenses · ${ed} edited restaurants</span><button class="btn-mini" onclick="expRestore('${v.ts}')">restore all missing</button></div>`);
+      rows.push(`<div class="vh-row"><span class="vh-when">${new Date(Number(v.ts)).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</span><span class="vh-counts">${n} expenses · ${ed} restaurant edits</span><button class="btn-mini" onclick="expRestore('${v.ts}')">Restore</button></div>`);
     }
-    panel.innerHTML='<div class="chead"><span>Version history</span><span>'+vs.length+' stored · restore = bring back what\'s missing (bookings, notes, plans, expenses); current data wins conflicts; nothing deleted</span></div>'+(rows.join('')||'<div class="td-empty">No versions found.</div>');
+    panel.innerHTML='<div class="chead"><span>Version history</span><span>'+vs.length+' stored</span></div><div class="vh-sub">Restore brings back what the current data is missing — bookings, notes, plans, expenses. Current data wins conflicts; nothing is deleted.</div>'+(rows.join('')||'<div class="td-empty">No versions found.</div>');
   }catch(e){panel.innerHTML='<div class="td-empty">Could not load versions: '+esc(e.message)+'</div>';}
 };
 window.expRestore=async function(ts){

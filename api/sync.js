@@ -1,5 +1,4 @@
 import { put, list, del } from '@vercel/blob';
-import { wipeBlocked } from '../lib/wipeguard.mjs';
 
 /* State is stored as VERSIONED, WRITE-ONCE blobs: state/japan_trip_v2-<ts>.json.
    Overwriting one URL (the old scheme) rode Vercel Blob's edge cache, which is
@@ -12,6 +11,35 @@ import { wipeBlocked } from '../lib/wipeguard.mjs';
    migration. */
 
 const LEGACY_KEY = 'japan_trip_v2.json';
+
+// ---- Wipe guard (pure; tests extract these by regex) ----
+function laneCounts(store) {
+  const out = {};
+  const trips = (store && store.trips) || {};
+  for (const k of Object.keys(trips)) {
+    const t = trips[k] || {};
+    out[k] = {
+      expenses: Array.isArray(t.expenses) ? t.expenses.length : 0,
+      plans: Array.isArray(t.plans) ? t.plans.length : 0,
+      stops: Array.isArray(t.stops) ? t.stops.length : 0,
+      todos: Array.isArray(t.todos) ? t.todos.length : 0,
+      edits: Object.keys(t).filter(x => /^\d+$/.test(x)).length,
+    };
+  }
+  return out;
+}
+const MIN_MEANINGFUL = 3;
+function wipeBlocked(current, incoming) {
+  const c = laneCounts(current), i = laneCounts(incoming), hits = [];
+  for (const trip of Object.keys(c)) {
+    for (const lane of Object.keys(c[trip])) {
+      const before = c[trip][lane], after = (i[trip] || {})[lane] || 0;
+      if (before >= MIN_MEANINGFUL && after === 0) hits.push({ trip, lane, before, after });
+    }
+  }
+  return hits;
+}
+
 
 // Clients below this build may not write: a tab that never reloaded still runs old merge code.
 // Bump this whenever a sync/merge fix ships (it is the ?v= stamp of that deploy).

@@ -1,4 +1,9 @@
-import { laneCounts, wipeBlocked } from '../lib/wipeguard.mjs';
+import fs from 'node:fs'; import vm from 'node:vm';
+const src=fs.readFileSync(new URL('../api/sync.js',import.meta.url),'utf8');
+const ctx={}; vm.createContext(ctx);
+for(const fn of ['laneCounts','wipeBlocked']){ const m=src.match(new RegExp('function '+fn+'\\([^)]*\\) \\{[\\s\\S]*?\\n\\}')); if(!m)throw new Error('cannot extract '+fn); vm.runInContext(m[0]+';globalThis.'+fn+'='+fn+';',ctx); }
+const mm=src.match(/const MIN_MEANINGFUL = (\d+);/); vm.runInContext('globalThis.MIN_MEANINGFUL='+mm[1]+';',ctx);
+const { laneCounts, wipeBlocked }=ctx;
 const full={trips:{'japan-2026':{expenses:[1,2,3,4,5],plans:[1,2],stops:[],todos:[1,2,3],7:{note:'a'},9:{note:'b'},12:{note:'c'}}}};
 const empty={trips:{'japan-2026':{expenses:[],plans:[],stops:[],todos:[]}}};
 const eq=(a,b,m)=>{if(JSON.stringify(a)!==JSON.stringify(b))throw new Error(m+': '+JSON.stringify(a)+' vs '+JSON.stringify(b));};

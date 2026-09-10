@@ -72,6 +72,7 @@ async function sSet(v,basedOn){
   // 1. Try to save to the cloud — optimistic concurrency: the server refuses (409) if a newer version landed since we read.
   try {
     const hdr={ 'Content-Type': 'application/json', 'X-App-Build': APP_BUILD }; if(basedOn)hdr['X-Based-On']=String(basedOn);
+    if(window._allowWipeOnce){ hdr['X-Allow-Wipe']='1'; window._allowWipeOnce=false; }   // set ONLY by the admin Replace-with-snapshot action
     const res = await fetch('/api/sync', { method: 'POST', headers: hdr, body: v });
     if (res.status===409) { try{ const j=await res.json(); if(j&&j.wipeBlocked){ window._wipeReply=j; return 'wipe'; } }catch(e){} return 'conflict'; }
     if (res.status===426) { try{ const j=await res.json(); staleBanner(j.build); }catch(e){ staleBanner('?'); } return 'stale'; }
@@ -324,7 +325,25 @@ const APP_BUILD=(()=>{ try{ const sc=document.querySelector('script[src*="01-cor
 window.APP_BUILD=APP_BUILD;
 function staleBanner(build){ let b=document.getElementById('staleBar'); if(!b){ b=document.createElement('div'); b.id='staleBar'; b.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#B8552A;color:#fff;font:600 12px Inter,sans-serif;padding:10px 14px;text-align:center'; document.body.appendChild(b); } b.innerHTML='This tab is running an older version — cloud saves are paused until you <a href="#" onclick="location.reload(true);return false" style="color:#fff;text-decoration:underline">reload</a>.'; window._staleBuild=true; }
 window.checkBuild=async function(){ try{ const r=await fetch('/api/sync?build=1',{cache:'no-store'}); const j=await r.json(); if(j&&j.build&&String(j.build)>String(APP_BUILD))staleBanner(j.build); }catch(e){} };
-document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible')window.checkBuild(); });
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'){ window.checkBuild(); window.pullCloud(); } });
+// PULL: a device coming back to the foreground fetches the cloud and merges newer work in — so two devices converge
+// without a reload. Three-way against this tab's base: remote wins the keys we haven't touched, local edits survive.
+window.pullCloud=async function(){
+  if(_saveInFlight||window._pullInFlight)return; window._pullInFlight=true;
+  try{
+    const r=await fetch('/api/sync?t='+Date.now(),{cache:'no-store'}); const d=await r.json();
+    if(!d||!d.value||!d.ts)return;
+    if(window._cloudTs&&String(d.ts)<=String(window._cloudTs))return;      // nothing newer
+    const rn=normalizeStore(d.value); const trips={...(store.trips||{})};
+    const baseTrips=(_syncBase&&_syncBase.trips)||null;
+    Object.keys(rn.trips||{}).forEach(k=>{ trips[k]=mergeTripBase(rn.trips[k]||{},(store.trips||{})[k]||{},baseTrips?(baseTrips[k]||{}):{}); });
+    store={...store,trips,app:mergeApp((rn.app||{}),(store.app||{}))}; bindTrip();
+    window._cloudTs=String(d.ts); window._markSynced(rn);
+    try{ if(typeof render==='function')render(); }catch(e){}
+    flash('Pulled newer changes from the cloud ↓','ok');
+  }catch(e){}finally{ window._pullInFlight=false; }
+};
+setInterval(()=>{ if(document.visibilityState==='visible')window.pullCloud(); },60000);
 window._markSynced=function(fromCloud){ try{
   // A base is only trustworthy if it is what the cloud held when THIS tab loaded, or what this tab just wrote.
   if(fromCloud!==undefined&&window._loadedFrom!=='cloud'){ _syncBase=null; window._baseUnknown=true; return; }

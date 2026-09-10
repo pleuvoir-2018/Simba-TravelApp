@@ -43,9 +43,11 @@ function wipeBlocked(current, incoming) {
 
 // Clients below this build may not write: a tab that never reloaded still runs old merge code.
 // Bump this whenever a sync/merge fix ships (it is the ?v= stamp of that deploy).
-const MIN_BUILD = '202609101812';
+const MIN_BUILD = '202609102228';
+const _PREV_MIN_BUILD2 = '202609101812';
 const _OLD_MIN_BUILD = '202609100519';
 const VER_PREFIX = 'state/japan_trip_v2-';
+const SNAP_PREFIX = 'snapshots/japan_trip_v2-';   // pinned, labelled, never pruned
 
 export default async function handler(req, res) {
 
@@ -71,7 +73,22 @@ export default async function handler(req, res) {
         const { blobs } = await list({ prefix: VER_PREFIX, limit: 100 });
         const vers = blobs.map(b => ({ ts: b.pathname.slice(VER_PREFIX.length).replace('.json',''), size: b.size, url: b.url }))
           .filter(v => /^\d{13}$/.test(v.ts)).sort((x, y) => y.ts.localeCompare(x.ts));
-        if (req.query.versions) return res.status(200).json({ versions: vers.map(v => ({ ts: v.ts, size: v.size })) });
+        if (req.query.versions) {
+          let snaps = [];
+          try {
+            const s = await list({ prefix: SNAP_PREFIX, limit: 100 });
+            snaps = s.blobs.map(b => { const rest = b.pathname.slice(SNAP_PREFIX.length).replace('.json',''); const i = rest.indexOf('-'); return { ts: i > 0 ? rest.slice(0, i) : rest, label: i > 0 ? decodeURIComponent(rest.slice(i + 1)) : '', size: b.size, snap: true }; })
+              .filter(v => /^\d{13}$/.test(v.ts)).sort((x, y) => y.ts.localeCompare(x.ts));
+          } catch (_) {}
+          return res.status(200).json({ versions: vers.map(v => ({ ts: v.ts, size: v.size })), snapshots: snaps });
+        }
+        if (req.query.snap) {
+          const s = await list({ prefix: SNAP_PREFIX + String(req.query.ts), limit: 5 });
+          const sb = s.blobs[0]; if (!sb) return res.status(404).json({ error: 'no such snapshot' });
+          const r = await fetch(`${sb.url}?t=${Date.now()}`, { cache: 'no-store' });
+          if (!r.ok) return res.status(500).json({ error: 'read-back failed: ' + r.status });
+          return res.status(200).json({ ts: String(req.query.ts), snap: true, value: await r.json() });
+        }
         const hit = vers.find(v => v.ts === String(req.query.ts));
         if (!hit) return res.status(404).json({ error: 'no such version' });
         const r = await fetch(`${hit.url}?t=${Date.now()}`, { cache: 'no-store' });
@@ -112,6 +129,15 @@ export default async function handler(req, res) {
       const clientBuild = String(req.headers['x-app-build'] || '0');
       if (!/^\d{12}$/.test(clientBuild) || clientBuild < MIN_BUILD) {
         return res.status(426).json({ stale: true, build: MIN_BUILD, yours: clientBuild });
+      }
+
+      // Snapshot: a labelled, never-pruned copy. Same build gate; no concurrency or wipe checks (it writes nothing the app reads as current).
+      const snapLabel = String(req.headers['x-snapshot'] || '');
+      if (snapLabel) {
+        const sts = Date.now();
+        const safe = encodeURIComponent(snapLabel.slice(0, 60));
+        await put(`${SNAP_PREFIX}${sts}-${safe}.json`, JSON.stringify(payload), { access: 'public', addRandomSuffix: false, contentType: 'application/json' });
+        return res.status(200).json({ success: true, snapshot: true, ts: String(sts), label: snapLabel });
       }
 
       // Optimistic concurrency: if the client says which version it merged against and a

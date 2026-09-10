@@ -154,6 +154,10 @@ body.dark .btn-mini:hover{background:rgba(255,255,255,.08)}
 .vh-sub{padding:8px 16px;border-bottom:1px solid var(--rule);font:400 11px Inter,sans-serif;opacity:.75;line-height:1.45}
 .vh-row{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--rule)}
 .vh-row:last-child{border-bottom:0}
+.vh-row.snap{background:var(--washi2)}
+.btn-mini.danger{border-color:#B8552A;color:#B8552A}
+.btn-mini.danger:hover{background:rgba(184,85,42,.1)}
+.chead .btn-mini{height:22px;padding:0 8px;margin-left:8px}
 .vh-when{font:600 12px var(--serif,Georgia);white-space:nowrap}
 .vh-counts{flex:1;min-width:0;font:500 10px var(--mono);letter-spacing:.04em;text-transform:uppercase;opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tag.prem{background:#22406B}

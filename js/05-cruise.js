@@ -1752,18 +1752,23 @@ window.expVersions=async function(){
     const r=await fetch('/api/sync?versions=1',{cache:'no-store'}); const j=await r.json();
     const vs=(j.versions||[]).slice(0,24); const key=tripKey();
     const rows=[];
+    for(const sn of (j.snapshots||[])){
+      let n='?',ed='?';
+      try{const rr=await fetch('/api/sync?snap=1&ts='+sn.ts,{cache:'no-store'});const jj=await rr.json();const t=(jj.value&&jj.value.trips&&jj.value.trips[key])||{};n=(t.expenses||[]).length;ed=Object.keys(t).filter(k=>/^\d+$/.test(k)).length;}catch(e){}
+      rows.push(`<div class="vh-row snap"><span class="vh-when">📌 ${esc(sn.label||'snapshot')}</span><span class="vh-counts">${new Date(Number(sn.ts)).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})} · ${n} expenses · ${ed} restaurant edits</span><button class="btn-mini" onclick="expRestore('${sn.ts}',1)">Restore</button><button class="btn-mini danger" onclick="expReplace('${sn.ts}')">Replace</button></div>`);
+    }
     for(const v of vs){
       let n='?',keys=[];
       let ed='?';
       try{const rr=await fetch('/api/sync?ts='+v.ts,{cache:'no-store'});const jj=await rr.json();const t=(jj.value&&jj.value.trips&&jj.value.trips[key])||{};keys=(t.expenses||[]);n=keys.length;ed=Object.keys(t).filter(k=>/^\d+$/.test(k)).length;}catch(e){}
       rows.push(`<div class="vh-row"><span class="vh-when">${new Date(Number(v.ts)).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</span><span class="vh-counts">${n} expenses · ${ed} restaurant edits</span><button class="btn-mini" onclick="expRestore('${v.ts}')">Restore</button></div>`);
     }
-    panel.innerHTML='<div class="chead"><span>Version history</span><span>'+vs.length+' stored</span></div><div class="vh-sub">Restore brings back what the current data is missing — bookings, notes, plans, expenses. Current data wins conflicts; nothing is deleted.</div>'+(rows.join('')||'<div class="td-empty">No versions found.</div>');
+    panel.innerHTML='<div class="chead"><span>Version history</span><span>'+vs.length+' stored · '+(j.snapshots||[]).length+' pinned <button class="btn-mini" onclick="expSnapshot()">📌 Save snapshot</button></span></div><div class="vh-sub">Restore brings back what the current data is missing — bookings, notes, plans, expenses; current data wins conflicts; nothing is deleted. Snapshots are pinned and never pruned; Replace overwrites the trip with the pinned copy (admin, confirmed).</div>'+(rows.join('')||'<div class="td-empty">No versions found.</div>');
   }catch(e){panel.innerHTML='<div class="td-empty">Could not load versions: '+esc(e.message)+'</div>';}
 };
-window.expRestore=async function(ts){
+window.expRestore=async function(ts,snap){
   try{
-    const rr=await fetch('/api/sync?ts='+ts,{cache:'no-store'});const jj=await rr.json();
+    const rr=await fetch('/api/sync?ts='+ts+(snap?'&snap=1':''),{cache:'no-store'});const jj=await rr.json();
     const oldTrip=((jj.value&&jj.value.trips&&jj.value.trips[tripKey()])||{});
     const before={exp:(overrides.expenses||[]).length,ed:Object.keys(overrides).filter(k=>/^\d+$/.test(k)).length,plans:(overrides.plans||[]).length,stops:(overrides.stops||[]).length};
     // Union via the real merge with an EMPTY base: remote = the old version, local = current.
@@ -1776,4 +1781,25 @@ window.expRestore=async function(ts){
     saveOverrides(); if(typeof renderExpenses==='function')renderExpenses(); if(typeof render==='function')try{render();}catch(e){}
     alert('Restored from '+new Date(Number(ts)).toLocaleString()+'\n+'+(after.exp-before.exp)+' expenses · +'+(after.ed-before.ed)+' restaurant edits · +'+(after.plans-before.plans)+' plans · +'+(after.stops-before.stops)+' stops');
   }catch(e){alert('Restore failed: '+e.message);}
+};
+window.expSnapshot=async function(){
+  const label=prompt('Label this snapshot (e.g. "all bookings done"):'); if(label===null)return;
+  try{
+    const hdr={'Content-Type':'application/json','X-App-Build':window.APP_BUILD||'0','X-Snapshot':label||'snapshot'};
+    const r=await fetch('/api/sync',{method:'POST',headers:hdr,body:JSON.stringify(store)});
+    const j=await r.json(); if(!r.ok)throw new Error(j.error||('HTTP '+r.status));
+    flash('Snapshot pinned: '+(label||'snapshot')+' 📌','ok'); expVersions();
+  }catch(e){alert('Snapshot failed: '+e.message);}
+};
+window.expReplace=async function(ts){
+  if(!(typeof isSuper==='function'&&isSuper())){alert('Admin only.');return;}
+  if(!confirm('Replace this trip\'s data with the pinned snapshot? Current edits made since the snapshot will be lost. (Restore instead if you only want to bring back what\'s missing.)'))return;
+  try{
+    const rr=await fetch('/api/sync?snap=1&ts='+ts,{cache:'no-store'});const jj=await rr.json();
+    const snapTrip=((jj.value&&jj.value.trips&&jj.value.trips[tripKey()])||null); if(!snapTrip)throw new Error('snapshot has no data for this trip');
+    store.trips[tripKey()]=JSON.parse(JSON.stringify(snapTrip)); bindTrip();
+    window._allowWipeOnce=true;                       // the one sanctioned wipe: explicit, admin, confirmed
+    window._markSynced(); saveOverrides(); try{render();}catch(e){}
+    flash('Replaced from snapshot — saving','ok');
+  }catch(e){alert('Replace failed: '+e.message);}
 };

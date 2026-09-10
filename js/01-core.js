@@ -49,11 +49,19 @@ async function sGet(){
   const ct = cloud ? Number(cloud._ts||0) : -1;
   const lt = local ? Number(local._ts||0) : -1;
 
-  if (local && lt > ct) {
-    // Local is ahead — adopt it and push it up once the app has settled.
-    window._loadedFrom='local';
-    setTimeout(()=>{ try{ flushSave(); }catch(e){} }, 2000);
-    return JSON.stringify(local);
+  if (local && lt > ct && cloud) {
+    // Local looks ahead by timestamp — but refused, failed and stale writes all inflate that
+    // timestamp, so local is NEVER adopted as truth. Load the cloud, UNION local's additions in,
+    // and let the normal merge push them up. (9/10: the old 'adopt local and push' path was a wipe vector.)
+    try{
+      const cn=normalizeStore(JSON.parse(JSON.stringify(cloud))), ln=normalizeStore(JSON.parse(JSON.stringify(local)));
+      const trips={...(cn.trips||{})};
+      Object.keys(ln.trips||{}).forEach(k=>{ trips[k]=mergeTripBase(trips[k]||{}, ln.trips[k]||{}, {}); });
+      const merged={...cn,trips};
+      window._loadedFrom='cloud';
+      setTimeout(()=>{ try{ _savePending=true; flushSave(); }catch(e){} }, 2000);
+      return JSON.stringify(merged);
+    }catch(e){ console.error('local-union failed, using cloud',e); }
   }
   if (cloud) { window._loadedFrom='cloud'; return JSON.stringify(cloud); }
   if (local) { window._loadedFrom='local'; return JSON.stringify(local); }
@@ -65,7 +73,7 @@ async function sSet(v,basedOn){
   try {
     const hdr={ 'Content-Type': 'application/json', 'X-App-Build': APP_BUILD }; if(basedOn)hdr['X-Based-On']=String(basedOn);
     const res = await fetch('/api/sync', { method: 'POST', headers: hdr, body: v });
-    if (res.status===409) return 'conflict';
+    if (res.status===409) { try{ const j=await res.json(); if(j&&j.wipeBlocked){ window._wipeReply=j; return 'wipe'; } }catch(e){} return 'conflict'; }
     if (res.status===426) { try{ const j=await res.json(); staleBanner(j.build); }catch(e){ staleBanner('?'); } return 'stale'; }
     if (res.ok) return 'cloud';
   } catch(e) { console.error('Cloud save failed, falling back to local'); }
@@ -445,12 +453,13 @@ async function flushSave(){
   // Vector 2: never merge without knowing what this tab last synced. Wait briefly for the load.
   if(_syncBase===null&&!window._baseUnknown){ _baseWait=(_baseWait||0)+1; if(_baseWait<20){ _savePending=true; setTimeout(flushSave,500); return; } }
   _saveInFlight=true;_savePending=false;
-  let mode='memory',merged=false,guardHit=null;
+  let mode='memory',merged=false,guardHit=null,wipeHits=null;
   try{
     for(let attempt=0;attempt<3&&!merged;attempt++){
       let remote=null,remoteTs=null;
       try{ const r=await fetch('/api/sync?t='+Date.now(),{cache:'no-store'}); const d=await r.json(); if(d&&('value' in d)){remote=d.value;remoteTs=d.ts||null;} }
       catch(e){ break; }               // Vector 3: a failed read means NO cloud write this round
+      if(!remote&&(window._cloudTs||window._syncedOnce)){ break; }   // Vector 8: the cloud HAD data — a null read is a failed read, not an empty cloud
       if(remote){
         const rn=normalizeStore(remote);
         const trips={...(rn.trips||{})};
@@ -472,12 +481,23 @@ async function flushSave(){
       mode=await sSet(JSON.stringify(store),remoteTs);
       if(mode==='conflict'){ merged=false; continue; }          // Vector 4: a peer wrote first — re-read, re-merge, retry
       if(mode==='stale'){ break; }                                 // Vector 7: this tab's code is outdated — never write
+      if(mode==='wipe'){                                           // Server wipe guard fired: adopt the cloud, union our additions, retry
+        const j=window._wipeReply||{}; wipeHits=j.hits||[];
+        try{
+          const cn=normalizeStore(j.value||{}); const trips={...(cn.trips||{})};
+          Object.keys(store.trips||{}).forEach(k=>{ trips[k]=mergeTripBase(trips[k]||{},(store.trips||{})[k]||{},{}); });
+          store={...store,trips}; bindTrip(); window._markSynced(cn); window._cloudTs=j.ts||window._cloudTs;
+          try{ if(typeof render==='function')render(); }catch(e){}
+        }catch(e){ console.error('wipe recovery failed',e); break; }
+        merged=false; continue;
+      }
     }
     if(mode==='stale'){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} }
     else if(!merged&&!guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='browser'; }
     if(guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='guard'; }
     if(mode==='cloud')window._markSynced();
   }finally{ _saveInFlight=false; }
+  if(wipeHits&&wipeHits.length){ flash('⚠ Cloud refused a write that would have erased '+wipeHits.map(h=>h.lane+' ('+h.before+'→0)').join(', ')+' — cloud data adopted, your additions kept','err'); }
   flash(mode==='stale'?'Old version — saved here only; reload to sync':mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser — cloud unreachable, will retry ✓':mode==='guard'?('⚠ Sync guard: merge would drop '+guardHit.bad.map(b=>b.lane+' '+b.base+'→'+b.merged).join(', ')+' — kept locally, NOT written to cloud'):'Saved in memory only — will not persist',
         mode==='cloud'?'ok':'err');
   if(mode==='browser'&&!_retryTimer){ _retryTimer=setTimeout(()=>{_retryTimer=null;_savePending=true;flushSave();},15000); }

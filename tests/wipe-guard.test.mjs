@@ -1,0 +1,18 @@
+import { laneCounts, wipeBlocked } from '../lib/wipeguard.js';
+const full={trips:{'japan-2026':{expenses:[1,2,3,4,5],plans:[1,2],stops:[],todos:[1,2,3],7:{note:'a'},9:{note:'b'},12:{note:'c'}}}};
+const empty={trips:{'japan-2026':{expenses:[],plans:[],stops:[],todos:[]}}};
+const eq=(a,b,m)=>{if(JSON.stringify(a)!==JSON.stringify(b))throw new Error(m+': '+JSON.stringify(a)+' vs '+JSON.stringify(b));};
+eq(laneCounts(full)['japan-2026'].edits,3,'counts per-stop edits');
+let h=wipeBlocked(full,empty);
+eq(h.map(x=>x.lane).sort(),['edits','expenses','todos'],'wipe of expenses/edits/todos blocked (plans<3 and stops=0 not counted)');
+h=wipeBlocked(full,{trips:{'japan-2026':{expenses:[1,2,3,4],plans:[1,2],todos:[1,2,3],7:{},9:{},12:{}}}});
+eq(h,[],'a normal edit (one expense deleted) passes');
+h=wipeBlocked(full,{trips:{'japan-2026':{expenses:[1],plans:[],todos:[1],7:{}}}});
+eq(h,[],'shrinking without reaching zero passes (that is the client guard\'s job)');
+h=wipeBlocked(empty,full);
+eq(h,[],'growing is never blocked');
+h=wipeBlocked({},empty);
+eq(h,[],'first-ever write passes');
+h=wipeBlocked(full,{trips:{}});
+eq(h.length,3,'dropping the whole trip is a wipe');
+console.log('wipe-guard: 7 assertions — all pass');

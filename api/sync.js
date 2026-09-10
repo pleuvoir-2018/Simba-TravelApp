@@ -1,4 +1,5 @@
 import { put, list, del } from '@vercel/blob';
+import { wipeBlocked } from '../lib/wipeguard.js';
 
 /* State is stored as VERSIONED, WRITE-ONCE blobs: state/japan_trip_v2-<ts>.json.
    Overwriting one URL (the old scheme) rode Vercel Blob's edge cache, which is
@@ -11,9 +12,11 @@ import { put, list, del } from '@vercel/blob';
    migration. */
 
 const LEGACY_KEY = 'japan_trip_v2.json';
+
 // Clients below this build may not write: a tab that never reloaded still runs old merge code.
 // Bump this whenever a sync/merge fix ships (it is the ?v= stamp of that deploy).
-const MIN_BUILD = '202609100519';
+const MIN_BUILD = '202609101812';
+const _OLD_MIN_BUILD = '202609100519';
 const VER_PREFIX = 'state/japan_trip_v2-';
 
 export default async function handler(req, res) {
@@ -94,6 +97,23 @@ export default async function handler(req, res) {
           let value = null; try { const r = await fetch(`${hit.url}?t=${Date.now()}`, { cache: 'no-store' }); value = await r.json(); } catch (_) {}
           return res.status(409).json({ conflict: true, ts: newest, value });
         }
+      }
+
+      // WIPE GUARD: never accept a write that empties a lane the cloud currently has.
+      if (String(req.headers['x-allow-wipe'] || '') !== '1') {
+        try {
+          const { blobs } = await list({ prefix: VER_PREFIX, limit: 20 });
+          const sortedB = blobs.filter(b => /^\d{13}\.json$/.test(b.pathname.slice(VER_PREFIX.length))).sort((x, y) => y.pathname.localeCompare(x.pathname));
+          if (sortedB.length) {
+            const r = await fetch(`${sortedB[0].url}?t=${Date.now()}`, { cache: 'no-store' });
+            const current = await r.json();
+            const hits = wipeBlocked(current, payload);
+            if (hits.length) {
+              console.error('WIPE BLOCKED', hits, 'build', clientBuild);
+              return res.status(409).json({ wipeBlocked: true, hits, ts: sortedB[0].pathname.slice(VER_PREFIX.length).replace('.json',''), value: current });
+            }
+          }
+        } catch (e) { return res.status(503).json({ error: 'wipe guard could not verify current state — write refused: ' + e.message }); }
       }
 
       const ts = Date.now();

@@ -148,6 +148,28 @@
   .tag.ok{background:var(--moss)}.tag.book{background:var(--clay)}.tag.walk{background:var(--grey)}.tag.cash{background:#B08A1F}
 .tag.t100{background:#C77E28}
 body.dark .tag.t100{background:#A96A1F}
+.tag.prem{background:#22406B}
+body.dark .tag.prem{background:#3E5F8E}
+/* Ghibli Park tab */
+.gh-card{max-width:850px;margin:0 auto 14px}
+.gh-hero{display:flex;flex-wrap:wrap;gap:6px;padding:12px 16px;border-bottom:1px solid var(--rule)}
+.gh-chip{font:600 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;background:var(--washi2);border-radius:6px;padding:5px 9px}
+.gh-steps{padding:6px 16px 10px}
+.gh-step{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--rule)}
+.gh-step:last-child{border-bottom:0}
+.gh-step.transit .gh-area{opacity:.7}
+.gh-time{flex:0 0 46px;font:700 11px var(--mono);color:#22406B;letter-spacing:.06em;padding-top:3px}
+body.dark .gh-time{color:#8FB0DE}
+.gh-body{flex:1;min-width:0}
+.gh-area{font:600 16px var(--serif,Georgia);line-height:1.2}
+.gh-title{font:500 11px Inter,sans-serif;opacity:.75;margin:2px 0 6px}
+.gh-item{margin:6px 0 0}
+.gh-n{font:600 12.5px Inter,sans-serif}
+.gh-by{font:600 9px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:#B8552A;margin-left:6px}
+.gh-d{font:400 11.5px Inter,sans-serif;opacity:.82;line-height:1.45}
+.gh-tip{padding:9px 16px;border-bottom:1px solid var(--rule);font:400 12px Inter,sans-serif;line-height:1.5}
+.gh-tip:last-child{border-bottom:0}
+.gh-tip b{font-weight:700;margin-right:4px}
   .meal input,.meal select,.meal textarea{font:inherit;font-size:11px;border:1px solid var(--rule);border-radius:2px;padding:4px 6px;background:#fff;width:100%;margin-top:4px}
   .meal .erow{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px;align-items:end}
   .meal .erow label{display:flex;flex-direction:column;gap:4px;min-width:0}

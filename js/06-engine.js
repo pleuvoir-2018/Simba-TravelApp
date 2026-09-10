@@ -473,6 +473,8 @@ function render(){
 
   if(c.vault){ if(map){map.remove();map=null;} renderVault(); return; }
 
+  if(c.ghibli){ if(map){map.remove();map=null;} renderGhibli(); return; }
+
   if(c.flights||c.rail_only){
     if(map){map.remove();map=null;}
     const rows=c.flights?FLIGHTS:(((typeof TRIP_DATA!=='undefined'&&TRIP_DATA[tripKey()])||{}).trains||[]);

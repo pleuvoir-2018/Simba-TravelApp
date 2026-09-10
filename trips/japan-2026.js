@@ -123,7 +123,7 @@ var HOTELS = {
 {id:"osaka",city:"Osaka",photo:"Osaka_Castle_02bs3200.jpg",sub:"11/21–11/24",hotel:"miyako",
  legs:[
   {r:"Arrive: Tennōji",m:"11/21 late morning · step off at the hotel",n:"The Yamatoji lands you home: elevator from Tennōji to the Miyako, bags with the bell desk, then lunch across Abenosuji at Sushi Ebisu — zero transit all day."},
-  {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Kuroshio 12 ✓ dep 10:35 → Shin-Ōsaka 10:51 · Nozomi 90 dep 11:30",n:"Booked — ride JR from Tennōji (Platform 18), not the Midōsuji. Arr Shin-Ōsaka Platform 1 with a 39-min cushion to the Nozomi. Leave the hotel by ~10:15; Nagoya 12:19, Keitei inside the station."}],
+  {r:"Depart: Tennōji → Shin-Ōsaka → Nagoya",m:"11/24 · Kuroshio 12 ✓ dep 10:35 → Shin-Ōsaka 10:51 · Nozomi 90 dep 11:30",n:"Booked — ride JR from Tennōji (Platform 18), not the Midōsuji. Arr Shin-Ōsaka Platform 1 with a 39-min cushion to the Nozomi. Leave the hotel by ~10:15; Nagoya 12:19, Yamamotoya Honten nikomi udon by the station."}],
  metro:[["Midōsuji Line (red)","Tennōji → Namba 6 min · → Umeda 15 min · every 2–4 min"],["JR Osaka Loop","backup ring from Tennōji; Osaka-jō 12 min"]],
  pois:[
   {c:"sight",ic:"🌃",n:"Hōzenji Yokochō",d:"lantern alley + moss-covered Fudō",a:"Namba",lat:34.6678,lng:135.5031},
@@ -164,9 +164,9 @@ var HOTELS = {
 
 {id:"nagoya",city:"Nagoya",photo:"Nagoya_Castle(Larger).jpg",sub:"11/24–11/26",hotel:"tiad",
  legs:[
-  {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 90 · dep 11:30 → arr 12:19",n:"Keitei lunch is inside the station complex, then Higashiyama line to Sakae."},
+  {r:"Arrive: Shin-Ōsaka → Nagoya",m:"11/24 · Nozomi 90 · dep 11:30 → arr 12:19",n:"Yamamotoya Honten (Meieki) for nikomi udon a few minutes from the station, then Higashiyama line to Sakae."},
   {r:"Depart: Nagoya → Tokyo",m:"11/26 · Nozomi 24 · dep 14:36 → arr 16:15",n:"Table For Tomorrow lunch must end by 14:05 — 11:30 seating, course LO 13:30, mention the train."}],
- metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Keitei, Yabaton Esca, the Nozomi)"],["Meijō Line (purple)","Yabachō 4-min walk; one stop to Kamimaezu for Ōsu"],["On foot","Ōsu arcades ~20 min (or Meijō line); Moumoutei ~12 min from TIAD"]],
+ metro:[["Higashiyama Line (yellow)","Sakae → Nagoya Stn 5 min (Yamamotoya Honten, Yabaton Esca, the Nozomi)"],["Meijō Line (purple)","Yabachō 4-min walk; one stop to Kamimaezu for Ōsu"],["On foot","Ōsu arcades ~20 min (or Meijō line); Moumoutei ~12 min from TIAD"]],
  pois:[
   {c:"sight",ic:"🌳",n:"Hisaya Ōdōri Park + Mirai Tower",d:"TIAD's front yard, lit at night",a:"hotel",lat:35.1720,lng:136.9083},
   {c:"sight",ic:"🏯",n:"Nagoya Castle",d:"gold shachihoko",a:"hotel",lat:35.1856,lng:136.8997},
@@ -176,7 +176,7 @@ var HOTELS = {
   {c:"sight",ic:"⛩",n:"Atsuta Jingū",d:"one of Shinto's holiest shrines, in a cypress forest — Meijō line direct from Yabachō",a:"hotel",lat:35.1278,lng:136.9086},
   {c:"sight",ic:"🍁",n:"Tokugawaen + Tokugawa Art Museum",d:"daimyō stroll garden — late-Nov foliage light-up most years; museum holds the Genji scrolls",a:"hotel",lat:35.1848,lng:136.9330},
   {c:"sight",ic:"🏘",n:"Shikemichi + Endōji arcade",d:"Edo merchant lane + retro shopping street, 10 min NE of the station",a:"Nagoya Stn",lat:35.1747,lng:136.8912},
-  {c:"cafe",ic:"🐤",n:"Café Gentiane",d:"home of the pyorin chick pudding",a:"Keitei",lat:35.1707,lng:136.8823},
+  {c:"cafe",ic:"🐤",n:"Café Gentiane",d:"home of the pyorin chick pudding",a:"Nagoya Stn",lat:35.1707,lng:136.8823},
   {c:"cafe",ic:"🍤",n:"Konparu (since 1947)",d:"retro kissaten; ebi-fry sando is the order",a:"Ōsu",lat:35.1607,lng:136.9046},
   {c:"cafe",ic:"☕",n:"Komeda's Coffee (Sakae)",d:"Nagoya's kissaten institution — order the shiro-noir",a:"hotel",lat:35.1680,lng:136.9065},
   {c:"cafe",ic:"🍞",n:"Coffee House Kako (1972)",d:"the ogura-toast kissaten — siphon coffee, near Shikemichi",a:"Nagoya Stn",lat:35.1741,lng:136.8895},
@@ -189,7 +189,7 @@ var HOTELS = {
   {c:"conv",ic:"🏪",n:"Lawson Yabachō",d:"by your metro station, 24h",a:"hotel",lat:35.1630,lng:136.9080},
   {c:"conv",ic:"🏪",n:"7-Eleven Sakae Hirokōji",d:"on the walk to Moumoutei",a:"hotel",lat:35.1670,lng:136.9060}],
  stops:[
-  {id:14,d:"11/24 Tue",m:"Lunch",name:"Keitei",dish:"Miso katsu",hrs:"11:00–23:00 daily",res:"walk",jpy:5000,lat:35.1710,lng:136.8826,area:"Nagoya Stn"},
+  {id:14,d:"11/24 Tue",m:"Lunch",name:"Yamamotoya Honten (Nagoya Ekimae)",q:"山本屋本店 名古屋駅前店",dish:"Miso nikomi udon — the Honten lineage since 1925",hrs:"lunch ~11:00–15:00 — verify",res:"walk",jpy:5000,lat:35.1712,lng:136.8850,area:"Meieki — a few minutes east of Nagoya Stn (pin approximate)",warn:"Walk-in; 12:19 arrival lands mid-rush — expect 20–30 min, or drop bags at the TIAD and eat at ~13:15.",note:"Plan change 9/10 — replaces Keitei. Nikomi is back in the trip."},
   {id:15,d:"11/24 Tue",m:"Dinner",name:"Moumoutei Hirokoji",dish:"Beef hitsumabushi",hrs:"18:00–22:30 · closed Sun",res:"ok",jpy:20000,lat:35.1679,lng:136.8954,area:"Sakae",note:"Signature set is reservation-only — confirm the course."},
   {id:16,d:"11/25 Wed",m:"Lunch",name:"Ghibli Park — lunch in the park",q:"ジブリパーク",dish:"Park cafés & stalls — Valley of Witches bakery, Warehouse milk stand",hrs:"park ~10:00–17:00",res:"—",jpy:5000,lat:35.1727,lng:137.0902,area:"Moricoro Park, Nagakute — Sakae → Fujigaoka + Linimo ~50 min",warn:"Premium pass ✓ · Warehouse entry 11:00 · full plan on the Ghibli Park tab. Buyer's passport for the QR check.",note:"Decision 8/31 — Ghibli owns the day; Gensui removed (was never booked). Leave the park by 17:15 for the 18:30 Unafuji."},
   {id:17,d:"11/25 Wed",m:"Dinner",name:"Sumiyaki Unafuji (main branch)",q:"炭焼うな富士 本店",dish:"Ao-unagi hitsumabushi / unajū — charcoal jiyaki",hrs:"dinner from 17:00 · Michelin-listed",res:"book",jpy:20000,t100:1,lat:35.1518,lng:136.9198,area:"Shirakane, Shōwa-ku — ~730m from Tsurumai Stn (pin approximate)",warn:"BOOK NOW on Tabelog — 11/25 showed 18:30/19:00 for two; take 18:30 before it goes.",note:"Decision 8/31 — replaces Kikukawa. From Ghibli: Linimo → Fujigaoka → Higashiyama line to Chikusa → JR Chūō one stop to Tsurumai + 10-min walk (~60 min); leave the park 17:15. Tsurumai line or ~¥1,500 taxi back to the TIAD after."},
@@ -251,7 +251,7 @@ var TRAINS=[
  {d:"Nov 19",t:"14:07",route:"Shin-Yokohama → Kyoto",train:"Nozomi 73 ✓ Smart EX",note:"Arr 16:00 → Kintetsu ltd. exp 16:20 → Nara 16:55 → Shisui → Poku-Poku by 18:00. Seats not finalized — pick them on Smart EX (E side for Fuji)."},
  {d:"Nov 21",t:"morning",route:"JR Nara → Tennōji",train:"Yamatoji rapid (direct, no res)",note:"Chosen 8/31 · ~35 min straight to the hotel's station. Taxi to JR Nara with bags; optional Hōryū-ji stop en route. Sushi Ebisu lunch across the street; Ondoriya evening."},
  {d:"Nov 24",t:"10:35",route:"Tenn\u014dji \u2192 Shin-\u014csaka",train:"Kuroshio 12 \u2713 Japan Rail Tickets",note:"Arr 10:51 (16 min). Dep Platform 18 \u00b7 arr Platform 1. Connects to Nozomi 90 dep 11:30."},
- {d:"Nov 24",t:"11:30",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 90 ✓ Smart EX",note:"Arr 12:19 — Keitei inside the station. Leave hotel 10:40. Seats not finalized."},
+ {d:"Nov 24",t:"11:30",route:"Shin-Ōsaka → Nagoya",train:"Nozomi 90 ✓ Smart EX",note:"Arr 12:19 — Yamamotoya Honten nikomi udon by the station (queue likely). Leave hotel 10:40. Seats not finalized."},
  {d:"Nov 26",t:"14:36",route:"Nagoya → Tokyo",train:"Nozomi 24 ✓ Smart EX",note:"Arr 16:15, Roppongi ~17:00. Table For Tomorrow lunch ends 14:05 latest. Seats not finalized."},
  {d:"Nov 27",t:"12:33",route:"Tokyo Stn → Narita T1",train:"N'EX ✓ dep 12:33",note:"Booked. Arr T1 ~13:30 — 2.5 h before ZG022. Hotel exit 11:00 → taxi ~25 min → at Tokyo Stn by ~11:30 → 15 min down to the B5 Sōbu platforms with margin to spare. (Limousine from the hotel is suspended; this replaces it.)"}
 ];

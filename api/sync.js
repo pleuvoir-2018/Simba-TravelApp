@@ -12,6 +12,30 @@ import { put, list, del } from '@vercel/blob';
 
 const LEGACY_KEY = 'japan_trip_v2.json';
 
+/* ALL versions under a prefix, across every page. list() paginates (cursor/hasMore) and a
+   capped single call returns the FIRST page in pathname order — i.e. the OLDEST blobs. When
+   9/9 raised retention from 8 to 40+ versions, every capped-at-20 read here kept picking "the
+   newest of the oldest 20": loads, the merge base, the wipe guard's `current` and the
+   X-Based-On check all saw a weeks-old blob while new writes landed past the window and were
+   never read back — every edit looked like it started a fresh dataset. Never cap a read that
+   must see the newest blob. */
+async function listAll(prefix, listFn) {
+  const L = listFn || list, out = []; let cursor;
+  for (let i = 0; i < 20; i++) {                      // 20 pages x 1000 — far beyond retention
+    const r = await L(cursor ? { prefix, cursor, limit: 1000 } : { prefix, limit: 1000 });
+    out.push(...(r.blobs || []));
+    if (!r.hasMore || !r.cursor) break;
+    cursor = r.cursor;
+  }
+  return out;
+}
+// Newest version blob under VER_PREFIX (13-digit ts pathnames sort chronologically), or null.
+async function newestVersion(listFn) {
+  const blobs = (await listAll(VER_PREFIX, listFn)).filter(b => /^\d{13}\.json$/.test(b.pathname.slice(VER_PREFIX.length)));
+  if (!blobs.length) return null;
+  return blobs.slice().sort((a, b) => b.pathname.localeCompare(a.pathname))[0];
+}
+
 // ---- Wipe guard (pure; tests extract these by regex) ----
 function laneCounts(store) {
   const out = {};
@@ -70,14 +94,14 @@ export default async function handler(req, res) {
     if (req.query && (req.query.versions || req.query.ts)) {
       try {
         res.setHeader('Cache-Control', 'no-store, max-age=0');
-        const { blobs } = await list({ prefix: VER_PREFIX, limit: 100 });
+        const blobs = await listAll(VER_PREFIX);
         const vers = blobs.map(b => ({ ts: b.pathname.slice(VER_PREFIX.length).replace('.json',''), size: b.size, url: b.url }))
           .filter(v => /^\d{13}$/.test(v.ts)).sort((x, y) => y.ts.localeCompare(x.ts));
         if (req.query.versions) {
           let snaps = [];
           try {
-            const s = await list({ prefix: SNAP_PREFIX, limit: 100 });
-            snaps = s.blobs.map(b => { const rest = b.pathname.slice(SNAP_PREFIX.length).replace('.json',''); const i = rest.indexOf('-'); return { ts: i > 0 ? rest.slice(0, i) : rest, label: i > 0 ? decodeURIComponent(rest.slice(i + 1)) : '', size: b.size, snap: true }; })
+            const sblobs = await listAll(SNAP_PREFIX);
+            snaps = sblobs.map(b => { const rest = b.pathname.slice(SNAP_PREFIX.length).replace('.json',''); const i = rest.indexOf('-'); return { ts: i > 0 ? rest.slice(0, i) : rest, label: i > 0 ? decodeURIComponent(rest.slice(i + 1)) : '', size: b.size, snap: true }; })
               .filter(v => /^\d{13}$/.test(v.ts)).sort((x, y) => y.ts.localeCompare(x.ts));
           } catch (_) {}
           return res.status(200).json({ versions: vers.map(v => ({ ts: v.ts, size: v.size })), snapshots: snaps });
@@ -99,11 +123,8 @@ export default async function handler(req, res) {
 
     try {
       res.setHeader('Cache-Control', 'no-store, max-age=0');
-      const { blobs } = await list({ prefix: VER_PREFIX, limit: 20 });
-      let target = null;
-      if (blobs.length) {
-        target = blobs.slice().sort((a, b) => b.pathname.localeCompare(a.pathname))[0];
-      } else {
+      let target = await newestVersion();
+      if (!target) {
         const legacy = await list({ prefix: LEGACY_KEY, limit: 1 });
         if (legacy.blobs.length) target = legacy.blobs[0];
       }
@@ -144,10 +165,9 @@ export default async function handler(req, res) {
       // newer one exists, refuse — the client re-reads, re-merges, retries. No silent overwrite.
       const basedOn = String(req.headers['x-based-on'] || '');
       if (/^\d{13}$/.test(basedOn)) {
-        const { blobs } = await list({ prefix: VER_PREFIX, limit: 20 });
-        const newest = blobs.map(b => b.pathname.slice(VER_PREFIX.length).replace('.json','')).filter(t => /^\d{13}$/.test(t)).sort().pop();
+        const hit = await newestVersion();
+        const newest = hit ? hit.pathname.slice(VER_PREFIX.length).replace('.json','') : null;
         if (newest && newest > basedOn) {
-          const hit = blobs.find(b => b.pathname === `${VER_PREFIX}${newest}.json`);
           let value = null; try { const r = await fetch(`${hit.url}?t=${Date.now()}`, { cache: 'no-store' }); value = await r.json(); } catch (_) {}
           return res.status(409).json({ conflict: true, ts: newest, value });
         }
@@ -156,15 +176,14 @@ export default async function handler(req, res) {
       // WIPE GUARD: never accept a write that empties a lane the cloud currently has.
       if (String(req.headers['x-allow-wipe'] || '') !== '1') {
         try {
-          const { blobs } = await list({ prefix: VER_PREFIX, limit: 20 });
-          const sortedB = blobs.filter(b => /^\d{13}\.json$/.test(b.pathname.slice(VER_PREFIX.length))).sort((x, y) => y.pathname.localeCompare(x.pathname));
-          if (sortedB.length) {
-            const r = await fetch(`${sortedB[0].url}?t=${Date.now()}`, { cache: 'no-store' });
+          const cur = await newestVersion();
+          if (cur) {
+            const r = await fetch(`${cur.url}?t=${Date.now()}`, { cache: 'no-store' });
             const current = await r.json();
             const hits = wipeBlocked(current, payload);
             if (hits.length) {
               console.error('WIPE BLOCKED', hits, 'build', clientBuild);
-              return res.status(409).json({ wipeBlocked: true, hits, ts: sortedB[0].pathname.slice(VER_PREFIX.length).replace('.json',''), value: current });
+              return res.status(409).json({ wipeBlocked: true, hits, ts: cur.pathname.slice(VER_PREFIX.length).replace('.json',''), value: current });
             }
           }
         } catch (e) { return res.status(503).json({ error: 'wipe guard could not verify current state — write refused: ' + e.message }); }
@@ -182,7 +201,7 @@ export default async function handler(req, res) {
       // every save tripled advanced-op usage (put+list+del) against the Blob
       // quota; occasional pruning keeps storage just as flat at ~1/3 the cost.
       if (Math.random() < 0.125) try {
-        const { blobs } = await list({ prefix: VER_PREFIX, limit: 100 });
+        const blobs = await listAll(VER_PREFIX);
         const sorted = blobs.slice().sort((a, b) => b.pathname.localeCompare(a.pathname));
         const keepDay = new Set(); const cutoff = Date.now() - 30*86400000;
         sorted.slice().reverse().forEach(b => { const t = Number(b.pathname.slice(VER_PREFIX.length).replace('.json','')); if (t > cutoff) { const day = new Date(t).toISOString().slice(0,10); if (!keepDay.has(day)) { keepDay.add(day); b._keep = true; } } });

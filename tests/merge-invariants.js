@@ -15,6 +15,8 @@ const core=fs.readFileSync(path.join(root,'js','01-core.js'),'utf8');
 const ctx=vm.createContext({});vm.runInContext('window=globalThis',ctx);
 vm.runInContext(core.match(/window\.MERGE_LANES=\{[\s\S]*?\n\};/)[0],ctx);
 vm.runInContext('window._mergeUnknown=[];',ctx);
+// LANE_KEY was hoisted out of m3 (d3f8518) so the load-time union shares it — load it with m3
+vm.runInContext(core.match(/const _ck=[\s\S]*?window\.LANE_KEY=\{[\s\S]*?\n\};/)[0],ctx);
 const M=ctx.window.MERGE_LANES;
 const laned=new Set([...Object.keys(M.fields),...M.perPerson,...M.adminWins,...M.ownedUnion,...M.special]);
 const missing=[...written].filter(k=>!laned.has(k));

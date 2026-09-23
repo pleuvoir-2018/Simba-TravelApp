@@ -55,10 +55,15 @@ async function sGet(){
     // and let the normal merge push them up. (9/10: the old 'adopt local and push' path was a wipe vector.)
     try{
       const cn=normalizeStore(JSON.parse(JSON.stringify(cloud))), ln=normalizeStore(JSON.parse(JSON.stringify(local)));
-      const trips={...(cn.trips||{})};
-      Object.keys(ln.trips||{}).forEach(k=>{ trips[k]=mergeTripBase(trips[k]||{}, ln.trips[k]||{}, {}); });
-      const merged={...cn,trips};
+      const u=unionTrips(cn,ln);
       window._loadedFrom='cloud';
+      if(!u.added){
+        // Local had nothing the cloud lacks: mirror the cloud so its stale _ts stops re-triggering this branch (and a push) on every open.
+        try{localStorage.setItem(KEY,JSON.stringify(cn));}catch(e){}
+        return JSON.stringify(cn);
+      }
+      const merged={...cn,trips:u.trips,_ts:Date.now()};   // new _ts: after the push, cloud and local agree and this branch goes quiet
+      try{ console.info('[sync] local copy carried '+u.added+' unsynced item(s) the cloud lacks — pushing'); }catch(e){}
       setTimeout(()=>{ try{ _savePending=true; flushSave(); }catch(e){} }, 2000);
       return JSON.stringify(merged);
     }catch(e){ console.error('local-union failed, using cloud',e); }
@@ -158,12 +163,55 @@ function mlLane(k){
 // Stage D: three-way merge of one key. r=remote, l=local, b=what THIS tab last
 // synced. Local wins only for what it actually changed since b; everything
 // else defers to remote — so a stale tab can no longer overwrite newer data.
+// Identity of a row in each array lane — shared by the three-way merge (m3) and the
+// load-time union (unionTrips) so the two can never disagree about what "the same item" is.
+// expenses: manual rows historically have NO id (index-identified) — a keyless entry must merge by content, never be dropped (9/9 incident)
+const _ck=e=>'c:'+JSON.stringify(e);                                   // content key: a keyless item merges by identity, never drops
+window.LANE_KEY={
+  plans:e=>e&&(e.id||_ck(e)),
+  stops:e=>e&&(e.id||_ck(e)),
+  expenses:e=>e&&(e.id||e.pid||e.mid||('c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|'))),
+  todos:e=>e&&e.id
+};
+/* Cloud-is-truth union, used when a tab has no trustworthy base: the localStorage copy on load
+   (whenever its _ts is ahead of the cloud) and the server's wipe-refusal recovery. Local may
+   contribute ONLY what the cloud has never seen — id-keyed rows in the array lanes (skipping
+   tombstoned todos) and vault keys the cloud lacks. It never overrides a cloud value and never
+   applies a local removal. A trip the cloud has no record of at all is carried over whole.
+   Why so strict: a localStorage copy is ahead of the cloud only because a write was REFUSED
+   (426 stale build, sync guard, wipe guard) or never made it (offline fallback) — so apart from
+   the handful of rows it was trying to add, it is OLDER than the cloud. The previous union
+   (mergeTripBase with an empty base) let local win every non-array key it held — numeric
+   stop-override maps, removedStops, notes — which re-applied a weeks-old snapshot on every open
+   and looked like "the data got wiped". */
+function unionTrips(cn,ln){
+  const trips={...((cn&&cn.trips)||{})}; let added=0;
+  Object.keys((ln&&ln.trips)||{}).forEach(k=>{
+    const L=ln.trips[k]||{};
+    if(!(k in trips)){ if(Object.keys(L).length){ trips[k]=JSON.parse(JSON.stringify(L)); added++; } return; }
+    const C=trips[k]||{}, out=JSON.parse(JSON.stringify(C)); let n=0;
+    Object.keys(window.LANE_KEY).forEach(lane=>{
+      const rows=L[lane]; if(!Array.isArray(rows)||!rows.length)return;
+      const kf=window.LANE_KEY[lane];
+      const have=new Set((C[lane]||[]).map(e=>String(kf(e))));
+      const gone=lane==='todos'?new Set((C.todoGone||[]).map(String)):null;
+      rows.forEach(e=>{
+        const id=kf(e); if(id===undefined||id===null||id===false)return;
+        if(have.has(String(id))||(gone&&gone.has(String(id))))return;
+        (out[lane]=out[lane]||[]).push(e); have.add(String(id)); n++;
+      });
+    });
+    if(L.vault&&typeof L.vault==='object'){
+      Object.keys(L.vault).forEach(key=>{ if(L.vault[key]&&!(C.vault&&(key in C.vault))){ (out.vault=out.vault||{})[key]=L.vault[key]; n++; } });
+    }
+    if(n){ trips[k]=out; added+=n; }
+  });
+  return {trips,added};
+}
+window.unionTrips=unionTrips;
 function m3(k,r,l,b){
   const J=x=>JSON.stringify(x===undefined?null:x);
-  // expenses: manual rows historically have NO id (index-identified) — a keyless entry must merge by content, never be dropped (9/9 incident)
-  const ck=e=>'c:'+JSON.stringify(e);                                   // content key: a keyless item merges by identity, never drops
-  const expKey=e=>e&&(e.id||e.pid||e.mid||('c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|')));
-  const ARR={plans:e=>e&&(e.id||ck(e)),stops:e=>e&&(e.id||ck(e)),expenses:expKey};
+  const ARR=window.LANE_KEY;
   if(ARR[k]&&(Array.isArray(r)||Array.isArray(l)||Array.isArray(b))){
     const kf=ARR[k];
     const idx=a=>{const m=new Map();(a||[]).forEach(e=>{const id=kf(e);if(id!==undefined&&id!==null)m.set(String(id),e);});return m;};
@@ -503,8 +551,8 @@ async function flushSave(){
       if(mode==='wipe'){                                           // Server wipe guard fired: adopt the cloud, union our additions, retry
         const j=window._wipeReply||{}; wipeHits=j.hits||[];
         try{
-          const cn=normalizeStore(j.value||{}); const trips={...(cn.trips||{})};
-          Object.keys(store.trips||{}).forEach(k=>{ trips[k]=mergeTripBase(trips[k]||{},(store.trips||{})[k]||{},{}); });
+          const cn=normalizeStore(j.value||{});
+          const trips=unionTrips(cn,{trips:store.trips||{}}).trips;   // cloud is truth; only our unseen adds ride along
           store={...store,trips}; bindTrip(); window._markSynced(cn); window._cloudTs=j.ts||window._cloudTs;
           try{ if(typeof render==='function')render(); }catch(e){}
         }catch(e){ console.error('wipe recovery failed',e); break; }
@@ -514,7 +562,7 @@ async function flushSave(){
     if(mode==='stale'){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} }
     else if(!merged&&!guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='browser'; }
     if(guardHit){ try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} mode='guard'; }
-    if(mode==='cloud')window._markSynced();
+    if(mode==='cloud'){ window._markSynced(); try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){} }   // local mirrors what the cloud now holds
   }finally{ _saveInFlight=false; }
   if(wipeHits&&wipeHits.length){ flash('⚠ Cloud refused a write that would have erased '+wipeHits.map(h=>h.lane+' ('+h.before+'→0)').join(', ')+' — cloud data adopted, your additions kept','err'); }
   flash(mode==='stale'?'Old version — saved here only; reload to sync':mode==='cloud'?'Saved to cloud ✓':mode==='browser'?'Saved to this browser — cloud unreachable, will retry ✓':mode==='guard'?('⚠ Sync guard: merge would drop '+guardHit.bad.map(b=>b.lane+' '+b.base+'→'+b.merged).join(', ')+' — kept locally, NOT written to cloud'):'Saved in memory only — will not persist',

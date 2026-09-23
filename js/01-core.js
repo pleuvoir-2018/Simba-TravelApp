@@ -397,6 +397,21 @@ window._markSynced=function(fromCloud){ try{
   if(fromCloud!==undefined&&window._loadedFrom!=='cloud'){ _syncBase=null; window._baseUnknown=true; return; }
   if(fromCloud===undefined&&!window._syncedOnce&&window._cloudSnapshot===null){ _syncBase=null; window._baseUnknown=true; return; }
   window._baseUnknown=false; window._syncedOnce=true; _syncBase=JSON.parse(JSON.stringify(fromCloud!==undefined?fromCloud:store)); }catch(e){ _syncBase=null; } };
+/* Re-anchor this tab's merge base on the cloud's CURRENT newest. Required before a save that
+   deliberately re-adds rows (Restore). If the base still holds those rows — this tab loaded a
+   version that had them, the cloud has since lost them — m3 reads each one as "unchanged
+   locally, deleted remotely" and drops it again on the way up; the client drop guard does not
+   fire (remote < base looks like a legit remote delete) and neither does the server's (its
+   current already has 0). That is how Restore re-wiped 16 expenses on 9/23 while the
+   restaurant edits (scalar keys, where local wins a no-change tie) came back fine. With the
+   base equal to the cloud, every restored row is a local add and survives. */
+window.rebaseFromCloud=async function(){
+  try{
+    const r=await fetch('/api/sync?t='+Date.now(),{cache:'no-store'}); const d=await r.json();
+    if(d&&d.value){ window._cloudTs=d.ts||window._cloudTs; window._loadedFrom='cloud'; window._markSynced(normalizeStore(JSON.parse(JSON.stringify(d.value)))); return true; }
+  }catch(e){}
+  _syncBase=null; window._baseUnknown=true; return false;   // unknown base → union merge: adds survive, nothing is inferred deleted
+};
 function saveOverrides(){
   if(window._realApp){flash('Viewing as '+((window._app||{}).name||'…')+' — read only, nothing saves','err');return;}
   if(typeof appRole==='function'&&appRole()==='designer'){flash('Design review account — read only, nothing saves','err');return;}

@@ -1778,6 +1778,7 @@ window.expRestore=async function(ts,snap){
     (merged.expenses||[]).forEach((e,i)=>{ if(e&&!e.id&&!e.pid&&!e.mid){ const kk='c:'+[e.date,e.usd,e.desc,e.card,e.cat].join('|'); let h=0; for(const ch of kk)h=(h*31+ch.charCodeAt(0))>>>0; merged.expenses[i]={...e,id:'x'+h.toString(36)}; } });
     Object.keys(merged).forEach(k=>{ overrides[k]=merged[k]; });
     const after={exp:(overrides.expenses||[]).length,ed:Object.keys(overrides).filter(k=>/^\d+$/.test(k)).length,plans:(overrides.plans||[]).length,stops:(overrides.stops||[]).length};
+    await window.rebaseFromCloud();   // restored rows must read as LOCAL ADDS against the cloud, not as "deleted remotely"
     saveOverrides(); if(typeof renderExpenses==='function')renderExpenses(); if(typeof render==='function')try{render();}catch(e){}
     alert('Restored from '+new Date(Number(ts)).toLocaleString()+'\n+'+(after.exp-before.exp)+' expenses · +'+(after.ed-before.ed)+' restaurant edits · +'+(after.plans-before.plans)+' plans · +'+(after.stops-before.stops)+' stops');
   }catch(e){alert('Restore failed: '+e.message);}

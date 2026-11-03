@@ -3,7 +3,7 @@
 /* ---------------- TO-DO / PREP TRACKER ---------------- */
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
 const TODO_ICO={ticket:'🎟',booking:'📞',transport:'🚄',concierge:'🛎',shop:'🛍',admin:'📋',other:'📍'};
-const TODO_SEED_VERSION=3;   // bumped: seeds are per-trip now
+const TODO_SEED_VERSION=4;   // bumped: seeds are per-trip now
 
 let todoView='list', todoMonth='2026-08', todoDaySel=null;
 window._editTid=null;
@@ -23,7 +23,7 @@ function ensureTodos(){
   // User-added ids are 't'+Date.now() (13 digits) so they can never match.
   if(overrides.todoSeed!==TODO_SEED_VERSION){
     const keep=tripSeedTodos().map(t=>t.id);
-    overrides.todos=overrides.todos.filter(t=>!(/^t([1-9]|1[0-4])$/.test(t.id)&&!keep.includes(t.id)));
+    overrides.todos=overrides.todos.filter(t=>!(/^t([1-9]|1\d|2\d)$/.test(t.id)&&!keep.includes(t.id)));
     overrides.todoSeed=TODO_SEED_VERSION;
     saveOverrides();
   }

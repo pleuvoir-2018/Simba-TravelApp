@@ -294,6 +294,12 @@ const BA_LOUNGES={
  BWI:[
   {n:'The Club BWI',loc:'Concourse D, airside',hrs:'~05:00–21:00',rate:'3.3★',am:'The one independent door — BWI has no bank-brand lounges',
    rules:[{pp:true,why:'Priority Pass'}],ver:'curated'}
+ ],
+ ORD:[
+  {n:'United Club (Terminal 1 · Gate B6, B18 & C10)',loc:'Terminal 1 Concourse B near Gate B6 (open until 11:00 PM) · Gate B18 · Concourse C',hrs:'05:00–23:00',rate:'4.1★',am:'Full bar, hot buffet, espresso machines — Gate B6 club stays open until 11:00 PM for late bank connections',
+   rules:[{cards:['unitedclub'],why:'United Club Card'},{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Same-day United Business / First international/transborder connection'},{tier:{air:'ua',min:'Gold',intlOnly:true},why:'Star Gold on international/transborder itinerary'}],ver:'verified Nov 2026'},
+  {n:'United Polaris Lounge',loc:'Terminal 1 Concourse C near Gate C18',hrs:'06:00–21:00',rate:'4.6★',am:'Sit-down dining, shower suites, full bar',
+   rules:[{airline:{id:'ua',cabins:['business','first'],intlOnly:true},why:'Long-haul international Polaris Business'},{airline:{id:'nh',cabins:['business','first'],intlOnly:true},why:'ANA long-haul business/first'}],ver:'verified Nov 2026'}
  ]
 };
 /* ---- per-airport freshness: shown on the Airports tab; status derives from
@@ -307,7 +313,7 @@ const BA_AP_META={
  CUN:{checked:'Aug 17, 2026'},DFW:{checked:'Aug 17, 2026'},JFK:{checked:'Aug 17, 2026'},
  LGA:{checked:'Aug 17, 2026'},
  EWR:{checked:'Aug 17, 2026',note:'A Centurion Lounge (Terminal A) is slated to open later in 2026 \u2014 not a door yet.'},
- DCA:{checked:'Aug 17, 2026'},BWI:{checked:'Aug 17, 2026'}
+ DCA:{checked:'Aug 17, 2026'},BWI:{checked:'Aug 17, 2026'},ORD:{checked:'Nov 2026'}
 };
 function baApStatus(code){
   const L=BA_LOUNGES[code]||[];

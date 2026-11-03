@@ -3,9 +3,9 @@
 /* ---------------- TO-DO / PREP TRACKER ---------------- */
 const TODO_CATS={ticket:'🎟 Entry ticket',booking:'📞 Booking',transport:'🚄 Transportation',concierge:'🛎 Hotel / concierge',shop:'🛍 Shopping',admin:'📋 Admin',other:'📍 Other'};
 const TODO_ICO={ticket:'🎟',booking:'📞',transport:'🚄',concierge:'🛎',shop:'🛍',admin:'📋',other:'📍'};
-const TODO_SEED_VERSION=4;   // bumped: seeds are per-trip now
+const TODO_SEED_VERSION=4;   // bumped: V22 Master operational seeds & stop migration
 
-let todoView='list', todoMonth='2026-08', todoDaySel=null;
+let todoView='list', todoMonth='2026-11', todoDaySel=null;
 window._editTid=null;
 function tokyoISO(){return new Date().toLocaleDateString('en-CA',{timeZone:TRIP_TZ});}
 function tripSeedTodos(){
@@ -19,15 +19,27 @@ function ensureTodos(){
     saveOverrides();
     return;
   }
-  // One-time cleanup: drop the v1 seed items that are no longer defaults.
-  // User-added ids are 't'+Date.now() (13 digits) so they can never match.
+  // One-time cleanup: drop old seed todos and clear stale per-stop overrides
+  // on meal IDs that were replaced in the V22 Master itinerary.
   if(overrides.todoSeed!==TODO_SEED_VERSION){
     const keep=tripSeedTodos().map(t=>t.id);
     overrides.todos=overrides.todos.filter(t=>!(/^t([1-9]|1\d|2\d)$/.test(t.id)&&!keep.includes(t.id)));
+    const exist=new Set(overrides.todos.map(t=>t.id));
+    tripSeedTodos().forEach(t=>{ if(!exist.has(t.id))overrides.todos.push({...t,done:false}); });
+    if(tripKey()==='japan-2026'){
+      [1,2,3,4,5,6,7,9,10,14,15,16,17,18,19,22,24,26,27,30,31,32,33].forEach(id=>{ delete overrides[id]; });
+      const sp=((typeof TRIP_DATA!=='undefined'&&TRIP_DATA['japan-2026'])||{}).seedPlans||[];
+      if(sp.length){
+        overrides.plans=(overrides.plans||[]).filter(p=>!String(p.id||'').startsWith('vp'));
+        sp.forEach(p=>overrides.plans.push({...p}));
+      }
+      overrides.removedStops=(overrides.removedStops||[]).filter(id=>![2,3,4,10,14,16,26,27].includes(Number(id)));
+    }
     overrides.todoSeed=TODO_SEED_VERSION;
     saveOverrides();
   }
 }
+
 function todoRow(x,compact){
   const today=tokyoISO();
   const overdue=x.d&&x.d<today&&!x.done;

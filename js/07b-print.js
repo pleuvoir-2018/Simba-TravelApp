@@ -13,14 +13,16 @@ function pdNorm(d){
   return md?md[1]:String(d);
 }
 function pdMins(s){
-  if(s.t&&/^\d{1,2}:\d{2}$/.test(s.t)){const [h,m]=s.t.split(':');return h*60+ +m;}
+  const tm=s.t||s.btime;
+  if(tm&&/^\d{1,2}:\d{2}$/.test(tm)){const [h,m]=tm.split(':');return h*60+ +m;}
   if(s.m==='Breakfast')return 9*60;
   if(s.m==='Lunch')return 12*60;                 // default — flagged ~
   if(s.m==='Dinner')return 19*60;                // default — flagged ~
   return 26*60;                                  // untimed → timeline tail
 }
 function pdTimeCell(s){
-  if(s.t&&/^\d{1,2}:\d{2}$/.test(s.t))return {h:'<span class="t">'+esc(s.t)+'</span>',def:false};
+  const tm=s.t||s.btime;
+  if(tm&&/^\d{1,2}:\d{2}$/.test(tm))return {h:'<span class="t">'+esc(tm)+'</span>',def:false};
   if(s.m==='Lunch')return {h:'<span class="t">~12:00</span>',def:true};
   if(s.m==='Dinner')return {h:'<span class="t">~19:00</span>',def:true};
   if(s.m==='Breakfast')return {h:'<span class="t">~09:00</span>',def:true};
